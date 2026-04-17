@@ -12,7 +12,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# ===== טעינת נתונים =====
+# ===== נתונים =====
 projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
 
 # ===== התראות =====
@@ -29,7 +29,7 @@ for _, row in projects.iterrows():
     else:
         st.success(f"✔ תקין: {name}")
 
-# ===== פרויקטים (כרטיסים RTL) =====
+# ===== כרטיסים (RTL אמיתי) =====
 st.subheader("📁 פרויקטים")
 
 for _, row in projects.iterrows():
@@ -54,38 +54,52 @@ for _, row in projects.iterrows():
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-2.5-flash")
 
+# ===== Cache פשוט כדי למנוע קריאות חוזרות =====
+if "last_result" not in st.session_state:
+    st.session_state.last_result = None
+
+if "last_time" not in st.session_state:
+    st.session_state.last_time = 0
+
 def ask_gemini(prompt):
-    return model.generate_content(prompt).text
+    try:
+        return model.generate_content(prompt).text
+    except Exception:
+        return "⚠️ עומס על Gemini – נסי שוב בעוד דקה"
 
-# ===== הגנה מ-Quota =====
-if "last_run" not in st.session_state:
-    st.session_state.last_run = 0
-
+# ===== AI =====
 st.subheader("🤖 ניתוח AI (Gemini)")
 
 if st.button("נתח פרויקטים עם AI"):
 
-    # הגנה מפני לחיצות מהירות
-    if time.time() - st.session_state.last_run < 20:
-        st.warning("⏳ חכי כמה שניות לפני הרצה נוספת")
+    # הגנה מ־spam (מונע 429)
+    if time.time() - st.session_state.last_time < 30:
+        st.warning("⏳ חכי 30 שניות בין הרצות AI")
         st.stop()
 
-    st.session_state.last_run = time.time()
+    st.session_state.last_time = time.time()
+
+    # אם כבר יש תוצאה – לא לקרוא שוב ל־API
+    if st.session_state.last_result:
+        st.markdown("### תובנות AI (שמורה)")
+        st.write(st.session_state.last_result)
+        st.stop()
 
     prompt = f"""
     אתה מנהל פרויקטים בכיר.
 
-    הנה הנתונים:
+    נתוני הפרויקטים:
     {projects.to_string(index=False)}
 
     תן:
     - סיכום מצב
     - סיכונים
     - מה דורש טיפול מיידי
-    בעברית, קצר וברור.
+    בעברית קצרה.
     """
 
     result = ask_gemini(prompt)
+    st.session_state.last_result = result
 
     st.markdown("### תובנות AI")
     st.write(result)
