@@ -138,25 +138,22 @@ if today_meetings.empty:
     st.info("אין פגישות היום 🎉")
 
 else:
-    cols = st.columns(3)
-
-    for i, (_, row) in enumerate(today_meetings.iterrows()):
-        with cols[i % 3]:
-            st.markdown(f"""
-            <div style="
-                background:white;
-                padding:10px;
-                border-radius:10px;
-                box-shadow:0 1px 6px rgba(0,0,0,0.08);
-                margin-bottom:10px;
-                direction:rtl;
-                text-align:right;
-                font-size:14px;
-            ">
-                📌 <b>{row['meeting_title']}</b><br>
-                🕒 {row['time']}
-            </div>
-            """, unsafe_allow_html=True)
+    for _, row in today_meetings.iterrows():
+        st.markdown(f"""
+        <div style="
+            background:white;
+            padding:12px;
+            border-radius:10px;
+            box-shadow:0 1px 6px rgba(0,0,0,0.08);
+            margin-bottom:10px;
+            direction:rtl;
+            text-align:right;
+            font-size:14px;
+        ">
+            📌 <b>{row['meeting_title']}</b><br>
+            🕒 {row['time']}
+        </div>
+        """, unsafe_allow_html=True)
     
 # =========================
 # AI
