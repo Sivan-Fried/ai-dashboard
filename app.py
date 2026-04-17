@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
+import time
 import google.generativeai as genai
 
 st.set_page_config(layout="wide")
@@ -11,15 +12,15 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# ===== נתונים =====
+# ===== טעינת נתונים =====
 projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
 
 # ===== התראות =====
 st.subheader("🚨 התראות")
 
 for _, row in projects.iterrows():
-    name = row["project_name"]
-    status = row["status"]
+    name = row.get("project_name", "")
+    status = row.get("status", "")
 
     if status == "אדום":
         st.error(f"⚠️ פרויקט בסיכון: {name}")
@@ -28,7 +29,7 @@ for _, row in projects.iterrows():
     else:
         st.success(f"✔ תקין: {name}")
 
-# ===== פרויקטים (RTL כרטיסים) =====
+# ===== פרויקטים (כרטיסים RTL) =====
 st.subheader("📁 פרויקטים")
 
 for _, row in projects.iterrows():
@@ -49,13 +50,27 @@ for _, row in projects.iterrows():
 </div>
 """, unsafe_allow_html=True)
 
-# ===== Gemini AI =====
+# ===== Gemini setup =====
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel("gemini-2.5-flash")
+
+def ask_gemini(prompt):
+    return model.generate_content(prompt).text
+
+# ===== הגנה מ-Quota =====
+if "last_run" not in st.session_state:
+    st.session_state.last_run = 0
+
 st.subheader("🤖 ניתוח AI (Gemini)")
 
 if st.button("נתח פרויקטים עם AI"):
 
-    genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-    model = genai.GenerativeModel("gemini-2.5-flash")
+    # הגנה מפני לחיצות מהירות
+    if time.time() - st.session_state.last_run < 20:
+        st.warning("⏳ חכי כמה שניות לפני הרצה נוספת")
+        st.stop()
+
+    st.session_state.last_run = time.time()
 
     prompt = f"""
     אתה מנהל פרויקטים בכיר.
@@ -70,7 +85,7 @@ if st.button("נתח פרויקטים עם AI"):
     בעברית, קצר וברור.
     """
 
-    response = model.generate_content(prompt)
+    result = ask_gemini(prompt)
 
     st.markdown("### תובנות AI")
-    st.write(response.text)
+    st.write(result)
