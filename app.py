@@ -125,38 +125,6 @@ st.markdown("<hr>", unsafe_allow_html=True)
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
-st.markdown("### 📅 הפגישות שלי היום")
-
-today = pd.Timestamp.today().date()
-today_meetings = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-
-if today_meetings.empty:
-    st.info("אין פגישות היום 🎉")
-else:
-    col1, col2, col3 = st.columns(3)
-
-    for i, (_, row) in enumerate(today_meetings.iterrows()):
-        col = [col1, col2, col3][i % 3]
-
-        with col:
-            st.markdown(f"""
-            <div style="
-                background:white;
-                padding:12px;
-                border-radius:12px;
-                box-shadow:0 2px 8px rgba(0,0,0,0.08);
-                margin-bottom:10px;
-                text-align:right;
-                direction:rtl;
-            ">
-                📌 <b>{row['meeting_title']}</b><br>
-                🕒 {row['time']}<br>
-                📁 {row['project_name']}<br>
-                👤 {row['owner']}<br>
-                📊 {row['status']}
-            </div>
-            """, unsafe_allow_html=True)
-
 # =========================
 # AI
 # =========================
