@@ -217,7 +217,11 @@ for _, row in projects.iterrows():
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("---")
+# --- ריק לשמירה על איזון ---
+with right:
+    st.write("")
+
+st.markdown("---")
 
 # =========================
 # 🔥 חשוב – הגדרת עמודות (לא לגעת!)
