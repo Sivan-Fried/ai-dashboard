@@ -180,9 +180,34 @@ st.markdown("<br>", unsafe_allow_html=True)
 # פרויקטים
 # =========================
 st.markdown("### 📁 פרויקטים")
-st.dataframe(projects, use_container_width=True)
 
-st.markdown("<hr>", unsafe_allow_html=True)
+if "selected_project" not in st.session_state:
+    st.session_state.selected_project = None
+
+for _, row in projects.iterrows():
+
+    project_name = row["project_name"]
+    status = row["status"]
+
+    color = "#e8f5e9" if status == "ירוק" else "#fff8e1" if status == "צהוב" else "#ffebee"
+
+    if st.button(f"{project_name} | {status}", key=project_name):
+        st.session_state.selected_project = project_name
+
+    st.markdown(f"""
+    <div style="
+        background:{color};
+        padding:10px;
+        border-radius:8px;
+        margin-bottom:6px;
+        direction:rtl;
+        text-align:right;
+        font-size:14px;
+    ">
+        📌 {project_name}  
+        <span style="color:gray; font-size:12px;">{status}</span>
+    </div>
+    """, unsafe_allow_html=True)
 
 # =========================
 # 🔥 חשוב – הגדרת עמודות (לא לגעת!)
