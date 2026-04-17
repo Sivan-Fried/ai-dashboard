@@ -3,33 +3,24 @@ import pandas as pd
 
 st.set_page_config(layout="wide")
 
-# RTL לטקסטים בלבד (יציב)
-st.markdown(
-    "<div dir='rtl' style='text-align:right'>",
-    unsafe_allow_html=True
-)
-
 st.title("📊 Dashboard AI לניהול פרויקטים")
 
-# נתונים
 projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
 
-# פרויקטים
-st.subheader("פרויקטים")
-st.dataframe(projects)
-
-# התראות
+# התראות (עברית מימין)
 st.subheader("🚨 התראות")
 
 for _, row in projects.iterrows():
-    name = row.get("project_name", "")
-    status = row.get("status", "")
+    name = row["project_name"]
+    status = row["status"]
 
     if status == "אדום":
-        st.error("⚠️ פרויקט בסיכון: " + name)
+        st.error(f"⚠️ פרויקט בסיכון: {name}")
     elif status == "צהוב":
-        st.warning("⏳ יש לעקוב: " + name)
+        st.warning(f"⏳ יש לעקוב: {name}")
     else:
-        st.success("✔ תקין: " + name)
+        st.success(f"✔ תקין: {name}")
 
-st.markdown("</div>", unsafe_allow_html=True)
+# טבלה (נשארת LTR - תקין בעולם BI)
+st.subheader("פרויקטים")
+st.dataframe(projects, use_container_width=True)
