@@ -9,24 +9,17 @@ st.title("📊 Dashboard AI לניהול פרויקטים")
 # טעינת נתונים
 projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
 
-# RTL לטקסטים בלבד (לא טבלאות)
-st.markdown("""
-<style>
-section.main > div {
-    direction: rtl;
-}
-</style>
-""", unsafe_allow_html=True)
-
+# פרויקטים (תצוגה פשוטה שעובדת טוב)
 st.subheader("פרויקטים")
-st.markdown("### פרויקטים")
 
 for _, row in projects.iterrows():
     st.markdown(f"""
-    **פרויקט:** {row['project_name']}  
-    **סטטוס:** {row['status']}  
-    ---
-    """)
+**פרויקט:** {row['project_name']}  
+**סטטוס:** {row['status']}  
+---
+""")
+
+# התראות
 st.subheader("🚨 התראות")
 
 for _, row in projects.iterrows():
