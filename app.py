@@ -3,12 +3,26 @@ import pandas as pd
 
 st.set_page_config(layout="wide")
 
+# RTL לכל הטקסטים (מה שעובד באמת ב-Streamlit)
+st.markdown(
+    """
+    <style>
+    .main {
+        direction: rtl;
+        text-align: right;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# כותרת
 st.title("📊 Dashboard AI לניהול פרויקטים")
 
-# טעינת נתונים
+# נתונים
 projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
 
-# טבלת פרויקטים (יציב + קריא)
+# טבלה (תישאר LTR - מגבלה של Streamlit)
 st.subheader("פרויקטים")
 st.dataframe(projects, use_container_width=True)
 
@@ -16,11 +30,12 @@ st.dataframe(projects, use_container_width=True)
 st.subheader("🚨 התראות")
 
 for _, row in projects.iterrows():
+    name = row.get("project_name", "")
     status = row.get("status", "")
 
     if status == "אדום":
-        st.error(f"⚠️ פרויקט בסיכון: {row.get('project_name', '')}")
+        st.error(f"⚠️ פרויקט בסיכון: {name}")
     elif status == "צהוב":
-        st.warning(f"⏳ יש לעקוב: {row.get('project_name', '')}")
+        st.warning(f"⏳ יש לעקוב: {name}")
     else:
-        st.success(f"✔ תקין: {row.get('project_name', '')}")
+        st.success(f"✔ תקין: {name}")
