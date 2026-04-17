@@ -39,19 +39,48 @@ h1, h2, h3 {
 st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
 
 # =========================
-# פרופיל יציב – טקסט משמאל לתמונה (בלי לגעת בתמונה)
+# פרופיל (תמונה לא זזה בכלל) + ברכה ליד
 # =========================
 import datetime
 import base64
 
-# --- תמונה (לא נוגעים בעיצוב בכלל) ---
+# -------------------------
+# תמונה - בדיוק כמו שהיה
+# -------------------------
 def get_base64_image(path):
     with open(path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode()
 
 img_base64 = get_base64_image("profile.png")
 
-# --- זמן וברכה ---
+st.markdown(f"""
+<div style="
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+">
+    <div style="
+        width:140px;
+        height:140px;
+        border-radius:50%;
+        overflow:hidden;
+        border:3px solid #ddd;
+        box-shadow:0px 2px 10px rgba(0,0,0,0.15);
+    ">
+        <img src="data:image/png;base64,{img_base64}" style="
+            width:100%;
+            height:100%;
+            object-fit: cover;
+            object-position: center top;
+        ">
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# -------------------------
+# ברכה + שעה (לא מזיזים כלום)
+# -------------------------
 now = datetime.datetime.now()
 hour = now.hour
 
@@ -66,53 +95,24 @@ else:
 
 date_str = now.strftime("%d/%m/%Y %H:%M")
 
-# --- פריסה: תמונה + טקסט צמוד ---
-col_text, col_img = st.columns([1, 1])
-
-# טקסט משמאל (RTL)
-with col_text:
-    st.markdown(f"""
-    <div style="
-        direction:rtl;
-        text-align:right;
-        margin-top:35px;
-        color:#1f2a44;
-    ">
-        <div style="font-size:22px;">
-            {greeting}, סיון!
-        </div>
-        <div style="font-size:13px; color:gray;">
-            {date_str}
-        </div>
+# טקסט צמוד לשמאל בצורה ויזואלית בלבד
+st.markdown(f"""
+<div style="
+    position: relative;
+    top: -90px;
+    right: 180px;
+    direction: rtl;
+    text-align: right;
+    color: #1f2a44;
+">
+    <div style="font-size:22px;">
+        {greeting}, סיון!
     </div>
-    """, unsafe_allow_html=True)
-
-# תמונה (בדיוק כמו שהיא – לא שינינו כלום)
-with col_img:
-    st.markdown(f"""
-    <div style="
-        display:flex;
-        justify-content:center;
-        margin-top:10px;
-        margin-bottom:10px;
-    ">
-        <div style="
-            width:140px;
-            height:140px;
-            border-radius:50%;
-            overflow:hidden;
-            border:3px solid #ddd;
-            box-shadow:0px 2px 10px rgba(0,0,0,0.15);
-        ">
-            <img src="data:image/png;base64,{img_base64}" style="
-                width:100%;
-                height:100%;
-                object-fit: cover;
-                object-position: center top;
-            ">
-        </div>
+    <div style="font-size:13px; color:gray;">
+        {date_str}
     </div>
-    """, unsafe_allow_html=True)
+</div>
+""", unsafe_allow_html=True)
     
 # =========================
 # נתונים
