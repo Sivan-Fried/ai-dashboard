@@ -112,48 +112,105 @@ def ask_gemini(prompt):
         return "⚠️ שגיאה או עומס ב-Gemini"
 
 # =========================
-# הרצת AI
+# 🤖 אזור AI
 # =========================
-if run:
+st.markdown("<h4 style='text-align:right'>🤖 אזור AI</h4>", unsafe_allow_html=True)
 
-    filtered = projects[projects["project_name"] == selected_project]
+project_names = projects["project_name"].tolist()
 
-    if filtered.empty:
-        st.error("לא נמצא פרויקט נבחר")
-    else:
-        row = filtered.iloc[0]
+selected_project = st.selectbox("בחרי פרויקט לניתוח", project_names)
 
-        context = projects.to_string(index=False)
+st.markdown("#### 🔎 ניתוח פרויקט")
+analyze = st.button("נתח פרויקט")
 
-        prompt = f"""
+st.markdown("---")
+
+st.markdown("#### 💬 שאלה חופשית")
+
+user_question = st.text_area("שאלי שאלה על כל הפרויקטים")
+
+ask = st.button("שלח שאלה ל-AI")
+
+# =========================
+# Gemini setup
+# =========================
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel("gemini-2.5-flash")
+
+def ask_gemini(prompt):
+    try:
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception:
+        return "⚠️ שגיאה או עומס ב-Gemini"
+
+# =========================
+# ניתוח פרויקט
+# =========================
+if analyze:
+
+    row = projects[projects["project_name"] == selected_project].iloc[0]
+
+    prompt = f"""
+נתח את הפרויקט הבא בצורה קצרה וברורה:
+
+שם פרויקט: {row['project_name']}
+סטטוס: {row['status']}
+
+תן סיכום מצב והמלצה.
+"""
+
+    result = ask_gemini(prompt)
+
+    st.markdown("### 🧠 ניתוח פרויקט")
+
+    st.markdown(f"""
+    <div style="
+        padding: 14px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        background: #fafafa;
+        direction: rtl;
+        text-align: right;
+        white-space: pre-wrap;
+    ">
+    {result}
+    </div>
+    """, unsafe_allow_html=True)
+
+# =========================
+# שאלה חופשית
+# =========================
+if ask:
+
+    context = projects.to_string(index=False)
+
+    prompt = f"""
 את עוזרת לניהול פרויקטים.
 
 נתונים:
 {context}
 
-פרויקט נבחר:
-{row['project_name']} - {row['status']}
-
-שאלה:
+שאלה כללית:
 {user_question}
 
-תשובה קצרה וברורה בעברית
+ענה בצורה קצרה וברורה בעברית.
 """
 
-        result = ask_gemini(prompt)
+    result = ask_gemini(prompt)
 
-        st.markdown("### 🧠 תשובת AI")
+    st.markdown("### 💬 תשובת AI")
 
-        st.markdown(f"""
-        <div style="
-            padding: 14px;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-            background: #fafafa;
-            direction: rtl;
-            text-align: right;
-            white-space: pre-wrap;
-        ">
-        {result}
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown(f"""
+    <div style="
+        padding: 14px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        background: #fafafa;
+        direction: rtl;
+        text-align: right;
+        white-space: pre-wrap;
+    ">
+    {result}
+    </div>
+    """, unsafe_allow_html=True)
