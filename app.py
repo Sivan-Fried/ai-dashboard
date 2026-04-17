@@ -30,7 +30,7 @@ for _, row in projects.iterrows():
 
 # ===== טבלה =====
 st.markdown(
-    "<h2 style='text-align:right'>📁 פרויקטים</h2>",
+    "<h4 style='text-align:right; margin-bottom:10px;'>📁 פרויקטים</h4>",
     unsafe_allow_html=True
 )
 st.dataframe(projects, use_container_width=True)
