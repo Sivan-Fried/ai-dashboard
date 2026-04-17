@@ -161,7 +161,7 @@ st.markdown("<hr>", unsafe_allow_html=True)
 # תזכורות
 # =========================
 # =========================
-# תזכורות AI + ידני (יציב)
+# תזכורות AI + ידני (יציב ונקי)
 # =========================
 
 ai_reminders = generate_ai_reminders(projects)
@@ -171,6 +171,7 @@ if "reminders_live" not in st.session_state:
     st.session_state.reminders_live = base
 
 today = pd.Timestamp.today().date()
+
 today_reminders = st.session_state.reminders_live[
     pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today
 ]
@@ -180,7 +181,14 @@ today_reminders = st.session_state.reminders_live[
 # =========================
 for _, row in today_reminders.iterrows():
 
-    icon = "🤖" if row["source"] == "ai" else "✍️"
+    if row["source"] == "ai":
+        icon = "🤖"
+        source_label = "AI"
+        icon_style = "color:#2d6cdf; font-weight:bold;"
+    else:
+        icon = "✍️"
+        source_label = "ידני"
+        icon_style = "color:#444;"
 
     st.markdown(f"""
     <div style="
@@ -193,25 +201,26 @@ for _, row in today_reminders.iterrows():
         font-size:14px;
         border:1px solid #eee;
     ">
-        {icon} {row['reminder_text']}
+        <span style="{icon_style}">{icon} {source_label}</span>
+        {row['reminder_text']}
         <span style="color:#888;"> | 📁 {row['project_name']}</span>
     </div>
     """, unsafe_allow_html=True)
 
 # =========================
-# שורת הוספה בסוף (מיושרת)
+# הוספה (➕ + שורה בסוף)
 # =========================
 
-st.markdown("<hr>", unsafe_allow_html=True)
+st.markdown("---")
 
 if "add_mode" not in st.session_state:
     st.session_state.add_mode = False
 
 if not st.session_state.add_mode:
 
-    col1, col2, col3 = st.columns([10, 1, 1])
+    col1, col2 = st.columns([10, 1])
 
-    with col3:
+    with col2:
         if st.button("➕"):
             st.session_state.add_mode = True
             st.rerun()
@@ -246,7 +255,6 @@ else:
                 "source": "manual"
             }
 
-            # ✔ כאן השינוי הקריטי
             st.session_state.reminders_live.loc[
                 len(st.session_state.reminders_live)
             ] = new_row
