@@ -164,6 +164,12 @@ st.markdown("<hr>", unsafe_allow_html=True)
 # תזכורות AI + ידני (יציב ונקי)
 # =========================
 
+# =========================
+# תזכורות AI + ידני (יציב ונקי)
+# =========================
+
+st.markdown("### 🔔 תזכורות")
+
 ai_reminders = generate_ai_reminders(projects)
 
 if "reminders_live" not in st.session_state:
