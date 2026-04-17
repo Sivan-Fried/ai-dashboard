@@ -15,37 +15,42 @@ st.markdown(
 projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
 
 # =========================
-# 🚨 התראות (כרטיסים RTL)
+# 🚨 התראות
 # =========================
-st.markdown("<h4 style='text-align:right'>🚨 התראות</h4>", unsafe_allow_html=True)
+st.markdown("<br><h4 style='text-align:right'>🚨 התראות</h4>", unsafe_allow_html=True)
 
 for _, row in projects.iterrows():
     name = row["project_name"]
     status = row["status"]
 
-    color = "#fafafa"
-    border = "#ddd"
-
     if status == "אדום":
         color = "#ffe5e5"
         border = "#ff4d4d"
         icon = "⚠️"
+        text_color = "#b30000"
+
     elif status == "צהוב":
         color = "#fff7e6"
         border = "#ffa500"
         icon = "⏳"
-    else:
+        text_color = "#8a5a00"
+
+    else:  # ירוק
+        color = "#e6ffe6"
+        border = "#2ecc71"
         icon = "✔"
+        text_color = "#1e7d32"
 
     st.markdown(f"""
     <div style="
         direction: rtl;
         text-align: right;
         padding: 12px;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
         border-radius: 10px;
         border: 1px solid {border};
         background-color: {color};
+        color: {text_color};
         font-size: 15px;
     ">
     {icon} <b>{name}</b><br>
@@ -54,7 +59,12 @@ for _, row in projects.iterrows():
     """, unsafe_allow_html=True)
 
 # =========================
-# 📁 פרויקטים (כרטיסים)
+# רווח בין אזורים
+# =========================
+st.markdown("<br><br>", unsafe_allow_html=True)
+
+# =========================
+# 📁 פרויקטים
 # =========================
 st.markdown("<h4 style='text-align:right'>📁 פרויקטים</h4>", unsafe_allow_html=True)
 
@@ -64,7 +74,7 @@ for _, row in projects.iterrows():
         direction: rtl;
         text-align: right;
         padding: 12px;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
         border-radius: 10px;
         border: 1px solid #ddd;
         background-color: #ffffff;
@@ -76,7 +86,7 @@ for _, row in projects.iterrows():
     """, unsafe_allow_html=True)
 
 # =========================
-# 🤖 Gemini setup
+# Gemini setup
 # =========================
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-2.5-flash")
@@ -90,7 +100,7 @@ def ask_gemini(prompt):
 # =========================
 # 🎯 ניתוח פרויקט
 # =========================
-st.markdown("<h4 style='text-align:right'>🎯 ניתוח פרויקט</h4>", unsafe_allow_html=True)
+st.markdown("<br><h4 style='text-align:right'>🎯 ניתוח פרויקט</h4>", unsafe_allow_html=True)
 
 project_names = projects["project_name"].tolist()
 selected_project = st.selectbox("בחרי פרויקט", project_names)
@@ -130,9 +140,9 @@ if st.button("נתח פרויקט"):
     """, unsafe_allow_html=True)
 
 # =========================
-# 💬 צ'אט חופשי עם AI
+# 💬 צ'אט חופשי
 # =========================
-st.markdown("<h4 style='text-align:right'>💬 שיחה חופשית עם AI</h4>", unsafe_allow_html=True)
+st.markdown("<br><h4 style='text-align:right'>💬 שיחה חופשית עם AI</h4>", unsafe_allow_html=True)
 
 user_question = st.text_area("שאלי שאלה על הפרויקטים")
 
