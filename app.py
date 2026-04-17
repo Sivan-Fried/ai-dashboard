@@ -6,13 +6,9 @@ import google.generativeai as genai
 st.set_page_config(layout="wide")
 
 # ===== Gemini setup (from Streamlit Secrets) =====
-import google.generativeai as genai
-
-for m in genai.list_models():
-    print(m.name)
-    
+   
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-1.5-pro")
+model = genai.GenerativeModel("gemini-2.5-flash")
 
 def ask_gemini(prompt):
     response = model.generate_content(prompt)
