@@ -40,16 +40,28 @@ st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרו
 # =========================
 # פרופיל
 # =========================
-def get_base64_image(path):
-    with open(path, "rb") as f:
-        return base64.b64encode(f.read()).decode()
-
 img_base64 = get_base64_image("profile.png")
 
 st.markdown(f"""
-<div style="display:flex;justify-content:center;margin:10px 0;">
-    <div style="width:120px;height:120px;border-radius:50%;overflow:hidden;border:3px solid #ddd;">
-        <img src="data:image/png;base64,{img_base64}" style="width:100%;height:100%;object-fit:cover;">
+<div style="
+    display:flex;
+    justify-content:center;
+    margin:10px 0;
+">
+    <div style="
+        width:140px;
+        height:140px;
+        border-radius:50%;
+        overflow:hidden;
+        border:3px solid #ddd;
+        box-shadow:0 2px 10px rgba(0,0,0,0.15);
+    ">
+        <img src="data:image/png;base64,{img_base64}" style="
+            width:100%;
+            height:100%;
+            object-fit: cover;
+            object-position: center 30%;
+        ">
     </div>
 </div>
 """, unsafe_allow_html=True)
