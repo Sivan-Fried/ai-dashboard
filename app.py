@@ -164,61 +164,97 @@ st.markdown("<hr>", unsafe_allow_html=True)
 
 st.markdown("### 🔔 תזכורות")
 
-st.markdown("<hr>", unsafe_allow_html=True)
+# =========================
+# המרה לדחיפות בעברית
+# =========================
+def priority_hebrew(p):
+    if p == "high":
+        return "גבוהה"
+    elif p == "medium":
+        return "בינונית"
+    else:
+        return "נמוכה"
 
-st.markdown("### 🔔 תזכורות")
+# =========================
+# איחוד תזכורות (Excel + AI)
+# =========================
+ai_reminders = generate_ai_reminders(projects)
+all_reminders = pd.concat([reminders, ai_reminders], ignore_index=True)
+
+today = pd.Timestamp.today().date()
+today_reminders = all_reminders[pd.to_datetime(all_reminders["date"]).dt.date == today]
 
 # =========================
-# תזכורות של היום
+# הצגת תזכורות
 # =========================
+if today_reminders.empty:
+    st.info("אין תזכורות להיום 🎉")
+
+else:
+    for _, row in today_reminders.iterrows():
+
+        icon = "🤖" if row["source"] == "ai" else "✍️"
+        priority_text = priority_hebrew(row["priority"])
+
+        st.markdown(f"""
+        <div style="
+            background:white;
+            padding:8px 10px;
+            border-radius:8px;
+            margin-bottom:6px;
+            direction:rtl;
+            text-align:right;
+            font-size:14px;
+            border:1px solid #eee;
+        ">
+            {icon} {row['reminder_text']} 
+            <span style="color:#888;">| 📁 {row['project_name']}</span>
+            <span style="color:#555;">| ⚡ {priority_text}</span>
+        </div>
+        """, unsafe_allow_html=True)
+
 # =========================
-# הוספת תזכורת ידנית (קומפקטי עם פלוס)
+# הוספת תזכורת (+ קומפקטי)
 # =========================
 
 if "show_add_reminder" not in st.session_state:
     st.session_state.show_add_reminder = False
 
-# כפתור פלוס בלבד
 col1, col2 = st.columns([10, 1])
 
 with col2:
     if st.button("➕"):
         st.session_state.show_add_reminder = not st.session_state.show_add_reminder
 
-# טופס נפתח רק אם לחצו
 if st.session_state.show_add_reminder:
 
     with st.form("add_reminder_form"):
-        text = st.text_input("",
-            placeholder="למשל: להתחיל אפיון בוט סוכנים"
-        )
+        text = st.text_input("", placeholder="מה צריך לעשות?")
+        project = st.selectbox("", projects["project_name"].tolist())
+        priority = st.selectbox("", ["נמוכה", "בינונית", "גבוהה"])
 
-        project = st.selectbox(
-            "",
-            projects["project_name"].tolist(),
-            index=0
-        )
-
-        priority = st.selectbox(
-            "",
-            ["low", "medium", "high"],
-            index=1
-        )
-
-        submit = st.form_submit_button("שמור תזכורת")
+        submit = st.form_submit_button("שמור")
 
     if submit:
+
+        # חזרה לפורמט פנימי באנגלית
+        reverse_priority = {
+            "נמוכה": "low",
+            "בינונית": "medium",
+            "גבוהה": "high"
+        }
+
         new_row = {
             "reminder_text": text,
             "project_name": project,
             "date": pd.Timestamp.today().date(),
-            "priority": priority,
+            "priority": reverse_priority[priority],
             "source": "manual"
         }
 
         all_reminders.loc[len(all_reminders)] = new_row
 
-        st.success("נוסף בהצלחה ✅")
+        st.success("התזכורת נוספה ✅")
         st.session_state.show_add_reminder = False
         st.rerun()
         
