@@ -6,19 +6,23 @@ import google.generativeai as genai
 st.set_page_config(layout="wide")
 
 # =========================
-# רווחים אחידים לכל הדף
+# RTL גלובלי (חשוב מאוד)
 # =========================
-GAP = "<br>"
+st.markdown("""
+<style>
+html, body, [class*="css"] {
+    direction: rtl;
+    text-align: right;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # =========================
-# כותרת
+# כותרת ראשית
 # =========================
-st.markdown(
-    "<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>",
-    unsafe_allow_html=True
-)
+st.markdown("## 📊 Dashboard AI לניהול פרויקטים")
 
-st.markdown(GAP, unsafe_allow_html=True)
+st.markdown("<br>", unsafe_allow_html=True)
 
 # =========================
 # נתונים
@@ -28,7 +32,7 @@ projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
 # =========================
 # 🚨 התראות
 # =========================
-st.markdown("<h4 style='text-align:right'>🚨 התראות</h4>", unsafe_allow_html=True)
+st.markdown("### 🚨 התראות")
 
 for _, row in projects.iterrows():
     name = row["project_name"]
@@ -39,18 +43,21 @@ for _, row in projects.iterrows():
         border = "#ff4d4d"
         icon = "⚠️"
         text_color = "#b30000"
+        label = "פרויקט בסיכון"
 
     elif status == "צהוב":
         color = "#fff7e6"
         border = "#ffa500"
         icon = "⏳"
         text_color = "#8a5a00"
+        label = "דורש מעקב"
 
     else:
         color = "#e6ffe6"
         border = "#2ecc71"
         icon = "✔"
         text_color = "#1e7d32"
+        label = "תקין"
 
     st.markdown(f"""
     <div style="
@@ -60,64 +67,34 @@ for _, row in projects.iterrows():
         border: 1px solid {border};
         background-color: {color};
         color: {text_color};
+        direction: rtl;
+        text-align: right;
     ">
-        {icon} <b>{name}</b><br>
-        סטטוס: {status}
+        <b>{name}</b><br>
+        {icon} {label}
     </div>
     """, unsafe_allow_html=True)
 
-# =========================
-# רווח אחיד
-# =========================
-st.markdown(GAP, unsafe_allow_html=True)
+st.markdown("<br>", unsafe_allow_html=True)
 
 # =========================
 # 📁 פרויקטים
 # =========================
-st.markdown("<h4 style='text-align:right'>📁 פרויקטים</h4>", unsafe_allow_html=True)
+st.markdown("### 📁 פרויקטים")
 
-for _, row in projects.iterrows():
-    st.markdown(f"""
-    <div style="
-        padding: 10px;
-        margin-bottom: 6px;
-        border-radius: 10px;
-        border: 1px solid #ddd;
-        background-color: #ffffff;
-    ">
-        <b>פרויקט:</b> {row['project_name']}<br>
-        <b>סטטוס:</b> {row['status']}
-    </div>
-    """, unsafe_allow_html=True)
+st.dataframe(projects, use_container_width=True)
 
-# =========================
-# רווח גדול יותר לפני AI (כמו שביקשת)
-# =========================
 st.markdown("<br><br>", unsafe_allow_html=True)
 
 # =========================
-# 🤖 AI אזור עם אייקון צבעוני
+# 🤖 AI
 # =========================
-st.markdown(
-    """
-    <h4 style='text-align:right'>
-        <span style="
-            background: linear-gradient(45deg, #6a11cb, #2575fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: bold;
-        ">
-        🤖 AI Assistant
-        </span>
-    </h4>
-    """,
-    unsafe_allow_html=True
-)
+st.markdown("### 🤖 אזור AI")
 
 project_names = projects["project_name"].tolist()
 
 selected_project = st.selectbox("בחרי פרויקט", project_names)
-user_question = st.text_area("שאלי שאלה על הפרויקטים")
+user_question = st.text_area("שאלה על הפרויקטים")
 
 run = st.button("שלח ל-AI / נתח פרויקט")
 
@@ -134,7 +111,7 @@ def ask_gemini(prompt):
         return "⚠️ שגיאה או עומס ב-Gemini"
 
 # =========================
-# הרצת AI
+# תוצאה
 # =========================
 if run:
 
@@ -148,7 +125,7 @@ if run:
     נתונים:
     {context}
 
-    פרויקט נבחר:
+    פרויקט:
     {row['project_name']} - {row['status']}
 
     שאלה:
@@ -159,7 +136,7 @@ if run:
 
     result = ask_gemini(prompt)
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("### 🧠 תשובת AI")
 
     st.markdown(f"""
     <div style="
@@ -167,9 +144,9 @@ if run:
         border-radius: 10px;
         border: 1px solid #ddd;
         background: #fafafa;
-        white-space: pre-wrap;
         direction: rtl;
         text-align: right;
+        white-space: pre-wrap;
     ">
     {result}
     </div>
