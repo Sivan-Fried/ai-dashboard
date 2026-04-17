@@ -1,11 +1,11 @@
 import streamlit as st
 import pandas as pd
+import os
 import google.generativeai as genai
 
 st.set_page_config(layout="wide")
 
-# ===== Gemini setup =====
-import os
+# ===== Gemini setup (from Streamlit Secrets) =====
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-1.5-flash")
 
@@ -19,31 +19,31 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# טעינת נתונים
+# ===== Load data =====
 projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
 
-# ===== התראות AI =====
-st.subheader("🤖 התראות AI (Gemini)")
+# ===== AI Analysis =====
+st.subheader("🤖 ניתוח AI (Gemini)")
 
 if st.button("נתח פרויקטים"):
     prompt = f"""
-    אתה עוזר לניהול פרויקטים.
+    אתה מנהל פרויקטים בכיר.
 
     הנה נתוני הפרויקטים:
     {projects.to_string(index=False)}
 
     תן:
-    - סיכום מצב
-    - סיכונים
+    - סיכום מצב כללי
+    - סיכונים מרכזיים
     - מה דורש טיפול מיידי
-    קצר וברור בעברית.
+    תשובה קצרה וברורה בעברית.
     """
 
     result = ask_gemini(prompt)
     st.write(result)
 
-# ===== התראות רגילות =====
-st.subheader("🚨 התראות מהירות")
+# ===== Alerts =====
+st.subheader("🚨 התראות")
 
 for _, row in projects.iterrows():
     name = row.get("project_name", "")
@@ -56,6 +56,6 @@ for _, row in projects.iterrows():
     else:
         st.success(f"✔ תקין: {name}")
 
-# ===== טבלה =====
+# ===== Table =====
 st.subheader("📁 פרויקטים")
 st.dataframe(projects, use_container_width=True)
