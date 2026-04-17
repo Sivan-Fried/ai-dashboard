@@ -184,6 +184,18 @@ st.markdown("<h3 style='text-align:right; direction:rtl;'>📁 פרויקטים<
 if "selected_project" not in st.session_state:
     st.session_state.selected_project = None
 
+# צבע לפי סוג עבודה
+def type_color(project_type):
+    if project_type == "פרויקט אקטיבי":
+        return "#e8f1ff"   # כחול בהיר
+    elif project_type == "חבילת עבודה":
+        return "#f3e8ff"   # סגלגל בהיר
+    elif project_type == "תחזוקה":
+        return "#e8f7ee"   # ירוק בהיר
+    else:
+        return "#ffffff"
+
+# אייקון סטטוס
 def status_dot(status):
     if status == "ירוק":
         return "🟢"
@@ -196,11 +208,14 @@ for _, row in projects.iterrows():
 
     project_name = row["project_name"]
     status = row["status"]
+    project_type = row["project_type"]
+
+    bg = type_color(project_type)
     dot = status_dot(status)
 
     st.markdown(f"""
     <div style="
-        background:white;
+        background:{bg};
         padding:8px 10px;
         border-radius:8px;
         margin-bottom:4px;
@@ -212,10 +227,22 @@ for _, row in projects.iterrows():
         justify-content:space-between;
         align-items:center;
     ">
-        <div>{project_name}</div>
-        <div>{dot}</div>
+        <div>
+            📌 {project_name}<br>
+            <span style="font-size:12px; color:gray;">
+                {project_type}
+            </span>
+        </div>
+
+        <div style="font-size:16px;">
+            {dot}
+        </div>
     </div>
     """, unsafe_allow_html=True)
+
+    # בחירה (שקטה, בלי כפתור נראה)
+    if st.checkbox("", key=project_name):
+        st.session_state.selected_project = project_name
     
 # --- ריק לשמירה על איזון ---
 with right:
