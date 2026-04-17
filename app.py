@@ -6,12 +6,19 @@ import google.generativeai as genai
 st.set_page_config(layout="wide")
 
 # =========================
+# רווחים אחידים לכל הדף
+# =========================
+GAP = "<br>"
+
+# =========================
 # כותרת
 # =========================
 st.markdown(
     "<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>",
     unsafe_allow_html=True
 )
+
+st.markdown(GAP, unsafe_allow_html=True)
 
 # =========================
 # נתונים
@@ -47,8 +54,8 @@ for _, row in projects.iterrows():
 
     st.markdown(f"""
     <div style="
-        padding: 12px;
-        margin-bottom: 8px;
+        padding: 10px;
+        margin-bottom: 6px;
         border-radius: 10px;
         border: 1px solid {border};
         background-color: {color};
@@ -60,9 +67,9 @@ for _, row in projects.iterrows():
     """, unsafe_allow_html=True)
 
 # =========================
-# רווח
+# רווח אחיד
 # =========================
-st.markdown("<br><br>", unsafe_allow_html=True)
+st.markdown(GAP, unsafe_allow_html=True)
 
 # =========================
 # 📁 פרויקטים
@@ -72,8 +79,8 @@ st.markdown("<h4 style='text-align:right'>📁 פרויקטים</h4>", unsafe_al
 for _, row in projects.iterrows():
     st.markdown(f"""
     <div style="
-        padding: 12px;
-        margin-bottom: 8px;
+        padding: 10px;
+        margin-bottom: 6px;
         border-radius: 10px;
         border: 1px solid #ddd;
         background-color: #ffffff;
@@ -84,7 +91,38 @@ for _, row in projects.iterrows():
     """, unsafe_allow_html=True)
 
 # =========================
-# Gemini setup
+# רווח גדול יותר לפני AI (כמו שביקשת)
+# =========================
+st.markdown("<br><br>", unsafe_allow_html=True)
+
+# =========================
+# 🤖 AI אזור עם אייקון צבעוני
+# =========================
+st.markdown(
+    """
+    <h4 style='text-align:right'>
+        <span style="
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        ">
+        🤖 AI Assistant
+        </span>
+    </h4>
+    """,
+    unsafe_allow_html=True
+)
+
+project_names = projects["project_name"].tolist()
+
+selected_project = st.selectbox("בחרי פרויקט", project_names)
+user_question = st.text_area("שאלי שאלה על הפרויקטים")
+
+run = st.button("שלח ל-AI / נתח פרויקט")
+
+# =========================
+# Gemini
 # =========================
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-2.5-flash")
@@ -94,18 +132,6 @@ def ask_gemini(prompt):
         return model.generate_content(prompt).text
     except:
         return "⚠️ שגיאה או עומס ב-Gemini"
-
-# =========================
-# 🤖 אזור AI (פשוט ויציב)
-# =========================
-st.markdown("<br><h4 style='text-align:right'>🤖 אזור AI</h4>", unsafe_allow_html=True)
-
-project_names = projects["project_name"].tolist()
-
-selected_project = st.selectbox("בחרי פרויקט", project_names)
-user_question = st.text_area("שאלי שאלה על הפרויקטים")
-
-run = st.button("שלח ל-AI / נתח פרויקט")
 
 # =========================
 # הרצת AI
@@ -142,11 +168,8 @@ if run:
         border: 1px solid #ddd;
         background: #fafafa;
         white-space: pre-wrap;
-    ">
-    {result}
-    </div>
-    """, unsafe_allow_html=True)
-        white-space: pre-wrap;
+        direction: rtl;
+        text-align: right;
     ">
     {result}
     </div>
