@@ -39,12 +39,11 @@ h1, h2, h3 {
 st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
 
 # =========================
-# =========================
-# פרופיל + ברכה (ליד התמונה, בלי לפגוע בפוקוס)
+# פרופיל + ברכה (יציב, בלי לשבור תמונה)
 # =========================
 import datetime
 
-# --- ברכה לפי שעה ---
+# ---- ברכה ----
 now = datetime.datetime.now()
 hour = now.hour
 
@@ -59,54 +58,59 @@ else:
 
 date_str = now.strftime("%d/%m/%Y %H:%M")
 
-# --- תמונה (בדיוק כמו שהיה!) ---
-def get_base64_image(path):
-    with open(path, "rb") as img_file:
-        return base64.b64encode(img_file.read()).decode()
+# ---- פריסה ----
+col1, col2 = st.columns([1,1])
 
-img_base64 = get_base64_image("profile.png")
-
-# --- פריסה: טקסט משמאל, תמונה מימין ---
-st.markdown(f"""
-<div style="
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:30px;
-    margin-top: 10px;
-    margin-bottom: 20px;
-    direction:rtl;
-">
-
-    <!-- טקסט -->
-    <div style="text-align:right;">
-        <div style="font-size:22px; color:#1f2a44;">
-            {greeting}, סיון!
+# ---- טקסט (משמאל) ----
+with col1:
+    st.markdown(
+        f"""
+        <div style="direction:rtl; text-align:right; margin-top:40px;">
+            <div style="font-size:22px; color:#1f2a44;">
+                {greeting}, סיון!
+            </div>
+            <div style="font-size:14px; color:gray;">
+                {date_str}
+            </div>
         </div>
-        <div style="font-size:14px; color:gray;">
-            {date_str}
-        </div>
-    </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-    <!-- תמונה (לא שינינו כלום!) -->
+# ---- תמונה (בדיוק כמו שהיה!) ----
+with col2:
+
+    def get_base64_image(path):
+        with open(path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+
+    img_base64 = get_base64_image("profile.png")
+
+    st.markdown(f"""
     <div style="
-        width:140px;
-        height:140px;
-        border-radius:50%;
-        overflow:hidden;
-        border:3px solid #ddd;
-        box-shadow:0px 2px 10px rgba(0,0,0,0.15);
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+        margin-bottom: 10px;
     ">
-        <img src="data:image/png;base64,{img_base64}" style="
-            width:100%;
-            height:100%;
-            object-fit: cover;
-            object-position: center top;
+        <div style="
+            width:140px;
+            height:140px;
+            border-radius:50%;
+            overflow:hidden;
+            border:3px solid #ddd;
+            box-shadow:0px 2px 10px rgba(0,0,0,0.15);
         ">
+            <img src="data:image/png;base64,{img_base64}" style="
+                width:100%;
+                height:100%;
+                object-fit: cover;
+                object-position: center top;
+            ">
+        </div>
     </div>
-
-</div>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
+    
 # =========================
 # נתונים
 # =========================
