@@ -3,10 +3,16 @@ import pandas as pd
 
 st.set_page_config(layout="wide")
 
-st.title("📊 Dashboard AI לניהול פרויקטים")
+# כותרת ממורכזת
+st.markdown(
+    "<h1 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h1>",
+    unsafe_allow_html=True
+)
 
+# טעינת נתונים
 projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
 
+# התראות
 st.subheader("🚨 התראות")
 
 for _, row in projects.iterrows():
@@ -20,6 +26,6 @@ for _, row in projects.iterrows():
     else:
         st.success(f"✔ תקין: {name}")
 
+# פרויקטים
 st.subheader("📁 פרויקטים")
-
 st.dataframe(projects, use_container_width=True)
