@@ -26,10 +26,10 @@ body {
     font-size:14px;
 }
 
-.reminder-scroll {
+/* 🔔 תזכורות עם גלילה */
+.reminder-box {
     max-height: 260px;
     overflow-y: auto;
-    padding-left: 5px;
 }
 
 .reminder-item {
@@ -59,7 +59,7 @@ h1, h2, h3 {
 st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
 
 # =========================
-# תמונת פרופיל
+# תמונת פרופיל (שחזור מדויק)
 # =========================
 def get_base64_image(path):
     with open(path, "rb") as img_file:
@@ -142,7 +142,7 @@ st.dataframe(projects, use_container_width=True)
 st.markdown("<hr>", unsafe_allow_html=True)
 
 # =========================
-# פגישות + תזכורות
+# פריסה: פגישות + תזכורות
 # =========================
 col_right, col_left = st.columns(2)
 
@@ -170,51 +170,75 @@ with col_left:
 
     st.markdown("### 🔔 תזכורות")
 
-    st.markdown("### 🔔 תזכורות")
+    today_reminders = st.session_state.reminders_live[
+        pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today
+    ]
 
-today_reminders = st.session_state.reminders_live[
-    pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today
-]
+    st.markdown('<div class="reminder-box">', unsafe_allow_html=True)
 
-# 🔥 חשוב: wrapper חיצוני אמיתי לגלילה
-st.markdown("""
-<div style="
-    max-height: 260px;
-    overflow-y: auto;
-">
-""", unsafe_allow_html=True)
+    if today_reminders.empty:
+        st.info("אין תזכורות להיום 🎉")
 
-if today_reminders.empty:
-    st.info("אין תזכורות להיום 🎉")
+    else:
+        for _, row in today_reminders.iterrows():
 
-else:
-    for _, row in today_reminders.iterrows():
+            icon = "🤖" if row["source"] == "ai" else "✍️"
 
-        icon = "🤖" if row["source"] == "ai" else "✍️"
+            st.markdown(f"""
+            <div class="reminder-item">
+                {icon} {row['reminder_text']} | 📁 {row['project_name']}
+            </div>
+            """, unsafe_allow_html=True)
 
-        st.markdown(f"""
-        <div style="
-            background:white;
-            padding:6px 10px;
-            border-radius:8px;
-            margin-bottom:6px;
-            border:1px solid #eee;
-            direction:rtl;
-            text-align:right;
-            font-size:14px;
+    st.markdown("</div>", unsafe_allow_html=True)
 
-            white-space:nowrap;
-            overflow:hidden;
-            text-overflow:ellipsis;
-        ">
-            {icon} {row['reminder_text']} | 📁 {row['project_name']}
-        </div>
-        """, unsafe_allow_html=True)
+    # =========================
+    # הוספת תזכורת
+    # =========================
+    st.markdown("---")
 
-st.markdown("</div>", unsafe_allow_html=True)
+    if "add_mode" not in st.session_state:
+        st.session_state.add_mode = False
+
+    if not st.session_state.add_mode:
+
+        if st.button("➕ הוספת תזכורת"):
+            st.session_state.add_mode = True
+            st.rerun()
+
+    else:
+
+        col1, col2, col3, col4 = st.columns([5, 3, 2, 1])
+
+        with col1:
+            text = st.text_input("", placeholder="תזכורת חדשה")
+
+        with col2:
+            project = st.selectbox("", projects["project_name"].tolist())
+
+        with col3:
+            priority = st.selectbox("", ["נמוכה", "בינונית", "גבוהה"])
+
+        with col4:
+            if st.button("✔"):
+
+                reverse = {"נמוכה":"low","בינונית":"medium","גבוהה":"high"}
+
+                new_row = {
+                    "reminder_text": text,
+                    "project_name": project,
+                    "date": today,
+                    "priority": reverse[priority],
+                    "source": "manual"
+                }
+
+                st.session_state.reminders_live.loc[len(st.session_state.reminders_live)] = new_row
+
+                st.session_state.add_mode = False
+                st.rerun()
 
 # =========================
-# AI
+# AI חלק
 # =========================
 st.markdown("<hr>", unsafe_allow_html=True)
 st.markdown("### 🤖 אזור AI")
@@ -252,5 +276,4 @@ if st.button("שלח ל-AI"):
         result = str(e)
 
     st.markdown(f"<div class='card'>{result}</div>", unsafe_allow_html=True)
-
 
