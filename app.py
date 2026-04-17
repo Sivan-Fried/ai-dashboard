@@ -10,7 +10,7 @@ body {direction: RTL; text-align: right;}
 st.title("הדשבורד שלי")
 
 # טעינת נתונים
-projects = pd.read_excel("projects.xlsx")
+projects = pd.read_excel("projects.xlsx", engine="openpyxl")
 
 # הצגה
 st.subheader("פרויקטים")
