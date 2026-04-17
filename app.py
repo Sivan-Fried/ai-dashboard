@@ -136,37 +136,23 @@ today_meetings = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
 
 if today_meetings.empty:
     st.info("אין פגישות היום 🎉")
+
 else:
-    meetings_html = ""
-
     for _, row in today_meetings.iterrows():
-        meetings_html += f"""
-        <div style="
-            padding:10px;
-            border-bottom:1px solid #eee;
-            direction:rtl;
-            text-align:right;
-        ">
-            📌 <b>{row['meeting_title']}</b>
-            &nbsp; | 🕒 {row['time']}
-            &nbsp; | 📁 {row['project_name']}
-            &nbsp; | 👤 {row['owner']}
-            &nbsp; | 📊 {row['status']}
-        </div>
-        """
 
-    st.markdown(f"""
-    <div style="
-        background:white;
-        padding:15px;
-        border-radius:12px;
-        box-shadow:0 2px 10px rgba(0,0,0,0.08);
-        direction:rtl;
-        text-align:right;
-    ">
-        {meetings_html}
-    </div>
-    """, unsafe_allow_html=True)
+        st.markdown(
+            f"📌 **{row['meeting_title']}**"
+        )
+
+        col1, col2, col3, col4, col5 = st.columns(5)
+
+        col1.write(f"🕒 {row['time']}")
+        col2.write(f"📁 {row['project_name']}")
+        col3.write(f"👤 {row['owner']}")
+        col4.write(f"📊 {row['status']}")
+        col5.write(" ")
+        
+        st.markdown("---")
     
 # =========================
 # AI
