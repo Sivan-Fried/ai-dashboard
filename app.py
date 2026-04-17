@@ -51,6 +51,32 @@ def get_base64_image(path):
 
 img_base64 = get_base64_image("profile.png")
 
+st.markdown(f"""
+<div style="
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+">
+    <div style="
+        width:140px;
+        height:140px;
+        border-radius:50%;
+        overflow:hidden;
+        border:3px solid #ddd;
+        box-shadow:0px 2px 10px rgba(0,0,0,0.15);
+    ">
+        <img src="data:image/png;base64,{img_base64}" style="
+            width:100%;
+            height:100%;
+            object-fit: cover;
+            object-position: center top;
+        ">
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
 # --- ברכה ---
 now = datetime.datetime.now()
 hour = now.hour
