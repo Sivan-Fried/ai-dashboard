@@ -39,43 +39,17 @@ h1, h2, h3 {
 st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
 
 # =========================
-# פרופיל – גרסה נקייה (מופע אחד בלבד!)
+# פרופיל יציב – תמונה באמצע + טקסט משמאל
 # =========================
 import datetime
 import base64
 
-# --- תמונה ---
+# --- תמונה (כמו שהיה) ---
 def get_base64_image(path):
     with open(path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode()
 
 img_base64 = get_base64_image("profile.png")
-
-st.markdown(f"""
-<div style="
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 10px;
-    margin-bottom: 10px;
-">
-    <div style="
-        width:140px;
-        height:140px;
-        border-radius:50%;
-        overflow:hidden;
-        border:3px solid #ddd;
-        box-shadow:0px 2px 10px rgba(0,0,0,0.15);
-    ">
-        <img src="data:image/png;base64,{img_base64}" style="
-            width:100%;
-            height:100%;
-            object-fit: cover;
-            object-position: center top;
-        ">
-    </div>
-</div>
-""", unsafe_allow_html=True)
 
 # --- ברכה ---
 now = datetime.datetime.now()
@@ -93,11 +67,12 @@ else:
 date_str = now.strftime("%d/%m/%Y %H:%M")
 
 # =========================
-# פריסה אחת בלבד (בלי כפילויות)
+# פריסה נכונה (הפתרון האמיתי)
 # =========================
-col1, col2 = st.columns([1, 1])
+left, center, right = st.columns([1.2, 1, 1.2])
 
-with col1:
+# --- טקסט משמאל ---
+with left:
     st.markdown(f"""
     <div style="
         direction:rtl;
@@ -114,12 +89,13 @@ with col1:
     </div>
     """, unsafe_allow_html=True)
 
-with col2:
+# --- תמונה באמצע (בדיוק כמו שהיה) ---
+with center:
     st.markdown(f"""
     <div style="
         display:flex;
         justify-content:center;
-        align-items:center;
+        margin-top:10px;
     ">
         <div style="
             width:140px;
@@ -138,6 +114,10 @@ with col2:
         </div>
     </div>
     """, unsafe_allow_html=True)
+
+# --- ריק לשמירה על איזון ---
+with right:
+    st.write("")
     
 # =========================
 # נתונים
