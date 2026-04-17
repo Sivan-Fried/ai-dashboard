@@ -179,7 +179,10 @@ st.markdown("<br>", unsafe_allow_html=True)
 # =========================
 # פרויקטים
 # =========================
-st.markdown("### 📁 פרויקטים")
+st.markdown(
+    "<h3 style='text-align:right; direction:rtl;'>📁 פרויקטים</h3>",
+    unsafe_allow_html=True
+)
 
 def type_icon(project_type):
     if project_type == "פרויקט אקטיבי":
@@ -208,9 +211,22 @@ for _, row in projects.iterrows():
     icon = type_icon(project_type)
     dot = status_dot(status)
 
-    st.markdown(
-        f"{icon} {project_name} | {project_type} {dot}"
-    )
+    st.markdown(f"""
+    <div style="
+        background:white;
+        padding:8px 10px;
+        border-radius:8px;
+        margin-bottom:4px;
+        border:1px solid #eee;
+        direction:rtl;
+        text-align:right;
+        font-size:14px;
+    ">
+        {icon} {project_name}
+        <span style="color:gray; font-size:12px;"> | {project_type}</span>
+        <span style="float:left;">{dot}</span>
+    </div>
+    """, unsafe_allow_html=True)
     
 # --- ריק לשמירה על איזון ---
 with right:
