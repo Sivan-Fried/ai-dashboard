@@ -7,7 +7,7 @@ st.set_page_config(layout="wide")
 
 # ===== כותרת =====
 st.markdown(
-    "<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>",
+    "<h2 style='text-align:center; margin-bottom:8px;'>📊 Dashboard AI לניהול פרויקטים</h2>",
     unsafe_allow_html=True
 )
 
@@ -17,7 +17,7 @@ projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
 # =========================
 # 🚨 התראות
 # =========================
-st.markdown("<br><h4 style='text-align:right'>🚨 התראות</h4>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align:right; margin-bottom:6px;'>🚨 התראות</h4>", unsafe_allow_html=True)
 
 for _, row in projects.iterrows():
     name = row["project_name"]
@@ -35,7 +35,7 @@ for _, row in projects.iterrows():
         icon = "⏳"
         text_color = "#8a5a00"
 
-    else:  # ירוק
+    else:
         color = "#e6ffe6"
         border = "#2ecc71"
         icon = "✔"
@@ -46,7 +46,7 @@ for _, row in projects.iterrows():
         direction: rtl;
         text-align: right;
         padding: 12px;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         border-radius: 10px;
         border: 1px solid {border};
         background-color: {color};
@@ -59,14 +59,14 @@ for _, row in projects.iterrows():
     """, unsafe_allow_html=True)
 
 # =========================
-# רווח בין אזורים
+# רווח קטן בין אזורים (מצומצם)
 # =========================
-st.markdown("<br><br>", unsafe_allow_html=True)
+st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
 
 # =========================
 # 📁 פרויקטים
 # =========================
-st.markdown("<h4 style='text-align:right'>📁 פרויקטים</h4>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align:right; margin-bottom:6px;'>📁 פרויקטים</h4>", unsafe_allow_html=True)
 
 for _, row in projects.iterrows():
     st.markdown(f"""
@@ -74,7 +74,7 @@ for _, row in projects.iterrows():
         direction: rtl;
         text-align: right;
         padding: 12px;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         border-radius: 10px;
         border: 1px solid #ddd;
         background-color: #ffffff;
@@ -100,7 +100,9 @@ def ask_gemini(prompt):
 # =========================
 # 🎯 ניתוח פרויקט
 # =========================
-st.markdown("<br><h4 style='text-align:right'>🎯 ניתוח פרויקט</h4>", unsafe_allow_html=True)
+st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
+
+st.markdown("<h4 style='text-align:right; margin-bottom:6px;'>🎯 ניתוח פרויקט</h4>", unsafe_allow_html=True)
 
 project_names = projects["project_name"].tolist()
 selected_project = st.selectbox("בחרי פרויקט", project_names)
@@ -142,7 +144,9 @@ if st.button("נתח פרויקט"):
 # =========================
 # 💬 צ'אט חופשי
 # =========================
-st.markdown("<br><h4 style='text-align:right'>💬 שיחה חופשית עם AI</h4>", unsafe_allow_html=True)
+st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
+
+st.markdown("<h4 style='text-align:right; margin-bottom:6px;'>💬 שיחה חופשית עם AI</h4>", unsafe_allow_html=True)
 
 user_question = st.text_area("שאלי שאלה על הפרויקטים")
 
