@@ -28,10 +28,3 @@ for _, row in projects.iterrows():
         st.error(f"⚠️ פרויקט בסיכון: {row['project_name']}")
     elif row["status"] == "צהוב":
         st.warning(f"⏳ יש לעקוב: {row['project_name']}")
-
-st.markdown("</div>", unsafe_allow_html=True)
-for _, row in projects.iterrows():
-    if row["status"] == "אדום":
-        st.error(f"⚠️ פרויקט בסיכון: {row['project_name']}")
-    elif row["status"] == "צהוב":
-        st.warning(f"⏳ יש לעקוב: {row['project_name']}")
