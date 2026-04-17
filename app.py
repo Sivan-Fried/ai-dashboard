@@ -105,18 +105,5 @@ if st.button("שלח ל-AI"):
         """
 
         result = ask_gemini(prompt)
-        st.write(result)  prompt = f"""
-        את עוזרת לניהול פרויקטים בכירה.
 
-        הנה כל הנתונים:
-        {projects_context}
-
-        שאלה:
-        {user_question}
-
-        תעני בעברית קצרה, ברורה ומעשית.
-        """
-
-        result = ask_gemini(prompt)
-        st.markdown("### 💡 תשובת AI")
         st.write(result)
