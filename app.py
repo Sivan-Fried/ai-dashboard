@@ -151,7 +151,8 @@ else:
             font-size:14px;
         ">
             📌 <b>{row['meeting_title']}</b><br>
-            🕒 {row['time']}
+            🕒 {row['time']}<br>
+            📁 {row['project_name']}
         </div>
         """, unsafe_allow_html=True)
     
