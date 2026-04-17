@@ -40,15 +40,14 @@ st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרו
 
 # =========================
 # =========================
-# פרופיל + ברכה + תאריך (יציב לחלוטין)
+# פרופיל + ברכה (ליד התמונה, בלי לפגוע בפוקוס)
 # =========================
 import datetime
 
-# זמן
+# --- ברכה לפי שעה ---
 now = datetime.datetime.now()
 hour = now.hour
 
-# ברכה
 if 5 <= hour < 12:
     greeting = "בוקר טוב"
 elif 12 <= hour < 18:
@@ -60,28 +59,54 @@ else:
 
 date_str = now.strftime("%d/%m/%Y %H:%M")
 
-# מרכז עמודה
-col1, col2, col3 = st.columns([1,2,1])
+# --- תמונה (בדיוק כמו שהיה!) ---
+def get_base64_image(path):
+    with open(path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
 
-with col2:
+img_base64 = get_base64_image("profile.png")
 
-    # תמונה
-    try:
-        st.image("profile.png", width=120)
-    except:
-        st.write("")
+# --- פריסה: טקסט משמאל, תמונה מימין ---
+st.markdown(f"""
+<div style="
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:30px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    direction:rtl;
+">
 
-    # ברכה
-    st.markdown(
-        f"<div style='text-align:center; font-size:24px;'>{greeting}, סיון!</div>",
-        unsafe_allow_html=True
-    )
+    <!-- טקסט -->
+    <div style="text-align:right;">
+        <div style="font-size:22px; color:#1f2a44;">
+            {greeting}, סיון!
+        </div>
+        <div style="font-size:14px; color:gray;">
+            {date_str}
+        </div>
+    </div>
 
-    # תאריך
-    st.markdown(
-        f"<div style='text-align:center; color:gray; font-size:14px;'>{date_str}</div>",
-        unsafe_allow_html=True
-    )
+    <!-- תמונה (לא שינינו כלום!) -->
+    <div style="
+        width:140px;
+        height:140px;
+        border-radius:50%;
+        overflow:hidden;
+        border:3px solid #ddd;
+        box-shadow:0px 2px 10px rgba(0,0,0,0.15);
+    ">
+        <img src="data:image/png;base64,{img_base64}" style="
+            width:100%;
+            height:100%;
+            object-fit: cover;
+            object-position: center top;
+        ">
+    </div>
+
+</div>
+""", unsafe_allow_html=True)
 # =========================
 # נתונים
 # =========================
