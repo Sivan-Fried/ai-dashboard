@@ -179,13 +179,12 @@ st.markdown("<br>", unsafe_allow_html=True)
 # =========================
 # פרויקטים
 # =========================
-
 st.markdown("<h3 style='text-align:right; direction:rtl;'>📁 פרויקטים</h3>", unsafe_allow_html=True)
 
 if "selected_project" not in st.session_state:
     st.session_state.selected_project = None
 
-# CSS אחד שמסדר את כל הכפתורים
+# CSS לכרטיסים מיושרים לימין
 st.markdown("""
 <style>
 div[data-testid="stButton"] > button {
@@ -199,6 +198,9 @@ div[data-testid="stButton"] > button {
     margin: 0px 0px 2px 0px !important;
     font-size: 14px;
     box-shadow: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 div[data-testid="stButton"] > button:hover {
@@ -208,15 +210,45 @@ div[data-testid="stButton"] > button:hover {
 </style>
 """, unsafe_allow_html=True)
 
+# פונקציית צבע סטטוס
+def status_dot(status):
+    if status == "ירוק":
+        return "🟢"
+    elif status == "צהוב":
+        return "🟡"
+    else:
+        return "🔴"
+
 for _, row in projects.iterrows():
 
     project_name = row["project_name"]
     status = row["status"]
 
-    label = f"{project_name} | {status}"
+    dot = status_dot(status)
 
+    label = f"{project_name}"
+
+    # כפתור נראה כמו כרטיס
     if st.button(label, key=project_name):
         st.session_state.selected_project = project_name
+
+    # עיצוב תוכן (עיגול + יישור לימין)
+    st.markdown(f"""
+    <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        direction:rtl;
+        background:white;
+        border:1px solid #eee;
+        padding:6px 10px;
+        border-radius:8px;
+        margin:0px 0px 2px 0px;
+    ">
+        <div>{project_name}</div>
+        <div>{dot}</div>
+    </div>
+    """, unsafe_allow_html=True)
         
 # =========================
 # 🔥 חשוב – הגדרת עמודות (לא לגעת!)
