@@ -13,10 +13,16 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# =========================
+# 👤 תמונת פרופיל (תיקון: PNG)
+# =========================
 import os
 
-img_path = os.path.join(os.path.dirname(__file__), "profile.jpg")
+img_path = os.path.join(os.path.dirname(__file__), "profile.png")
 st.image(img_path, width=120)
+
+st.markdown("<br>", unsafe_allow_html=True)
+
 # =========================
 # נתונים
 # =========================
