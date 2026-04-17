@@ -14,21 +14,48 @@ st.markdown(
 # ===== נתונים =====
 projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
 
-# ===== התראות =====
+# =========================
+# 🚨 התראות (כרטיסים RTL)
+# =========================
 st.markdown("<h4 style='text-align:right'>🚨 התראות</h4>", unsafe_allow_html=True)
 
 for _, row in projects.iterrows():
     name = row["project_name"]
     status = row["status"]
 
-    if status == "אדום":
-        st.error(f"⚠️ {name}")
-    elif status == "צהוב":
-        st.warning(f"⏳ {name}")
-    else:
-        st.success(f"✔ {name}")
+    color = "#fafafa"
+    border = "#ddd"
 
-# ===== פרויקטים (כרטיסים בלבד - RTL אמיתי) =====
+    if status == "אדום":
+        color = "#ffe5e5"
+        border = "#ff4d4d"
+        icon = "⚠️"
+    elif status == "צהוב":
+        color = "#fff7e6"
+        border = "#ffa500"
+        icon = "⏳"
+    else:
+        icon = "✔"
+
+    st.markdown(f"""
+    <div style="
+        direction: rtl;
+        text-align: right;
+        padding: 12px;
+        margin-bottom: 8px;
+        border-radius: 10px;
+        border: 1px solid {border};
+        background-color: {color};
+        font-size: 15px;
+    ">
+    {icon} <b>{name}</b><br>
+    סטטוס: {status}
+    </div>
+    """, unsafe_allow_html=True)
+
+# =========================
+# 📁 פרויקטים (כרטיסים)
+# =========================
 st.markdown("<h4 style='text-align:right'>📁 פרויקטים</h4>", unsafe_allow_html=True)
 
 for _, row in projects.iterrows():
@@ -36,26 +63,33 @@ for _, row in projects.iterrows():
     <div style="
         direction: rtl;
         text-align: right;
-        padding: 14px;
+        padding: 12px;
+        margin-bottom: 8px;
+        border-radius: 10px;
         border: 1px solid #ddd;
-        border-radius: 12px;
-        margin-bottom: 10px;
-        background-color: #fafafa;
+        background-color: #ffffff;
         font-size: 15px;
     ">
-        <b>פרויקט:</b> {row['project_name']}<br>
-        <b>סטטוס:</b> {row['status']}
+    <b>פרויקט:</b> {row['project_name']}<br>
+    <b>סטטוס:</b> {row['status']}
     </div>
     """, unsafe_allow_html=True)
 
-# ===== Gemini =====
+# =========================
+# 🤖 Gemini setup
+# =========================
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-2.5-flash")
 
 def ask_gemini(prompt):
-    return model.generate_content(prompt).text
+    try:
+        return model.generate_content(prompt).text
+    except:
+        return "⚠️ עומס על המערכת – נסי שוב בעוד רגע"
 
-# ===== ניתוח פרויקט =====
+# =========================
+# 🎯 ניתוח פרויקט
+# =========================
 st.markdown("<h4 style='text-align:right'>🎯 ניתוח פרויקט</h4>", unsafe_allow_html=True)
 
 project_names = projects["project_name"].tolist()
@@ -75,7 +109,7 @@ if st.button("נתח פרויקט"):
     - סיכון
     - בעיות
     - המלצה קצרה
-    בעברית
+    בעברית ברורה
     """
 
     result = ask_gemini(prompt)
@@ -85,18 +119,22 @@ if st.button("נתח פרויקט"):
         direction: rtl;
         text-align: right;
         padding: 14px;
-        border-radius: 12px;
-        border: 1px solid #ddd;
-        background-color: white;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        background-color: #f9f9f9;
+        font-size: 15px;
+        white-space: pre-wrap;
     ">
     {result}
     </div>
     """, unsafe_allow_html=True)
 
-# ===== צ'אט חופשי =====
+# =========================
+# 💬 צ'אט חופשי עם AI
+# =========================
 st.markdown("<h4 style='text-align:right'>💬 שיחה חופשית עם AI</h4>", unsafe_allow_html=True)
 
-user_question = st.text_area("שאלי שאלה")
+user_question = st.text_area("שאלי שאלה על הפרויקטים")
 
 if st.button("שלח ל-AI"):
 
@@ -113,7 +151,7 @@ if st.button("שלח ל-AI"):
         שאלה:
         {user_question}
 
-        תשובה בעברית קצרה וברורה
+        תשובה קצרה וברורה בעברית
         """
 
         result = ask_gemini(prompt)
@@ -123,9 +161,11 @@ if st.button("שלח ל-AI"):
             direction: rtl;
             text-align: right;
             padding: 14px;
-            border-radius: 12px;
+            border-radius: 10px;
             border: 1px solid #ddd;
-            background-color: #fafafa;
+            background-color: #ffffff;
+            font-size: 15px;
+            white-space: pre-wrap;
         ">
         {result}
         </div>
