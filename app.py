@@ -39,14 +39,16 @@ h1, h2, h3 {
 st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
 
 # =========================
-# פרופיל + ברכה + תאריך (יציב וממורכז)
+# =========================
+# פרופיל + ברכה + תאריך (יציב לחלוטין)
 # =========================
 import datetime
 
+# זמן
 now = datetime.datetime.now()
 hour = now.hour
 
-# ברכה לפי שעה
+# ברכה
 if 5 <= hour < 12:
     greeting = "בוקר טוב"
 elif 12 <= hour < 18:
@@ -58,84 +60,28 @@ else:
 
 date_str = now.strftime("%d/%m/%Y %H:%M")
 
-# פונקציה לתמונה
-def get_base64_image(path):
-    with open(path, "rb") as img_file:
-        return base64.b64encode(img_file.read()).decode()
+# מרכז עמודה
+col1, col2, col3 = st.columns([1,2,1])
 
-# ניסיון טעינת תמונה
-try:
-    img_base64 = get_base64_image("profile.png")
+with col2:
 
-    image_html = f"""
-    <div style="
-        width:120px;
-        height:120px;
-        border-radius:50%;
-        overflow:hidden;
-        border:3px solid #ddd;
-        box-shadow:0 2px 10px rgba(0,0,0,0.15);
-        margin-bottom:10px;
-    ">
-        <img src="data:image/png;base64,{img_base64}" style="
-            width:100%;
-            height:100%;
-            object-fit:cover;
-            object-position:center top;
-        ">
-    </div>
-    """
+    # תמונה
+    try:
+        st.image("profile.png", width=120)
+    except:
+        st.write("")
 
-except:
-    image_html = """
-    <div style="
-        width:120px;
-        height:120px;
-        border-radius:50%;
-        background:#eee;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        margin-bottom:10px;
-        font-size:12px;
-        color:#777;
-    ">
-        אין תמונה
-    </div>
-    """
+    # ברכה
+    st.markdown(
+        f"<div style='text-align:center; font-size:24px;'>{greeting}, סיון!</div>",
+        unsafe_allow_html=True
+    )
 
-# רינדור ממורכז
-st.markdown(f"""
-<div style="
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    margin-top:10px;
-    margin-bottom:20px;
-    direction:rtl;
-">
-
-    {image_html}
-
-    <div style="
-        font-size:24px;
-        color:#1f2a44;
-        margin-bottom:4px;
-    ">
-        {greeting}, סיון!
-    </div>
-
-    <div style="
-        font-size:14px;
-        color:gray;
-    ">
-        {date_str}
-    </div>
-
-</div>
-""", unsafe_allow_html=True)
-
+    # תאריך
+    st.markdown(
+        f"<div style='text-align:center; color:gray; font-size:14px;'>{date_str}</div>",
+        unsafe_allow_html=True
+    )
 # =========================
 # נתונים
 # =========================
