@@ -28,9 +28,8 @@ for _, row in projects.iterrows():
     else:
         st.success(f"✔ תקין: {name}")
 
-# ===== פרויקטים =====
+# ===== טבלת פרויקטים =====
 st.subheader("📁 פרויקטים")
-
 st.dataframe(projects, use_container_width=True)
 
 # ===== Gemini setup =====
@@ -38,11 +37,13 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-2.5-flash")
 
 def ask_gemini(prompt):
-    return model.generate_content(prompt).text
-
+    try:
+        return model.generate_content(prompt).text
+    except Exception:
+        return "⚠️ שגיאה או עומס על Gemini – נסי שוב בעוד דקה"
 
 # =========================
-# 1. ניתוח פרויקט ספציפי
+# ניתוח פרויקט ספציפי
 # =========================
 st.subheader("🎯 ניתוח פרויקט")
 
@@ -53,41 +54,52 @@ if st.button("נתח פרויקט"):
     row = projects[projects["project_name"] == selected_project].iloc[0]
 
     prompt = f"""
-    נתח את הפרויקט:
+    את מומחית לניהול פרויקטים.
+
+    נתחי את הפרויקט:
 
     שם: {row['project_name']}
     סטטוס: {row['status']}
 
-    תן:
+    תני:
     - סיכון
     - בעיות
     - המלצה
-    בעברית קצרה
+    בעברית קצרה וברורה
     """
 
     result = ask_gemini(prompt)
+    st.markdown("### 🤖 תובנות AI")
     st.write(result)
 
-
 # =========================
-# 2. צ'אט חופשי עם Gemini
+# צ'אט חופשי עם הקשר מלא
 # =========================
 st.subheader("💬 שיחה חופשית עם AI")
 
-user_question = st.text_area("שאלי שאלה חופשית")
+user_question = st.text_area("שאלי שאלה חופשית על הפרויקטים")
 
 if st.button("שלח ל-AI"):
+
     if user_question.strip() == "":
         st.warning("כתבי שאלה קודם")
     else:
-        prompt = f"""
-        את עוזרת לניהול פרויקטים.
 
-        עני בעברית בצורה קצרה וברורה:
+        # הקשר מלא של הדאטה
+        projects_context = projects.to_string(index=False)
+
+        prompt = f"""
+        את עוזרת לניהול פרויקטים בכירה.
+
+        הנה כל הנתונים:
+        {projects_context}
 
         שאלה:
         {user_question}
+
+        תעני בעברית קצרה, ברורה ומעשית.
         """
 
         result = ask_gemini(prompt)
+        st.markdown("### 💡 תשובת AI")
         st.write(result)
