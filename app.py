@@ -160,6 +160,8 @@ st.markdown("<hr>", unsafe_allow_html=True)
 # =========================
 # תזכורות
 # =========================
+st.markdown("<hr>", unsafe_allow_html=True)
+
 st.markdown("### 🔔 תזכורות")
 
 today_reminders = all_reminders[pd.to_datetime(all_reminders["date"]).dt.date == today]
@@ -168,30 +170,28 @@ if today_reminders.empty:
     st.info("אין תזכורות להיום 🎉")
 
 else:
-    for _, row in today_reminders.iterrows():
+    st.markdown("#### 🤖 תזכורות שנוצרו ע״י סוכן ה-AI שלך")
 
-        color = "#fff"
-        if row["priority"] == "high":
-            color = "#ffe5e5"
-        elif row["priority"] == "medium":
-            color = "#fff7e6"
+    for _, row in today_reminders.iterrows():
 
         icon = "🤖" if row["source"] == "ai" else "✍️"
 
         st.markdown(f"""
         <div style="
-            background:{color};
-            padding:10px;
-            border-radius:10px;
-            margin-bottom:8px;
+            background:white;
+            padding:8px 10px;
+            border-radius:8px;
+            margin-bottom:6px;
             direction:rtl;
             text-align:right;
+            font-size:14px;
+            border:1px solid #eee;
         ">
-            {icon} {row['reminder_text']}<br>
-            📁 {row['project_name']}
+            {icon} {row['reminder_text']} 
+            <span style="color:#888;">| 📁 {row['project_name']}</span>
         </div>
         """, unsafe_allow_html=True)
-
+        
 # =========================
 # AI (Gemini)
 # =========================
