@@ -6,21 +6,12 @@ import google.generativeai as genai
 st.set_page_config(layout="wide")
 
 # =========================
-# RTL גלובלי (חשוב מאוד)
-# =========================
-st.markdown("""
-<style>
-html, body, [class*="css"] {
-    direction: rtl;
-    text-align: right;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# =========================
 # כותרת ראשית
 # =========================
-st.markdown("## 📊 Dashboard AI לניהול פרויקטים")
+st.markdown(
+    "<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>",
+    unsafe_allow_html=True
+)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
@@ -32,7 +23,7 @@ projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
 # =========================
 # 🚨 התראות
 # =========================
-st.markdown("### 🚨 התראות")
+st.markdown("<h4 style='text-align:right'>🚨 התראות</h4>", unsafe_allow_html=True)
 
 for _, row in projects.iterrows():
     name = row["project_name"]
@@ -42,22 +33,22 @@ for _, row in projects.iterrows():
         color = "#ffe5e5"
         border = "#ff4d4d"
         icon = "⚠️"
-        text_color = "#b30000"
         label = "פרויקט בסיכון"
+        text_color = "#b30000"
 
     elif status == "צהוב":
         color = "#fff7e6"
         border = "#ffa500"
         icon = "⏳"
-        text_color = "#8a5a00"
         label = "דורש מעקב"
+        text_color = "#8a5a00"
 
     else:
         color = "#e6ffe6"
         border = "#2ecc71"
         icon = "✔"
-        text_color = "#1e7d32"
         label = "תקין"
+        text_color = "#1e7d32"
 
     st.markdown(f"""
     <div style="
@@ -75,31 +66,37 @@ for _, row in projects.iterrows():
     </div>
     """, unsafe_allow_html=True)
 
-st.markdown("<br>", unsafe_allow_html=True)
+# =========================
+# רווח
+# =========================
+st.markdown("<br><br>", unsafe_allow_html=True)
 
 # =========================
 # 📁 פרויקטים
 # =========================
-st.markdown("### 📁 פרויקטים")
+st.markdown("<h4 style='text-align:right'>📁 פרויקטים</h4>", unsafe_allow_html=True)
 
 st.dataframe(projects, use_container_width=True)
 
+# =========================
+# רווח
+# =========================
 st.markdown("<br><br>", unsafe_allow_html=True)
 
 # =========================
 # 🤖 AI
 # =========================
-st.markdown("### 🤖 אזור AI")
+st.markdown("<h4 style='text-align:right'>🤖 אזור AI</h4>", unsafe_allow_html=True)
 
 project_names = projects["project_name"].tolist()
 
 selected_project = st.selectbox("בחרי פרויקט", project_names)
-user_question = st.text_area("שאלה על הפרויקטים")
+user_question = st.text_area("שאלה חופשית על הפרויקטים")
 
 run = st.button("שלח ל-AI / נתח פרויקט")
 
 # =========================
-# Gemini
+# Gemini setup
 # =========================
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-2.5-flash")
@@ -111,7 +108,7 @@ def ask_gemini(prompt):
         return "⚠️ שגיאה או עומס ב-Gemini"
 
 # =========================
-# תוצאה
+# הרצת AI
 # =========================
 if run:
 
@@ -136,7 +133,7 @@ if run:
 
     result = ask_gemini(prompt)
 
-    st.markdown("### 🧠 תשובת AI")
+    st.markdown("<h4 style='text-align:right'>🧠 תשובת AI</h4>", unsafe_allow_html=True)
 
     st.markdown(f"""
     <div style="
