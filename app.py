@@ -140,18 +140,33 @@ if today_meetings.empty:
 else:
     for _, row in today_meetings.iterrows():
 
-        st.markdown(
-            f"📌 **{row['meeting_title']}**"
-        )
+        # כותרת הפגישה
+        st.markdown(f"#### 📌 {row['meeting_title']}")
 
-        col1, col2, col3, col4, col5 = st.columns(5)
+        col1, col2, col3 = st.columns([1, 2, 2])
 
-        col1.write(f"🕒 {row['time']}")
-        col2.write(f"📁 {row['project_name']}")
-        col3.write(f"👤 {row['owner']}")
-        col4.write(f"📊 {row['status']}")
-        col5.write(" ")
-        
+        with col1:
+            st.markdown("🕒")
+            st.write(row["time"])
+
+        with col2:
+            st.markdown("📁")
+            st.write(row["project_name"])
+
+        with col3:
+            st.markdown("👤")
+            st.write(row["owner"])
+
+        # שורת סטטוס צבעונית
+        status = row["status"]
+
+        if status == "מתוכננת":
+            st.success(f"📊 סטטוס: {status}")
+        elif status == "בוטלה":
+            st.error(f"📊 סטטוס: {status}")
+        else:
+            st.info(f"📊 סטטוס: {status}")
+
         st.markdown("---")
     
 # =========================
