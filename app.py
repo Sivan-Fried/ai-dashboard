@@ -103,20 +103,10 @@ def ask_gemini(prompt):
 
 # =========================
 # =========================
-# 🤖 אזור AI (כרטיס מסודר)
+# =========================
+# 🤖 אזור AI
 # =========================
 st.markdown("<h4 style='text-align:right'>🤖 אזור AI</h4>", unsafe_allow_html=True)
-
-st.markdown("""
-<div style="
-    direction: rtl;
-    text-align: right;
-    padding: 15px;
-    border-radius: 12px;
-    border: 1px solid #ddd;
-    background: #fafafa;
-">
-""", unsafe_allow_html=True)
 
 project_names = projects["project_name"].tolist()
 
@@ -125,4 +115,49 @@ user_question = st.text_area("שאלה חופשית על הפרויקטים")
 
 run = st.button("שלח ל-AI / נתח פרויקט")
 
-st.markdown("</div>", unsafe_allow_html=True)
+# =========================
+# Gemini setup
+# =========================
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel("gemini-2.5-flash")
+
+def ask_gemini(prompt):
+    try:
+        return model.generate_content(prompt).text
+    except:
+        return "⚠️ שגיאה או עומס ב-Gemini"
+
+# =========================
+# הרצת AI
+# =========================
+if run:
+
+    row = projects[projects["project_name"] == selected_project].iloc[0]
+
+    context = projects.to_string(index=False)
+
+    prompt = (
+        "את עוזרת לניהול פרויקטים.\n\n"
+        f"נתונים:\n{context}\n\n"
+        f"פרויקט נבחר:\n{row['project_name']} - {row['status']}\n\n"
+        f"שאלה:\n{user_question}\n\n"
+        "תשובה קצרה וברורה בעברית."
+    )
+
+    result = ask_gemini(prompt)
+
+    st.markdown("### 🧠 תשובת AI")
+
+    st.markdown(f"""
+    <div style="
+        direction: rtl;
+        text-align: right;
+        padding: 14px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        background: #fafafa;
+        white-space: pre-wrap;
+    ">
+    {result}
+    </div>
+    """, unsafe_allow_html=True)
