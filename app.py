@@ -21,8 +21,7 @@ projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
 # =========================
 # 🚨 התראות (מתוקן עסקית)
 # =========================
-st.markdown("<h4>🚨 התראות</h4>")
-
+st.markdown("<h4 style='text-align:right'>🚨 התראות</h4>", unsafe_allow_html=True)
 for _, row in projects.iterrows():
     name = row["project_name"]
     status = row["status"]
