@@ -3,6 +3,15 @@ import pandas as pd
 
 st.markdown("""
 <style>
+html, body, [class*="css"]  {
+    direction: rtl;
+    text-align: right;
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<style>
 body {direction: RTL; text-align: right;}
 </style>
 """, unsafe_allow_html=True)
