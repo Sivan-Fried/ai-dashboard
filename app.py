@@ -53,11 +53,10 @@ img_base64 = get_base64_image("profile.png")
 
 # --- ברכה ---
 import datetime
-import pytz
+from zoneinfo import ZoneInfo
 
-# זמן ישראל
-tz = pytz.timezone("Asia/Jerusalem")
-now = datetime.datetime.now(tz)
+# זמן ישראל (בלי ספריות חיצוניות)
+now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
 
 hour = now.hour
 
