@@ -160,51 +160,25 @@ st.markdown("<hr>", unsafe_allow_html=True)
 # =========================
 # תזכורות
 # =========================
-st.markdown("<hr>", unsafe_allow_html=True)
+# =========================
+# תזכורות AI + ידני (יציב)
+# =========================
 
-st.markdown("### 🔔 תזכורות")
-
-# =========================
-# המרה לדחיפות בעברית
-# =========================
-def priority_hebrew(p):
-    if p == "high":
-        return "גבוהה"
-    elif p == "medium":
-        return "בינונית"
-    else:
-        return "נמוכה"
-
-# =========================
-# איחוד תזכורות (Excel + AI)
-# =========================
 ai_reminders = generate_ai_reminders(projects)
-all_reminders = pd.concat([reminders, ai_reminders], ignore_index=True)
+
+if "reminders_live" not in st.session_state:
+    base = pd.concat([reminders, ai_reminders], ignore_index=True)
+    st.session_state.reminders_live = base
 
 today = pd.Timestamp.today().date()
-today_reminders = all_reminders[pd.to_datetime(all_reminders["date"]).dt.date == today]
+today_reminders = st.session_state.reminders_live[
+    pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today
+]
 
 # =========================
 # הצגת תזכורות
 # =========================
-# =========================
-# תזכורות (AI + ידני)
-# =========================
-
-ai_reminders = generate_ai_reminders(projects)
-all_reminders = pd.concat([reminders, ai_reminders], ignore_index=True)
-
-today = pd.Timestamp.today().date()
-today_reminders = all_reminders[pd.to_datetime(all_reminders["date"]).dt.date == today]
-
-# מצב הוספה
-if "add_mode" not in st.session_state:
-    st.session_state.add_mode = False
-
-# =========================
-# הצגת תזכורות קיימות
-# =========================
-for i, row in today_reminders.iterrows():
+for _, row in today_reminders.iterrows():
 
     icon = "🤖" if row["source"] == "ai" else "✍️"
 
@@ -225,26 +199,29 @@ for i, row in today_reminders.iterrows():
     """, unsafe_allow_html=True)
 
 # =========================
-# שורה אחרונה: הוספה
+# שורת הוספה בסוף (מיושרת)
 # =========================
 
-st.markdown("---")
+st.markdown("<hr>", unsafe_allow_html=True)
 
-# אם במצב רגיל -> רק פלוס
+if "add_mode" not in st.session_state:
+    st.session_state.add_mode = False
+
 if not st.session_state.add_mode:
-    col1, col2 = st.columns([10, 1])
 
-    with col2:
+    col1, col2, col3 = st.columns([10, 1, 1])
+
+    with col3:
         if st.button("➕"):
             st.session_state.add_mode = True
             st.rerun()
 
-# אם במצב הוספה -> שורה editable
 else:
-    col1, col2, col3, col4 = st.columns([4, 3, 2, 1])
+
+    col1, col2, col3, col4 = st.columns([5, 3, 2, 1])
 
     with col1:
-        new_text = st.text_input("", placeholder="כתבי תזכורת...")
+        new_text = st.text_input("", placeholder="כתבי תזכורת חדשה")
 
     with col2:
         new_project = st.selectbox("", projects["project_name"].tolist())
@@ -254,6 +231,7 @@ else:
 
     with col4:
         if st.button("✔"):
+
             reverse_priority = {
                 "נמוכה": "low",
                 "בינונית": "medium",
@@ -268,8 +246,10 @@ else:
                 "source": "manual"
             }
 
-            # הוספה לרשימה
-            all_reminders.loc[len(all_reminders)] = new_row
+            # ✔ כאן השינוי הקריטי
+            st.session_state.reminders_live.loc[
+                len(st.session_state.reminders_live)
+            ] = new_row
 
             st.session_state.add_mode = False
             st.rerun()
