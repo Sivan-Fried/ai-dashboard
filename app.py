@@ -39,11 +39,19 @@ h1, h2, h3 {
 st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
 
 # =========================
-# פרופיל + ברכה (תמונה במרכז, טקסט משמאל)
+# פרופיל + ברכה (גרסה יציבה מלאה)
 # =========================
 import datetime
+import base64
 
-# --- ברכה לפי שעה ---
+# --- תמונה (ללא שינוי מהמקור) ---
+def get_base64_image(path):
+    with open(path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+
+img_base64 = get_base64_image("profile.png")
+
+# --- זמן וברכה ---
 now = datetime.datetime.now()
 hour = now.hour
 
@@ -58,17 +66,18 @@ else:
 
 date_str = now.strftime("%d/%m/%Y %H:%M")
 
-# --- פריסה ---
-left, center, right = st.columns([1,1,1])
+# =========================
+# פריסה יציבה (Streamlit בלבד)
+# =========================
+col_left, col_center, col_right = st.columns([1,1,1])
 
 # --- טקסט משמאל ---
-with left:
+with col_left:
     st.markdown(f"""
     <div style="
         direction:rtl;
         text-align:right;
         margin-top:40px;
-        font-size:18px;
         color:#1f2a44;
     ">
         <div style="font-size:22px;">
@@ -80,12 +89,35 @@ with left:
     </div>
     """, unsafe_allow_html=True)
 
-# --- תמונה במרכז ---
-with center:
-    st.image("profile.png", width=140)
+# --- תמונה במרכז (כמו שהיה במקור מבחינת מראה) ---
+with col_center:
+    st.markdown(f"""
+    <div style="
+        display:flex;
+        justify-content:center;
+        margin-top:10px;
+        margin-bottom:10px;
+    ">
+        <div style="
+            width:140px;
+            height:140px;
+            border-radius:50%;
+            overflow:hidden;
+            border:3px solid #ddd;
+            box-shadow:0px 2px 10px rgba(0,0,0,0.15);
+        ">
+            <img src="data:image/png;base64,{img_base64}" style="
+                width:100%;
+                height:100%;
+                object-fit: cover;
+                object-position: center top;
+            ">
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-# --- רווח מימין (שומר איזון) ---
-with right:
+# --- יישור ריק מימין ---
+with col_right:
     st.write("")
     
 # =========================
