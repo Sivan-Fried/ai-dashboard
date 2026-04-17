@@ -35,24 +35,25 @@ for _, row in projects.iterrows():
     name = row["project_name"]
     status = row["status"]
 
+    # ✔ חזרה לאייקונים המקוריים שלך
     if status == "אדום":
         color = "#ffe5e5"
         border = "#ff4d4d"
-        icon = "🔴"
+        icon = "⚠️"
         label = "פרויקט בסיכון"
         text_color = "#b30000"
 
     elif status == "צהוב":
         color = "#fff7e6"
         border = "#ffa500"
-        icon = "🟡"
+        icon = "⏳"
         label = "דורש מעקב"
         text_color = "#8a5a00"
 
     else:
         color = "#e6ffe6"
         border = "#2ecc71"
-        icon = "🟢"
+        icon = "✔"
         label = "תקין"
         text_color = "#1e7d32"
 
