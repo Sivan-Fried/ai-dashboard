@@ -6,6 +6,12 @@ import google.generativeai as genai
 st.set_page_config(layout="wide")
 
 # =========================
+# פונקציית רווח אחיד
+# =========================
+def gap():
+    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+
+# =========================
 # כותרת ראשית
 # =========================
 st.markdown(
@@ -13,7 +19,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.markdown("<br>", unsafe_allow_html=True)
+gap()
 
 # =========================
 # נתונים
@@ -32,21 +38,21 @@ for _, row in projects.iterrows():
     if status == "אדום":
         color = "#ffe5e5"
         border = "#ff4d4d"
-        icon = "⚠️"
+        icon = "🔴"
         label = "פרויקט בסיכון"
         text_color = "#b30000"
 
     elif status == "צהוב":
         color = "#fff7e6"
         border = "#ffa500"
-        icon = "⏳"
+        icon = "🟡"
         label = "דורש מעקב"
         text_color = "#8a5a00"
 
     else:
         color = "#e6ffe6"
         border = "#2ecc71"
-        icon = "✔"
+        icon = "🟢"
         label = "תקין"
         text_color = "#1e7d32"
 
@@ -66,10 +72,7 @@ for _, row in projects.iterrows():
     </div>
     """, unsafe_allow_html=True)
 
-# =========================
-# רווח
-# =========================
-st.markdown("<br><br>", unsafe_allow_html=True)
+gap()
 
 # =========================
 # 📁 פרויקטים
@@ -78,13 +81,10 @@ st.markdown("<h4 style='text-align:right'>📁 פרויקטים</h4>", unsafe_al
 
 st.dataframe(projects, use_container_width=True)
 
-# =========================
-# רווח
-# =========================
-st.markdown("<br><br>", unsafe_allow_html=True)
+gap()
 
 # =========================
-# 🤖 אזור AI
+# 🤖 AI
 # =========================
 st.markdown("<h4 style='text-align:right'>🤖 אזור AI</h4>", unsafe_allow_html=True)
 
@@ -95,8 +95,10 @@ user_question = st.text_area("שאלה חופשית על הפרויקטים")
 
 run = st.button("שלח ל-AI / נתח פרויקט")
 
+gap()
+
 # =========================
-# Gemini setup (חשוב שיהיה לפני שימוש)
+# Gemini setup
 # =========================
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-2.5-flash")
@@ -105,15 +107,14 @@ def ask_gemini(prompt):
     try:
         response = model.generate_content(prompt)
         return response.text
-    except Exception as e:
-        return f"⚠️ שגיאה או עומס ב-Gemini"
+    except Exception:
+        return "⚠️ שגיאה או עומס ב-Gemini"
 
 # =========================
 # הרצת AI
 # =========================
 if run:
 
-    # בטיחות - בדיקה שהפרויקט קיים
     filtered = projects[projects["project_name"] == selected_project]
 
     if filtered.empty:
