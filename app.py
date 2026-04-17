@@ -283,3 +283,4 @@ if st.button("שלח ל-AI"):
         result = str(e)
 
     st.markdown(f"<div class='card'>{result}</div>", unsafe_allow_html=True)
+    
