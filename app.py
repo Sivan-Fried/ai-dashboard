@@ -112,42 +112,6 @@ with col_img:
         </div>
     </div>
     """, unsafe_allow_html=True)
-
-# -------------------------
-# טקסט – “צף” ליד התמונה בלי לגעת בה
-# -------------------------
-now = datetime.datetime.now()
-hour = now.hour
-
-if 5 <= hour < 12:
-    greeting = "בוקר טוב"
-elif 12 <= hour < 18:
-    greeting = "צהריים טובים"
-elif 18 <= hour < 22:
-    greeting = "ערב טוב"
-else:
-    greeting = "לילה טוב"
-
-date_str = now.strftime("%d/%m/%Y %H:%M")
-
-st.markdown(f"""
-<div style="
-    position: relative;
-    top: -110px;
-    right: 200px;
-    direction: rtl;
-    text-align: right;
-    color: #1f2a44;
-    width: 250px;
-">
-    <div style="font-size:22px;">
-        {greeting}, סיון!
-    </div>
-    <div style="font-size:13px; color:gray;">
-        {date_str}
-    </div>
-</div>
-""", unsafe_allow_html=True)
     
 # =========================
 # נתונים
