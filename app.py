@@ -170,71 +170,48 @@ with col_left:
 
     st.markdown("### 🔔 תזכורות")
 
-    today_reminders = st.session_state.reminders_live[
-        pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today
-    ]
+    st.markdown("### 🔔 תזכורות")
 
-    st.markdown('<div class="reminder-scroll">', unsafe_allow_html=True)
+today_reminders = st.session_state.reminders_live[
+    pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today
+]
 
-    if today_reminders.empty:
-        st.info("אין תזכורות להיום 🎉")
-    else:
-        for _, row in today_reminders.iterrows():
+# 🔥 חשוב: wrapper חיצוני אמיתי לגלילה
+st.markdown("""
+<div style="
+    max-height: 260px;
+    overflow-y: auto;
+">
+""", unsafe_allow_html=True)
 
-            icon = "🤖" if row["source"] == "ai" else "✍️"
+if today_reminders.empty:
+    st.info("אין תזכורות להיום 🎉")
 
-            st.markdown(f"""
-            <div class='reminder-item'>
-                {icon} {row['reminder_text']} | 📁 {row['project_name']}
-            </div>
-            """, unsafe_allow_html=True)
+else:
+    for _, row in today_reminders.iterrows():
 
-    st.markdown('</div>', unsafe_allow_html=True)
+        icon = "🤖" if row["source"] == "ai" else "✍️"
 
-    # =========================
-    # הוספה
-    # =========================
-    st.markdown("---")
+        st.markdown(f"""
+        <div style="
+            background:white;
+            padding:6px 10px;
+            border-radius:8px;
+            margin-bottom:6px;
+            border:1px solid #eee;
+            direction:rtl;
+            text-align:right;
+            font-size:14px;
 
-    if "add_mode" not in st.session_state:
-        st.session_state.add_mode = False
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+        ">
+            {icon} {row['reminder_text']} | 📁 {row['project_name']}
+        </div>
+        """, unsafe_allow_html=True)
 
-    if not st.session_state.add_mode:
-
-        if st.button("➕ הוספת תזכורת"):
-            st.session_state.add_mode = True
-            st.rerun()
-
-    else:
-
-        col1, col2, col3, col4 = st.columns([5, 3, 2, 1])
-
-        with col1:
-            text = st.text_input("", placeholder="תזכורת חדשה")
-
-        with col2:
-            project = st.selectbox("", projects["project_name"].tolist())
-
-        with col3:
-            priority = st.selectbox("", ["נמוכה", "בינונית", "גבוהה"])
-
-        with col4:
-            if st.button("✔"):
-
-                reverse = {"נמוכה":"low","בינונית":"medium","גבוהה":"high"}
-
-                new_row = {
-                    "reminder_text": text,
-                    "project_name": project,
-                    "date": today,
-                    "priority": reverse[priority],
-                    "source": "manual"
-                }
-
-                st.session_state.reminders_live.loc[len(st.session_state.reminders_live)] = new_row
-
-                st.session_state.add_mode = False
-                st.rerun()
+st.markdown("</div>", unsafe_allow_html=True)
 
 # =========================
 # AI
