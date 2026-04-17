@@ -5,50 +5,21 @@ import google.generativeai as genai
 
 st.set_page_config(layout="wide")
 
-# ===== Gemini setup (from Streamlit Secrets) =====
-   
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-2.5-flash")
-
-def ask_gemini(prompt):
-    response = model.generate_content(prompt)
-    return response.text
-
-# ===== UI =====
+# ===== כותרת =====
 st.markdown(
     "<h1 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h1>",
     unsafe_allow_html=True
 )
 
-# ===== Load data =====
+# ===== נתונים =====
 projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
 
-# ===== AI Analysis =====
-st.subheader("🤖 ניתוח AI (Gemini)")
-
-if st.button("נתח פרויקטים"):
-    prompt = f"""
-    אתה מנהל פרויקטים בכיר.
-
-    הנה נתוני הפרויקטים:
-    {projects.to_string(index=False)}
-
-    תן:
-    - סיכום מצב כללי
-    - סיכונים מרכזיים
-    - מה דורש טיפול מיידי
-    תשובה קצרה וברורה בעברית.
-    """
-
-    result = ask_gemini(prompt)
-    st.write(result)
-
-# ===== Alerts =====
+# ===== התראות =====
 st.subheader("🚨 התראות")
 
 for _, row in projects.iterrows():
-    name = row.get("project_name", "")
-    status = row.get("status", "")
+    name = row["project_name"]
+    status = row["status"]
 
     if status == "אדום":
         st.error(f"⚠️ פרויקט בסיכון: {name}")
@@ -57,6 +28,49 @@ for _, row in projects.iterrows():
     else:
         st.success(f"✔ תקין: {name}")
 
-# ===== Table =====
+# ===== פרויקטים (RTL כרטיסים) =====
 st.subheader("📁 פרויקטים")
-st.dataframe(projects, use_container_width=True)
+
+for _, row in projects.iterrows():
+    st.markdown(f"""
+<div style="
+    direction: rtl;
+    text-align: right;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    background-color: #fafafa;
+">
+
+**פרויקט:** {row['project_name']}  
+**סטטוס:** {row['status']}  
+
+</div>
+""", unsafe_allow_html=True)
+
+# ===== Gemini AI =====
+st.subheader("🤖 ניתוח AI (Gemini)")
+
+if st.button("נתח פרויקטים עם AI"):
+
+    genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+    model = genai.GenerativeModel("gemini-2.5-flash")
+
+    prompt = f"""
+    אתה מנהל פרויקטים בכיר.
+
+    הנה הנתונים:
+    {projects.to_string(index=False)}
+
+    תן:
+    - סיכום מצב
+    - סיכונים
+    - מה דורש טיפול מיידי
+    בעברית, קצר וברור.
+    """
+
+    response = model.generate_content(prompt)
+
+    st.markdown("### תובנות AI")
+    st.write(response.text)
