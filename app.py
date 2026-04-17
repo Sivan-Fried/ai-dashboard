@@ -171,56 +171,56 @@ st.markdown("### 🔔 תזכורות")
 # =========================
 # תזכורות של היום
 # =========================
-today_reminders = all_reminders[pd.to_datetime(all_reminders["date"]).dt.date == today]
-
-if today_reminders.empty:
-    st.info("אין תזכורות להיום 🎉")
-
-else:
-    for _, row in today_reminders.iterrows():
-
-        icon = "🤖" if row["source"] == "ai" else "✍️"
-
-        st.markdown(f"""
-        <div style="
-            background:white;
-            padding:8px 10px;
-            border-radius:8px;
-            margin-bottom:6px;
-            direction:rtl;
-            text-align:right;
-            font-size:14px;
-            border:1px solid #eee;
-        ">
-            {icon} {row['reminder_text']} 
-            <span style="color:#888;">| 📁 {row['project_name']}</span>
-        </div>
-        """, unsafe_allow_html=True)
-
 # =========================
-# הוספת תזכורת ידנית
+# הוספת תזכורת ידנית (קומפקטי עם פלוס)
 # =========================
-st.markdown("#### ➕ הוספת תזכורת חדשה")
 
-with st.form("add_reminder_form"):
-    text = st.text_input("תזכורת")
-    project = st.selectbox("פרויקט", projects["project_name"].tolist())
-    priority = st.selectbox("עדיפות", ["low", "medium", "high"])
-    submit = st.form_submit_button("הוסף")
+if "show_add_reminder" not in st.session_state:
+    st.session_state.show_add_reminder = False
 
-if submit:
-    new_row = {
-        "reminder_text": text,
-        "project_name": project,
-        "date": pd.Timestamp.today().date(),
-        "priority": priority,
-        "source": "manual"
-    }
+# כפתור פלוס בלבד
+col1, col2 = st.columns([10, 1])
 
-    all_reminders.loc[len(all_reminders)] = new_row
+with col2:
+    if st.button("➕"):
+        st.session_state.show_add_reminder = not st.session_state.show_add_reminder
 
-    st.success("התזכורת נוספה בהצלחה ✅")
-    st.rerun()
+# טופס נפתח רק אם לחצו
+if st.session_state.show_add_reminder:
+
+    with st.form("add_reminder_form"):
+        text = st.text_input("",
+            placeholder="למשל: להתחיל אפיון בוט סוכנים"
+        )
+
+        project = st.selectbox(
+            "",
+            projects["project_name"].tolist(),
+            index=0
+        )
+
+        priority = st.selectbox(
+            "",
+            ["low", "medium", "high"],
+            index=1
+        )
+
+        submit = st.form_submit_button("שמור תזכורת")
+
+    if submit:
+        new_row = {
+            "reminder_text": text,
+            "project_name": project,
+            "date": pd.Timestamp.today().date(),
+            "priority": priority,
+            "source": "manual"
+        }
+
+        all_reminders.loc[len(all_reminders)] = new_row
+
+        st.success("נוסף בהצלחה ✅")
+        st.session_state.show_add_reminder = False
+        st.rerun()
         
 # =========================
 # AI (Gemini)
