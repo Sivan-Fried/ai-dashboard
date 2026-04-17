@@ -16,17 +16,22 @@ st.markdown(
 # =========================
 # 👤 תמונת פרופיל (תיקון: PNG)
 # =========================
-import os
+import base64
 
-img_path = os.path.join(os.path.dirname(__file__), "profile.png")
-st.markdown("""
+def get_base64_image(path):
+    with open(path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+
+img_base64 = get_base64_image("profile.png")
+
+st.markdown(f"""
 <div style="
     display: flex;
     justify-content: center;
     margin-top: 10px;
     margin-bottom: 10px;
 ">
-    <img src="profile.png" style="
+    <img src="data:image/png;base64,{img_base64}" style="
         width:140px;
         height:140px;
         border-radius:50%;
@@ -36,8 +41,6 @@ st.markdown("""
     ">
 </div>
 """, unsafe_allow_html=True)
-
-st.markdown("<br>", unsafe_allow_html=True)
 
 # =========================
 # נתונים
