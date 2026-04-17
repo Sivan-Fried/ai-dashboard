@@ -19,7 +19,23 @@ st.markdown(
 import os
 
 img_path = os.path.join(os.path.dirname(__file__), "profile.png")
-st.image(img_path, width=120)
+st.markdown("""
+<div style="
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+">
+    <img src="profile.png" style="
+        width:140px;
+        height:140px;
+        border-radius:50%;
+        object-fit: cover;
+        border: 3px solid #ddd;
+        box-shadow: 0px 2px 10px rgba(0,0,0,0.15);
+    ">
+</div>
+""", unsafe_allow_html=True)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
