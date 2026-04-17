@@ -164,14 +164,19 @@ st.markdown("<hr>", unsafe_allow_html=True)
 
 st.markdown("### 🔔 תזכורות")
 
+st.markdown("<hr>", unsafe_allow_html=True)
+
+st.markdown("### 🔔 תזכורות")
+
+# =========================
+# תזכורות של היום
+# =========================
 today_reminders = all_reminders[pd.to_datetime(all_reminders["date"]).dt.date == today]
 
 if today_reminders.empty:
     st.info("אין תזכורות להיום 🎉")
 
 else:
-    st.markdown("#### 🤖 תזכורות שנוצרו ע״י סוכן ה-AI שלך")
-
     for _, row in today_reminders.iterrows():
 
         icon = "🤖" if row["source"] == "ai" else "✍️"
@@ -191,6 +196,31 @@ else:
             <span style="color:#888;">| 📁 {row['project_name']}</span>
         </div>
         """, unsafe_allow_html=True)
+
+# =========================
+# הוספת תזכורת ידנית
+# =========================
+st.markdown("#### ➕ הוספת תזכורת חדשה")
+
+with st.form("add_reminder_form"):
+    text = st.text_input("תזכורת")
+    project = st.selectbox("פרויקט", projects["project_name"].tolist())
+    priority = st.selectbox("עדיפות", ["low", "medium", "high"])
+    submit = st.form_submit_button("הוסף")
+
+if submit:
+    new_row = {
+        "reminder_text": text,
+        "project_name": project,
+        "date": pd.Timestamp.today().date(),
+        "priority": priority,
+        "source": "manual"
+    }
+
+    all_reminders.loc[len(all_reminders)] = new_row
+
+    st.success("התזכורת נוספה בהצלחה ✅")
+    st.rerun()
         
 # =========================
 # AI (Gemini)
