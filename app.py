@@ -19,9 +19,10 @@ st.markdown(
 projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
 
 # =========================
-# 🚨 התראות (מתוקן עסקית)
+# 🚨 התראות
 # =========================
 st.markdown("<h4 style='text-align:right'>🚨 התראות</h4>", unsafe_allow_html=True)
+
 for _, row in projects.iterrows():
     name = row["project_name"]
     status = row["status"]
@@ -49,17 +50,17 @@ for _, row in projects.iterrows():
 
     st.markdown(f"""
     <div style="
-        padding: 10px;
-        margin-bottom: 6px;
+        direction: rtl;
+        text-align: right;
+        padding: 12px;
+        margin-bottom: 8px;
         border-radius: 10px;
         border: 1px solid {border};
         background-color: {color};
         color: {text_color};
-        direction: rtl;
-        text-align: right;
     ">
-        {icon} <b>{name}</b><br>
-        {label}
+        <b>{name}</b><br>
+        {label} {icon}
     </div>
     """, unsafe_allow_html=True)
 
