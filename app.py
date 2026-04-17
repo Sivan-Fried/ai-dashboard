@@ -176,6 +176,10 @@ with c3:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
+# =========================
+# פרויקטים
+# =========================
+
 st.markdown("### 📁 פרויקטים")
 
 if "selected_project" not in st.session_state:
@@ -186,12 +190,10 @@ for _, row in projects.iterrows():
     project_name = row["project_name"]
     status = row["status"]
 
-    # צבע לפי סטטוס (אפשר לשפר בהמשך)
-    bg = "#ffffff"
-
+    # כרטיס ויזואלי
     st.markdown(f"""
     <div style="
-        background:{bg};
+        background:white;
         border:1px solid #eee;
         padding:10px;
         border-radius:10px;
@@ -199,14 +201,24 @@ for _, row in projects.iterrows():
         direction:rtl;
         text-align:right;
         box-shadow:0 1px 3px rgba(0,0,0,0.05);
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
     ">
+        <div>
+            📌 <b>{project_name}</b><br>
+            <span style="color:gray; font-size:12px;">{status}</span>
+        </div>
+    </div>
     """, unsafe_allow_html=True)
 
-    if st.button(f"{project_name} — {status}", key=project_name):
-        st.session_state.selected_project = project_name
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
+    # קליק אמיתי (ללא כפתור נראה)
+    st.link_button(
+        label="פתח פרויקט",
+        url=f"#",
+        use_container_width=True,
+        on_click=lambda p=project_name: st.session_state.update({"selected_project": p})
+    )
 # =========================
 # 🔥 חשוב – הגדרת עמודות (לא לגעת!)
 # =========================
