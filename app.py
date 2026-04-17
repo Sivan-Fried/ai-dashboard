@@ -39,62 +39,72 @@ h1, h2, h3 {
 st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
 
 # =========================
-# פרופיל + ברכה
+# פרופיל + ברכה (יציב!)
 # =========================
-def get_base64_image(path):
-    with open(path, "rb") as img_file:
-        return base64.b64encode(img_file.read()).decode()
+import datetime
 
-hour = datetime.datetime.now().hour
+col_text, col_img = st.columns([2,1])
 
-if 5 <= hour < 12:
-    greeting = "בוקר טוב"
-elif 12 <= hour < 18:
-    greeting = "צהריים טובים"
-elif 18 <= hour < 22:
-    greeting = "ערב טוב"
-else:
-    greeting = "לילה טוב"
+# ---- ברכה ----
+with col_text:
+    hour = datetime.datetime.now().hour
 
-img_base64 = get_base64_image("profile.png")
+    if 5 <= hour < 12:
+        greeting = "בוקר טוב"
+    elif 12 <= hour < 18:
+        greeting = "צהריים טובים"
+    elif 18 <= hour < 22:
+        greeting = "ערב טוב"
+    else:
+        greeting = "לילה טוב"
 
-st.markdown(f"""
-<div style="
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:20px;
-    margin:15px 0;
-    direction:rtl;
-">
-
+    st.markdown(f"""
     <div style="
-        font-size:20px;
-        font-weight:500;
+        font-size:24px;
+        margin-top:30px;
+        direction:rtl;
+        text-align:right;
         color:#1f2a44;
     ">
         {greeting}, סיון!
     </div>
+    """, unsafe_allow_html=True)
 
-    <div style="
-        width:120px;
-        height:120px;
-        border-radius:50%;
-        overflow:hidden;
-        border:3px solid #ddd;
-        box-shadow:0 2px 10px rgba(0,0,0,0.15);
-    ">
-        <img src="data:image/png;base64,{img_base64}" style="
-            width:100%;
-            height:100%;
-            object-fit:cover;
-            object-position:center top;
+# ---- תמונה ----
+with col_img:
+    try:
+        st.markdown("""
+        <div style="display:flex; justify-content:center;">
+        """, unsafe_allow_html=True)
+
+        def get_base64_image(path):
+            with open(path, "rb") as img_file:
+                return base64.b64encode(img_file.read()).decode()
+
+        img_base64 = get_base64_image("profile.png")
+
+        st.markdown(f"""
+        <div style="
+            width:120px;
+            height:120px;
+            border-radius:50%;
+            overflow:hidden;
+            border:3px solid #ddd;
+            box-shadow:0 2px 10px rgba(0,0,0,0.15);
         ">
-    </div>
+            <img src="data:image/png;base64,{img_base64}" style="
+                width:100%;
+                height:100%;
+                object-fit:cover;
+                object-position:center top;
+            ">
+        </div>
+        """, unsafe_allow_html=True)
 
-</div>
-""", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
+    except:
+        st.warning("לא נמצאה תמונת פרופיל")
 # =========================
 # נתונים
 # =========================
