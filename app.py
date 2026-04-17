@@ -70,6 +70,29 @@ st.markdown(f"""
 # =========================
 projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
 meetings = pd.read_excel("meetings.xlsx", engine="openpyxl")
+reminders = pd.read_excel("reminders.xlsx", engine="openpyxl")
+
+# =========================
+# תזכורות AI
+# =========================
+def generate_ai_reminders(projects_df):
+    ai_list = []
+
+    for _, row in projects_df.iterrows():
+
+        if row["status"] in ["צהוב", "אדום"]:
+            ai_list.append({
+                "reminder_text": f"התחלה/מעקב על {row['project_name']}",
+                "project_name": row["project_name"],
+                "date": pd.Timestamp.today().date(),
+                "priority": "high",
+                "source": "ai"
+            })
+
+    return pd.DataFrame(ai_list)
+
+ai_reminders = generate_ai_reminders(projects)
+all_reminders = pd.concat([reminders, ai_reminders], ignore_index=True)
 
 # =========================
 # KPI
@@ -92,32 +115,20 @@ st.markdown("<br>", unsafe_allow_html=True)
 # =========================
 col_left, col_right = st.columns([1, 2])
 
-# -------- התראות --------
 with col_left:
     st.markdown("### 🚨 התראות")
 
     for _, row in projects.iterrows():
-        status = row["status"]
-        name = row["project_name"]
-
-        if status == "אדום":
-            icon = "🔴"
-            label = "פרויקט בסיכון"
-        elif status == "צהוב":
-            icon = "🟡"
-            label = "דורש מעקב"
-        else:
-            icon = "🟢"
-            label = "תקין"
+        icon = "🔴" if row["status"] == "אדום" else "🟡" if row["status"] == "צהוב" else "🟢"
+        label = "פרויקט בסיכון" if row["status"] == "אדום" else "דורש מעקב" if row["status"] == "צהוב" else "תקין"
 
         st.markdown(f"""
         <div class="card">
-            {icon} <b>{label}</b><br>
-            {name}
+            {icon} {label}<br>
+            {row['project_name']}
         </div>
         """, unsafe_allow_html=True)
 
-# -------- פרויקטים --------
 with col_right:
     st.markdown("### 📁 פרויקטים")
     st.dataframe(projects, use_container_width=True)
@@ -125,10 +136,8 @@ with col_right:
 st.markdown("<hr>", unsafe_allow_html=True)
 
 # =========================
-# פגישות היום
+# פגישות
 # =========================
-st.markdown("<hr>", unsafe_allow_html=True)
-
 st.markdown("### 📅 פגישות היום")
 
 today = pd.Timestamp.today().date()
@@ -136,28 +145,55 @@ today_meetings = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
 
 if today_meetings.empty:
     st.info("אין פגישות היום 🎉")
-
 else:
     for _, row in today_meetings.iterrows():
         st.markdown(f"""
-        <div style="
-            background:white;
-            padding:12px;
-            border-radius:10px;
-            box-shadow:0 1px 6px rgba(0,0,0,0.08);
-            margin-bottom:10px;
-            direction:rtl;
-            text-align:right;
-            font-size:14px;
-        ">
-            📌 <b>{row['meeting_title']}</b><br>
+        <div class="card">
+            📌 {row['meeting_title']}<br>
             🕒 {row['time']}<br>
             📁 {row['project_name']}
         </div>
         """, unsafe_allow_html=True)
-    
+
+st.markdown("<hr>", unsafe_allow_html=True)
+
 # =========================
-# AI
+# תזכורות
+# =========================
+st.markdown("### 🔔 תזכורות")
+
+today_reminders = all_reminders[pd.to_datetime(all_reminders["date"]).dt.date == today]
+
+if today_reminders.empty:
+    st.info("אין תזכורות להיום 🎉")
+
+else:
+    for _, row in today_reminders.iterrows():
+
+        color = "#fff"
+        if row["priority"] == "high":
+            color = "#ffe5e5"
+        elif row["priority"] == "medium":
+            color = "#fff7e6"
+
+        icon = "🤖" if row["source"] == "ai" else "✍️"
+
+        st.markdown(f"""
+        <div style="
+            background:{color};
+            padding:10px;
+            border-radius:10px;
+            margin-bottom:8px;
+            direction:rtl;
+            text-align:right;
+        ">
+            {icon} {row['reminder_text']}<br>
+            📁 {row['project_name']}
+        </div>
+        """, unsafe_allow_html=True)
+
+# =========================
+# AI (Gemini)
 # =========================
 st.markdown("### 🤖 אזור AI")
 
@@ -168,9 +204,6 @@ user_question = st.text_area("שאלה חופשית על הפרויקטים")
 
 run = st.button("שלח ל-AI")
 
-# =========================
-# Gemini
-# =========================
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-1.5-flash")
 
@@ -180,13 +213,9 @@ def ask_gemini(prompt):
     except Exception as e:
         return f"❌ שגיאה: {e}"
 
-# =========================
-# הרצת AI
-# =========================
 if run:
 
     row = projects[projects["project_name"] == selected_project].iloc[0]
-
     context = projects.to_string(index=False)
 
     prompt = f"""
