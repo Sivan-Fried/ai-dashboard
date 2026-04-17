@@ -52,7 +52,13 @@ def get_base64_image(path):
 img_base64 = get_base64_image("profile.png")
 
 # --- ברכה ---
-now = datetime.datetime.now()
+import datetime
+import pytz
+
+# זמן ישראל
+tz = pytz.timezone("Asia/Jerusalem")
+now = datetime.datetime.now(tz)
+
 hour = now.hour
 
 if 5 <= hour < 12:
