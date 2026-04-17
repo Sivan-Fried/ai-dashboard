@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import os
 import google.generativeai as genai
-import time
 
 st.set_page_config(layout="wide")
 
@@ -14,19 +13,14 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.markdown("<br>", unsafe_allow_html=True)
+# =========================
+# 👤 תמונת פרופיל (חדש)
+# =========================
+st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
+st.image("profile.jpg", width=120)
+st.markdown("</div>", unsafe_allow_html=True)
 
-st.markdown("""
-<div style="text-align:center; margin-top:10px;">
-    <img src="profile.jpg" style="
-        width:120px;
-        height:120px;
-        border-radius:50%;
-        object-fit:cover;
-        border:3px solid #ddd;
-    ">
-</div>
-""", unsafe_allow_html=True)
+st.markdown("<br>", unsafe_allow_html=True)
 
 # =========================
 # נתונים
@@ -96,8 +90,8 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 st.markdown("<h4 style='text-align:right'>🤖 אזור AI</h4>", unsafe_allow_html=True)
 
 project_names = projects["project_name"].tolist()
-selected_project = st.selectbox("בחרי פרויקט", project_names)
 
+selected_project = st.selectbox("בחרי פרויקט", project_names)
 user_question = st.text_area("שאלה חופשית על הפרויקטים")
 
 run = st.button("שלח ל-AI / נתח פרויקט")
@@ -106,32 +100,11 @@ run = st.button("שלח ל-AI / נתח פרויקט")
 # Gemini setup
 # =========================
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-1.5-flash")  # יותר יציב
-
-# =========================
-# 🧠 Cache למניעת בזבוז API
-# =========================
-if "cache" not in st.session_state:
-    st.session_state.cache = {}
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 def ask_gemini(prompt):
-
-    # אם כבר שאלנו את אותו דבר → לא פונים ל-Gemini שוב
-    if prompt in st.session_state.cache:
-        return st.session_state.cache[prompt]
-
     try:
-        response = model.generate_content(prompt)
-        answer = response.text
-
-        # שמירה בזיכרון
-        st.session_state.cache[prompt] = answer
-
-        # מניעת ספאם מהיר
-        time.sleep(1)
-
-        return answer
-
+        return model.generate_content(prompt).text
     except Exception as e:
         return f"❌ שגיאה: {e}"
 
