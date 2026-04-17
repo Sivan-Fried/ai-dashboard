@@ -216,7 +216,9 @@ for _, row in projects.iterrows():
         <div>{dot}</div>
     </div>
     """, unsafe_allow_html=True)
-        
+    
+    st.markdown("---")
+
 # =========================
 # 🔥 חשוב – הגדרת עמודות (לא לגעת!)
 # =========================
