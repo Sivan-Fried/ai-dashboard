@@ -29,7 +29,10 @@ for _, row in projects.iterrows():
         st.success(f"✔ תקין: {name}")
 
 # ===== טבלה =====
-st.subheader("📁 פרויקטים")
+st.markdown(
+    "<h2 style='text-align:right'>📁 פרויקטים</h2>",
+    unsafe_allow_html=True
+)
 st.dataframe(projects, use_container_width=True)
 
 # ===== Gemini =====
