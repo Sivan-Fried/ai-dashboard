@@ -19,8 +19,14 @@ section.main > div {
 """, unsafe_allow_html=True)
 
 st.subheader("פרויקטים")
-st.dataframe(projects)
+st.markdown("### פרויקטים")
 
+for _, row in projects.iterrows():
+    st.markdown(f"""
+    **פרויקט:** {row['project_name']}  
+    **סטטוס:** {row['status']}  
+    ---
+    """)
 st.subheader("🚨 התראות")
 
 for _, row in projects.iterrows():
