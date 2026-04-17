@@ -18,8 +18,8 @@ projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
 st.subheader("🚨 התראות")
 
 for _, row in projects.iterrows():
-    name = row.get("project_name", "")
-    status = row.get("status", "")
+    name = row["project_name"]
+    status = row["status"]
 
     if status == "אדום":
         st.error(f"⚠️ פרויקט בסיכון: {name}")
@@ -28,67 +28,84 @@ for _, row in projects.iterrows():
     else:
         st.success(f"✔ תקין: {name}")
 
-# ===== טבלת פרויקטים =====
+# ===== טבלה =====
 st.subheader("📁 פרויקטים")
 st.dataframe(projects, use_container_width=True)
 
-# ===== Gemini setup =====
+# ===== Gemini =====
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-2.5-flash")
 
 def ask_gemini(prompt):
-    try:
-        return model.generate_content(prompt).text
-    except Exception:
-        return "⚠️ שגיאה או עומס על Gemini – נסי שוב בעוד דקה"
+    return model.generate_content(prompt).text
 
-# =========================
-# ניתוח פרויקט ספציפי
-# =========================
+# ===== ניתוח פרויקט =====
 st.subheader("🎯 ניתוח פרויקט")
 
 project_names = projects["project_name"].tolist()
 selected_project = st.selectbox("בחרי פרויקט", project_names)
 
 if st.button("נתח פרויקט"):
+
     row = projects[projects["project_name"] == selected_project].iloc[0]
 
     prompt = f"""
-    את מומחית לניהול פרויקטים.
-
-    נתחי את הפרויקט:
+    נתח את הפרויקט:
 
     שם: {row['project_name']}
     סטטוס: {row['status']}
 
-    תני:
+    תן:
     - סיכון
     - בעיות
-    - המלצה
-    בעברית קצרה וברורה
+    - המלצה קצרה
+    בעברית
     """
 
     result = ask_gemini(prompt)
-    st.markdown("### 🤖 תובנות AI")
-    st.write(result)
 
-# =========================
-# צ'אט חופשי עם הקשר מלא
-# =========================
+    # ===== RTL אמיתי לתוצאה =====
+    st.markdown(
+        f"""
+        <div style="
+            direction: rtl;
+            text-align: right;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            background-color: #fafafa;
+        ">
+        {result}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+# ===== צ'אט חופשי =====
 st.subheader("💬 שיחה חופשית עם AI")
 
-user_question = st.text_area("שאלי שאלה חופשית על הפרויקטים")
+user_question = st.text_area("שאלי שאלה")
 
 if st.button("שלח ל-AI"):
 
-    if user_question.strip() == "":
-        st.warning("כתבי שאלה קודם")
-    else:
+    if user_question.strip():
 
-        # הקשר מלא של הדאטה
         projects_context = projects.to_string(index=False)
 
         prompt = f"""
+        את עוזרת לניהול פרויקטים.
+
+        נתונים:
+        {projects_context}
+
+        שאלה:
+        {user_question}
+
+        תשובה בעברית קצרה וברורה.
+        """
+
+        result = ask_gemini(prompt)
+        st.write(result)  prompt = f"""
         את עוזרת לניהול פרויקטים בכירה.
 
         הנה כל הנתונים:
