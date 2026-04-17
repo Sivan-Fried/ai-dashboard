@@ -10,7 +10,13 @@ st.title("📊 Dashboard AI לניהול פרויקטים")
 projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
 
 # RTL לטקסטים בלבד (לא טבלאות)
-st.markdown("<div dir='rtl' style='text-align:right'>", unsafe_allow_html=True)
+st.markdown("""
+<style>
+section.main > div {
+    direction: rtl;
+}
+</style>
+""", unsafe_allow_html=True)
 
 st.subheader("פרויקטים")
 st.dataframe(projects)
