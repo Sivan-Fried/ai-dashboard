@@ -5,9 +5,9 @@ import google.generativeai as genai
 
 st.set_page_config(layout="wide")
 
-# ===== כותרת =====
+# ===== כותרת ראשית =====
 st.markdown(
-    "<h1 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h1>",
+    "<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>",
     unsafe_allow_html=True
 )
 
@@ -15,11 +15,14 @@ st.markdown(
 projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
 
 # ===== התראות =====
-st.subheader("🚨 התראות")
+st.markdown(
+    "<h4 style='text-align:right; margin-bottom:10px;'>🚨 התראות</h4>",
+    unsafe_allow_html=True
+)
 
 for _, row in projects.iterrows():
-    name = row["project_name"]
-    status = row["status"]
+    name = row.get("project_name", "")
+    status = row.get("status", "")
 
     if status == "אדום":
         st.error(f"⚠️ פרויקט בסיכון: {name}")
@@ -28,14 +31,31 @@ for _, row in projects.iterrows():
     else:
         st.success(f"✔ תקין: {name}")
 
-# ===== טבלה =====
+# ===== פרויקטים =====
 st.markdown(
     "<h4 style='text-align:right; margin-bottom:10px;'>📁 פרויקטים</h4>",
     unsafe_allow_html=True
 )
-st.dataframe(projects, use_container_width=True)
 
-# ===== Gemini =====
+for _, row in projects.iterrows():
+    st.markdown(f"""
+    <div style="
+        direction: rtl;
+        text-align: right;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        background-color: #fafafa;
+    ">
+
+    **פרויקט:** {row['project_name']}  
+    **סטטוס:** {row['status']}  
+
+    </div>
+    """, unsafe_allow_html=True)
+
+# ===== Gemini setup =====
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-2.5-flash")
 
@@ -43,7 +63,10 @@ def ask_gemini(prompt):
     return model.generate_content(prompt).text
 
 # ===== ניתוח פרויקט =====
-st.subheader("🎯 ניתוח פרויקט")
+st.markdown(
+    "<h4 style='text-align:right; margin-bottom:10px;'>🎯 ניתוח פרויקט</h4>",
+    unsafe_allow_html=True
+)
 
 project_names = projects["project_name"].tolist()
 selected_project = st.selectbox("בחרי פרויקט", project_names)
@@ -62,21 +85,20 @@ if st.button("נתח פרויקט"):
     - סיכון
     - בעיות
     - המלצה קצרה
-    בעברית
+    בעברית קצרה וברורה
     """
 
     result = ask_gemini(prompt)
 
-    # ===== RTL אמיתי לתוצאה =====
     st.markdown(
         f"""
         <div style="
             direction: rtl;
             text-align: right;
-            padding: 15px;
-            border-radius: 10px;
+            padding: 12px;
+            border-radius: 12px;
             border: 1px solid #ddd;
-            background-color: #fafafa;
+            background-color: #ffffff;
         ">
         {result}
         </div>
@@ -85,9 +107,12 @@ if st.button("נתח פרויקט"):
     )
 
 # ===== צ'אט חופשי =====
-st.subheader("💬 שיחה חופשית עם AI")
+st.markdown(
+    "<h4 style='text-align:right; margin-bottom:10px;'>💬 שיחה חופשית עם AI</h4>",
+    unsafe_allow_html=True
+)
 
-user_question = st.text_area("שאלי שאלה")
+user_question = st.text_area("שאלי שאלה על הפרויקטים")
 
 if st.button("שלח ל-AI"):
 
@@ -109,4 +134,18 @@ if st.button("שלח ל-AI"):
 
         result = ask_gemini(prompt)
 
-        st.write(result)
+        st.markdown(
+            f"""
+            <div style="
+                direction: rtl;
+                text-align: right;
+                padding: 12px;
+                border-radius: 12px;
+                border: 1px solid #ddd;
+                background-color: #fafafa;
+            ">
+            {result}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
