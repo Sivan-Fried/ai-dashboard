@@ -3,9 +3,8 @@ import pandas as pd
 
 st.markdown("""
 <style>
-html, body, [class*="css"]  {
+html, body {
     direction: rtl;
-    text-align: right;
 }
 </style>
 """, unsafe_allow_html=True)
