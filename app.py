@@ -5,14 +5,8 @@ import google.generativeai as genai
 
 st.set_page_config(layout="wide")
 
-# =========================
-# כותרת
-# =========================
 st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
 
-# =========================
-# נתונים
-# =========================
 projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
 
 # =========================
@@ -25,77 +19,64 @@ def ask_gemini(prompt):
     return model.generate_content(prompt).text
 
 # =========================
-# מבנה עמוד קבוע (חשוב ליציבות)
-# =========================
-top, middle, bottom = st.columns(3)
-
-# =========================
 # התראות
 # =========================
-with top:
-    st.markdown("### 🚨 התראות")
+st.markdown("### 🚨 התראות")
 
-    for _, row in projects.iterrows():
-        status = row["status"]
+for _, row in projects.iterrows():
+    status = row["status"]
 
-        color = "#e6ffe6" if status == "ירוק" else "#fff7e6" if status == "צהוב" else "#ffe5e5"
+    color = "#e6ffe6" if status == "ירוק" else "#fff7e6" if status == "צהוב" else "#ffe5e5"
 
-        st.markdown(f"""
-        <div style="padding:10px;margin-bottom:6px;border-radius:8px;
-        background:{color};border:1px solid #ddd;text-align:right;direction:rtl">
-        <b>{row['project_name']}</b><br>{status}
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown(
+        "<div style='direction:rtl;text-align:right;padding:10px;margin-bottom:6px;"
+        f"border-radius:10px;background:{color};border:1px solid #ddd'>"
+        f"<b>{row['project_name']}</b><br>{status}</div>",
+        unsafe_allow_html=True
+    )
+
+st.markdown("---")
 
 # =========================
 # פרויקטים
 # =========================
-with middle:
-    st.markdown("### 📁 פרויקטים")
-    st.dataframe(projects, use_container_width=True)
+st.markdown("### 📁 פרויקטים")
+st.dataframe(projects, use_container_width=True)
+
+st.markdown("---")
 
 # =========================
 # AI
 # =========================
-with bottom:
-    st.markdown("### 🤖 אזור AI")
+st.markdown("### 🤖 אזור AI")
 
-    project = st.selectbox("בחרי פרויקט", projects["project_name"].tolist())
-    question = st.text_area("שאלה חופשית")
+project = st.selectbox("בחרי פרויקט", projects["project_name"].tolist())
+question = st.text_area("שאלה")
 
-    run = st.button("שלח")
+run = st.button("שלח ל-AI")
 
-    if run:
-        row = projects[projects["project_name"] == project].iloc[0]
+if run:
 
-        prompt = f"""
-        נתונים:
-        {projects.to_string(index=False)}
+    row = projects[projects["project_name"] == project].iloc[0]
 
-        פרויקט:
-        {row['project_name']} - {row['status']}
+    context = projects.to_string(index=False)
 
-        שאלה:
-        {question}
-        """
+    prompt = (
+        "נתוני פרויקטים:\n"
+        f"{context}\n\n"
+        "פרויקט נבחר:\n"
+        f"{row['project_name']} - {row['status']}\n\n"
+        "שאלה:\n"
+        f"{question}\n"
+    )
 
-        result = ask_gemini(prompt)
+    result = ask_gemini(prompt)
 
-        st.markdown(f"""
-        <div style="
-            direction:rtl;
-            text-align:right;
-            padding:12px;
-            border-radius:10px;
-            background:#fafafa;
-            border:1px solid #ddd;
-            white-space:pre-wrap;
-        ">
-        {result}
-        </div>
-        """, unsafe_allow_html=True)
-        {result}
-        </div>
-        """,
+    st.markdown("### תשובת AI")
+
+    st.markdown(
+        "<div style='direction:rtl;text-align:right;padding:14px;"
+        "border-radius:10px;background:#fafafa;border:1px solid #ddd;white-space:pre-wrap'>"
+        f"{result}</div>",
         unsafe_allow_html=True
     )
