@@ -19,7 +19,7 @@ st.markdown(
 projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
 
 # =========================
-# 🚨 התראות (חזר!)
+# 🚨 התראות
 # =========================
 st.markdown("<h4 style='text-align:right'>🚨 התראות</h4>", unsafe_allow_html=True)
 
@@ -56,8 +56,8 @@ for _, row in projects.iterrows():
         background-color: {color};
         color: {text_color};
     ">
-    {icon} <b>{name}</b><br>
-    סטטוס: {status}
+        {icon} <b>{name}</b><br>
+        סטטוס: {status}
     </div>
     """, unsafe_allow_html=True)
 
@@ -80,15 +80,15 @@ for _, row in projects.iterrows():
         margin-bottom: 8px;
         border-radius: 10px;
         border: 1px solid #ddd;
-        background: #ffffff;
+        background-color: #ffffff;
     ">
-    <b>פרויקט:</b> {row['project_name']}<br>
-    <b>סטטוס:</b> {row['status']}
+        <b>פרויקט:</b> {row['project_name']}<br>
+        <b>סטטוס:</b> {row['status']}
     </div>
     """, unsafe_allow_html=True)
 
 # =========================
-# Gemini
+# Gemini setup
 # =========================
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-2.5-flash")
@@ -97,23 +97,23 @@ def ask_gemini(prompt):
     try:
         return model.generate_content(prompt).text
     except:
-        return "⚠️ שגיאה / עומס על Gemini"
+        return "⚠️ שגיאה או עומס ב-Gemini"
 
 # =========================
-# 🤖 AI אזור
+# 🤖 אזור AI
 # =========================
 st.markdown("<br><h4 style='text-align:right'>🤖 אזור AI</h4>", unsafe_allow_html=True)
 
-col1, col2 = st.columns([2, 1])
+col1, col2 = st.columns([1, 2])  # col2 = יותר מקום לימין
 
-with col1:
+with col2:
 
     project_names = projects["project_name"].tolist()
     selected_project = st.selectbox("בחרי פרויקט", project_names)
 
     user_question = st.text_area("שאלי שאלה על הפרויקטים")
 
-    run = st.button("שלח ל-AI / נתח")
+    run = st.button("שלח ל-AI / נתח פרויקט")
 
 # =========================
 # הרצת AI
@@ -121,12 +121,13 @@ with col1:
 if run:
 
     row = projects[projects["project_name"] == selected_project].iloc[0]
+
     context = projects.to_string(index=False)
 
     prompt = f"""
     את עוזרת לניהול פרויקטים.
 
-    כל הנתונים:
+    נתונים:
     {context}
 
     פרויקט נבחר:
@@ -139,6 +140,8 @@ if run:
     """
 
     result = ask_gemini(prompt)
+
+    st.markdown("<br>", unsafe_allow_html=True)
 
     st.markdown(f"""
     <div style="
