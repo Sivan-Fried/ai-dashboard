@@ -39,12 +39,12 @@ h1, h2, h3 {
 st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
 
 # =========================
-# פרופיל יציב – תמונה באמצע + טקסט משמאל
+# פרופיל – טקסט צמוד לתמונה (ללא רווח גדול)
 # =========================
 import datetime
 import base64
 
-# --- תמונה (כמו שהיה) ---
+# --- תמונה (לא משנים כלום) ---
 def get_base64_image(path):
     with open(path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode()
@@ -67,17 +67,18 @@ else:
 date_str = now.strftime("%d/%m/%Y %H:%M")
 
 # =========================
-# פריסה נכונה (הפתרון האמיתי)
+# פריסה צמודה (הקטנת רווחים)
 # =========================
-left, center, right = st.columns([1.2, 1, 1.2])
+col_text, col_img = st.columns([0.8, 1], gap="small")
 
-# --- טקסט משמאל ---
-with left:
+# --- טקסט צמוד ---
+with col_text:
     st.markdown(f"""
     <div style="
         direction:rtl;
         text-align:right;
-        margin-top:40px;
+        margin-top:35px;
+        line-height:1.2;
         color:#1f2a44;
     ">
         <div style="font-size:22px;">
@@ -89,8 +90,8 @@ with left:
     </div>
     """, unsafe_allow_html=True)
 
-# --- תמונה באמצע (בדיוק כמו שהיה) ---
-with center:
+# --- תמונה (כמו שהיה) ---
+with col_img:
     st.markdown(f"""
     <div style="
         display:flex;
@@ -114,10 +115,6 @@ with center:
         </div>
     </div>
     """, unsafe_allow_html=True)
-
-# --- ריק לשמירה על איזון ---
-with right:
-    st.write("")
     
 # =========================
 # נתונים
