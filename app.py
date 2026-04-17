@@ -166,76 +166,46 @@ with col_right:
             """, unsafe_allow_html=True)
 
 # -------- תזכורות --------
-with col_left:
+# =========================
+# 🔔 תזכורות (פתרון יציב Streamlit)
+# =========================
 
-    st.markdown("### 🔔 תזכורות")
+st.markdown("### 🔔 תזכורות")
 
-    today_reminders = st.session_state.reminders_live[
-        pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today
-    ]
+today_reminders = st.session_state.reminders_live[
+    pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today
+]
 
-    st.markdown('<div class="reminder-box">', unsafe_allow_html=True)
+if today_reminders.empty:
+    st.info("אין תזכורות להיום 🎉")
 
-    if today_reminders.empty:
-        st.info("אין תזכורות להיום 🎉")
+else:
+    reminders_list = today_reminders.to_dict("records")
 
-    else:
-        for _, row in today_reminders.iterrows():
+    # 🔥 מציגים רק 5 ראשונים
+    visible = reminders_list[:5]
+    hidden = reminders_list[5:]
 
-            icon = "🤖" if row["source"] == "ai" else "✍️"
+    for row in visible:
+        icon = "🤖" if row["source"] == "ai" else "✍️"
 
-            st.markdown(f"""
-            <div class="reminder-item">
-                {icon} {row['reminder_text']} | 📁 {row['project_name']}
-            </div>
-            """, unsafe_allow_html=True)
+        st.markdown(f"""
+        <div class="card">
+            {icon} {row['reminder_text']} | 📁 {row['project_name']}
+        </div>
+        """, unsafe_allow_html=True)
 
-    st.markdown("</div>", unsafe_allow_html=True)
+    # 🔽 אם יש עוד → "הצג עוד"
+    if hidden:
+        with st.expander(f"עוד {len(hidden)} תזכורות"):
+            for row in hidden:
+                icon = "🤖" if row["source"] == "ai" else "✍️"
 
-    # =========================
-    # הוספת תזכורת
-    # =========================
-    st.markdown("---")
-
-    if "add_mode" not in st.session_state:
-        st.session_state.add_mode = False
-
-    if not st.session_state.add_mode:
-
-        if st.button("➕ הוספת תזכורת"):
-            st.session_state.add_mode = True
-            st.rerun()
-
-    else:
-
-        col1, col2, col3, col4 = st.columns([5, 3, 2, 1])
-
-        with col1:
-            text = st.text_input("", placeholder="תזכורת חדשה")
-
-        with col2:
-            project = st.selectbox("", projects["project_name"].tolist())
-
-        with col3:
-            priority = st.selectbox("", ["נמוכה", "בינונית", "גבוהה"])
-
-        with col4:
-            if st.button("✔"):
-
-                reverse = {"נמוכה":"low","בינונית":"medium","גבוהה":"high"}
-
-                new_row = {
-                    "reminder_text": text,
-                    "project_name": project,
-                    "date": today,
-                    "priority": reverse[priority],
-                    "source": "manual"
-                }
-
-                st.session_state.reminders_live.loc[len(st.session_state.reminders_live)] = new_row
-
-                st.session_state.add_mode = False
-                st.rerun()
+                st.markdown(f"""
+                <div class="card">
+                    {icon} {row['reminder_text']} | 📁 {row['project_name']}
+                </div>
+                """, unsafe_allow_html=True)
 
 # =========================
 # AI חלק
