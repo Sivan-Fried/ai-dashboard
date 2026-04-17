@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import os
-import time
 import google.generativeai as genai
 
 st.set_page_config(layout="wide")
@@ -29,77 +28,66 @@ for _, row in projects.iterrows():
     else:
         st.success(f"✔ תקין: {name}")
 
-# ===== כרטיסים (RTL אמיתי) =====
+# ===== פרויקטים =====
 st.subheader("📁 פרויקטים")
 
-for _, row in projects.iterrows():
-    st.markdown(f"""
-<div style="
-    direction: rtl;
-    text-align: right;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    margin-bottom: 10px;
-    background-color: #fafafa;
-">
-
-**פרויקט:** {row['project_name']}  
-**סטטוס:** {row['status']}  
-
-</div>
-""", unsafe_allow_html=True)
+st.dataframe(projects, use_container_width=True)
 
 # ===== Gemini setup =====
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-2.5-flash")
 
-# ===== Cache פשוט כדי למנוע קריאות חוזרות =====
-if "last_result" not in st.session_state:
-    st.session_state.last_result = None
-
-if "last_time" not in st.session_state:
-    st.session_state.last_time = 0
-
 def ask_gemini(prompt):
-    try:
-        return model.generate_content(prompt).text
-    except Exception:
-        return "⚠️ עומס על Gemini – נסי שוב בעוד דקה"
+    return model.generate_content(prompt).text
 
-# ===== AI =====
-st.subheader("🤖 ניתוח AI (Gemini)")
 
-if st.button("נתח פרויקטים עם AI"):
+# =========================
+# 1. ניתוח פרויקט ספציפי
+# =========================
+st.subheader("🎯 ניתוח פרויקט")
 
-    # הגנה מ־spam (מונע 429)
-    if time.time() - st.session_state.last_time < 30:
-        st.warning("⏳ חכי 30 שניות בין הרצות AI")
-        st.stop()
+project_names = projects["project_name"].tolist()
+selected_project = st.selectbox("בחרי פרויקט", project_names)
 
-    st.session_state.last_time = time.time()
-
-    # אם כבר יש תוצאה – לא לקרוא שוב ל־API
-    if st.session_state.last_result:
-        st.markdown("### תובנות AI (שמורה)")
-        st.write(st.session_state.last_result)
-        st.stop()
+if st.button("נתח פרויקט"):
+    row = projects[projects["project_name"] == selected_project].iloc[0]
 
     prompt = f"""
-    אתה מנהל פרויקטים בכיר.
+    נתח את הפרויקט:
 
-    נתוני הפרויקטים:
-    {projects.to_string(index=False)}
+    שם: {row['project_name']}
+    סטטוס: {row['status']}
 
     תן:
-    - סיכום מצב
-    - סיכונים
-    - מה דורש טיפול מיידי
-    בעברית קצרה.
+    - סיכון
+    - בעיות
+    - המלצה
+    בעברית קצרה
     """
 
     result = ask_gemini(prompt)
-    st.session_state.last_result = result
-
-    st.markdown("### תובנות AI")
     st.write(result)
+
+
+# =========================
+# 2. צ'אט חופשי עם Gemini
+# =========================
+st.subheader("💬 שיחה חופשית עם AI")
+
+user_question = st.text_area("שאלי שאלה חופשית")
+
+if st.button("שלח ל-AI"):
+    if user_question.strip() == "":
+        st.warning("כתבי שאלה קודם")
+    else:
+        prompt = f"""
+        את עוזרת לניהול פרויקטים.
+
+        עני בעברית בצורה קצרה וברורה:
+
+        שאלה:
+        {user_question}
+        """
+
+        result = ask_gemini(prompt)
+        st.write(result)
