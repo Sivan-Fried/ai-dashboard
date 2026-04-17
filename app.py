@@ -187,14 +187,29 @@ today_reminders = all_reminders[pd.to_datetime(all_reminders["date"]).dt.date ==
 # =========================
 # הצגת תזכורות
 # =========================
+st.markdown("<hr>", unsafe_allow_html=True)
+
+st.markdown("### 🔔 תזכורות")
+
+def priority_hebrew(p):
+    return {"high": "גבוהה", "medium": "בינונית", "low": "נמוכה"}.get(p, p)
+
+ai_reminders = generate_ai_reminders(projects)
+all_reminders = pd.concat([reminders, ai_reminders], ignore_index=True)
+
+today = pd.Timestamp.today().date()
+today_reminders = all_reminders[pd.to_datetime(all_reminders["date"]).dt.date == today]
+
+# =========================
+# הצגת תזכורות קיימות
+# =========================
 if today_reminders.empty:
     st.info("אין תזכורות להיום 🎉")
 
 else:
-    for _, row in today_reminders.iterrows():
+    for i, row in today_reminders.iterrows():
 
         icon = "🤖" if row["source"] == "ai" else "✍️"
-        priority_text = priority_hebrew(row["priority"])
 
         st.markdown(f"""
         <div style="
@@ -207,56 +222,52 @@ else:
             font-size:14px;
             border:1px solid #eee;
         ">
-            {icon} {row['reminder_text']} 
-            <span style="color:#888;">| 📁 {row['project_name']}</span>
-            <span style="color:#555;">| ⚡ {priority_text}</span>
+            {icon} {row['reminder_text']}
+            <span style="color:#888;"> | 📁 {row['project_name']}</span>
+            <span style="color:#555;"> | ⚡ {priority_hebrew(row['priority'])}</span>
         </div>
         """, unsafe_allow_html=True)
 
 # =========================
-# הוספת תזכורת (+ קומפקטי)
+# שורת הוספה INLINE (בסוף הרשימה)
 # =========================
+st.markdown("---")
+st.markdown("➕ הוספת תזכורת מהירה")
 
-if "show_add_reminder" not in st.session_state:
-    st.session_state.show_add_reminder = False
+col1, col2, col3, col4 = st.columns([3, 2, 1, 1])
 
-col1, col2 = st.columns([10, 1])
+with col1:
+    new_text = st.text_input("", placeholder="כתבי תזכורת חדשה", key="new_reminder_text")
 
 with col2:
-    if st.button("➕"):
-        st.session_state.show_add_reminder = not st.session_state.show_add_reminder
+    new_project = st.selectbox("", projects["project_name"].tolist(), key="new_reminder_project")
 
-if st.session_state.show_add_reminder:
+with col3:
+    new_priority = st.selectbox("", ["נמוכה", "בינונית", "גבוהה"], key="new_reminder_priority")
 
-    with st.form("add_reminder_form"):
-        text = st.text_input("", placeholder="מה צריך לעשות?")
-        project = st.selectbox("", projects["project_name"].tolist())
-        priority = st.selectbox("", ["נמוכה", "בינונית", "גבוהה"])
+with col4:
+    add = st.button("➕ הוסף")
 
-        submit = st.form_submit_button("שמור")
+if add and new_text:
 
-    if submit:
+    reverse_priority = {
+        "נמוכה": "low",
+        "בינונית": "medium",
+        "גבוהה": "high"
+    }
 
-        # חזרה לפורמט פנימי באנגלית
-        reverse_priority = {
-            "נמוכה": "low",
-            "בינונית": "medium",
-            "גבוהה": "high"
-        }
+    new_row = {
+        "reminder_text": new_text,
+        "project_name": new_project,
+        "date": pd.Timestamp.today().date(),
+        "priority": reverse_priority[new_priority],
+        "source": "manual"
+    }
 
-        new_row = {
-            "reminder_text": text,
-            "project_name": project,
-            "date": pd.Timestamp.today().date(),
-            "priority": reverse_priority[priority],
-            "source": "manual"
-        }
+    all_reminders.loc[len(all_reminders)] = new_row
 
-        all_reminders.loc[len(all_reminders)] = new_row
-
-        st.success("התזכורת נוספה ✅")
-        st.session_state.show_add_reminder = False
-        st.rerun()
+    st.success("נוסף בהצלחה ✅")
+    st.rerun()
         
 # =========================
 # AI (Gemini)
