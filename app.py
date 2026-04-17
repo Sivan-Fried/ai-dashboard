@@ -216,15 +216,6 @@ for _, row in projects.iterrows():
         <div>{dot}</div>
     </div>
     """, unsafe_allow_html=True)
-
-# בחירה בלי כפתורים בכלל
-selected = st.selectbox(
-    "בחר פרויקט",
-    projects["project_name"].tolist(),
-    label_visibility="collapsed"
-)
-
-st.session_state.selected_project = selected
         
 # =========================
 # 🔥 חשוב – הגדרת עמודות (לא לגעת!)
