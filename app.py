@@ -13,15 +13,10 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# =========================
-# 👤 תמונת פרופיל (חדש)
-# =========================
-st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
-st.image("profile.jpg", width=120)
-st.markdown("</div>", unsafe_allow_html=True)
+import os
 
-st.markdown("<br>", unsafe_allow_html=True)
-
+img_path = os.path.join(os.path.dirname(__file__), "profile.jpg")
+st.image(img_path, width=120)
 # =========================
 # נתונים
 # =========================
