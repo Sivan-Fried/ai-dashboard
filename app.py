@@ -190,35 +190,37 @@ for _, row in projects.iterrows():
     project_name = row["project_name"]
     status = row["status"]
 
-    # כרטיס ויזואלי
-    st.markdown(f"""
-    <div style="
-        background:white;
-        border:1px solid #eee;
-        padding:10px;
-        border-radius:10px;
-        margin-bottom:6px;
-        direction:rtl;
-        text-align:right;
-        box-shadow:0 1px 3px rgba(0,0,0,0.05);
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-    ">
-        <div>
-            📌 <b>{project_name}</b><br>
-            <span style="color:gray; font-size:12px;">{status}</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    # שורה אחת בלבד (חשוב!)
+    label = f"📌 {project_name}  |  {status}"
 
-    # קליק אמיתי (ללא כפתור נראה)
-    st.link_button(
-        label="פתח פרויקט",
-        url=f"#",
-        use_container_width=True,
-        on_click=lambda p=project_name: st.session_state.update({"selected_project": p})
-    )
+    # כפתור מעוצב שנראה כמו כרטיס
+    if st.button(label, key=project_name):
+
+        st.session_state.selected_project = project_name
+
+    # עיצוב כרטיס מתחת (לא יוצר שורות נוספות)
+    st.markdown("""
+    <style>
+    div[data-testid="stButton"] > button {
+        width: 100%;
+        text-align: right;
+        background: white;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        padding: 8px 10px;
+        margin-bottom: 6px;
+        direction: rtl;
+        font-size: 14px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+
+    div[data-testid="stButton"] > button:hover {
+        border: 1px solid #d0d0d0;
+        background: #fafafa;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
 # =========================
 # 🔥 חשוב – הגדרת עמודות (לא לגעת!)
 # =========================
