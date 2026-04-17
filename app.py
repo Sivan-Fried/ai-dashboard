@@ -78,8 +78,3 @@ with col2:
         {result}
         </div>
         """, unsafe_allow_html=True)
-            white-space: pre-wrap;
-        ">
-        {result}
-        </div>
-        """, unsafe_allow_html=True)
