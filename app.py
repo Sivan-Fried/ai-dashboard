@@ -7,7 +7,7 @@ body {direction: RTL; text-align: right;}
 </style>
 """, unsafe_allow_html=True)
 
-st.title("הדשבורד שלי")
+st.title("📊 Dashboard AI לניהול פרויקטים")
 
 # טעינת נתונים
 projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
