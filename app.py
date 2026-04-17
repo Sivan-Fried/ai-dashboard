@@ -69,6 +69,7 @@ st.markdown(f"""
 # נתונים
 # =========================
 projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
+meetings = pd.read_excel("meetings.xlsx", engine="openpyxl")
 
 # =========================
 # KPI
@@ -87,7 +88,7 @@ with col3:
 st.markdown("<br>", unsafe_allow_html=True)
 
 # =========================
-# פריסה מרכזית: התראות + פרויקטים
+# פריסה מרכזית
 # =========================
 col_left, col_right = st.columns([1, 2])
 
@@ -123,35 +124,24 @@ with col_right:
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
-st.markdown("<hr>", unsafe_allow_html=True)
-
 # =========================
-st.markdown("<hr>", unsafe_allow_html=True)
-
+# פגישות היום
+# =========================
 st.markdown("### 📅 הפגישות שלי היום")
 
 today = pd.Timestamp.today().date()
+
 today_meetings = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
 
 if today_meetings.empty:
     st.info("אין פגישות היום 🎉")
 else:
-    col1, col2, col3 = st.columns(3)
+    cols = st.columns(3)
 
     for i, (_, row) in enumerate(today_meetings.iterrows()):
-        col = [col1, col2, col3][i % 3]
-
-        with col:
+        with cols[i % 3]:
             st.markdown(f"""
-            <div style="
-                background:white;
-                padding:12px;
-                border-radius:12px;
-                box-shadow:0 2px 8px rgba(0,0,0,0.08);
-                margin-bottom:10px;
-                text-align:right;
-                direction:rtl;
-            ">
+            <div class="card">
                 📌 <b>{row['meeting_title']}</b><br>
                 🕒 {row['time']}<br>
                 📁 {row['project_name']}<br>
@@ -159,6 +149,8 @@ else:
                 📊 {row['status']}
             </div>
             """, unsafe_allow_html=True)
+
+st.markdown("<hr>", unsafe_allow_html=True)
 
 # =========================
 # AI
