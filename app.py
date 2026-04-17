@@ -181,18 +181,15 @@ st.markdown("<br>", unsafe_allow_html=True)
 # =========================
 st.markdown("<h3 style='text-align:right; direction:rtl;'>📁 פרויקטים</h3>", unsafe_allow_html=True)
 
-if "selected_project" not in st.session_state:
-    st.session_state.selected_project = None
-
-def type_color(project_type):
+def type_icon(project_type):
     if project_type == "פרויקט אקטיבי":
-        return "#e8f1ff"
+        return "🚀"
     elif project_type == "חבילת עבודה":
-        return "#f3e8ff"
+        return "📦"
     elif project_type == "תחזוקה":
-        return "#e8f7ee"
+        return "🔧"
     else:
-        return "#ffffff"
+        return "📁"
 
 def status_dot(status):
     if status == "ירוק":
@@ -205,15 +202,15 @@ def status_dot(status):
 for _, row in projects.iterrows():
 
     project_name = row["project_name"]
-    status = row["status"]
     project_type = row["project_type"]
+    status = row["status"]
 
-    bg = type_color(project_type)
+    icon = type_icon(project_type)
     dot = status_dot(status)
 
     st.markdown(f"""
     <div style="
-        background:{bg};
+        background:white;
         padding:8px 10px;
         border-radius:8px;
         margin-bottom:4px;
@@ -226,14 +223,14 @@ for _, row in projects.iterrows():
         align-items:center;
     ">
         <div>
-            📌 {project_name}<br>
+            {icon} {project_name}
+        </div>
+
+        <div style="display:flex; gap:8px; align-items:center;">
             <span style="font-size:12px; color:gray;">
                 {project_type}
             </span>
-        </div>
-
-        <div style="font-size:16px;">
-            {dot}
+            <span>{dot}</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
