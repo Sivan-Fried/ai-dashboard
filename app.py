@@ -187,12 +187,9 @@ today_reminders = all_reminders[pd.to_datetime(all_reminders["date"]).dt.date ==
 # =========================
 # הצגת תזכורות
 # =========================
-st.markdown("<hr>", unsafe_allow_html=True)
-
-st.markdown("### 🔔 תזכורות")
-
-def priority_hebrew(p):
-    return {"high": "גבוהה", "medium": "בינונית", "low": "נמוכה"}.get(p, p)
+# =========================
+# תזכורות (AI + ידני)
+# =========================
 
 ai_reminders = generate_ai_reminders(projects)
 all_reminders = pd.concat([reminders, ai_reminders], ignore_index=True)
@@ -200,74 +197,82 @@ all_reminders = pd.concat([reminders, ai_reminders], ignore_index=True)
 today = pd.Timestamp.today().date()
 today_reminders = all_reminders[pd.to_datetime(all_reminders["date"]).dt.date == today]
 
+# מצב הוספה
+if "add_mode" not in st.session_state:
+    st.session_state.add_mode = False
+
 # =========================
 # הצגת תזכורות קיימות
 # =========================
-if today_reminders.empty:
-    st.info("אין תזכורות להיום 🎉")
+for i, row in today_reminders.iterrows():
 
-else:
-    for i, row in today_reminders.iterrows():
+    icon = "🤖" if row["source"] == "ai" else "✍️"
 
-        icon = "🤖" if row["source"] == "ai" else "✍️"
-
-        st.markdown(f"""
-        <div style="
-            background:white;
-            padding:8px 10px;
-            border-radius:8px;
-            margin-bottom:6px;
-            direction:rtl;
-            text-align:right;
-            font-size:14px;
-            border:1px solid #eee;
-        ">
-            {icon} {row['reminder_text']}
-            <span style="color:#888;"> | 📁 {row['project_name']}</span>
-            <span style="color:#555;"> | ⚡ {priority_hebrew(row['priority'])}</span>
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown(f"""
+    <div style="
+        background:white;
+        padding:8px 10px;
+        border-radius:8px;
+        margin-bottom:6px;
+        direction:rtl;
+        text-align:right;
+        font-size:14px;
+        border:1px solid #eee;
+    ">
+        {icon} {row['reminder_text']}
+        <span style="color:#888;"> | 📁 {row['project_name']}</span>
+    </div>
+    """, unsafe_allow_html=True)
 
 # =========================
-# שורת הוספה INLINE (בסוף הרשימה)
+# שורה אחרונה: הוספה
 # =========================
+
 st.markdown("---")
-st.markdown("➕ הוספת תזכורת מהירה")
 
-col1, col2, col3, col4 = st.columns([3, 2, 1, 1])
+# אם במצב רגיל -> רק פלוס
+if not st.session_state.add_mode:
+    col1, col2 = st.columns([10, 1])
 
-with col1:
-    new_text = st.text_input("", placeholder="כתבי תזכורת חדשה", key="new_reminder_text")
+    with col2:
+        if st.button("➕"):
+            st.session_state.add_mode = True
+            st.rerun()
 
-with col2:
-    new_project = st.selectbox("", projects["project_name"].tolist(), key="new_reminder_project")
+# אם במצב הוספה -> שורה editable
+else:
+    col1, col2, col3, col4 = st.columns([4, 3, 2, 1])
 
-with col3:
-    new_priority = st.selectbox("", ["נמוכה", "בינונית", "גבוהה"], key="new_reminder_priority")
+    with col1:
+        new_text = st.text_input("", placeholder="כתבי תזכורת...")
 
-with col4:
-    add = st.button("➕ הוסף")
+    with col2:
+        new_project = st.selectbox("", projects["project_name"].tolist())
 
-if add and new_text:
+    with col3:
+        new_priority = st.selectbox("", ["נמוכה", "בינונית", "גבוהה"])
 
-    reverse_priority = {
-        "נמוכה": "low",
-        "בינונית": "medium",
-        "גבוהה": "high"
-    }
+    with col4:
+        if st.button("✔"):
+            reverse_priority = {
+                "נמוכה": "low",
+                "בינונית": "medium",
+                "גבוהה": "high"
+            }
 
-    new_row = {
-        "reminder_text": new_text,
-        "project_name": new_project,
-        "date": pd.Timestamp.today().date(),
-        "priority": reverse_priority[new_priority],
-        "source": "manual"
-    }
+            new_row = {
+                "reminder_text": new_text,
+                "project_name": new_project,
+                "date": today,
+                "priority": reverse_priority[new_priority],
+                "source": "manual"
+            }
 
-    all_reminders.loc[len(all_reminders)] = new_row
+            # הוספה לרשימה
+            all_reminders.loc[len(all_reminders)] = new_row
 
-    st.success("נוסף בהצלחה ✅")
-    st.rerun()
+            st.session_state.add_mode = False
+            st.rerun()
         
 # =========================
 # AI (Gemini)
