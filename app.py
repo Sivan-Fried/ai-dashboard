@@ -14,12 +14,60 @@ st.markdown(
 )
 
 # =========================
-# נתונים (חשוב שיהיה כאן)
+# נתונים
 # =========================
 projects = pd.read_excel("my_projects.xlsx", engine="openpyxl")
 
 # =========================
-# פרויקטים (חייב להיות ראשון כדי שלא "ייעלם")
+# 🚨 התראות (חזר!)
+# =========================
+st.markdown("<h4 style='text-align:right'>🚨 התראות</h4>", unsafe_allow_html=True)
+
+for _, row in projects.iterrows():
+    name = row["project_name"]
+    status = row["status"]
+
+    if status == "אדום":
+        color = "#ffe5e5"
+        border = "#ff4d4d"
+        icon = "⚠️"
+        text_color = "#b30000"
+
+    elif status == "צהוב":
+        color = "#fff7e6"
+        border = "#ffa500"
+        icon = "⏳"
+        text_color = "#8a5a00"
+
+    else:
+        color = "#e6ffe6"
+        border = "#2ecc71"
+        icon = "✔"
+        text_color = "#1e7d32"
+
+    st.markdown(f"""
+    <div style="
+        direction: rtl;
+        text-align: right;
+        padding: 12px;
+        margin-bottom: 8px;
+        border-radius: 10px;
+        border: 1px solid {border};
+        background-color: {color};
+        color: {text_color};
+    ">
+    {icon} <b>{name}</b><br>
+    סטטוס: {status}
+    </div>
+    """, unsafe_allow_html=True)
+
+# =========================
+# רווח
+# =========================
+st.markdown("<br><br>", unsafe_allow_html=True)
+
+# =========================
+# 📁 פרויקטים
 # =========================
 st.markdown("<h4 style='text-align:right'>📁 פרויקטים</h4>", unsafe_allow_html=True)
 
@@ -40,27 +88,25 @@ for _, row in projects.iterrows():
     """, unsafe_allow_html=True)
 
 # =========================
-# רווח
-# =========================
-st.markdown("<br><br>", unsafe_allow_html=True)
-
-# =========================
 # Gemini
 # =========================
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-2.5-flash")
 
 def ask_gemini(prompt):
-    return model.generate_content(prompt).text
+    try:
+        return model.generate_content(prompt).text
+    except:
+        return "⚠️ שגיאה / עומס על Gemini"
 
 # =========================
-# אזור AI (מסודר)
+# 🤖 AI אזור
 # =========================
-st.markdown("<h4 style='text-align:right'>🤖 אזור AI</h4>", unsafe_allow_html=True)
+st.markdown("<br><h4 style='text-align:right'>🤖 אזור AI</h4>", unsafe_allow_html=True)
 
-col_right, col_left = st.columns([2, 1])
+col1, col2 = st.columns([2, 1])
 
-with col_right:
+with col1:
 
     project_names = projects["project_name"].tolist()
     selected_project = st.selectbox("בחרי פרויקט", project_names)
@@ -70,12 +116,11 @@ with col_right:
     run = st.button("שלח ל-AI / נתח")
 
 # =========================
-# הרצה
+# הרצת AI
 # =========================
 if run:
 
     row = projects[projects["project_name"] == selected_project].iloc[0]
-
     context = projects.to_string(index=False)
 
     prompt = f"""
