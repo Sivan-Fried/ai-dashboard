@@ -180,47 +180,44 @@ st.markdown("<br>", unsafe_allow_html=True)
 # פרויקטים
 # =========================
 
-st.markdown("### 📁 פרויקטים")
+st.markdown("<h3 style='text-align:right; direction:rtl;'>📁 פרויקטים</h3>", unsafe_allow_html=True)
 
 if "selected_project" not in st.session_state:
     st.session_state.selected_project = None
+
+# CSS אחד שמסדר את כל הכפתורים
+st.markdown("""
+<style>
+div[data-testid="stButton"] > button {
+    width: 100%;
+    text-align: right;
+    direction: rtl;
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 6px 10px;
+    margin: 0px 0px 2px 0px !important;
+    font-size: 14px;
+    box-shadow: none;
+}
+
+div[data-testid="stButton"] > button:hover {
+    background: #f7f8fa;
+    border: 1px solid #ddd;
+}
+</style>
+""", unsafe_allow_html=True)
 
 for _, row in projects.iterrows():
 
     project_name = row["project_name"]
     status = row["status"]
 
-    # שורה אחת בלבד (חשוב!)
-    label = f"📌 {project_name}  |  {status}"
+    label = f"{project_name} | {status}"
 
-    # כפתור מעוצב שנראה כמו כרטיס
     if st.button(label, key=project_name):
-
         st.session_state.selected_project = project_name
-
-    # עיצוב כרטיס מתחת (לא יוצר שורות נוספות)
-    st.markdown("""
-    <style>
-    div[data-testid="stButton"] > button {
-        width: 100%;
-        text-align: right;
-        background: white;
-        border: 1px solid #eee;
-        border-radius: 10px;
-        padding: 8px 10px;
-        margin-bottom: 6px;
-        direction: rtl;
-        font-size: 14px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-    }
-
-    div[data-testid="stButton"] > button:hover {
-        border: 1px solid #d0d0d0;
-        background: #fafafa;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    
+        
 # =========================
 # 🔥 חשוב – הגדרת עמודות (לא לגעת!)
 # =========================
