@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import os
 import google.generativeai as genai
+import time
 
 st.set_page_config(layout="wide")
 
@@ -83,38 +84,49 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 st.markdown("<h4 style='text-align:right'>🤖 אזור AI</h4>", unsafe_allow_html=True)
 
 project_names = projects["project_name"].tolist()
+selected_project = st.selectbox("בחרי פרויקט", project_names)
 
-selected_project = st.selectbox("בחרי פרויקט לניתוח", project_names)
+user_question = st.text_area("שאלה חופשית על הפרויקטים")
 
-st.markdown("### 🔎 ניתוח פרויקט")
-analyze = st.button("נתח פרויקט")
-
-st.markdown("---")
-
-st.markdown("### 💬 שאלה חופשית")
-user_question = st.text_area("שאלי שאלה על כל הפרויקטים")
-
-ask = st.button("שלח שאלה ל-AI")
+run = st.button("שלח ל-AI / נתח פרויקט")
 
 # =========================
 # Gemini setup
 # =========================
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel("gemini-1.5-flash")  # יותר יציב
 
-model = genai.GenerativeModel("gemini-2.5-flash")
+# =========================
+# 🧠 Cache למניעת בזבוז API
+# =========================
+if "cache" not in st.session_state:
+    st.session_state.cache = {}
 
-# ⚠️ DEBUG VERSION (לא מסתיר שגיאות)
 def ask_gemini(prompt):
+
+    # אם כבר שאלנו את אותו דבר → לא פונים ל-Gemini שוב
+    if prompt in st.session_state.cache:
+        return st.session_state.cache[prompt]
+
     try:
         response = model.generate_content(prompt)
-        return response.text
+        answer = response.text
+
+        # שמירה בזיכרון
+        st.session_state.cache[prompt] = answer
+
+        # מניעת ספאם מהיר
+        time.sleep(1)
+
+        return answer
+
     except Exception as e:
-        return f"❌ שגיאה אמיתית מ-Gemini:\n{e}"
+        return f"❌ שגיאה: {e}"
 
 # =========================
-# ניתוח פרויקט
+# הרצת AI
 # =========================
-if analyze:
+if run:
 
     filtered = projects[projects["project_name"] == selected_project]
 
@@ -123,18 +135,26 @@ if analyze:
     else:
         row = filtered.iloc[0]
 
+        context = projects.to_string(index=False)
+
         prompt = f"""
-נתח את הפרויקט הבא:
+את עוזרת לניהול פרויקטים.
 
-שם: {row['project_name']}
-סטטוס: {row['status']}
+נתונים:
+{context}
 
-תן סיכום והמלצה קצרה.
+פרויקט:
+{row['project_name']} - {row['status']}
+
+שאלה:
+{user_question}
+
+תשובה קצרה וברורה בעברית
 """
 
         result = ask_gemini(prompt)
 
-        st.markdown("### 🧠 ניתוח פרויקט")
+        st.markdown("### 🧠 תשובת AI")
 
         st.markdown(f"""
         <div style="
@@ -149,40 +169,3 @@ if analyze:
         {result}
         </div>
         """, unsafe_allow_html=True)
-
-# =========================
-# שאלה חופשית
-# =========================
-if ask:
-
-    context = projects.to_string(index=False)
-
-    prompt = f"""
-את עוזרת לניהול פרויקטים.
-
-נתונים:
-{context}
-
-שאלה:
-{user_question}
-
-ענה בצורה קצרה וברורה בעברית.
-"""
-
-    result = ask_gemini(prompt)
-
-    st.markdown("### 💬 תשובת AI")
-
-    st.markdown(f"""
-    <div style="
-        padding: 14px;
-        border-radius: 10px;
-        border: 1px solid #ddd;
-        background: #fafafa;
-        direction: rtl;
-        text-align: right;
-        white-space: pre-wrap;
-    ">
-    {result}
-    </div>
-    """, unsafe_allow_html=True)
