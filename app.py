@@ -26,6 +26,28 @@ body {
     font-size:14px;
 }
 
+/* 🔥 תזכורות - גלילה */
+.reminders-box {
+    max-height: 260px;   /* בערך 5 תזכורות */
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.reminder-row {
+    background:white;
+    padding:6px 10px;
+    border-radius:8px;
+    margin-bottom:6px;
+    border:1px solid #eee;
+    direction:rtl;
+    text-align:right;
+    font-size:14px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 h1, h2, h3 {
     color:#1f2a44;
 }
@@ -39,8 +61,6 @@ st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרו
 
 # =========================
 # פרופיל
-# =========================
-# תמונת פרופיל
 # =========================
 def get_base64_image(path):
     with open(path, "rb") as img_file:
@@ -155,6 +175,8 @@ with col_left:
         pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today
     ]
 
+    st.markdown('<div class="reminders-box">', unsafe_allow_html=True)
+
     if today_reminders.empty:
         st.info("אין תזכורות להיום 🎉")
 
@@ -164,11 +186,12 @@ with col_left:
             icon = "🤖" if row["source"] == "ai" else "✍️"
 
             st.markdown(f"""
-            <div class='card'>
-                {icon} {row['reminder_text']}<br>
-                📁 {row['project_name']}
+            <div class="reminder-row">
+                {icon} {row['reminder_text']} | 📁 {row['project_name']}
             </div>
             """, unsafe_allow_html=True)
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
     # =========================
     # הוספה מהירה
