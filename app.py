@@ -13,7 +13,11 @@ st.set_page_config(layout="wide")
 st.markdown("""
 <style>
 body {
-    background-color: #f6f7fb;
+    background-color: #f2f4f7;
+}
+
+.stApp {
+    background-color: #f2f4f7;
 }
 
 .card {
