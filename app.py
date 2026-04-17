@@ -184,18 +184,18 @@ st.markdown("<h3 style='text-align:right; direction:rtl;'>📁 פרויקטים<
 if "selected_project" not in st.session_state:
     st.session_state.selected_project = None
 
-# CSS לכרטיסים מיושרים לימין
+# עיצוב אחיד כמו תזכורות
 st.markdown("""
 <style>
-div[data-testid="stButton"] > button {
+.project-card button {
     width: 100%;
-    text-align: right;
-    direction: rtl;
     background: white;
     border: 1px solid #eee;
     border-radius: 8px;
     padding: 6px 10px;
-    margin: 0px 0px 2px 0px !important;
+    margin-bottom: 4px;
+    text-align: right;
+    direction: rtl;
     font-size: 14px;
     box-shadow: none;
     display: flex;
@@ -203,14 +203,13 @@ div[data-testid="stButton"] > button {
     align-items: center;
 }
 
-div[data-testid="stButton"] > button:hover {
+.project-card button:hover {
     background: #f7f8fa;
     border: 1px solid #ddd;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# פונקציית צבע סטטוס
 def status_dot(status):
     if status == "ירוק":
         return "🟢"
@@ -223,32 +222,13 @@ for _, row in projects.iterrows():
 
     project_name = row["project_name"]
     status = row["status"]
-
     dot = status_dot(status)
 
-    label = f"{project_name}"
+    col = st.container()
 
-    # כפתור נראה כמו כרטיס
-    if st.button(label, key=project_name):
-        st.session_state.selected_project = project_name
-
-    # עיצוב תוכן (עיגול + יישור לימין)
-    st.markdown(f"""
-    <div style="
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        direction:rtl;
-        background:white;
-        border:1px solid #eee;
-        padding:6px 10px;
-        border-radius:8px;
-        margin:0px 0px 2px 0px;
-    ">
-        <div>{project_name}</div>
-        <div>{dot}</div>
-    </div>
-    """, unsafe_allow_html=True)
+    with col:
+        if st.button(f"{project_name}   {dot}", key=project_name):
+            st.session_state.selected_project = project_name
         
 # =========================
 # 🔥 חשוב – הגדרת עמודות (לא לגעת!)
