@@ -84,7 +84,7 @@ st.dataframe(projects, use_container_width=True)
 st.markdown("<br><br>", unsafe_allow_html=True)
 
 # =========================
-# 🤖 AI
+# 🤖 אזור AI
 # =========================
 st.markdown("<h4 style='text-align:right'>🤖 אזור AI</h4>", unsafe_allow_html=True)
 
@@ -96,55 +96,62 @@ user_question = st.text_area("שאלה חופשית על הפרויקטים")
 run = st.button("שלח ל-AI / נתח פרויקט")
 
 # =========================
-# Gemini setup
+# Gemini setup (חשוב שיהיה לפני שימוש)
 # =========================
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-2.5-flash")
 
 def ask_gemini(prompt):
     try:
-        return model.generate_content(prompt).text
-    except:
-        return "⚠️ שגיאה או עומס ב-Gemini"
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        return f"⚠️ שגיאה או עומס ב-Gemini"
 
 # =========================
 # הרצת AI
 # =========================
 if run:
 
-    row = projects[projects["project_name"] == selected_project].iloc[0]
+    # בטיחות - בדיקה שהפרויקט קיים
+    filtered = projects[projects["project_name"] == selected_project]
 
-    context = projects.to_string(index=False)
+    if filtered.empty:
+        st.error("לא נמצא פרויקט נבחר")
+    else:
+        row = filtered.iloc[0]
 
-    prompt = f"""
-    את עוזרת לניהול פרויקטים.
+        context = projects.to_string(index=False)
 
-    נתונים:
-    {context}
+        prompt = f"""
+את עוזרת לניהול פרויקטים.
 
-    פרויקט:
-    {row['project_name']} - {row['status']}
+נתונים:
+{context}
 
-    שאלה:
-    {user_question}
+פרויקט נבחר:
+{row['project_name']} - {row['status']}
 
-    תשובה קצרה וברורה בעברית
-    """
+שאלה:
+{user_question}
 
-    result = ask_gemini(prompt)
+תשובה קצרה וברורה בעברית
+"""
 
-    st.markdown("<h4 style='text-align:right'>🧠 תשובת AI</h4>", unsafe_allow_html=True)
+        result = ask_gemini(prompt)
 
-    st.markdown(f"""
-    <div style="
-        padding: 14px;
-        border-radius: 10px;
-        border: 1px solid #ddd;
-        background: #fafafa;
-        direction: rtl;
-        text-align: right;
-        white-space: pre-wrap;
-    ">
-    {result}
-    </div>
-    """, unsafe_allow_html=True)
+        st.markdown("### 🧠 תשובת AI")
+
+        st.markdown(f"""
+        <div style="
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            background: #fafafa;
+            direction: rtl;
+            text-align: right;
+            white-space: pre-wrap;
+        ">
+        {result}
+        </div>
+        """, unsafe_allow_html=True)
