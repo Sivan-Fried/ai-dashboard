@@ -129,7 +129,7 @@ st.markdown("<hr>", unsafe_allow_html=True)
 # =========================
 st.markdown("<hr>", unsafe_allow_html=True)
 
-st.markdown("### 📅 הפגישות שלי היום")
+st.markdown("### 📅 פגישות היום")
 
 today = pd.Timestamp.today().date()
 today_meetings = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
@@ -138,36 +138,31 @@ if today_meetings.empty:
     st.info("אין פגישות היום 🎉")
 
 else:
+    # קופסה אחת בלבד
+    st.markdown("""
+    <div style="
+        background:white;
+        padding:10px;
+        border-radius:10px;
+        box-shadow:0 1px 6px rgba(0,0,0,0.06);
+        direction:rtl;
+        text-align:right;
+        font-size:14px;
+        line-height:1.4;
+    ">
+    """, unsafe_allow_html=True)
+
     for _, row in today_meetings.iterrows():
+        st.markdown(f"""
+        📌 <b>{row['meeting_title']}</b>
+        &nbsp;&nbsp;| 🕒 {row['time']}
+        &nbsp;&nbsp;| 📁 {row['project_name']}
+        &nbsp;&nbsp;| 👤 {row['owner']}
+        &nbsp;&nbsp;| 📊 {row['status']}
+        <br>
+        """, unsafe_allow_html=True)
 
-        # כותרת הפגישה
-        st.markdown(f"#### 📌 {row['meeting_title']}")
-
-        col1, col2, col3 = st.columns([1, 2, 2])
-
-        with col1:
-            st.markdown("🕒")
-            st.write(row["time"])
-
-        with col2:
-            st.markdown("📁")
-            st.write(row["project_name"])
-
-        with col3:
-            st.markdown("👤")
-            st.write(row["owner"])
-
-        # שורת סטטוס צבעונית
-        status = row["status"]
-
-        if status == "מתוכננת":
-            st.success(f"📊 סטטוס: {status}")
-        elif status == "בוטלה":
-            st.error(f"📊 סטטוס: {status}")
-        else:
-            st.info(f"📊 סטטוס: {status}")
-
-        st.markdown("---")
+    st.markdown("</div>", unsafe_allow_html=True)
     
 # =========================
 # AI
