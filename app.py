@@ -16,6 +16,18 @@ st.markdown(
 
 st.markdown("<br>", unsafe_allow_html=True)
 
+st.markdown("""
+<div style="text-align:center; margin-top:10px;">
+    <img src="profile.jpg" style="
+        width:120px;
+        height:120px;
+        border-radius:50%;
+        object-fit:cover;
+        border:3px solid #ddd;
+    ">
+</div>
+""", unsafe_allow_html=True)
+
 # =========================
 # נתונים
 # =========================
