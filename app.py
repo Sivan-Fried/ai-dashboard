@@ -184,32 +184,6 @@ st.markdown("<h3 style='text-align:right; direction:rtl;'>📁 פרויקטים<
 if "selected_project" not in st.session_state:
     st.session_state.selected_project = None
 
-# עיצוב אחיד כמו תזכורות
-st.markdown("""
-<style>
-.project-card button {
-    width: 100%;
-    background: white;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    padding: 6px 10px;
-    margin-bottom: 4px;
-    text-align: right;
-    direction: rtl;
-    font-size: 14px;
-    box-shadow: none;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.project-card button:hover {
-    background: #f7f8fa;
-    border: 1px solid #ddd;
-}
-</style>
-""", unsafe_allow_html=True)
-
 def status_dot(status):
     if status == "ירוק":
         return "🟢"
@@ -224,11 +198,27 @@ for _, row in projects.iterrows():
     status = row["status"]
     dot = status_dot(status)
 
-    col = st.container()
+    st.markdown(f"""
+    <div style="
+        background:white;
+        padding:8px 10px;
+        border-radius:8px;
+        margin-bottom:4px;
+        border:1px solid #eee;
+        direction:rtl;
+        text-align:right;
+        font-size:14px;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+    ">
+        <div>{project_name}</div>
+        <div>{dot}</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    with col:
-        if st.button(f"{project_name}   {dot}", key=project_name):
-            st.session_state.selected_project = project_name
+    if st.button("פתח", key=project_name):
+        st.session_state.selected_project = project_name
         
 # =========================
 # 🔥 חשוב – הגדרת עמודות (לא לגעת!)
