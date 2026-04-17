@@ -7,7 +7,7 @@ st.set_page_config(layout="wide")
 
 # ===== Gemini setup (from Streamlit Secrets) =====
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-1.5-pro")
 
 def ask_gemini(prompt):
     response = model.generate_content(prompt)
