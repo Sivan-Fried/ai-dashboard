@@ -26,14 +26,13 @@ body {
     font-size:14px;
 }
 
-/* 🔥 תזכורות - גלילה */
-.reminders-box {
-    max-height: 260px;   /* בערך 5 תזכורות */
+.reminder-scroll {
+    max-height: 260px;
     overflow-y: auto;
-    padding-right: 5px;
+    padding-left: 5px;
 }
 
-.reminder-row {
+.reminder-item {
     background:white;
     padding:6px 10px;
     border-radius:8px;
@@ -43,9 +42,9 @@ body {
     text-align:right;
     font-size:14px;
 
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
 }
 
 h1, h2, h3 {
@@ -60,11 +59,11 @@ h1, h2, h3 {
 st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
 
 # =========================
-# פרופיל
+# תמונת פרופיל
 # =========================
 def get_base64_image(path):
-    with open(path, "rb") as img_file:
-        return base64.b64encode(img_file.read()).decode()
+    with open(path, "rb") as f:
+        return base64.b64encode(f.read()).decode()
 
 img_base64 = get_base64_image("profile.png")
 
@@ -82,7 +81,6 @@ st.markdown(f"""
             width:100%;
             height:100%;
             object-fit:cover;
-            object-position:center top;
         ">
     </div>
 </div>
@@ -143,7 +141,7 @@ st.dataframe(projects, use_container_width=True)
 st.markdown("<hr>", unsafe_allow_html=True)
 
 # =========================
-# פריסה: פגישות + תזכורות
+# פגישות + תזכורות
 # =========================
 col_right, col_left = st.columns(2)
 
@@ -171,100 +169,74 @@ with col_left:
 
     st.markdown("### 🔔 תזכורות")
 
+    today_reminders = st.session_state.reminders_live[
+        pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today
+    ]
+
+    st.markdown('<div class="reminder-scroll">', unsafe_allow_html=True)
+
+    if today_reminders.empty:
+        st.info("אין תזכורות להיום 🎉")
+    else:
+        for _, row in today_reminders.iterrows():
+
+            icon = "🤖" if row["source"] == "ai" else "✍️"
+
+            st.markdown(f"""
+            <div class='reminder-item'>
+                {icon} {row['reminder_text']} | 📁 {row['project_name']}
+            </div>
+            """, unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
     # =========================
-# 🔔 תזכורות (FIX אמיתי - גלילה + שורה אחת)
-# =========================
+    # הוספה
+    # =========================
+    st.markdown("---")
 
-st.markdown("### 🔔 תזכורות")
+    if "add_mode" not in st.session_state:
+        st.session_state.add_mode = False
 
-today_reminders = st.session_state.reminders_live[
-    pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today
-]
+    if not st.session_state.add_mode:
 
-# 🔥 חשוב: wrapper אמיתי לגלילה
-st.markdown("""
-<div style="
-    max-height: 260px;
-    overflow-y: auto;
-    padding-left: 5px;
-">
-""", unsafe_allow_html=True)
-
-if today_reminders.empty:
-    st.info("אין תזכורות להיום 🎉")
-
-else:
-    for _, row in today_reminders.iterrows():
-
-        icon = "🤖" if row["source"] == "ai" else "✍️"
-
-        # 🔥 שורה אחת בלבד (בלי שבירת שורות בכלל)
-        st.markdown(f"""
-        <div style="
-            background:white;
-            padding:6px 10px;
-            border-radius:8px;
-            margin-bottom:6px;
-            border:1px solid #eee;
-            direction:rtl;
-            text-align:right;
-            font-size:14px;
-            white-space:nowrap;
-            overflow:hidden;
-            text-overflow:ellipsis;
-        ">
-            {icon} {row['reminder_text']} | 📁 {row['project_name']}
-        </div>
-        """, unsafe_allow_html=True)
-
-st.markdown("</div>", unsafe_allow_html=True)
-
-# =========================
-# ➕ הוספה (לא נוגעים בזה)
-# =========================
-st.markdown("---")
-
-if "add_mode" not in st.session_state:
-    st.session_state.add_mode = False
-
-if not st.session_state.add_mode:
-
-    if st.button("➕ הוספת תזכורת"):
-        st.session_state.add_mode = True
-        st.rerun()
-
-else:
-
-    col1, col2, col3, col4 = st.columns([5, 3, 2, 1])
-
-    with col1:
-        text = st.text_input("", placeholder="תזכורת חדשה")
-
-    with col2:
-        project = st.selectbox("", projects["project_name"].tolist())
-
-    with col3:
-        priority = st.selectbox("", ["נמוכה", "בינונית", "גבוהה"])
-
-    with col4:
-        if st.button("✔"):
-
-            reverse = {"נמוכה":"low","בינונית":"medium","גבוהה":"high"}
-
-            new_row = {
-                "reminder_text": text,
-                "project_name": project,
-                "date": today,
-                "priority": reverse[priority],
-                "source": "manual"
-            }
-
-            st.session_state.reminders_live.loc[len(st.session_state.reminders_live)] = new_row
-
-            st.session_state.add_mode = False
+        if st.button("➕ הוספת תזכורת"):
+            st.session_state.add_mode = True
             st.rerun()
+
+    else:
+
+        col1, col2, col3, col4 = st.columns([5, 3, 2, 1])
+
+        with col1:
+            text = st.text_input("", placeholder="תזכורת חדשה")
+
+        with col2:
+            project = st.selectbox("", projects["project_name"].tolist())
+
+        with col3:
+            priority = st.selectbox("", ["נמוכה", "בינונית", "גבוהה"])
+
+        with col4:
+            if st.button("✔"):
+
+                reverse = {"נמוכה":"low","בינונית":"medium","גבוהה":"high"}
+
+                new_row = {
+                    "reminder_text": text,
+                    "project_name": project,
+                    "date": today,
+                    "priority": reverse[priority],
+                    "source": "manual"
+                }
+
+                st.session_state.reminders_live.loc[len(st.session_state.reminders_live)] = new_row
+
+                st.session_state.add_mode = False
+                st.rerun()
+
 # =========================
-# AI חלק
+# AI
 # =========================
 st.markdown("<hr>", unsafe_allow_html=True)
 st.markdown("### 🤖 אזור AI")
