@@ -6,20 +6,14 @@ import google.generativeai as genai
 st.set_page_config(layout="wide")
 
 # =========================
-# פונקציית רווח אחיד
-# =========================
-def gap():
-    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
-
-# =========================
-# כותרת ראשית
+# כותרת
 # =========================
 st.markdown(
     "<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>",
     unsafe_allow_html=True
 )
 
-gap()
+st.markdown("<br>", unsafe_allow_html=True)
 
 # =========================
 # נתונים
@@ -35,7 +29,6 @@ for _, row in projects.iterrows():
     name = row["project_name"]
     status = row["status"]
 
-    # ✔ חזרה לאייקונים המקוריים שלך
     if status == "אדום":
         color = "#ffe5e5"
         border = "#ff4d4d"
@@ -73,7 +66,7 @@ for _, row in projects.iterrows():
     </div>
     """, unsafe_allow_html=True)
 
-gap()
+st.markdown("<br><br>", unsafe_allow_html=True)
 
 # =========================
 # 📁 פרויקטים
@@ -82,7 +75,7 @@ st.markdown("<h4 style='text-align:right'>📁 פרויקטים</h4>", unsafe_al
 
 st.dataframe(projects, use_container_width=True)
 
-gap()
+st.markdown("<br><br>", unsafe_allow_html=True)
 
 # =========================
 # 🤖 AI
@@ -91,42 +84,14 @@ st.markdown("<h4 style='text-align:right'>🤖 אזור AI</h4>", unsafe_allow_h
 
 project_names = projects["project_name"].tolist()
 
-selected_project = st.selectbox("בחרי פרויקט", project_names)
-user_question = st.text_area("שאלה חופשית על הפרויקטים")
-
-run = st.button("שלח ל-AI / נתח פרויקט")
-
-gap()
-
-# =========================
-# Gemini setup
-# =========================
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-2.5-flash")
-
-def ask_gemini(prompt):
-    try:
-        response = model.generate_content(prompt)
-        return response.text
-    except Exception:
-        return "⚠️ שגיאה או עומס ב-Gemini"
-
-# =========================
-# 🤖 אזור AI
-# =========================
-st.markdown("<h4 style='text-align:right'>🤖 אזור AI</h4>", unsafe_allow_html=True)
-
-project_names = projects["project_name"].tolist()
-
 selected_project = st.selectbox("בחרי פרויקט לניתוח", project_names)
 
-st.markdown("#### 🔎 ניתוח פרויקט")
+st.markdown("### 🔎 ניתוח פרויקט")
 analyze = st.button("נתח פרויקט")
 
 st.markdown("---")
 
-st.markdown("#### 💬 שאלה חופשית")
-
+st.markdown("### 💬 שאלה חופשית")
 user_question = st.text_area("שאלי שאלה על כל הפרויקטים")
 
 ask = st.button("שלח שאלה ל-AI")
@@ -135,48 +100,55 @@ ask = st.button("שלח שאלה ל-AI")
 # Gemini setup
 # =========================
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
 model = genai.GenerativeModel("gemini-2.5-flash")
 
+# ⚠️ DEBUG VERSION (לא מסתיר שגיאות)
 def ask_gemini(prompt):
     try:
         response = model.generate_content(prompt)
         return response.text
-    except Exception:
-        return "⚠️ שגיאה או עומס ב-Gemini"
+    except Exception as e:
+        return f"❌ שגיאה אמיתית מ-Gemini:\n{e}"
 
 # =========================
 # ניתוח פרויקט
 # =========================
 if analyze:
 
-    row = projects[projects["project_name"] == selected_project].iloc[0]
+    filtered = projects[projects["project_name"] == selected_project]
 
-    prompt = f"""
-נתח את הפרויקט הבא בצורה קצרה וברורה:
+    if filtered.empty:
+        st.error("לא נמצא פרויקט")
+    else:
+        row = filtered.iloc[0]
 
-שם פרויקט: {row['project_name']}
+        prompt = f"""
+נתח את הפרויקט הבא:
+
+שם: {row['project_name']}
 סטטוס: {row['status']}
 
-תן סיכום מצב והמלצה.
+תן סיכום והמלצה קצרה.
 """
 
-    result = ask_gemini(prompt)
+        result = ask_gemini(prompt)
 
-    st.markdown("### 🧠 ניתוח פרויקט")
+        st.markdown("### 🧠 ניתוח פרויקט")
 
-    st.markdown(f"""
-    <div style="
-        padding: 14px;
-        border-radius: 10px;
-        border: 1px solid #ddd;
-        background: #fafafa;
-        direction: rtl;
-        text-align: right;
-        white-space: pre-wrap;
-    ">
-    {result}
-    </div>
-    """, unsafe_allow_html=True)
+        st.markdown(f"""
+        <div style="
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            background: #fafafa;
+            direction: rtl;
+            text-align: right;
+            white-space: pre-wrap;
+        ">
+        {result}
+        </div>
+        """, unsafe_allow_html=True)
 
 # =========================
 # שאלה חופשית
@@ -191,7 +163,7 @@ if ask:
 נתונים:
 {context}
 
-שאלה כללית:
+שאלה:
 {user_question}
 
 ענה בצורה קצרה וברורה בעברית.
