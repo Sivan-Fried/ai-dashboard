@@ -39,72 +39,103 @@ h1, h2, h3 {
 st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
 
 # =========================
-# פרופיל + ברכה (יציב!)
+# פרופיל + ברכה + תאריך (יציב וממורכז)
 # =========================
 import datetime
 
-col_text, col_img = st.columns([2,1])
+now = datetime.datetime.now()
+hour = now.hour
 
-# ---- ברכה ----
-with col_text:
-    hour = datetime.datetime.now().hour
+# ברכה לפי שעה
+if 5 <= hour < 12:
+    greeting = "בוקר טוב"
+elif 12 <= hour < 18:
+    greeting = "צהריים טובים"
+elif 18 <= hour < 22:
+    greeting = "ערב טוב"
+else:
+    greeting = "לילה טוב"
 
-    if 5 <= hour < 12:
-        greeting = "בוקר טוב"
-    elif 12 <= hour < 18:
-        greeting = "צהריים טובים"
-    elif 18 <= hour < 22:
-        greeting = "ערב טוב"
-    else:
-        greeting = "לילה טוב"
+date_str = now.strftime("%d/%m/%Y %H:%M")
 
-    st.markdown(f"""
+# פונקציה לתמונה
+def get_base64_image(path):
+    with open(path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+
+# ניסיון טעינת תמונה
+try:
+    img_base64 = get_base64_image("profile.png")
+
+    image_html = f"""
+    <div style="
+        width:120px;
+        height:120px;
+        border-radius:50%;
+        overflow:hidden;
+        border:3px solid #ddd;
+        box-shadow:0 2px 10px rgba(0,0,0,0.15);
+        margin-bottom:10px;
+    ">
+        <img src="data:image/png;base64,{img_base64}" style="
+            width:100%;
+            height:100%;
+            object-fit:cover;
+            object-position:center top;
+        ">
+    </div>
+    """
+
+except:
+    image_html = """
+    <div style="
+        width:120px;
+        height:120px;
+        border-radius:50%;
+        background:#eee;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        margin-bottom:10px;
+        font-size:12px;
+        color:#777;
+    ">
+        אין תמונה
+    </div>
+    """
+
+# רינדור ממורכז
+st.markdown(f"""
+<div style="
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    margin-top:10px;
+    margin-bottom:20px;
+    direction:rtl;
+">
+
+    {image_html}
+
     <div style="
         font-size:24px;
-        margin-top:30px;
-        direction:rtl;
-        text-align:right;
         color:#1f2a44;
+        margin-bottom:4px;
     ">
         {greeting}, סיון!
     </div>
-    """, unsafe_allow_html=True)
 
-# ---- תמונה ----
-with col_img:
-    try:
-        st.markdown("""
-        <div style="display:flex; justify-content:center;">
-        """, unsafe_allow_html=True)
+    <div style="
+        font-size:14px;
+        color:gray;
+    ">
+        {date_str}
+    </div>
 
-        def get_base64_image(path):
-            with open(path, "rb") as img_file:
-                return base64.b64encode(img_file.read()).decode()
+</div>
+""", unsafe_allow_html=True)
 
-        img_base64 = get_base64_image("profile.png")
-
-        st.markdown(f"""
-        <div style="
-            width:120px;
-            height:120px;
-            border-radius:50%;
-            overflow:hidden;
-            border:3px solid #ddd;
-            box-shadow:0 2px 10px rgba(0,0,0,0.15);
-        ">
-            <img src="data:image/png;base64,{img_base64}" style="
-                width:100%;
-                height:100%;
-                object-fit:cover;
-                object-position:center top;
-            ">
-        </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    except:
-        st.warning("לא נמצאה תמונת פרופיל")
 # =========================
 # נתונים
 # =========================
