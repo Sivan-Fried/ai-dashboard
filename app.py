@@ -60,10 +60,9 @@ for _, row in projects.iterrows():
         color: {text_color};
     ">
         <b>{name}</b><br>
-        {label} {icon}
+        {icon} {label}
     </div>
     """, unsafe_allow_html=True)
-
 # =========================
 # רווח
 # =========================
