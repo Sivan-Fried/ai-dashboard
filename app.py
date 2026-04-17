@@ -33,11 +33,6 @@ for _, row in projects.iterrows():
     """, unsafe_allow_html=True)
 
 # =========================
-# רווח
-# =========================
-st.markdown("<br><br>", unsafe_allow_html=True)
-
-# =========================
 # Gemini
 # =========================
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
@@ -47,38 +42,31 @@ def ask_gemini(prompt):
     return model.generate_content(prompt).text
 
 # =========================
-# AI AREA (פתרון אמיתי)
+# AI אזור (פתרון יציב אמיתי)
 # =========================
 st.markdown("<h4 style='text-align:right'>🤖 אזור AI</h4>", unsafe_allow_html=True)
 
-# שמים את כל ה-AI בעמודה אחת בלבד
-right_col, _ = st.columns([2, 1])
+# הכל בשדה אחד (כדי לא לשבור layout)
+project = st.selectbox("בחרי פרויקט", projects["project_name"].tolist())
+question = st.text_area("שאלי שאלה / ניתוח")
 
-with right_col:
+run = st.button("הרצה")
 
-    project = st.selectbox("בחרי פרויקט", projects["project_name"].tolist())
-    question = st.text_input("שאלה חופשית")
-
-    run = st.button("שלח ל-AI")
-
-# =========================
-# הרצה
-# =========================
 if run:
 
     row = projects[projects["project_name"] == project].iloc[0]
 
     prompt = f"""
-    נתוני פרויקטים:
+    נתונים:
     {projects.to_string(index=False)}
 
-    פרויקט נבחר:
+    פרויקט:
     {row['project_name']} - {row['status']}
 
     שאלה:
     {question}
 
-    תשובה בעברית קצרה וברורה
+    תשובה בעברית ברורה וקצרה
     """
 
     result = ask_gemini(prompt)
@@ -90,8 +78,8 @@ if run:
         padding: 14px;
         border-radius: 10px;
         border: 1px solid #ddd;
-        background:#fafafa;
-        white-space:pre-wrap;
+        background: #fafafa;
+        white-space: pre-wrap;
     ">
     {result}
     </div>
