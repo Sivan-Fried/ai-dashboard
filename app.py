@@ -1,6 +1,3 @@
-import streamlit as st
-import pandas as pd
-
 st.markdown("""
 <style>
 html, body, [class*="css"]  {
@@ -9,6 +6,9 @@ html, body, [class*="css"]  {
 }
 </style>
 """, unsafe_allow_html=True)
+
+import streamlit as st
+import pandas as pd
 
 st.markdown("""
 <style>
