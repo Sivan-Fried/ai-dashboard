@@ -192,20 +192,20 @@ with col_left:
                 """, unsafe_allow_html=True)
 
 # ==========================================
-# 🤖 AI AREA - גרסה סופית ללא שגיאות רווחים
+# 🤖 AI AREA - גרסה סופית, יציבה ומיושרת
 # ==========================================
 
 st.markdown("---")
 st.markdown("### 🤖 עוזר AI לניהול פרויקטים")
 
-# 1. בדיקת API KEY
+# 1. שליפת מפתח API
 api_key = st.secrets.get("GEMINI_API_KEY")
 
 if not api_key:
     st.error("❌ חסר מפתח API ב-Secrets.")
 else:
     try:
-        # 2. אתחול לקוח
+        # 2. אתחול הלקוח בגרסה יציבה
         client = genai.Client(api_key=api_key, http_options={'api_version': 'v1'})
         
         col_ai_1, col_ai_2 = st.columns(2)
@@ -215,30 +215,32 @@ else:
                 selected_project = st.selectbox(
                     "בחרי פרויקט", 
                     projects["project_name"].tolist(),
-                    key="unique_select_final_fixed"
+                    key="ai_sel_final_1804"
                 )
         
         with col_ai_2:
-            question = st.text_area("שאלה ל-AI", key="unique_text_final_fixed")
+            question = st.text_area("שאלה ל-AI", key="ai_ques_final_1804")
 
-        # 3. הכפתור
-        if st.button("שלח ל-AI", key="final_button_fixed_2026"):
-            if question:
+        # 3. כפתור עם מפתח ייחודי למניעת Duplicate
+        if st.button("שלח ל-AI", key="ai_btn_final_1804"):
+            if question.strip():
                 try:
                     row = projects[projects["project_name"] == selected_project].iloc[0]
-                    prompt = f"פרויקט: {row['project_name']}, סטטוס: {row['status']}. שאלה: {question}"
+                    prompt = f"נתוני פרויקט: {row['project_name']}, סטטוס: {row['status']}. שאלה: {question}"
                     
-                    with st.spinner("מנתח..."):
+                    with st.spinner("ה-AI מנתח..."):
                         response = client.models.generate_content(
                             model="gemini-1.5-flash",
                             contents=prompt
                         )
-                        # הצגת התוצאה
-                        st.info(response.text)
+                        result = response.text
+                        
+                        # הצגת התשובה בעיצוב Card
+                        st.markdown(f"<div class='card'>{result}</div>", unsafe_allow_html=True)
                 except Exception as e:
                     st.error(f"שגיאה בעיבוד: {e}")
             else:
                 st.warning("נא לכתוב שאלה.")
 
     except Exception as e:
-        st.error(f"שגיאה באתחול: {e}")
+        st.error(f"שגיאה באתחול המערכת: {e}")
