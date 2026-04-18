@@ -349,7 +349,7 @@ if not api_key:
 genai.configure(api_key=api_key)
 
 # ✔ מודל תקין
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-pro")
 
 st.markdown("---")
 st.markdown("### 🤖 אזור AI")
