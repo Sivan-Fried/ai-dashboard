@@ -5,8 +5,8 @@ import base64
 import datetime
 from zoneinfo import ZoneInfo
 
-# 1. הגדרות עמוד ועיצוב (חזרה למקור המדויק)
-st.set_page_config(layout="wide", page_title="AI Dashboard Stable")
+# 1. הגדרות עמוד ועיצוב בסיסי מקורי
+st.set_page_config(layout="wide", page_title="ניהול פרויקטים - לוח בקרה")
 
 st.markdown("""
 <style>
@@ -23,20 +23,19 @@ st.markdown("""
     }
     h1, h2, h3 { color: #1f2a44; text-align: right; direction: rtl; }
     
-    /* הבטחת רקע לבן לכל שדות הקלט */
+    /* שמירה על שדות קלט לבנים ונקיים */
     div[data-baseweb="select"] > div, 
-    div[data-baseweb="input"] input,
-    .stTextArea textarea {
+    div[data-baseweb="input"] input {
         background-color: white !important;
         direction: rtl !important;
-        text-align: right !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
+# כותרת ראשית מקורית
 st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
 
-# 2. פרופיל וברכה (מיקומים מקוריים)
+# 2. פונקציית תמונה ופרופיל (המבנה המקורי והיציב)
 def get_base64_image(path):
     try:
         with open(path, "rb") as img_file:
@@ -80,13 +79,13 @@ try:
     reminders = pd.read_excel("reminders.xlsx")
     today = pd.Timestamp.today().date()
 except Exception as e:
-    st.error(f"שגיאה בטעינת קבצים: {e}")
+    st.error(f"שגיאה בטעינת הקבצים: {e}")
     st.stop()
 
 if "reminders_live" not in st.session_state:
     st.session_state.reminders_live = reminders.copy()
 
-# 4. KPI
+# 4. KPI מקורי
 c1, c2, c3, c4 = st.columns(4)
 with c1: st.markdown(f"<div class='card'><b>סה״כ פרויקטים</b><br>{len(projects)}</div>", unsafe_allow_html=True)
 with c2: st.markdown(f"<div class='card' style='border-top: 3px solid red;'><b>בסיכון 🔴</b><br>{len(projects[projects['status']=='אדום'])}</div>", unsafe_allow_html=True)
@@ -95,7 +94,7 @@ with c4: st.markdown(f"<div class='card' style='border-top: 3px solid green;'><b
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 5. פריסה מקורית (פרויקטים בימין, לו"ז בשמאל)
+# 5. פריסה מרכזית (פרויקטים בימין, לו"ז בשמאל)
 col_left, col_right = st.columns([1.2, 1])
 
 with col_right:
@@ -110,11 +109,10 @@ with col_left:
     if not today_meetings.empty:
         for _, row in today_meetings.iterrows():
             st.markdown(f"<div class='card'><b>📌 {row['meeting_title']}</b><br><span style='font-size:12px; color:gray;'>🕒 {row['time']} | 📁 {row['project_name']}</span></div>", unsafe_allow_html=True)
-    else: st.info("אין פגישות היום")
+    else: st.info("אין פגישות להיום")
 
     st.markdown("#### 🔔 תזכורות")
-    container = st.container(height=230)
-    with container:
+    with st.container(height=230):
         for _, row in st.session_state.reminders_live.iterrows():
             st.markdown(f"<div class='card' style='font-size:13px;'>✍️ {row['reminder_text']}</div>", unsafe_allow_html=True)
 
@@ -122,33 +120,30 @@ with col_left:
         st.session_state.add_mode = True
     
     if st.session_state.get("add_mode"):
-        with st.form("add_rem_form"):
-            t_text = st.text_input("תזכורת חדשה:")
+        with st.form("new_reminder"):
+            t_input = st.text_input("הזיני תזכורת:")
             if st.form_submit_button("שמור"):
-                new_row = {"reminder_text": t_text, "date": today}
-                st.session_state.reminders_live = pd.concat([st.session_state.reminders_live, pd.DataFrame([new_row])], ignore_index=True)
+                st.session_state.reminders_live = pd.concat([st.session_state.reminders_live, pd.DataFrame([{"reminder_text": t_input, "date": today}])], ignore_index=True)
                 st.session_state.add_mode = False
                 st.rerun()
 
-# 6. אזור ה-AI (בתוך כרטיסיית card מקורית לשמירה על עיצוב לבן)
+# 6. אזור ה-AI המקורי
 st.markdown("---")
-st.markdown("<div class='card'>", unsafe_allow_html=True)
-st.markdown("<h3 style='margin-top:0; color:#5056af;'>✨ האורקל הדיגיטלי</h3>", unsafe_allow_html=True)
-
+st.markdown("### ✨ שאל את ה-AI על הפרויקטים")
 api_key = st.secrets.get("GEMINI_API_KEY")
+
 ca1, ca2 = st.columns([1, 2])
 with ca1:
-    s_proj = st.selectbox("בחרי פרויקט", projects["project_name"].tolist(), key="oracle_sel")
+    sel_p = st.selectbox("בחר פרויקט", projects["project_name"].tolist(), key="p_sel")
 with ca2:
-    u_q = st.text_input("מה תרצי לדעת על הפרויקטים?", key="oracle_input")
+    q_in = st.text_input("מה תרצי לדעת?", key="q_in")
 
-if st.button("בצע ניתוח AI"):
-    if u_q:
-        with st.spinner("מנתח..."):
+if st.button("בצע ניתוח"):
+    if q_in:
+        with st.spinner("מנתח נתונים..."):
             url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key={api_key}"
             try:
-                res = requests.post(url, json={"contents": [{"parts": [{"text": f"Project: {s_proj}. Question: {u_q}"}]}]}, timeout=10)
+                res = requests.post(url, json={"contents": [{"parts": [{"text": f"Project: {sel_p}. Question: {q_in}"}]}]}, timeout=10)
                 ans = res.json()['candidates'][0]['content']['parts'][0]['text']
-                st.markdown(f"<div style='background-color:#f8f9fa; padding:15px; border-radius:10px; border:1px solid #eee; margin-top:10px;'>{ans}</div>", unsafe_allow_html=True)
-            except: st.error("שגיאה")
-st.markdown("</div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='card' style='background-color:#f8f9fa;'>{ans}</div>", unsafe_allow_html=True)
+            except: st.error("שגיאה בתקשורת עם ה-AI")
