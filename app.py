@@ -334,11 +334,13 @@ with col_left:
 # =========================
 # AI
 # =========================
-from google import genai
+import google.generativeai as genai
 import os
 import streamlit as st
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 if st.button("שלח ל-AI"):
 
@@ -354,13 +356,7 @@ if st.button("שלח ל-AI"):
 {question}
 """
 
-    try:
-        response = client.models.generate_content(
-            model="gemini-1.5-flash",
-            contents=prompt
-        )
-        result = response.text
-    except Exception as e:
-        result = str(e)
+    response = model.generate_content(prompt)
+    result = response.text
 
     st.markdown(f"<div class='ai-card'>{result}</div>", unsafe_allow_html=True)
