@@ -12,7 +12,7 @@ def get_base64_image(path):
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS יציב וסופי ---
+# --- 2. CSS יציב (החזרתי את המקורי) ---
 st.markdown("""
 <style>
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
@@ -42,85 +42,65 @@ st.markdown("""
         box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
         border: none !important;
     }
-    .kpi-card b { font-size: 1.4rem; color: #1f2a44; }
+    .kpi-card b { font-size: 1.4rem; color: #1f2a44; display: block; }
 
-    /* מסגרות הדירוג - בורדר דק בלבד */
+    /* מסגרות הקונטיינרים */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        background: white !important;
-        border: 1.5px solid #edf2f7 !important;
-        border-right: 5px solid #4facfe !important;
+        background: linear-gradient(white, white) padding-box,
+                    linear-gradient(90deg, #4facfe, #00f2fe) border-box !important;
+        border: 1.5px solid transparent !important;
         border-radius: 18px !important;
-        padding: 20px !important;
+        padding: 15px !important;
+        background-color: white !important;
     }
 
-    /* עיצוב שורות הרשימה */
-    .custom-row {
-        background: #ffffff;
-        padding: 12px;
-        border-radius: 10px;
-        margin-bottom: 10px;
-        border: 1px solid #f1f5f9;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        direction: rtl;
-        text-align: right;
+    .record-row {
+        background: #ffffff !important;
+        padding: 10px 15px !important;
+        border-radius: 10px !important;
+        margin-bottom: 8px !important;
+        border: 1px solid #edf2f7 !important;
+        border-right: 5px solid #4facfe !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        direction: rtl !important;
     }
 
-    .tag { font-size: 0.8em; font-weight: 600; padding: 3px 10px; border-radius: 5px; }
-    .tag-blue { color: #4facfe; background: #f0f9ff; }
-    .tag-orange { color: #d97706; background: #fffbeb; }
+    .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
+    .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
 
     h3, p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
+    div[data-testid="stWidgetLabel"] { justify-content: flex-start !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# פונקציית עזר ליצירת רשימה עם גלילה קשיחה
-def render_scrollable_area(df, is_reminder=False):
-    items_html = ""
-    for _, row in df.iterrows():
-        icon = "🔔" if is_reminder else "📂"
-        text = row['reminder_text'] if is_reminder else row['project_name']
-        tag_val = row.get('project_name', 'כללי') if is_reminder else row.get('project_type', 'פרויקט')
-        tag_class = "tag-orange" if is_reminder else "tag-blue"
-        
-        items_html += f"""
-        <div class="custom-row">
-            <span style="color:#1f2a44; font-weight:500;">{icon} {text}</span>
-            <span class="tag {tag_class}">{tag_val}</span>
-        </div>
-        """
-    
-    # ה-Container שיוצר את הגלילה
-    scroll_html = f"""
-    <div style="max-height: 280px; overflow-y: auto; padding-left: 10px; direction: rtl;">
-        {items_html}
-    </div>
-    """
-    return st.components.v1.html(scroll_html, height=300)
-
-# --- 3. נתונים ---
+# --- 3. טעינת נתונים ---
 try:
     projects = pd.read_excel("my_projects.xlsx")
     meetings = pd.read_excel("meetings.xlsx")
     reminders = pd.read_excel("reminders.xlsx")
     today = pd.Timestamp.today().date()
 except:
-    st.error("Missing Data"); st.stop()
+    st.error("Missing Files"); st.stop()
 
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders.copy()
 
-# --- 4. כותרת ופרופיל ---
+# --- 4. תצוגה עליונה ---
 st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
+
+img_b64 = get_base64_image("profile.png")
+now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
+greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
+
 p1, p2, p3 = st.columns([1, 1, 2])
 with p2:
-    img = get_base64_image("profile.png")
-    if img: st.markdown(f'<div style="display:flex; justify-content:center;"><img src="data:image/png;base64,{img}" class="profile-img"></div>', unsafe_allow_html=True)
+    if img_b64:
+        st.markdown(f'<div style="display:flex; justify-content:center;"><img src="data:image/png;base64,{img_b64}" class="profile-img"></div>', unsafe_allow_html=True)
 with p3:
-    now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
-    st.markdown(f"<div><h3 style='margin:0;'>שלום, סיון!</h3><p style='color:gray;'>{now.strftime('%H:%M | %d/%m/%Y')}</p></div>", unsafe_allow_html=True)
+    st.markdown(f"<div><h3 style='margin-bottom:0;'>{greeting}, סיון!</h3><p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p></div>", unsafe_allow_html=True)
 
-# --- 5. KPI - נקי ולבן ---
+# --- 5. שורת KPI ---
 st.markdown("<br>", unsafe_allow_html=True)
 k1, k2, k3, k4 = st.columns(4)
 with k1: st.markdown(f'<div class="kpi-card">בסיכון 🔴<br><b>{len(projects[projects["status"]=="אדום"])}</b></div>', unsafe_allow_html=True)
@@ -133,15 +113,18 @@ st.markdown("<br>", unsafe_allow_html=True)
 col_right, col_left = st.columns([2, 1.2])
 
 with col_right:
+    # פרויקטים עם גלילה
     with st.container(border=True):
         st.markdown("### 📁 פרויקטים ומרכיבים")
-        render_scrollable_area(projects)
+        with st.container(height=300, border=False):
+            for _, row in projects.iterrows():
+                st.markdown(f'<div class="record-row"><b>📂 {row["project_name"]}</b><span class="tag-blue">{row.get("project_type", "פרויקט")}</span></div>', unsafe_allow_html=True)
 
     with st.container(border=True):
         st.markdown("### ✨ AI Oracle")
         a1, a2 = st.columns([1, 2])
-        with a1: st.selectbox("פרויקט", projects["project_name"].tolist(), key="ai_p")
-        with a2: st.text_input("שאלה", placeholder="מה תרצי לדעת?", key="ai_i")
+        with a1: st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
+        with a2: st.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
         st.button("שגר שאילתה 🚀", use_container_width=True)
 
 with col_left:
@@ -151,12 +134,14 @@ with col_left:
         if t_m.empty: st.write("אין פגישות היום")
         else:
             for _, r in t_m.iterrows():
-                st.markdown(f'<div class="custom-row"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
 
+    # תזכורות עם גלילה - כאן התיקון הקריטי
     with st.container(border=True):
         st.markdown("### 🔔 תזכורות")
-        # גלילה מובטחת בתזכורות
-        t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
-        render_scrollable_area(t_r, is_reminder=True)
+        with st.container(height=250, border=False):
+            t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
+            for _, row in t_r.iterrows():
+                st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
         
         st.button("➕ הוסף תזכורת", use_container_width=True)
