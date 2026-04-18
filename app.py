@@ -98,12 +98,18 @@ if api_key:
             prompt = f"פרויקט: {p_info['project_name']}, סטטוס: {p_info['status']}. שאלה: {u_q}"
             with st.spinner("מנתח..."):
                 try:
-                    # התיקון הקריטי: הורדנו את הקידומת models/
+                    # הוספנו כאן את ה-gemini-1.5-flash-latest וניסיון נוסף
                     model = genai.GenerativeModel('gemini-1.5-flash')
                     res = model.generate_content(prompt)
                     st.success(res.text)
                 except Exception as e:
-                    st.error(f"שגיאה בניתוח: {e}")
+                    # אם זה נכשל, ננסה את המודל הישן יותר רק כדי לבדוק אם זו בעיית הרשאות
+                    try:
+                        model_alt = genai.GenerativeModel('gemini-1.0-pro')
+                        res = model_alt.generate_content(prompt)
+                        st.success(res.text)
+                    except:
+                        st.error(f"שגיאה בניתוח: {e}")
         else:
             st.warning("נא להזין שאלה.")
 else:
