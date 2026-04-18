@@ -5,7 +5,7 @@ import base64
 import datetime
 from zoneinfo import ZoneInfo
 
-# 1. הגדרות עמוד ועיצוב בסיסי מקורי
+# 1. הגדרות עמוד ועיצוב בסיסי
 st.set_page_config(layout="wide", page_title="ניהול פרויקטים - לוח בקרה")
 
 st.markdown("""
@@ -32,7 +32,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# כותרת ראשית מקורית
+# כותרת ראשית
 st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
 
 # 2. פונקציית תמונה ופרופיל
@@ -73,10 +73,14 @@ with center:
 st.markdown("---")
 
 # 3. נתונים
-projects = pd.read_excel("my_projects.xlsx")
-meetings = pd.read_excel("meetings.xlsx")
-reminders = pd.read_excel("reminders.xlsx")
-today = pd.Timestamp.today().date()
+try:
+    projects = pd.read_excel("my_projects.xlsx")
+    meetings = pd.read_excel("meetings.xlsx")
+    reminders = pd.read_excel("reminders.xlsx")
+    today = pd.Timestamp.today().date()
+except Exception as e:
+    st.error(f"שגיאה בטעינת קבצים: {e}")
+    st.stop()
 
 # AI תזכורות
 def generate_ai_reminders(df):
@@ -92,16 +96,20 @@ def generate_ai_reminders(df):
             })
     return pd.DataFrame(ai)
 
-ai_reminders = generate_ai_reminders(projects)
-
 if "reminders_live" not in st.session_state:
+    ai_reminders = generate_ai_reminders(projects)
     st.session_state.reminders_live = pd.concat([reminders, ai_reminders], ignore_index=True)
 
-# 4. KPI
-c1, c2, c3 = st.columns(3)
-with c1: st.markdown(f"<div class='card'><b>סה״כ פרויקטים</b><br>{len(projects)}</div>", unsafe_allow_html=True)
-with c2: st.markdown(f"<div class='card'><b>בסיכון 🔴</b><br>{len(projects[projects['status']=='אדום'])}</div>", unsafe_allow_html=True)
-with c3: st.markdown(f"<div class='card'><b>במעקב 🟡</b><br>{len(projects[projects['status']=='צהוב'])}</div>", unsafe_allow_html=True)
+# 4. KPI - הגרסה המתוקנת עם 4 עמודות
+k1, k2, k3, k4 = st.columns(4)
+with k1: 
+    st.markdown(f"<div class='card'><b>סה״כ פרויקטים</b><br><h2>{len(projects)}</h2></div>", unsafe_allow_html=True)
+with k2: 
+    st.markdown(f"<div class='card' style='border-top: 3px solid red;'><b>בסיכון 🔴</b><br><h2 style='color:red;'>{len(projects[projects['status']=='אדום'])}</h2></div>", unsafe_allow_html=True)
+with k3: 
+    st.markdown(f"<div class='card' style='border-top: 3px solid orange;'><b>במעקב 🟡</b><br><h2 style='color:orange;'>{len(projects[projects['status']=='צהוב'])}</h2></div>", unsafe_allow_html=True)
+with k4: 
+    st.markdown(f"<div class='card' style='border-top: 3px solid green;'><b>תקין 🟢</b><br><h2 style='color:green;'>{len(projects[projects['status']=='ירוק'])}</h2></div>", unsafe_allow_html=True)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
