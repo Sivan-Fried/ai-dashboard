@@ -72,58 +72,204 @@ with center:
 
 st.markdown("---")
 
-# 3. טעינת נתונים
-try:
-    projects = pd.read_excel("my_projects.xlsx")
-    meetings = pd.read_excel("meetings.xlsx")
-    reminders = pd.read_excel("reminders.xlsx")
-    today = pd.Timestamp.today().date()
-except Exception as e:
-    st.error(f"שגיאה בטעינת הקבצים: {e}")
-    st.stop()
+# =========================
+# נתונים
+# =========================
+projects = pd.read_excel("my_projects.xlsx")
+meetings = pd.read_excel("meetings.xlsx")
+reminders = pd.read_excel("reminders.xlsx")
+
+today = pd.Timestamp.today().date()
+
+# =========================
+# AI תזכורות
+# =========================
+def generate_ai_reminders(df):
+    ai = []
+    for _, row in df.iterrows():
+        if row["status"] in ["צהוב", "אדום"]:
+            ai.append({
+                "reminder_text": f"התחלה/מעקב על {row['project_name']}",
+                "project_name": row["project_name"],
+                "date": today,
+                "priority": "medium",
+                "source": "ai"
+            })
+    return pd.DataFrame(ai)
+
+ai_reminders = generate_ai_reminders(projects)
 
 if "reminders_live" not in st.session_state:
-    st.session_state.reminders_live = reminders.copy()
+    st.session_state.reminders_live = pd.concat([reminders, ai_reminders], ignore_index=True)
 
-# 4. KPI מקורי
-c1, c2, c3, c4 = st.columns(4)
-with c1: st.markdown(f"<div class='card'><b>סה״כ פרויקטים</b><br>{len(projects)}</div>", unsafe_allow_html=True)
-with c2: st.markdown(f"<div class='card' style='border-top: 3px solid red;'><b>בסיכון 🔴</b><br>{len(projects[projects['status']=='אדום'])}</div>", unsafe_allow_html=True)
-with c3: st.markdown(f"<div class='card' style='border-top: 3px solid orange;'><b>במעקב 🟡</b><br>{len(projects[projects['status']=='צהוב'])}</div>", unsafe_allow_html=True)
-with c4: st.markdown(f"<div class='card' style='border-top: 3px solid green;'><b>תקין 🟢</b><br>{len(projects[projects['status']=='ירוק'])}</div>", unsafe_allow_html=True)
+# =========================
+# KPI
+# =========================
+c1, c2, c3 = st.columns(3)
+
+with c1:
+    st.markdown(f"<div class='card'><b>סה״כ פרויקטים</b><br>{len(projects)}</div>", unsafe_allow_html=True)
+
+with c2:
+    st.markdown(f"<div class='card'><b>בסיכון 🔴</b><br>{len(projects[projects['status']=='אדום'])}</div>", unsafe_allow_html=True)
+
+with c3:
+    st.markdown(f"<div class='card'><b>במעקב 🟡</b><br>{len(projects[projects['status']=='צהוב'])}</div>", unsafe_allow_html=True)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 5. פריסה מרכזית (פרויקטים בימין, לו"ז בשמאל)
-col_left, col_right = st.columns([1.2, 1])
+# =========================
+# פרויקטים
+# =========================
+st.markdown(
+    "<h3 style='text-align:right; direction:rtl;'>📁 פרויקטים</h3>",
+    unsafe_allow_html=True
+)
 
-with col_right:
-    st.markdown("### 📁 פרויקטים")
-    for _, row in projects.iterrows():
-        dot = "🟢" if row["status"]=="ירוק" else "🟡" if row["status"]=="צהוב" else "🔴"
-        st.markdown(f"<div class='card'>{row['project_name']} <span style='float:left;'>{dot}</span></div>", unsafe_allow_html=True)
+def type_icon(project_type):
+    if project_type == "פרויקט אקטיבי":
+        return "🚀"
+    elif project_type == "חבילת עבודה":
+        return "📦"
+    elif project_type == "תחזוקה":
+        return "🔧"
+    else:
+        return "📁"
 
-with col_left:
-    st.markdown("### 📅 לו״ז ועדכונים")
-    today_meetings = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-    if not today_meetings.empty:
-        for _, row in today_meetings.iterrows():
-            st.markdown(f"<div class='card'><b>📌 {row['meeting_title']}</b><br><span style='font-size:12px; color:gray;'>🕒 {row['time']} | 📁 {row['project_name']}</span></div>", unsafe_allow_html=True)
-    else: st.info("אין פגישות להיום")
+def status_dot(status):
+    if status == "ירוק":
+        return "🟢"
+    elif status == "צהוב":
+        return "🟡"
+    else:
+        return "🔴"
 
-    st.markdown("#### 🔔 תזכורות")
-    with st.container(height=230):
-        for _, row in st.session_state.reminders_live.iterrows():
-            st.markdown(f"<div class='card' style='font-size:13px;'>✍️ {row['reminder_text']}</div>", unsafe_allow_html=True)
+for _, row in projects.iterrows():
 
-    if st.button("➕ הוספת תזכורת"):
-        st.session_state.add_mode = True
+    project_name = row["project_name"]
+    project_type = row["project_type"]
+    status = row["status"]
+
+    icon = type_icon(project_type)
+    dot = status_dot(status)
+
+    st.markdown(f"""
+    <div style="
+        background:white;
+        padding:8px 10px;
+        border-radius:8px;
+        margin-bottom:4px;
+        border:1px solid #eee;
+        direction:rtl;
+        text-align:right;
+        font-size:14px;
+    ">
+        {icon} {project_name}
+        <span style="color:gray; font-size:12px;"> | {project_type}</span>
+        <span style="float:left;">{dot}</span>
+    </div>
+    """, unsafe_allow_html=True)
     
-    if st.session_state.get("add_mode"):
-        with st.form("new_reminder"):
-            t_input = st.text_input("הזיני תזכורת:")
-            if st.form_submit_button("שמור"):
-                st.session_state.reminders_live = pd.concat([st.session_state.reminders_live, pd.DataFrame([{"reminder_text": t_input, "date": today}])], ignore_index=True)
+# --- ריק לשמירה על איזון ---
+with right:
+    st.write("")
+
+st.markdown("---")
+
+# =========================
+# 🔥 חשוב – הגדרת עמודות (לא לגעת!)
+# =========================
+col_right, col_left = st.columns(2)
+
+# -------- פגישות --------
+with col_right:
+
+    st.markdown("### 📅 פגישות היום")
+
+    today_meetings = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
+
+    if today_meetings.empty:
+        st.info("אין פגישות היום 🎉")
+    else:
+        for _, row in today_meetings.iterrows():
+            st.markdown(f"""
+            <div class='card'>
+                📌 {row['meeting_title']}<br>
+                🕒 {row['time']}<br>
+                📁 {row['project_name']}
+            </div>
+            """, unsafe_allow_html=True)
+
+# -------- תזכורות --------
+with col_left:
+
+    st.markdown("### 🔔 תזכורות")
+
+    today_reminders = st.session_state.reminders_live[
+        pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today
+    ]
+
+    # 🔥 גלילה אמיתית
+    container = st.container(height=260)
+
+    with container:
+
+        if today_reminders.empty:
+            st.info("אין תזכורות להיום 🎉")
+
+        else:
+            for _, row in today_reminders.iterrows():
+
+                icon = "🤖" if row["source"] == "ai" else "✍️"
+
+                st.markdown(f"""
+                <div class="card">
+                    {icon} {row['reminder_text']} | 📁 {row['project_name']}
+                </div>
+                """, unsafe_allow_html=True)
+
+    # =========================
+    # ➕ הוספה
+    # =========================
+    st.markdown("---")
+
+    if "add_mode" not in st.session_state:
+        st.session_state.add_mode = False
+
+    if not st.session_state.add_mode:
+
+        if st.button("➕ הוספת תזכורת"):
+            st.session_state.add_mode = True
+            st.rerun()
+
+    else:
+
+        col1, col2, col3, col4 = st.columns([5, 3, 2, 1])
+
+        with col1:
+            text = st.text_input("", placeholder="תזכורת חדשה")
+
+        with col2:
+            project = st.selectbox("", projects["project_name"].tolist())
+
+        with col3:
+            priority = st.selectbox("", ["נמוכה", "בינונית", "גבוהה"])
+
+        with col4:
+            if st.button("✔"):
+
+                reverse = {"נמוכה":"low","בינונית":"medium","גבוהה":"high"}
+
+                new_row = {
+                    "reminder_text": text,
+                    "project_name": project,
+                    "date": today,
+                    "priority": reverse[priority],
+                    "source": "manual"
+                }
+
+                st.session_state.reminders_live.loc[len(st.session_state.reminders_live)] = new_row
+
                 st.session_state.add_mode = False
                 st.rerun()
 
