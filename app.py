@@ -39,10 +39,14 @@ st.markdown("""
         text-align: center;
         border: 1px solid #e0e6ed;
         box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        height: 80px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
     
-    .kpi-title { color: gray; font-size: 14px; margin: 0; }
-    .kpi-value { font-size: 24px; font-weight: bold; margin: 0; }
+    .kpi-title { color: gray; font-size: 13px; margin: 0; }
+    .kpi-value { font-size: 22px; font-weight: bold; margin: 0; }
 
     .project-row {
         background: white;
@@ -73,7 +77,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 2. חלק עליון: פרופיל וברכה (מיקום נשמר, פוקוס תוקן)
+# 2. חלק עליון: פרופיל וברכה (מיקום תמונה וברכה)
 def get_base64_image(path):
     try:
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
@@ -92,7 +96,7 @@ with col_img:
         st.markdown(f"""
         <div style="display:flex; justify-content:center;">
             <div style="width:130px; height:130px; border-radius:50%; overflow:hidden; border:5px solid white; box-shadow:0 10px 25px rgba(0,0,0,0.1);">
-                <img src="data:image/png;base64,{img_base64}" style="width:100%; height:100%; object-fit: cover; object-position: center;">
+                <img src="data:image/png;base64,{img_base64}" style="width:100%; height:100%; object-fit: cover; object-position: center top;">
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -119,12 +123,12 @@ except:
 if "reminders_live" not in st.session_state: 
     st.session_state.reminders_live = reminders.copy()
 
-# 4. KPI - קומפקטי ומסודר כפי שהיה
+# 4. KPI - סדר חדש (סטטוסים קודם, סך הכל בסוף)
 k1, k2, k3, k4 = st.columns(4)
-with k1: st.markdown(f"<div class='kpi-container'><p class='kpi-title'>פרויקטים</p><p class='kpi-value'>{len(projects)}</p></div>", unsafe_allow_html=True)
-with k2: st.markdown(f"<div class='kpi-container' style='border-top:3px solid red;'><p class='kpi-title'>בסיכון 🔴</p><p class='kpi-value' style='color:red;'>{len(projects[projects['status']=='אדום'])}</p></div>", unsafe_allow_html=True)
-with k3: st.markdown(f"<div class='kpi-container' style='border-top:3px solid orange;'><p class='kpi-title'>במעקב 🟡</p><p class='kpi-value' style='color:orange;'>{len(projects[projects['status']=='צהוב'])}</p></div>", unsafe_allow_html=True)
-with k4: st.markdown(f"<div class='kpi-container' style='border-top:3px solid green;'><p class='kpi-title'>בתקין 🟢</p><p class='kpi-value' style='color:green;'>{len(projects[projects['status']=='ירוק'])}</p></div>", unsafe_allow_html=True)
+with k1: st.markdown(f"<div class='kpi-container' style='border-top:3px solid red;'><p class='kpi-title'>בסיכון 🔴</p><p class='kpi-value' style='color:red;'>{len(projects[projects['status']=='אדום'])}</p></div>", unsafe_allow_html=True)
+with k2: st.markdown(f"<div class='kpi-container' style='border-top:3px solid orange;'><p class='kpi-title'>במעקב 🟡</p><p class='kpi-value' style='color:orange;'>{len(projects[projects['status']=='צהוב'])}</p></div>", unsafe_allow_html=True)
+with k3: st.markdown(f"<div class='kpi-container' style='border-top:3px solid green;'><p class='kpi-title'>בתקין 🟢</p><p class='kpi-value' style='color:green;'>{len(projects[projects['status']=='ירוק'])}</p></div>", unsafe_allow_html=True)
+with k4: st.markdown(f"<div class='kpi-container'><p class='kpi-title'>סה\"כ פרויקטים</p><p class='kpi-value'>{len(projects)}</p></div>", unsafe_allow_html=True)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
