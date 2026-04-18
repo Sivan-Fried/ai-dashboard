@@ -82,34 +82,43 @@ with col2:
         st.info("אין פגישות היום")
 
 # ==========================================
-# 🤖 אזור ה-AI המעודכן לגרסת 2.0 היציבה
+# 🤖 אזור ה-AI המעודכן - עיצוב לבן ותשובה ירוקה
 # ==========================================
 st.markdown("---")
-st.markdown("### 🤖 עוזר AI")
+st.markdown("<h3 style='text-align:right;'>🤖 עוזר AI אישי</h3>", unsafe_allow_html=True)
 
 api_key = st.secrets.get("GEMINI_API_KEY")
 
 if api_key:
-    ca1, ca2 = st.columns(2)
-    with ca1:
-        s_proj = st.selectbox("בחרי פרויקט", projects["project_name"].tolist(), key="stable_v1")
-    with ca2:
-        u_q = st.text_area("שאלה", key="stable_v2")
+    # עיצוב אזור השאלה ברקע לבן
+    st.markdown("""
+        <style>
+        div[data-testid="stForm"], .stTextArea textarea {
+            background-color: white !important;
+            direction: rtl;
+            text-align: right;
+        }
+        </style>
+    """, unsafe_allow_html=True)
 
-    if st.button("בצע ניתוח", key="stable_v3"):
+    with st.container():
+        # תיבת השאלה ברקע לבן
+        ca1, ca2 = st.columns(2)
+        with ca1:
+            s_proj = st.selectbox("בחרי פרויקט לניתוח", projects["project_name"].tolist(), key="final_v_2026")
+        with ca2:
+            u_q = st.text_area("מה תרצי לדעת?", placeholder="למשל: למה הפרויקט באדום ואיך מתקדמים?", key="q_2026")
+
+    if st.button("בצע ניתוח AI", key="btn_2026"):
         if u_q:
             p_info = projects[projects["project_name"] == s_proj].iloc[0]
-            context = f"פרויקט: {p_info['project_name']}, סטטוס: {p_info['status']}. שאלה: {u_q}"
+            # הנחיה לתמציתיות
+            context = f"נתוני פרויקט: {p_info.to_string()}. ענה בעברית, בנקודות תמציתיות, ללא כותרות גדולות. שאלה: {u_q}"
             
             with st.spinner("מנתח נתונים..."):
-                # שימוש במודל 2.0 - פחות עמוס ויותר יציב
-                # מעבר למודל היציב ביותר עם המכסה הכי גדולה בחשבונות חינמיים
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key={api_key}"
-                
                 headers = {'Content-Type': 'application/json'}
-                data = {
-                    "contents": [{"parts": [{"text": context}]}]
-                }
+                data = {"contents": [{"parts": [{"text": context}]}]}
                 
                 try:
                     response = requests.post(url, headers=headers, json=data)
@@ -117,14 +126,22 @@ if api_key:
                     
                     if response.status_code == 200:
                         answer = res_json['candidates'][0]['content']['parts'][0]['text']
-                        st.success(answer)
-                    elif response.status_code == 503:
-                        st.warning("השרת עמוס מעט, מנסה שוב אוטומטית...")
-                        # ניתן להוסיף כאן מנגנון Retry, אבל לחיצה נוספת שלך תעשה את העבודה
+                        
+                        # תצוגת התשובה בירוק זרחני (כפי שביקשת) עם יישור לימין
+                        st.markdown(f"""
+                        <div style="direction: rtl; text-align: right; background-color: #d4edda; color: #155724; 
+                                    padding: 15px; border-radius: 10px; border: 1px solid #c3e6cb; 
+                                    font-weight: 500; line-height: 1.6; margin-top: 20px;">
+                            {answer}
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                    elif response.status_code == 429:
+                        st.warning("המערכת זקוקה למנוחה של דקה (מכסת שימוש). נסי שוב בעוד רגע.")
                     else:
                         st.error(f"שגיאה {response.status_code}: {res_json.get('error', {}).get('message', 'Unknown error')}")
                 except Exception as e:
-                    st.error(f"שגיאה טכנית: {e}")
+                    st.error(f"שגיאה בחיבור: {e}")
         else:
             st.warning("נא להזין שאלה.")
 else:
