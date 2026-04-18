@@ -144,6 +144,26 @@ for _, row in projects.iterrows():
 st.markdown("</div>", unsafe_allow_html=True)
 
 
+
+# -------- פגישות --------
+with col_right:
+
+    st.markdown("### 📅 פגישות היום")
+
+    today_meetings = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
+
+    if today_meetings.empty:
+        st.info("אין פגישות היום 🎉")
+    else:
+        for _, row in today_meetings.iterrows():
+            st.markdown(f"""
+            <div class='card'>
+                📌 {row['meeting_title']}<br>
+                🕒 {row['time']}<br>
+                📁 {row['project_name']}
+            </div>
+            """, unsafe_allow_html=True)
+
 # -------- תזכורות --------
 with col_left:
 
@@ -216,6 +236,7 @@ with col_left:
 
                 st.session_state.add_mode = False
                 st.rerun()
+
 
 # 7. AI האורקל
 st.markdown("<div class='section-wrap' style='border-right: 6px solid #4facfe;'>", unsafe_allow_html=True)
