@@ -335,49 +335,16 @@ with col_left:
 # AI
 # =========================
 # =========================
-# AI
+# AI (Gemini חדש)
 # =========================
-import streamlit as st
-import google.generativeai as genai
 import os
-
-# ---------- CSS ----------
-st.markdown("""
-<style>
-.ai-container { direction: rtl; }
-
-textarea {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-    border-radius: 10px !important;
-    border: 1px solid #ccc !important;
-}
-
-div[data-baseweb="select"] > div {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-}
-
-.ai-card {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-    padding: 16px;
-    border-radius: 12px;
-    border: 1px solid #ddd;
-    margin-top: 12px;
-}
-</style>
-""", unsafe_allow_html=True)
+import streamlit as st
+from google import genai
 
 st.markdown("<hr>", unsafe_allow_html=True)
-st.markdown("<div class='ai-container'>", unsafe_allow_html=True)
 st.markdown("### 🤖 אזור AI")
 
-selected = st.selectbox(
-    "בחרי פרויקט",
-    projects["project_name"].tolist()
-)
-
+selected = st.selectbox("בחרי פרויקט", projects["project_name"].tolist())
 question = st.text_area("שאלה חופשית")
 
 if st.button("שלח ל-AI"):
@@ -391,36 +358,29 @@ if st.button("שלח ל-AI"):
 {projects.to_string(index=False)}
 
 פרויקט נבחר:
-{row['project_name']} - {row['status']}
+שם: {row['project_name']}
+סטטוס: {row['status']}
 
 שאלה:
 {question}
 
-עני בעברית קצר וברור עם המלצות.
+עני בעברית קצר, ברור, עם המלצות מעשיות.
 """
 
-    api_key = os.getenv("GEMINI_API_KEY")
+    try:
+        client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
-    if not api_key:
-        result = "❌ אין API KEY"
-    else:
-        genai.configure(api_key=api_key)
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=prompt
+        )
 
-        try:
-            # 🔥 מודל שעובד עם v1beta
-            model = genai.GenerativeModel("gemini-pro")
+        result = response.text
 
-            response = model.generate_content(prompt)
+    except Exception as e:
+        result = f"⚠️ שגיאה: {str(e)}"
 
-            if hasattr(response, "text") and response.text:
-                result = response.text
-            else:
-                result = "אין תשובה מה-AI"
-
-        except Exception as e:
-            result = f"שגיאה: {str(e)}"
-
-    st.markdown(f"<div class='ai-card'>{result}</div>", unsafe_allow_html=True)
-
-st.markdown("</div>", unsafe_allow_html=True)
-    
+    st.markdown(
+        f"<div class='ai-card'>{result}</div>",
+        unsafe_allow_html=True
+    )
