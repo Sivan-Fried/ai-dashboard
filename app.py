@@ -332,10 +332,10 @@ with col_left:
                 st.rerun()
 
 # =========================
-# 🤖 AI AREA (FIXED + CLEAN)
+# 🤖 AI AREA (FINAL CLEAN VERSION)
 # =========================
 
-import google.generativeai as genai
+from google import genai
 
 # ---------- API KEY ----------
 api_key = os.getenv("GEMINI_API_KEY")
@@ -351,26 +351,30 @@ st.markdown("---")
 st.markdown("### 🤖 אזור AI")
 
 # ---------- UI ----------
-selected = st.selectbox(
-    "בחרי פרויקט",
-    projects["project_name"].tolist(),
-    key="ai_project_select"
-)
+ai_col1, ai_col2 = st.columns(2)
 
-question = st.text_area(
-    "שאלה חופשית",
-    key="ai_question_input"
-)
+with ai_col1:
+    selected_project = st.selectbox(
+        "בחרי פרויקט",
+        projects["project_name"].tolist(),
+        key="ai_project_final"
+    )
+
+with ai_col2:
+    question = st.text_area(
+        "שאלה חופשית",
+        key="ai_question_final"
+    )
 
 # ---------- BUTTON ----------
-if st.button("שלח ל-AI", key="ai_button_send"):
+if st.button("שלח ל-AI", key="ai_button_final"):
 
     if not question.strip():
         st.warning("אנא הזיני שאלה")
         st.stop()
 
     # שליפת פרויקט
-    row = projects[projects["project_name"] == selected].iloc[0]
+    row = projects[projects["project_name"] == selected_project].iloc[0]
 
     # פרומפט
     prompt = f"""
@@ -385,7 +389,7 @@ if st.button("שלח ל-AI", key="ai_button_send"):
 עני בעברית קצר וברור.
 """
 
-    # קריאה ל-Gemini (SDK חדש)
+    # קריאה ל-Gemini
     try:
         response = client.models.generate_content(
             model="gemini-1.5-flash",
