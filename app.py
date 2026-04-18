@@ -192,7 +192,7 @@ with col_left:
                 """, unsafe_allow_html=True)
 
 # ==========================================
-# 🤖 AI AREA - גרסה סופית ומוחלטת
+# 🤖 AI AREA - גרסה סופית ללא שגיאות רווחים
 # ==========================================
 
 st.markdown("---")
@@ -205,7 +205,7 @@ if not api_key:
     st.error("❌ חסר מפתח API ב-Secrets.")
 else:
     try:
-        # 2. אתחול לקוח בגרסה יציבה
+        # 2. אתחול לקוח
         client = genai.Client(api_key=api_key, http_options={'api_version': 'v1'})
         
         col_ai_1, col_ai_2 = st.columns(2)
@@ -215,14 +215,14 @@ else:
                 selected_project = st.selectbox(
                     "בחרי פרויקט", 
                     projects["project_name"].tolist(),
-                    key="unique_select_v100" # מפתח ייחודי
+                    key="unique_select_final_fixed"
                 )
         
         with col_ai_2:
-            question = st.text_area("שאלה ל-AI", key="unique_text_v100") # מפתח ייחודי
+            question = st.text_area("שאלה ל-AI", key="unique_text_final_fixed")
 
-        # 3. הכפתור הבעייתי - הוספתי לו מפתח שחייב לעבוד
-        if st.button("שלח ל-AI", key="super_unique_ai_button_2026"):
+        # 3. הכפתור
+        if st.button("שלח ל-AI", key="final_button_fixed_2026"):
             if question:
                 try:
                     row = projects[projects["project_name"] == selected_project].iloc[0]
@@ -233,20 +233,12 @@ else:
                             model="gemini-1.5-flash",
                             contents=prompt
                         )
+                        # הצגת התוצאה
                         st.info(response.text)
                 except Exception as e:
-                    st.error(f"שגיאה: {e}")
+                    st.error(f"שגיאה בעיבוד: {e}")
             else:
                 st.warning("נא לכתוב שאלה.")
 
     except Exception as e:
         st.error(f"שגיאה באתחול: {e}")
-                    # הצגת התוצאה
-                    st.markdown(f"<div class='card'>{result}</div>", unsafe_allow_html=True)
-
-                except Exception as e:
-                    # טיפול בשגיאות ספציפיות של ה-API
-                    st.error(f"⚠️ שגיאה בעיבוד התשובה: {str(e)}")
-
-    except Exception as e:
-        st.error(f"⚠️ שגיאה באתחול ה-AI: {str(e)}")
