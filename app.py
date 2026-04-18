@@ -98,6 +98,7 @@ if api_key:
             prompt = f"פרויקט: {p_info['project_name']}, סטטוס: {p_info['status']}. שאלה: {u_q}"
             with st.spinner("מנתח..."):
                 try:
+                    # התיקון הקריטי: הורדנו את הקידומת models/
                     model = genai.GenerativeModel('gemini-1.5-flash')
                     res = model.generate_content(prompt)
                     st.success(res.text)
