@@ -172,19 +172,36 @@ with col_left:
                 icon = "🤖" if source == "ai" else "✍️"
                 st.markdown(f"<div class='card'>{icon} {row['reminder_text']} | 📁 {row.get('project_name', 'כללי')}</div>", unsafe_allow_html=True)
 
-    if not st.session_state.get("add_mode"):
-        if st.button("➕ הוספת תזכורת"):
+           if st.button("➕ הוספת תזכורת"):
             st.session_state.add_mode = True
             st.rerun()
+
     else:
-        with st.form("new_rem"):
-            t = st.text_input("תזכורת חדשה")
-            if st.form_submit_button("✔"):
-                if t:
-                    new_row = {"reminder_text": t, "date": today, "source": "manual"}
-                    st.session_state.reminders_live = pd.concat([st.session_state.reminders_live, pd.DataFrame([new_row])], ignore_index=True)
-                st.session_state.add_mode = False
-                st.rerun()
+
+        col1, col2, col3, col4 = st.columns([5, 3, 2, 1])
+
+        with col1:
+            text = st.text_input("", placeholder="תזכורת חדשה")
+
+        with col2:
+            project = st.selectbox("", projects["project_name"].tolist())
+
+        with col3:
+            priority = st.selectbox("", ["נמוכה", "בינונית", "גבוהה"])
+
+        with col4:
+            if st.button("✔"):
+
+                reverse = {"נמוכה":"low","בינונית":"medium","גבוהה":"high"}
+
+                new_row = {
+                    "reminder_text": text,
+                    "project_name": project,
+                    "date": today,
+                    "priority": reverse[priority],
+                    "source": "manual"
+                }
+
     st.markdown("</div>", unsafe_allow_html=True)
 
 # 7. AI האורקל
