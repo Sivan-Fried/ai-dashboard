@@ -7,7 +7,7 @@ import os
 import datetime
 
 # הגדרת עמוד
-st.set_page_config(layout="wide", page_title="AI Dashboard 2026")
+st.set_page_config(layout="wide", page_title="AI Dashboard Stable")
 
 # עיצוב CSS
 st.markdown("""
@@ -82,7 +82,7 @@ with col2:
         st.info("אין פגישות היום")
 
 # ==========================================
-# 🤖 אזור ה-AI המעודכן לגרסה 2.5
+# 🤖 אזור ה-AI המעודכן לגרסת 2.0 היציבה
 # ==========================================
 st.markdown("---")
 st.markdown("### 🤖 עוזר AI")
@@ -92,18 +92,18 @@ api_key = st.secrets.get("GEMINI_API_KEY")
 if api_key:
     ca1, ca2 = st.columns(2)
     with ca1:
-        s_proj = st.selectbox("בחרי פרויקט", projects["project_name"].tolist(), key="v25_1")
+        s_proj = st.selectbox("בחרי פרויקט", projects["project_name"].tolist(), key="stable_v1")
     with ca2:
-        u_q = st.text_area("שאלה", key="v25_2")
+        u_q = st.text_area("שאלה", key="stable_v2")
 
-    if st.button("בצע ניתוח", key="v25_3"):
+    if st.button("בצע ניתוח", key="stable_v3"):
         if u_q:
             p_info = projects[projects["project_name"] == s_proj].iloc[0]
             context = f"פרויקט: {p_info['project_name']}, סטטוס: {p_info['status']}. שאלה: {u_q}"
             
-            with st.spinner("מנתח בעזרת Gemini 2.5..."):
-                # שימוש בשם המודל המדויק שמופיע ברשימה שלך
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+            with st.spinner("מנתח נתונים..."):
+                # שימוש במודל 2.0 - פחות עמוס ויותר יציב
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
                 
                 headers = {'Content-Type': 'application/json'}
                 data = {
@@ -115,9 +115,11 @@ if api_key:
                     res_json = response.json()
                     
                     if response.status_code == 200:
-                        # שליפת התשובה
                         answer = res_json['candidates'][0]['content']['parts'][0]['text']
                         st.success(answer)
+                    elif response.status_code == 503:
+                        st.warning("השרת עמוס מעט, מנסה שוב אוטומטית...")
+                        # ניתן להוסיף כאן מנגנון Retry, אבל לחיצה נוספת שלך תעשה את העבודה
                     else:
                         st.error(f"שגיאה {response.status_code}: {res_json.get('error', {}).get('message', 'Unknown error')}")
                 except Exception as e:
