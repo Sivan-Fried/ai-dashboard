@@ -345,10 +345,10 @@ if not api_key:
     st.error("❌ Missing GEMINI_API_KEY (Streamlit Secrets / Environment Variables)")
     st.stop()
 
-# ---------- CONFIG ----------
+# ---------- CONFIG (חד פעמי בלבד) ----------
 genai.configure(api_key=api_key)
 
-# ✔ מודל תקין ויציב (זה הכי חשוב)
+# ✔ מודל תקין
 model = genai.GenerativeModel("gemini-1.5-flash")
 
 st.markdown("---")
@@ -380,7 +380,6 @@ if st.button("שלח ל-AI", key="ai_button_final"):
     # שליפת פרויקט
     row = projects[projects["project_name"] == selected_project].iloc[0]
 
-    # פרומפט
     prompt = f"""
 את עוזרת לניהול פרויקטים.
 
@@ -393,7 +392,6 @@ if st.button("שלח ל-AI", key="ai_button_final"):
 עני בעברית קצר וברור.
 """
 
-    # קריאה ל-Gemini
     try:
         response = model.generate_content(prompt)
         result = response.text
