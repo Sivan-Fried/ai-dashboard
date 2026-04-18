@@ -3,7 +3,6 @@ import pandas as pd
 import base64
 import os
 import datetime
-# import google.generativeai as genai
 
 st.set_page_config(layout="wide")
 
@@ -43,27 +42,17 @@ h1, h2, h3 {
 st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
 
 # =========================
-# פרופיל יציב – תמונה באמצע + טקסט משמאל
+# פרופיל
 # =========================
-import datetime
-import base64
-
-# --- תמונה (כמו שהיה) ---
 def get_base64_image(path):
     with open(path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode()
 
 img_base64 = get_base64_image("profile.png")
 
-# --- ברכה ---
-import datetime
-from zoneinfo import ZoneInfo
-
-# זמן ישראל (בלי ספריות חיצוניות)
-now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
+now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=2)))
 
 hour = now.hour
-
 if 5 <= hour < 12:
     greeting = "בוקר טוב"
 elif 12 <= hour < 18:
@@ -75,56 +64,26 @@ else:
 
 date_str = now.strftime("%d/%m/%Y %H:%M")
 
-# =========================
-# פריסה נכונה (הפתרון האמיתי)
-# =========================
 left, center, right = st.columns([1.2, 1, 1.2])
 
-# --- טקסט משמאל ---
 with left:
     st.markdown(f"""
-    <div style="
-        direction:rtl;
-        text-align:right;
-        margin-top:40px;
-        color:#1f2a44;
-    ">
-        <div style="font-size:22px;">
-            {greeting}, סיון!
-        </div>
-        <div style="font-size:13px; color:gray;">
-            {date_str}
-        </div>
+    <div style="direction:rtl;text-align:right;margin-top:40px;color:#1f2a44;">
+        <div style="font-size:22px;">{greeting}, סיון!</div>
+        <div style="font-size:13px;color:gray;">{date_str}</div>
     </div>
     """, unsafe_allow_html=True)
 
-# --- תמונה באמצע (בדיוק כמו שהיה) ---
 with center:
     st.markdown(f"""
-    <div style="
-        display:flex;
-        justify-content:center;
-        margin-top:10px;
-    ">
-        <div style="
-            width:140px;
-            height:140px;
-            border-radius:50%;
-            overflow:hidden;
-            border:3px solid #ddd;
-            box-shadow:0px 2px 10px rgba(0,0,0,0.15);
-        ">
-            <img src="data:image/png;base64,{img_base64}" style="
-                width:100%;
-                height:100%;
-                object-fit: cover;
-                object-position: center top;
-            ">
+    <div style="display:flex;justify-content:center;margin-top:10px;">
+        <div style="width:140px;height:140px;border-radius:50%;overflow:hidden;border:3px solid #ddd;">
+            <img src="data:image/png;base64,{img_base64}"
+            style="width:100%;height:100%;object-fit:cover;">
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-# --- ריק לשמירה על איזון ---
 with right:
     st.write("")
 
@@ -174,76 +133,29 @@ with c2:
 with c3:
     st.markdown(f"<div class='card'><b>במעקב 🟡</b><br>{len(projects[projects['status']=='צהוב'])}</div>", unsafe_allow_html=True)
 
-st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("---")
 
 # =========================
 # פרויקטים
 # =========================
-st.markdown(
-    "<h3 style='text-align:right; direction:rtl;'>📁 פרויקטים</h3>",
-    unsafe_allow_html=True
-)
-
-def type_icon(project_type):
-    if project_type == "פרויקט אקטיבי":
-        return "🚀"
-    elif project_type == "חבילת עבודה":
-        return "📦"
-    elif project_type == "תחזוקה":
-        return "🔧"
-    else:
-        return "📁"
-
-def status_dot(status):
-    if status == "ירוק":
-        return "🟢"
-    elif status == "צהוב":
-        return "🟡"
-    else:
-        return "🔴"
+st.markdown("### 📁 פרויקטים")
 
 for _, row in projects.iterrows():
-
-    project_name = row["project_name"]
-    project_type = row["project_type"]
-    status = row["status"]
-
-    icon = type_icon(project_type)
-    dot = status_dot(status)
-
     st.markdown(f"""
-    <div style="
-        background:white;
-        padding:8px 10px;
-        border-radius:8px;
-        margin-bottom:4px;
-        border:1px solid #eee;
-        direction:rtl;
-        text-align:right;
-        font-size:14px;
-    ">
-        {icon} {project_name}
-        <span style="color:gray; font-size:12px;"> | {project_type}</span>
-        <span style="float:left;">{dot}</span>
+    <div class='card'>
+        {row['project_name']} | {row['project_type']} | {row['status']}
     </div>
     """, unsafe_allow_html=True)
-    
-# --- ריק לשמירה על איזון ---
-with right:
-    st.write("")
 
 st.markdown("---")
 
 # =========================
-# 🔥 חשוב – הגדרת עמודות (לא לגעת!)
+# פגישות + תזכורות
 # =========================
 col_right, col_left = st.columns(2)
 
-# -------- פגישות --------
 with col_right:
-
     st.markdown("### 📅 פגישות היום")
-
     today_meetings = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
 
     if today_meetings.empty:
@@ -258,126 +170,62 @@ with col_right:
             </div>
             """, unsafe_allow_html=True)
 
-# -------- תזכורות --------
 with col_left:
-
     st.markdown("### 🔔 תזכורות")
 
     today_reminders = st.session_state.reminders_live[
         pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today
     ]
 
-    # 🔥 גלילה אמיתית
     container = st.container(height=260)
 
     with container:
-
         if today_reminders.empty:
             st.info("אין תזכורות להיום 🎉")
-
         else:
             for _, row in today_reminders.iterrows():
-
-                icon = "🤖" if row["source"] == "ai" else "✍️"
-
                 st.markdown(f"""
-                <div class="card">
-                    {icon} {row['reminder_text']} | 📁 {row['project_name']}
+                <div class='card'>
+                    {row['reminder_text']} | 📁 {row['project_name']}
                 </div>
                 """, unsafe_allow_html=True)
 
-    # =========================
-    # ➕ הוספה
-    # =========================
-    st.markdown("---")
-
-    if "add_mode" not in st.session_state:
-        st.session_state.add_mode = False
-
-    if not st.session_state.add_mode:
-
-        if st.button("➕ הוספת תזכורת"):
-            st.session_state.add_mode = True
-            st.rerun()
-
-    else:
-
-        col1, col2, col3, col4 = st.columns([5, 3, 2, 1])
-
-        with col1:
-            text = st.text_input("", placeholder="תזכורת חדשה")
-
-        with col2:
-            project = st.selectbox("", projects["project_name"].tolist())
-
-        with col3:
-            priority = st.selectbox("", ["נמוכה", "בינונית", "גבוהה"])
-
-        with col4:
-            if st.button("✔"):
-
-                reverse = {"נמוכה":"low","בינונית":"medium","גבוהה":"high"}
-
-                new_row = {
-                    "reminder_text": text,
-                    "project_name": project,
-                    "date": today,
-                    "priority": reverse[priority],
-                    "source": "manual"
-                }
-
-                st.session_state.reminders_live.loc[len(st.session_state.reminders_live)] = new_row
-
-                st.session_state.add_mode = False
-                st.rerun()
-
 # =========================
-# 🤖 AI AREA (FIXED CLEAN VERSION)
+# 🤖 AI (FIXED – SDK חדש בלבד)
 # =========================
 
-import google.generativeai as genai
+from google import genai
 import os
 
-# ---------- API KEY ----------
 api_key = os.getenv("GEMINI_API_KEY")
 
 if not api_key:
-    st.error("❌ Missing GEMINI_API_KEY (Streamlit Secrets / Environment Variables)")
+    st.error("❌ Missing GEMINI_API_KEY")
     st.stop()
 
-# ---------- CONFIG (חד פעמי בלבד) ----------
-genai.configure(api_key=api_key)
-
-# ✔ מודל תקין
-model = genai.GenerativeModel("gemini-pro")
+client = genai.Client(api_key=api_key)
 
 st.markdown("---")
 st.markdown("### 🤖 אזור AI")
 
-# ---------- UI ----------
 ai_col1, ai_col2 = st.columns(2)
 
 with ai_col1:
     selected_project = st.selectbox(
         "בחרי פרויקט",
         projects["project_name"].tolist(),
-        key="ai_project_final"
+        key="ai_project"
     )
 
 with ai_col2:
-    question = st.text_area(
-        "שאלה חופשית",
-        key="ai_question_final"
-    )
+    question = st.text_area("שאלה חופשית", key="ai_question")
 
-# ---------- BUTTON ----------
-if st.button("שלח ל-AI", key="ai_button_final"):
+if st.button("שלח ל-AI"):
 
     if not question.strip():
         st.warning("אנא הזיני שאלה")
         st.stop()
 
-    # שליפת פרויקט
     row = projects[projects["project_name"] == selected_project].iloc[0]
 
     prompt = f"""
@@ -393,13 +241,13 @@ if st.button("שלח ל-AI", key="ai_button_final"):
 """
 
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=prompt
+        )
         result = response.text
 
     except Exception as e:
         result = f"⚠️ שגיאה: {str(e)}"
 
-    st.markdown(
-        f"<div class='card'>{result}</div>",
-        unsafe_allow_html=True
-    )
+    st.markdown(f"<div class='card'>{result}</div>", unsafe_allow_html=True)
