@@ -12,10 +12,10 @@ def get_base64_image(path):
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS אבסולוטי - צובע את ה-Containers המובנים של Streamlit ---
+# --- 2. CSS אבסולוטי (הזרקה ישירה לכל מכולה) ---
 st.markdown("""
 <style>
-    /* רקע כללי */
+    /* רקע ויישור כללי */
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
     
     /* כותרת גרדיאנט */
@@ -26,28 +26,29 @@ st.markdown("""
         text-align: center !important;
         font-size: 2.2rem !important;
         font-weight: 800 !important;
-        margin-bottom: 25px !important;
+        margin-bottom: 20px !important;
+        display: block !important;
     }
 
-    /* עיצוב התמונה */
+    /* פוקוס תמונה עגולה */
     .profile-img {
         width: 130px; height: 130px; border-radius: 50% !important;
         object-fit: cover !important; object-position: center 20% !important;
         border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
     }
 
-    /* הקסם: צביעת המסגרת של st.container(border=True) */
+    /* עיצוב כל המסגרות עם גרדיאנט - דריסה גלובלית */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background: linear-gradient(white, white) padding-box,
                     linear-gradient(90deg, #4facfe, #00f2fe) border-box !important;
-        border: 2.5px solid transparent !important;
+        border: 2px solid transparent !important;
         border-radius: 18px !important;
         padding: 20px !important;
-        background-color: white !important;
         box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
+        background-color: white !important;
     }
 
-    /* עיצוב רשומות (פס תכלת) */
+    /* רשומות פס תכלת - תיקון יישור פנימי */
     .record-box {
         background: #ffffff !important;
         padding: 12px 15px !important;
@@ -59,25 +60,24 @@ st.markdown("""
         justify-content: space-between !important;
         align-items: center !important;
         direction: rtl !important;
+        width: 100% !important;
     }
 
-    /* יישור לימין לכל רכיבי המערכת */
+    /* כפיית יישור לימין לכל הממשק */
     div[data-testid="stMarkdownContainer"], .stSelectbox, .stTextInput, .stButton, label, h3, p {
         text-align: right !important; direction: rtl !important;
     }
-    
-    .stButton>button { width: 100% !important; border-radius: 10px !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# --- 3. נתונים ---
+# --- 3. טעינת נתונים ---
 try:
     projects = pd.read_excel("my_projects.xlsx")
     meetings = pd.read_excel("meetings.xlsx")
     reminders = pd.read_excel("reminders.xlsx")
     today = pd.Timestamp.today().date()
 except:
-    st.error("Missing Data Files"); st.stop()
+    st.error("Missing Files"); st.stop()
 
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders.copy()
 
@@ -93,9 +93,9 @@ with p2:
     if img_b64:
         st.markdown(f'<div style="display:flex; justify-content:center;"><img src="data:image/png;base64,{img_b64}" class="profile-img"></div>', unsafe_allow_html=True)
 with p3:
-    st.markdown(f"<div style='margin-top:20px;'><h3>{greeting}, סיון!</h3><p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p></div>", unsafe_allow_html=True)
+    st.markdown(f"<div><h3>{greeting}, סיון!</h3><p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p></div>", unsafe_allow_html=True)
 
-# KPI Row
+# KPI
 st.markdown("<br>", unsafe_allow_html=True)
 k1, k2, k3, k4 = st.columns(4)
 k_style = "background:white; padding:15px; border-radius:12px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.02);"
@@ -118,7 +118,7 @@ with col_right:
         a1, a2 = st.columns([1, 2])
         with a1: st.selectbox("בחר פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
         with a2: st.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
-        st.button("שגר שאילתה 🚀", key="ai_btn")
+        st.button("שגר שאילתה 🚀", key="ai_btn", use_container_width=True)
 
 with col_left:
     with st.container(border=True):
