@@ -145,6 +145,12 @@ st.markdown("</div>", unsafe_allow_html=True)
 
 
 
+
+# =========================
+# 🔥 חשוב – הגדרת עמודות (לא לגעת!)
+# =========================
+col_right, col_left = st.columns(2)
+
 # -------- פגישות --------
 with col_right:
 
