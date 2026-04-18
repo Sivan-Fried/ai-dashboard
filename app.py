@@ -4,7 +4,7 @@ import base64
 import datetime
 from zoneinfo import ZoneInfo
 
-# --- 1. הזרקת CSS אגרסיבית (זה מה שמייצר את העיצוב) ---
+# --- 1. הזרקת CSS אגרסיבית (פתרון סופי לעיצוב המלבנים) ---
 st.set_page_config(layout="wide", page_title="Dashboard")
 
 st.markdown("""
@@ -12,18 +12,17 @@ st.markdown("""
     /* רקע כללי ויישור לימין */
     .stApp { background-color: #f2f4f7; direction: rtl; }
     
-    /* הכרחת העיצוב על כל ה-Containers עם הגדרת border */
-    div[data-testid="stVerticalBlockBorderWrapper"] {
+    /* הסלקטור הספציפי ביותר למסגרות של Streamlit */
+    [data-testid="stVerticalBlockBorderWrapper"] {
         background: linear-gradient(white, white) padding-box,
                     linear-gradient(90deg, #4facfe, #00f2fe) border-box !important;
         border: 2px solid transparent !important;
         border-radius: 15px !important;
-        padding: 25px !important;
+        padding: 22px !important;
         box-shadow: 0 4px 15px rgba(0,0,0,0.08) !important;
         margin-bottom: 20px !important;
     }
 
-    /* עיצוב טקסט גרדיאנט */
     .text-gradient {
         background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
         -webkit-background-clip: text;
@@ -31,7 +30,6 @@ st.markdown("""
         font-weight: 800;
     }
 
-    /* עיצוב פריטים בתוך רשימה */
     .list-item {
         background: #fdfdfd;
         padding: 12px;
@@ -41,11 +39,9 @@ st.markdown("""
         display: flex;
         align-items: center;
         gap: 12px;
-        direction: rtl;
         text-align: right;
     }
 
-    /* כרטיסי KPI עליונים */
     .kpi-card {
         background: white;
         padding: 15px;
@@ -63,18 +59,18 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 2. פונקציות גנריות (לשימוש חוזר בכל מקום) ---
+# --- 2. פונקציות עזר גנריות ---
 
 def get_base64_image(path):
     try:
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-def styled_container(title, icon=""):
-    """פונקציה גנרית שיוצרת את המלבן המעוצב שלנו"""
-    with st.container(border=True):
-        st.markdown(f"### {icon} {title}")
-        return st.container()
+def styled_card(title, icon=""):
+    """פונקציה גנרית ליצירת מלבן מעוצב. קוראים לה בתוך 'with'"""
+    container = st.container(border=True)
+    container.markdown(f"### {icon} {title}")
+    return container
 
 # --- 3. טעינת נתונים ---
 try:
@@ -88,7 +84,7 @@ except:
 if "reminders_live" not in st.session_state: 
     st.session_state.reminders_live = reminders.copy()
 
-# --- 4. כותרת ופרופיל ---
+# --- 4. Header & Profile ---
 st.markdown(f"<div style='text-align:center;'><h2 style='font-weight:800;'><span class='text-gradient'>Dashboard AI</span></h2></div>", unsafe_allow_html=True)
 
 img_b64 = get_base64_image("profile.png")
@@ -102,7 +98,7 @@ with cp2:
 with cp3:
     st.markdown(f'<div style="margin-top:25px;"><h3>{greeting}, סיון!</h3><p style="color:gray;">{now.strftime("%d/%m/%Y | %H:%M")}</p></div>', unsafe_allow_html=True)
 
-# --- 5. שורת KPI (חזרה למסך) ---
+# --- 5. שורת ה-KPI המקורית ---
 st.markdown("<br>", unsafe_allow_html=True)
 k1, k2, k3, k4 = st.columns(4)
 with k1: st.markdown(f"<div class='kpi-card' style='border-top:4px solid red;'>בסיכון 🔴<br><b>{len(projects[projects['status']=='אדום'])}</b></div>", unsafe_allow_html=True)
@@ -112,18 +108,18 @@ with k4: st.markdown(f"<div class='kpi-card'>סה\"כ פרויקטים<br><b>{le
 
 st.markdown("<div style='margin-bottom:40px;'></div>", unsafe_allow_html=True)
 
-# --- 6. פריסת תוכן מרכזית ---
+# --- 6. הגוף המרכזי ---
 col_main, col_side = st.columns([2, 1.2])
 
 with col_main:
-    # מלבן פרויקטים
-    with styled_container("פרויקטים ומרכיבים", "📁"):
+    # מלבן פרויקטים (שימוש גנרי)
+    with styled_card("פרויקטים ומרכיבים", "📁"):
         for _, row in projects.iterrows():
             dot = "🟢" if row["status"]=="ירוק" else "🟡" if row["status"]=="צהוב" else "🔴"
             st.markdown(f'<div class="list-item"><span>{dot}</span><div style="flex-grow:1;"><b>{row["project_name"]}</b> <small style="color:gray;">| {row["project_type"]}</small></div></div>', unsafe_allow_html=True)
 
-    # מלבן AI Oracle
-    with styled_container("AI Oracle", "✨"):
+    # מלבן AI Oracle (שימוש גנרי)
+    with styled_card("AI Oracle", "✨"):
         ca1, ca2, ca3 = st.columns([1, 1.5, 0.5])
         with ca1: st.selectbox("בחר פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
         with ca2: st.text_input("שאלה", placeholder="שאל את ה-AI...", label_visibility="collapsed", key="ai_q")
@@ -131,25 +127,24 @@ with col_main:
             if st.button("🚀", key="ai_go", use_container_width=True): st.info("מנתח...")
 
 with col_side:
-    # מלבן פגישות
-    with styled_container("פגישות היום", "📅"):
+    # מלבן פגישות (שימוש גנרי)
+    with styled_card("פגישות היום", "📅"):
         today_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
         if today_m.empty: st.write("אין פגישות היום")
         else:
             for _, r in today_m.iterrows():
                 st.markdown(f'<div class="list-item">📌 <b>{r["meeting_title"]}</b></div>', unsafe_allow_html=True)
 
-    # מלבן תזכורות
-    with styled_container("תזכורות", "🔔"):
+    # מלבן תזכורות (שימוש גנרי)
+    with styled_card("תזכורות", "🔔"):
         today_r = st.session_state.reminders_live[pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today]
         
-        # גלילה מובנית
         with st.container(height=200, border=False):
             for _, row in today_r.iterrows():
                 st.markdown(f'<div class="list-item">🔔 <div style="flex-grow:1;"><b>{row["reminder_text"]}</b><br><small style="color:#4facfe;">{row["project_name"]}</small></div></div>', unsafe_allow_html=True)
         
         st.markdown("---")
-        if st.button("➕ הוסף תזכורת"): st.session_state.show_add = True
+        if st.button("➕ הוסף תזכורת", key="add_btn"): st.session_state.show_add = True
         
         if st.session_state.get("show_add"):
             ra, rb, rc = st.columns([1.5, 1, 0.6])
