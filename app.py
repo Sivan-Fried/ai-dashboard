@@ -25,17 +25,20 @@ h1, h2, h3 { color:#1f2a44; text-align:right; }
 
 st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
 
-# פונקציית פרופיל
-def get_base64_img(path):
-    try:
-        if os.path.exists(path):
-            with open(path, "rb") as f:
-                return base64.b64encode(f.read()).decode()
-    except:
-        return ""
-    return ""
 
-img_b64 = get_base64_img("profile.png")
+# =========================
+# פרופיל יציב – תמונה באמצע + טקסט משמאל
+# =========================
+import datetime
+import base64
+
+# --- תמונה (כמו שהיה) ---
+def get_base64_image(path):
+    with open(path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+
+img_base64 = get_base64_image("profile.png")
+
 date_str = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
 
 col_l, col_c, col_r = st.columns([1,1,1])
