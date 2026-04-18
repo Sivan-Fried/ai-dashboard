@@ -206,20 +206,35 @@ if not api_key:
     st.error("❌ Missing GEMINI_API_KEY in Streamlit Secrets. Please check your Dashboard.")
     st.stop()
 
-# 2. הגדרת ה-API של Google
-genai.configure(api_key=api_key)
+# ==========================================
+# 🤖 AI AREA - הגדרה מעודכנת
+# ==========================================
 
-# 3. טעינת המודל עם מנגנון הגנה (Fallback)
+# 2. אתחול הלקוח (החלפה של configure הישן)
 try:
-    # שימוש בגרסה המעודכנת ביותר
-    model = genai.GenerativeModel("gemini-1.5-flash")
-except Exception:
+    client = genai.Client(api_key=api_key)
+    model_id = "gemini-1.5-flash"
+except Exception as e:
+    st.error(f"שגיאה באתחול ה-AI: {e}")
+    st.stop()
+
+# ... כאן מגיע הקוד של ה-selectbox וה-text_area ...
+
+if st.button("שלח ל-AI"):
+    # ... (הקוד של שליפת השורה והפרומפט נשאר דומה) ...
+    
     try:
-        # ניסיון לגרסה קודמת במקרה של בעיית תאימות
-        model = genai.GenerativeModel("gemini-1.0-pro")
+        with st.spinner("ה-AI מנתח..."):
+            # שימי לב: הקריאה למודל השתנתה לפורמט הזה:
+            response = client.models.generate_content(
+                model=model_id,
+                contents=prompt
+            )
+            result = response.text
     except Exception as e:
-        st.error(f"שגיאה קריטית בטעינת המודל: {e}")
-        st.stop()
+        result = f"⚠️ שגיאה: {str(e)}"
+    
+    st.markdown(f"<div class='card'>{result}</div>", unsafe_allow_html=True)
 
 st.markdown("---")
 st.markdown("### 🤖 עוזר AI לניהול פרויקטים")
