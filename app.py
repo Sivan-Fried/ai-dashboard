@@ -18,7 +18,7 @@ st.markdown("""
         font-weight: 800;
     }
 
-    /* מסגרת הפרויקטים */
+    /* מלבן מעוצב לאזורי תוכן */
     .section-wrap {
         background: linear-gradient(white, white) padding-box,
                     linear-gradient(90deg, #4facfe, #00f2fe) border-box;
@@ -31,7 +31,7 @@ st.markdown("""
         box-shadow: 0 4px 10px rgba(0,0,0,0.03);
     }
 
-    /* KPI קומפקטי ויציב */
+    /* KPI קומפקטי */
     .kpi-container {
         background: white;
         padding: 10px;
@@ -48,16 +48,22 @@ st.markdown("""
     .kpi-title { color: gray; font-size: 13px; margin: 0; }
     .kpi-value { font-size: 22px; font-weight: bold; margin: 0; }
 
+    /* עיצוב שורת פרויקט בתוך המלבן */
     .project-row {
-        background: white;
+        background: #fdfdfd;
         padding: 12px;
         border-radius: 10px;
         margin-bottom: 8px;
-        border: 1px solid #eee;
+        border: 1px solid #f0f0f0;
         display: flex;
         justify-content: space-between;
         align-items: center;
         direction: rtl;
+        transition: transform 0.2s;
+    }
+    .project-row:hover {
+        transform: scale(1.01);
+        border-color: #4facfe;
     }
 
     .card {
@@ -77,7 +83,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 2. חלק עליון: פרופיל וברכה (מיקום תמונה וברכה)
+# 2. חלק עליון: פרופיל וברכה (מיקומים ופוקוס קבועים)
 def get_base64_image(path):
     try:
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
@@ -123,7 +129,7 @@ except:
 if "reminders_live" not in st.session_state: 
     st.session_state.reminders_live = reminders.copy()
 
-# 4. KPI - סדר חדש (סטטוסים קודם, סך הכל בסוף)
+# 4. KPI - סדר יציב (סטטוסים ואז סה"כ)
 k1, k2, k3, k4 = st.columns(4)
 with k1: st.markdown(f"<div class='kpi-container' style='border-top:3px solid red;'><p class='kpi-title'>בסיכון 🔴</p><p class='kpi-value' style='color:red;'>{len(projects[projects['status']=='אדום'])}</p></div>", unsafe_allow_html=True)
 with k2: st.markdown(f"<div class='kpi-container' style='border-top:3px solid orange;'><p class='kpi-title'>במעקב 🟡</p><p class='kpi-value' style='color:orange;'>{len(projects[projects['status']=='צהוב'])}</p></div>", unsafe_allow_html=True)
@@ -132,10 +138,9 @@ with k4: st.markdown(f"<div class='kpi-container'><p class='kpi-title'>סה\"כ 
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 5. פרויקטים
+# 5. אזור הפרויקטים - הכל בתוך המלבן המעוצב
 st.markdown("<div class='section-wrap'>", unsafe_allow_html=True)
-with st.container(border=True):
-    st.markdown("<h3 style='margin:0; text-align:right;'>📁 פרויקטים ומרכיבים</h3>", unsafe_allow_html=True)
+st.markdown("<h3 style='margin-bottom:15px; text-align:right;'>📁 פרויקטים ומרכיבים</h3>", unsafe_allow_html=True)
 
 icons = {"פרויקט אקטיבי": "🚀", "חבילת עבודה": "📦", "תחזוקה": "🔧"}
 for _, row in projects.iterrows():
