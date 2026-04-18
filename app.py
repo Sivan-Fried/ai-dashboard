@@ -82,7 +82,7 @@ with col2:
         st.info("אין פגישות היום")
 
 # ==========================================
-# 🤖 אזור ה-AI - שיטה ישירה (Direct API)
+# 🤖 אזור ה-AI - גרסת הברזל (gemini-pro)
 # ==========================================
 st.markdown("---")
 st.markdown("### 🤖 עוזר AI")
@@ -99,11 +99,11 @@ if api_key:
     if st.button("בצע ניתוח", key="final_v3"):
         if u_q:
             p_info = projects[projects["project_name"] == s_proj].iloc[0]
-            context = f"פרויקט: {p_info['project_name']}, סטטוס: {p_info['status']}. שאלה: {u_q}"
+            context = f"נתוני פרויקט: {p_info.to_string()}. שאלה: {u_q}"
             
             with st.spinner("מנתח..."):
-               # שינוי לכתובת היציבה (v1) ושימוש במודל ללא קידומת models/
-                url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
+                # שימוש בגרסה v1 היציבה ובמודל gemini-pro המוכר
+                url = f"https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key={api_key}"
                 headers = {'Content-Type': 'application/json'}
                 data = {
                     "contents": [{"parts": [{"text": context}]}]
@@ -119,10 +119,8 @@ if api_key:
                     else:
                         error_msg = res_json.get('error', {}).get('message', 'Unknown error')
                         st.error(f"שגיאה מהשרת ({response.status_code}): {error_msg}")
-                        if "API_KEY_INVALID" in error_msg:
-                            st.info("טיפ: המפתח ב-Secrets לא תקין. נסי ליצור חדש ב-Google AI Studio.")
                 except Exception as e:
-                    st.error(f"שגיאה טכנית בחיבור: {e}")
+                    st.error(f"שגיאה טכנית: {e}")
         else:
             st.warning("נא להזין שאלה.")
 else:
