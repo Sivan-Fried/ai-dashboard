@@ -344,7 +344,9 @@ if not api_key:
     st.stop()
 
 # ---------- CLIENT ----------
-client = genai.Client(api_key=api_key)
+genai.configure(api_key=api_key)
+
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 st.markdown("---")
 st.markdown("### 🤖 אזור AI")
@@ -390,11 +392,9 @@ if st.button("שלח ל-AI", key="ai_button_final"):
 
     # קריאה ל-Gemini
     try:
-        response = client.models.generate_content(
-            model="gemini-1.5-flash",
-            contents=prompt
-        )
-        result = response.text
+      response = model.generate_content(prompt)
+
+      result = response.text
 
     except Exception as e:
         result = f"⚠️ שגיאה: {str(e)}"
