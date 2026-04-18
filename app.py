@@ -103,7 +103,8 @@ if api_key:
             
             with st.spinner("מנתח נתונים..."):
                 # שימוש במודל 2.0 - פחות עמוס ויותר יציב
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
+                # מעבר למודל היציב ביותר עם המכסה הכי גדולה בחשבונות חינמיים
+url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-latest:generateContent?key={api_key}"
                 
                 headers = {'Content-Type': 'application/json'}
                 data = {
