@@ -188,7 +188,7 @@ with col_left:
 
 # 7. AI האורקל
 st.markdown("<div class='section-wrap' style='border-right: 6px solid #4facfe;'>", unsafe_allow_html=True)
-st.markdown("### ✨ האורקל הדיגיטלי")
+st.markdown("### ✨ סוכן ה-AI שלך")
 api_key = st.secrets.get("GEMINI_API_KEY")
 ca1, ca2 = st.columns([1, 2])
 with ca1: sel_p = st.selectbox("בחר פרויקט", projects["project_name"].tolist(), key="p_sel")
