@@ -102,8 +102,8 @@ if api_key:
             context = f"פרויקט: {p_info['project_name']}, סטטוס: {p_info['status']}. שאלה: {u_q}"
             
             with st.spinner("מנתח..."):
-                # קריאה ישירה ל-API ללא שימוש בספרייה של גוגל
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+               # שינוי לכתובת היציבה (v1) ושימוש במודל ללא קידומת models/
+                url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
                 headers = {'Content-Type': 'application/json'}
                 data = {
                     "contents": [{"parts": [{"text": context}]}]
