@@ -12,7 +12,7 @@ def get_base64_image(path):
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS סופי - יישור לימין, מסגרות גרדיאנט ורשומות "פס" ---
+# --- 2. CSS מוחלט כולל גלילה ועיצוב כפתור ---
 st.markdown("""
 <style>
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
@@ -27,18 +27,20 @@ st.markdown("""
         margin-bottom: 25px !important;
     }
 
-    /* מסגרת הגרדיאנט המפורסמת */
+    /* מסגרת עם גובה קבוע וגלילה */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background: linear-gradient(white, white) padding-box,
                     linear-gradient(90deg, #4facfe, #00f2fe) border-box !important;
         border: 2.5px solid transparent !important;
         border-radius: 18px !important;
-        padding: 22px !important;
+        padding: 20px !important;
         background-color: white !important;
         box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
+        max-height: 500px !important;
+        overflow-y: auto !important;
     }
 
-    /* עיצוב רשומה - פס לבן עם צד כחול */
+    /* עיצוב רשומות */
     .record-row {
         background: #ffffff !important;
         padding: 12px 18px !important;
@@ -52,21 +54,13 @@ st.markdown("""
         direction: rtl !important;
     }
 
-    .tag-blue {
-        color: #4facfe; font-size: 0.85em; font-weight: 600;
-        background: #f0f9ff; padding: 3px 10px; border-radius: 6px;
-    }
+    .tag-blue { color: #4facfe; font-size: 0.85em; font-weight: 600; background: #f0f9ff; padding: 3px 10px; border-radius: 6px; }
+    .tag-orange { color: #d97706; font-size: 0.85em; font-weight: 600; background: #fffbeb; padding: 3px 10px; border-radius: 6px; }
 
-    .tag-orange {
-        color: #d97706; font-size: 0.85em; font-weight: 600;
-        background: #fffbeb; padding: 3px 10px; border-radius: 6px;
-    }
-
-    /* יישור כללי */
     h3, p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
     
-    /* ביטול מרווחים מיותרים בטופס הוספה */
-    div[data-testid="column"] { display: flex; align-items: flex-end; }
+    /* עיצוב כפתור הוספה */
+    .stButton>button { width: 100% !important; border-radius: 10px !important; font-weight: bold !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -77,10 +71,12 @@ try:
     reminders = pd.read_excel("reminders.xlsx")
     today = pd.Timestamp.today().date()
 except:
-    st.error("Missing Data Files"); st.stop()
+    st.error("Missing Files"); st.stop()
 
 if "rem_live" not in st.session_state:
     st.session_state.rem_live = reminders.copy()
+if "show_add_area" not in st.session_state:
+    st.session_state.show_add_area = False
 
 # --- 4. תצוגה עליונה ---
 st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
@@ -101,16 +97,11 @@ st.markdown("<br>", unsafe_allow_html=True)
 col_right, col_left = st.columns([2, 1.2])
 
 with col_right:
-    # פרויקטים ומרכיבים
+    # פרויקטים
     with st.container(border=True):
         st.markdown("### 📁 פרויקטים ומרכיבים")
         for _, row in projects.iterrows():
-            st.markdown(f"""
-                <div class="record-row">
-                    <span style="font-weight:bold; color:#1f2a44;">📂 {row['project_name']}</span>
-                    <span class="tag-blue">{row.get('project_type', 'פרויקט')}</span>
-                </div>
-            """, unsafe_allow_html=True)
+            st.markdown(f'<div class="record-row"><span style="font-weight:bold;">📂 {row["project_name"]}</span><span class="tag-blue">{row.get("project_type", "פרויקט")}</span></div>', unsafe_allow_html=True)
 
     # AI Oracle
     with st.container(border=True):
@@ -118,10 +109,10 @@ with col_right:
         a1, a2 = st.columns([1, 2])
         with a1: st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
         with a2: st.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
-        st.button("שגר שאילתה 🚀", key="ai_btn", use_container_width=True)
+        st.button("שגר שאילתה 🚀", key="ai_btn")
 
 with col_left:
-    # פגישות היום
+    # פגישות
     with st.container(border=True):
         st.markdown("### 📅 פגישות היום")
         t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
@@ -130,30 +121,37 @@ with col_left:
             for _, r in t_m.iterrows():
                 st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
 
-    # תזכורות - מבוסס על project_name מהקובץ
+    # תזכורות עם גלילה והוספה מותנית
     with st.container(border=True):
         st.markdown("### 🔔 תזכורות")
         t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
         
+        # הצגת התזכורות
         for _, row in t_r.iterrows():
-            p_name = row.get('project_name', 'כללי')
-            st.markdown(f"""
-                <div class="record-row">
-                    <span>🔔 {row['reminder_text']}</span>
-                    <span class="tag-orange">{p_name}</span>
-                </div>
-            """, unsafe_allow_html=True)
+            p_val = row.get('project_name', 'כללי')
+            st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{p_val}</span></div>', unsafe_allow_html=True)
         
-        st.markdown("<hr style='margin:15px 0; border:0.5px solid #eee;'>", unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
         
-        # הוספה בשורה אחת (Inline)
-        st.write("<small>הוספה מהירה:</small>", unsafe_allow_html=True)
-        c1, c2, c3 = st.columns([1.5, 1.2, 0.4])
-        with c1: nt = st.text_input("משימה", label_visibility="collapsed", placeholder="מה לעשות?", key="in_t")
-        with c2: np = st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="in_p")
-        with c3: save = st.button("✅", key="in_s")
+        # כפתור הוספה שפותח את השורה
+        if not st.session_state.show_add_area:
+            if st.button("➕ הוסף תזכורת", key="btn_open"):
+                st.session_state.show_add_area = True
+                st.rerun()
         
-        if save and nt:
-            new_entry = pd.DataFrame([{"reminder_text": nt, "date": today, "project_name": np}])
-            st.session_state.rem_live = pd.concat([st.session_state.rem_live, new_entry], ignore_index=True)
-            st.rerun()
+        # שורת ההוספה (Inline) - מופיעה רק כשלוחצים על הכפתור
+        if st.session_state.show_add_area:
+            st.markdown("---")
+            c1, c2, c3 = st.columns([1.5, 1.2, 0.4])
+            with c1: nt = st.text_input("משימה", label_visibility="collapsed", placeholder="מה לעשות?", key="nt_final")
+            with c2: np = st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="np_final")
+            with c3: 
+                if st.button("✅", key="sv_final"):
+                    if nt:
+                        new_r = pd.DataFrame([{"reminder_text": nt, "date": today, "project_name": np}])
+                        st.session_state.rem_live = pd.concat([st.session_state.rem_live, new_r], ignore_index=True)
+                        st.session_state.show_add_area = False
+                        st.rerun()
+            if st.button("ביטול", key="cncl"):
+                st.session_state.show_add_area = False
+                st.rerun()
