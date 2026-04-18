@@ -12,66 +12,74 @@ def get_base64_image(path):
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS מינימליסטי ויציב - יישור לימין וגלילה ---
+# --- 2. CSS - חזרה לעיצוב המקורי עם תיקון KPI וגלילה ---
 st.markdown("""
 <style>
-    /* הגדרות כלליות */
-    .stApp { background-color: #f2f4f7 !important; direction: rtl !important; text-align: right !important; }
+    /* הגדרות כלליות ויישור לימין */
+    .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
     
-    /* כותרת */
     .dashboard-header {
-        color: #1e3a8a;
+        background: linear-gradient(90deg, #4facfe, #00f2fe) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
         text-align: center !important;
         font-size: 2.2rem !important;
         font-weight: 800;
         margin-bottom: 20px;
     }
 
-    /* תמונת פרופיל */
     .profile-img {
         width: 130px; height: 130px; border-radius: 50% !important;
         object-fit: cover !important; object-position: center 25% !important;
-        border: 4px solid white !important; box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+        border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
     }
 
-    /* KPI - לבן, נקי, בלי בורדר */
+    /* KPI - רקע לבן, בלי מסגרת תכלת, עובי דק */
     .kpi-card {
         background: white !important;
-        padding: 15px !important;
+        padding: 10px !important;
         border-radius: 12px !important;
         text-align: center !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+        border: none !important;
     }
+    .kpi-card b { font-size: 1.4rem; color: #1f2a44; }
 
-    /* מסגרות קונטיינרים */
+    /* מסגרות הקונטיינרים המקוריות עם הבורדר הדק */
     div[data-testid="stVerticalBlockBorderWrapper"] {
+        background: linear-gradient(white, white) padding-box,
+                    linear-gradient(90deg, #4facfe, #00f2fe) border-box !important;
+        border: 1.5px solid transparent !important;
+        border-radius: 18px !important;
+        padding: 15px !important;
         background-color: white !important;
-        border: 1px solid #e2e8f0 !important;
-        border-right: 5px solid #4facfe !important;
-        border-radius: 15px !important;
     }
 
-    /* אזור גלילה קשיח לתזכורות ופרויקטים */
-    .scroll-area {
-        max-height: 300px;
-        overflow-y: auto;
+    /* אזור גלילה לתזכורות ופרויקטים */
+    .scroll-container {
+        max-height: 300px !important;
+        overflow-y: auto !important;
         direction: rtl;
-        padding-left: 10px;
+        padding-right: 5px;
     }
 
-    /* שורה ברשימה */
-    .item-row {
-        background: #f8fafc;
-        padding: 10px;
-        border-radius: 8px;
-        margin-bottom: 8px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+    .record-row {
+        background: #ffffff !important;
+        padding: 10px 15px !important;
+        border-radius: 10px !important;
+        margin-bottom: 8px !important;
+        border: 1px solid #edf2f7 !important;
+        border-right: 5px solid #4facfe !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        text-align: right !important;
     }
 
-    /* יישור פקדים */
-    h3, p, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
+    .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
+    .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
+
+    h3, p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
     div[data-testid="stWidgetLabel"] { justify-content: flex-start !important; }
 </style>
 """, unsafe_allow_html=True)
@@ -86,19 +94,23 @@ except:
     st.error("Missing Files"); st.stop()
 
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders.copy()
-if "ai_msg" not in st.session_state: st.session_state.ai_msg = ""
+if "show_add" not in st.session_state: st.session_state.show_add = False
 
-# --- 4. כותרת ופרופיל ---
-st.markdown('<h1 class="dashboard-header">דשבורד ניהול</h1>', unsafe_allow_html=True)
+# --- 4. תצוגה עליונה ---
+st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
+
+img_b64 = get_base64_image("profile.png")
+now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
+greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
+
 p1, p2, p3 = st.columns([1, 1, 2])
 with p2:
-    img = get_base64_image("profile.png")
-    if img: st.markdown(f'<div style="display:flex; justify-content:center;"><img src="data:image/png;base64,{img}" class="profile-img"></div>', unsafe_allow_html=True)
+    if img_b64:
+        st.markdown(f'<div style="display:flex; justify-content:center;"><img src="data:image/png;base64,{img_b64}" class="profile-img"></div>', unsafe_allow_html=True)
 with p3:
-    now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
-    st.markdown(f"<div><h3>שלום סיון,</h3><p>{now.strftime('%d/%m/%Y | %H:%M')}</p></div>", unsafe_allow_html=True)
+    st.markdown(f"<div><h3 style='margin-bottom:0;'>{greeting}, סיון!</h3><p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p></div>", unsafe_allow_html=True)
 
-# --- 5. KPI ---
+# --- 5. שורת KPI נקייה (לבן, בלי מסגרת תכלת) ---
 st.markdown("<br>", unsafe_allow_html=True)
 k1, k2, k3, k4 = st.columns(4)
 with k1: st.markdown(f'<div class="kpi-card">בסיכון 🔴<br><b>{len(projects[projects["status"]=="אדום"])}</b></div>', unsafe_allow_html=True)
@@ -111,34 +123,41 @@ st.markdown("<br>", unsafe_allow_html=True)
 col_right, col_left = st.columns([2, 1.2])
 
 with col_right:
+    # פרויקטים
     with st.container(border=True):
-        st.markdown("### 📁 פרויקטים")
-        # שימוש ב-HTML פשוט בתוך המכולה כדי להבטיח גלילה
-        proj_list = "".join([f'<div class="item-row"><span>📂 {r["project_name"]}</span></div>' for _, r in projects.iterrows()])
-        st.components.v1.html(f'<div class="scroll-area">{proj_list}</div>', height=300)
+        st.markdown("### 📁 פרויקטים ומרכיבים")
+        st.markdown('<div class="scroll-container">', unsafe_allow_html=True)
+        for _, row in projects.iterrows():
+            st.markdown(f'<div class="record-row"><b>📂 {row["project_name"]}</b><span class="tag-blue">{row.get("project_type", "פרויקט")}</span></div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
+    # AI Oracle
     with st.container(border=True):
         st.markdown("### ✨ AI Oracle")
-        sel_p = st.selectbox("בחר פרויקט", projects["project_name"].tolist(), key="p_sel")
-        q_in = st.text_input("שאלה", key="q_in")
+        a1, a2 = st.columns([1, 2])
+        with a1: st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
+        with a2: st.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
         if st.button("שגר שאילתה 🚀", use_container_width=True):
-            st.session_state.ai_msg = f"ניתוח עבור {sel_p}: הפרויקט בסטטוס תקין."
-        if st.session_state.ai_msg:
-            st.info(st.session_state.ai_msg)
+            st.info("מנתח נתונים...")
 
 with col_left:
+    # פגישות
     with st.container(border=True):
         st.markdown("### 📅 פגישות היום")
         t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-        for _, r in t_m.iterrows():
-            st.markdown(f'<div class="item-row">📌 {r["meeting_title"]}</div>', unsafe_allow_html=True)
+        if t_m.empty: st.write("אין פגישות היום")
+        else:
+            for _, r in t_m.iterrows():
+                st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
 
+    # תזכורות עם גלילה
     with st.container(border=True):
         st.markdown("### 🔔 תזכורות")
+        st.markdown('<div class="scroll-container">', unsafe_allow_html=True)
         t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
-        rem_list = "".join([f'<div class="item-row"><span>🔔 {r["reminder_text"]}</span></div>' for _, r in t_r.iterrows()])
-        st.components.v1.html(f'<div class="scroll-area">{rem_list}</div>', height=250)
+        for _, row in t_r.iterrows():
+            st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
         
-        # הוספה פשוטה
         if st.button("➕ הוסף תזכורת", use_container_width=True):
-            st.info("כאן נפתח טופס ההוספה - לחצי שוב כדי לרענן")
+            st.session_state.show_add = True
