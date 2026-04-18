@@ -377,7 +377,7 @@ question = st.text_area("שאלה חופשית")
 
 # ---------- AI setup ----------
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-1.5-pro")
 
 # ---------- כפתור ----------
 if st.button("שלח ל-AI"):
