@@ -1,116 +1,26 @@
 import streamlit as st
-import pandas as pd
 import requests
-import json
-import base64
-import os
-import datetime
 
-# הגדרת עמוד
-st.set_page_config(layout="wide", page_title="AI Dashboard")
-
-# עיצוב CSS
-st.markdown("""
-<style>
-body, .stApp { background-color: #f2f4f7; }
-.card {
-    background:white; padding:15px; border-radius:10px;
-    margin-bottom:10px; border:1px solid #eee;
-    direction:rtl; text-align:right;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
-h1, h2, h3 { color:#1f2a44; text-align:right; }
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
-
-# פרופיל
-def get_base64_img(path):
-    try:
-        if os.path.exists(path):
-            with open(path, "rb") as f: return base64.b64encode(f.read()).decode()
-    except: return ""
-    return ""
-
-img_b64 = get_base64_img("profile.png")
-date_str = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
-
-col_l, col_c, col_r = st.columns([1,1,1])
-with col_l:
-    st.markdown(f"<div style='direction:rtl;text-align:right;margin-top:30px;'><b>שלום סיון!</b><br>{date_str}</div>", unsafe_allow_html=True)
-with col_c:
-    if img_b64:
-        st.markdown(f'<div style="text-align:center;"><img src="data:image/png;base64,{img_b64}" style="width:120px;height:120px;border-radius:50%;border:3px solid #ddd;"></div>', unsafe_allow_html=True)
-
-st.markdown("---")
-
-# טעינת נתונים
-try:
-    projects = pd.read_excel("my_projects.xlsx")
-    meetings = pd.read_excel("meetings.xlsx")
-    reminders = pd.read_excel("reminders.xlsx")
-    today = pd.Timestamp.today().date()
-except Exception as e:
-    st.error(f"שגיאה בטעינת אקסל: {e}")
-    st.stop()
-
-# KPI
-c1, c2, c3 = st.columns(3)
-with c1: st.markdown(f"<div class='card'><b>פרויקטים</b><br>{len(projects)}</div>", unsafe_allow_html=True)
-with c2: st.markdown(f"<div class='card'><b>בסיכון 🔴</b><br>{len(projects[projects['status']=='אדום'])}</div>", unsafe_allow_html=True)
-with c3: st.markdown(f"<div class='card'><b>במעקב 🟡</b><br>{len(projects[projects['status']=='צהוב'])}</div>", unsafe_allow_html=True)
-
-st.markdown("---")
-
-# פרויקטים ולו"ז
-col1, col2 = st.columns(2)
-with col1:
-    st.markdown("### 📁 סטטוס פרויקטים")
-    for _, row in projects.iterrows():
-        st.markdown(f"<div class='card'>{row['project_name']} | {row['status']}</div>", unsafe_allow_html=True)
-
-with col2:
-    st.markdown("### 📅 לו״ז להיום")
-    t_meetings = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-    if not t_meetings.empty:
-        for _, r in t_meetings.iterrows():
-            st.markdown(f"<div class='card'>📌 {r['meeting_title']} ({r['time']})</div>", unsafe_allow_html=True)
-    else: st.info("אין פגישות היום")
-
-# ==========================================
-# 🤖 אזור ה-AI המעודכן - בדיקה ישירה
-# ==========================================
-st.markdown("---")
-st.markdown("### 🤖 עוזר AI")
+st.title("בדיקת הרשאות API")
 
 api_key = st.secrets.get("GEMINI_API_KEY")
 
 if api_key:
-    u_q = st.text_area("שאלי את ה-AI על הפרויקטים שלך:", key="ai_input")
-    
-    if st.button("בצע ניתוח", key="analyze_btn"):
-        if u_q:
-            with st.spinner("מנתח..."):
-                # שימוש בשם המודל העדכני ביותר ל-2026
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
-                
-                data = {
-                    "contents": [{"parts": [{"text": f"נתוני פרויקטים: {projects.to_string()}. שאלה: {u_q}"}]}]
-                }
-                
-                try:
-                    response = requests.post(url, json=data)
-                    res_json = response.json()
-                    
-                    if response.status_code == 200:
-                        answer = res_json['candidates'][0]['content']['parts'][0]['text']
-                        st.success(answer)
-                    else:
-                        st.error(f"שגיאה {response.status_code}: {res_json.get('error', {}).get('message', 'Unknown error')}")
-                except Exception as e:
-                    st.error(f"שגיאה טכנית: {e}")
-        else:
-            st.warning("נא להזין שאלה.")
+    if st.button("בדוק מודלים זמינים"):
+        # פקודה שמבקשת מגוגל להראות לנו מה המפתח הזה "רואה"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
+        
+        try:
+            res = requests.get(url)
+            if res.status_code == 200:
+                models_data = res.json()
+                st.success("המפתח תקין! הנה המודלים שאת יכולה להשתמש בהם:")
+                # מציג את רשימת המודלים שגוגל נותנת לך
+                for m in models_data.get('models', []):
+                    st.code(m['name'])
+            else:
+                st.error(f"שגיאה {res.status_code}: {res.text}")
+        except Exception as e:
+            st.error(f"שגיאה טכנית: {e}")
 else:
-    st.error("Missing API Key in Secrets")
+    st.error("חסר API Key ב-Secrets!")
