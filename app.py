@@ -332,24 +332,24 @@ with col_left:
                 st.rerun()
 
 # =========================
-# 🤖 AI AREA (FINAL CLEAN VERSION)
+# 🤖 AI AREA (FIXED CLEAN VERSION)
 # =========================
 
+import google.generativeai as genai
+import os
 
 # ---------- API KEY ----------
-from google import genai
-
-client = genai.Client(api_key=api_key)
-# api_key = os.getenv("GEMINI_API_KEY")
+api_key = os.getenv("GEMINI_API_KEY")
 
 if not api_key:
-    st.error("❌ חסר GEMINI_API_KEY (ב-Streamlit Secrets או Environment Variables)")
+    st.error("❌ Missing GEMINI_API_KEY (Streamlit Secrets / Environment Variables)")
     st.stop()
 
-# ---------- CLIENT ----------
+# ---------- CONFIG ----------
 genai.configure(api_key=api_key)
 
-model = genai.GenerativeModel("gemini-1.0-pro")
+# ✔ מודל תקין ונתמך
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 st.markdown("---")
 st.markdown("### 🤖 אזור AI")
@@ -395,13 +395,8 @@ if st.button("שלח ל-AI", key="ai_button_final"):
 
     # קריאה ל-Gemini
     try:
-        
-       response = client.models.generate_content(
-       model="gemini-1.5-flash",
-       contents=prompt
-)
-
-       result = response.text
+        response = model.generate_content(prompt)
+        result = response.text
 
     except Exception as e:
         result = f"⚠️ שגיאה: {str(e)}"
