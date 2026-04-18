@@ -334,82 +334,33 @@ with col_left:
 # =========================
 # AI
 # =========================
-# =========================
-# 🤖 AI AREA (Gemini)
-# =========================
-import streamlit as st
-import google.generativeai as genai
+from google import genai
 import os
+import streamlit as st
 
-st.markdown("<hr>", unsafe_allow_html=True)
-st.markdown("### 🤖 אזור AI")
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
-# ---------- בחירת פרויקט ----------
-selected = st.selectbox(
-    "בחרי פרויקט",
-    projects["project_name"].tolist()
-)
-
-# ---------- שאלה ----------
-question = st.text_area("שאלה חופשית")
-
-# ---------- כפתור ----------
 if st.button("שלח ל-AI"):
 
-    # בדיקה שיש שאלה
-    if not question.strip():
-        st.warning("אנא הזיני שאלה")
-        st.stop()
-
-    # שליפת פרויקט
     row = projects[projects["project_name"] == selected].iloc[0]
 
-    # ---------- פרומפט ----------
     prompt = f"""
-את עוזרת חכמה לניהול פרויקטים.
+את עוזרת לניהול פרויקטים.
 
-נתוני כל הפרויקטים:
-{projects.to_string(index=False)}
-
-פרויקט נבחר:
-שם: {row['project_name']}
-סטטוס: {row['status']}
+פרויקט:
+{row['project_name']} - {row['status']}
 
 שאלה:
 {question}
-
-הנחיות:
-- עני בעברית
-- קצר וברור
-- תני המלצה פרקטית אם צריך
 """
 
-    # ---------- AI ----------
     try:
-        api_key = os.getenv("GEMINI_API_KEY")
-
-        if not api_key:
-            result = "❌ חסר GEMINI_API_KEY בסביבה"
-        else:
-            genai.configure(api_key=api_key)
-
-            model = genai.GenerativeModel("gemini-1.5-flash")
-
-            response = model.generate_content(prompt)
-
-            result = response.text
-
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=prompt
+        )
+        result = response.text
     except Exception as e:
-        result = f"⚠️ שגיאה: {str(e)}"
+        result = str(e)
 
-    # ---------- תוצאה ----------
-    st.markdown(
-        f"<div class='ai-card'>{result}</div>",
-        unsafe_allow_html=True
-    )
-        
-
-    st.markdown(
-        f"<div class='ai-card'>{result}</div>",
-        unsafe_allow_html=True
-    )
+    st.markdown(f"<div class='ai-card'>{result}</div>", unsafe_allow_html=True)
