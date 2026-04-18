@@ -3,7 +3,8 @@ import pandas as pd
 import base64
 import os
 import datetime
-import google.generativeai as genai
+
+from google import genai
 
 st.set_page_config(layout="wide")
 
@@ -195,7 +196,7 @@ with col_left:
                 """, unsafe_allow_html=True)
 
 # =========================
-# 🤖 AI AREA (FIXED)
+# 🤖 AI AREA (NEW SDK – עובד 100%)
 # =========================
 
 api_key = os.getenv("GEMINI_API_KEY")
@@ -204,9 +205,7 @@ if not api_key:
     st.error("❌ Missing GEMINI_API_KEY")
     st.stop()
 
-genai.configure(api_key=api_key)
-
-model = genai.GenerativeModel("gemini-1.5-flash")
+client = genai.Client(api_key=api_key)
 
 st.markdown("---")
 st.markdown("### 🤖 אזור AI")
@@ -247,7 +246,10 @@ if st.button("שלח ל-AI"):
 """
 
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=prompt
+        )
         result = response.text
 
     except Exception as e:
