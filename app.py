@@ -337,9 +337,15 @@ with col_left:
 # =========================
 # AI (Gemini חדש)
 # =========================
+import google.generativeai as genai
 import os
-import streamlit as st
-import google.genai as genai
+
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+model = genai.GenerativeModel("gemini-1.5-flash")
+
+response = model.generate_content(prompt)
+result = response.text
 
 st.markdown("<hr>", unsafe_allow_html=True)
 st.markdown("### 🤖 אזור AI")
