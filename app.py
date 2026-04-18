@@ -18,7 +18,7 @@ st.markdown("""
         font-weight: 800;
     }
 
-    /* המלבן המעוצב - המעטפת החיצונית */
+    /* המלבן המעוצב */
     .fancy-border-box {
         background: linear-gradient(white, white) padding-box,
                     linear-gradient(90deg, #4facfe, #00f2fe) border-box;
@@ -31,16 +31,15 @@ st.markdown("""
         text-align: right;
     }
 
-    /* שורת פרויקט מעוצבת - תיקון הצצגה */
+    /* שורת פרויקט מעוצבת - ללא ריווחים ששוברים Markdown */
     .project-item {
         background: #fdfdfd;
-        padding: 15px;
+        padding: 12px;
         border-radius: 10px;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
         border: 1px solid #eee;
         display: flex;
         align-items: center;
-        gap: 15px;
         direction: rtl;
     }
 
@@ -67,7 +66,6 @@ st.markdown("""
         text-align: right;
     }
 
-    /* יישור כללי לימין */
     .stMarkdown, .stText, div[data-testid="stBlock"] {
         direction: rtl;
         text-align: right;
@@ -117,7 +115,7 @@ with k4: st.markdown(f"<div class='kpi-card'><p style='color:gray; font-size:13p
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 5. אזור הפרויקטים - בנייה מאובטחת בתוך המלבן
+# 5. אזור הפרויקטים - בנייה של מחרוזת אחת ארוכה ללא רווחים מיותרים
 icons = {"פרויקט אקטיבי": "🚀", "חבילת עבודה": "📦", "תחזוקה": "🔧"}
 project_list_content = ""
 
@@ -125,25 +123,16 @@ for _, row in projects.iterrows():
     icon = icons.get(row['project_type'], "📁")
     dot = "🟢" if row["status"]=="ירוק" else "🟡" if row["status"]=="צהוב" else "🔴"
     
-    # בניית ה-HTML של כל שורה
-    project_list_content += f"""
-    <div class="project-item">
-        <span style="font-size:20px;">{dot}</span>
-        <div style="flex-grow:1; text-align:right;">
-            <span style="font-size:16px; font-weight:bold; color:#1f2a44;">{icon} {row['project_name']}</span>
-            <span style="color:gray; font-size:13px; margin-right:10px;">| {row['project_type']}</span>
-        </div>
-    </div>"""
+    # בניית שורה כבלוק טקסט אחד רציף
+    item_html = f'<div class="project-item"><span style="font-size:20px; margin-left:10px;">{dot}</span><div style="flex-grow:1; text-align:right;"><span style="font-size:16px; font-weight:bold; color:#1f2a44;">{icon} {row["project_name"]}</span><span style="color:gray; font-size:13px; margin-right:10px;">| {row["project_type"]}</span></div></div>'
+    project_list_content += item_html
 
-# הזרקת הכל למלבן המעוצב כיחידה אחת
-st.markdown(f"""
-<div class="fancy-border-box">
-    <h3 style="margin-top:0; margin-bottom:20px; color:#1f2a44;">📁 פרויקטים ומרכיבים</h3>
-    {project_list_content}
-</div>
-""", unsafe_allow_html=True)
+# הזרקה סופית - הכל בתוך f-string אחד לתוך ה-container
+full_html = f"""<div class="fancy-border-box"><h3 style="margin-top:0; margin-bottom:20px; color:#1f2a44;">📁 פרויקטים ומרכיבים</h3>{project_list_content}</div>"""
 
-# 6. לו"ז ותזכורות (הגרסה היציבה)
+st.markdown(full_html, unsafe_allow_html=True)
+
+# 6. לו"ז ותזכורות
 col_r, col_l = st.columns(2)
 with col_r:
     st.markdown("### 📅 פגישות היום")
