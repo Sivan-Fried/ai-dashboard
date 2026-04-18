@@ -146,6 +146,13 @@ st.markdown("---")
 # AI AREA (FIXED)
 # =========================
 
+# =========================
+# AI AREA (FIXED 100%)
+# =========================
+
+from google import genai
+import os
+
 api_key = os.getenv("GEMINI_API_KEY")
 
 if not api_key:
@@ -193,9 +200,10 @@ if st.button("שלח ל-AI"):
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.0-flash",   # ✅ זה המודל שעובד עכשיו
+            model="gemini-2.0-flash",
             contents=prompt
         )
+
         result = response.text
 
     except Exception as e:
