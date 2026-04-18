@@ -334,43 +334,20 @@ with col_left:
 # =========================
 # 🤖 AI AREA
 # =========================
+import google.generativeai as genai
 
-st.markdown("---")
-st.markdown("### 🤖 אזור AI")
+genai.configure(api_key=api_key)
 
-# ---------- UI ----------
-selected = st.selectbox(
-    "בחרי פרויקט",
-    projects["project_name"].tolist(),
-    key="ai_project"
-)
+model = genai.GenerativeModel("gemini-1.5-flash")
 
-question = st.text_area(
-    "שאלה חופשית",
-    key="ai_question"
-)
-
-# ---------- API KEY ----------
-api_key = os.getenv("GEMINI_API_KEY")
-
-if not api_key:
-    st.error("❌ חסר GEMINI_API_KEY (ב-Streamlit Secrets או Environment Variables)")
-    st.stop()
-
-# ---------- Client ----------
-client = genai.Client(api_key=api_key)
-
-# ---------- כפתור ----------
 if st.button("שלח ל-AI", key="ai_button"):
 
     if not question.strip():
         st.warning("אנא הזיני שאלה")
         st.stop()
 
-    # שליפת פרויקט
     row = projects[projects["project_name"] == selected].iloc[0]
 
-    # פרומפט
     prompt = f"""
 את עוזרת לניהול פרויקטים.
 
@@ -384,12 +361,8 @@ if st.button("שלח ל-AI", key="ai_button"):
 """
 
     try:
-        response = client.models.generate_content(
-            model="gemini-1.5-flash",
-            contents=prompt
-        )
+        response = model.generate_content(prompt)
         result = response.text
-
     except Exception as e:
         result = f"⚠️ שגיאה: {str(e)}"
 
