@@ -12,13 +12,13 @@ def get_base64_image(path):
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS אגרסיבי למסגרות ורשומות ---
+# --- 2. CSS אגרסיבי למסגרות, רשומות וכותרת ---
 st.markdown("""
 <style>
     /* רקע ויישור כללי */
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
     
-    /* כותרת גרדיאנט */
+    /* כותרת גרדיאנט חזקה - תיקון סופי */
     .dashboard-header {
         background: linear-gradient(90deg, #4facfe, #00f2fe) !important;
         -webkit-background-clip: text !important;
@@ -27,11 +27,12 @@ st.markdown("""
         font-size: 3.5rem !important;
         font-weight: 900 !important;
         margin-bottom: 25px !important;
+        display: block !important;
     }
 
     /* מסגרות מעוצבות לאזורים (הגרדיאנט החיצוני) */
-    /* שימוש בסלקטור אוניברסלי לכל מכולה עם border */
-    [data-testid="stVerticalBlockBorderWrapper"] {
+    /* אנחנו משתמשים בסלקטור הכי חזק של Streamlit למכולות עם גבול */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
         background: linear-gradient(white, white) padding-box,
                     linear-gradient(90deg, #4facfe, #00f2fe) border-box !important;
         border: 2px solid transparent !important;
@@ -41,14 +42,14 @@ st.markdown("""
         margin-bottom: 20px !important;
     }
 
-    /* עיצוב הרשומות הפנימיות (התיבות עם פס תכלת) */
+    /* עיצוב הרשומות הפנימיות (התיבות עם פס תכלת אחיד) */
     .record-box {
         background: #ffffff !important;
         padding: 12px 15px !important;
         border-radius: 10px !important;
         margin-bottom: 10px !important;
         border: 1px solid #edf2f7 !important;
-        border-right: 6px solid #4facfe !important; /* פס תכלת בולט */
+        border-right: 6px solid #4facfe !important; /* פס תכלת בולט שאהבת */
         display: flex !important;
         justify-content: space-between !important;
         align-items: center !important;
@@ -57,7 +58,7 @@ st.markdown("""
         text-align: right !important;
     }
 
-    /* תיקון יישור RTL לרכיבי מערכת */
+    /* יישור RTL לרכיבי מערכת */
     div[data-testid="stMarkdownContainer"], .stSelectbox, .stTextInput, .stButton, label, h3 {
         text-align: right !important; direction: rtl !important;
     }
@@ -76,6 +77,7 @@ except:
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders.copy()
 
 # --- 4. Header & Profile ---
+# הכותרת כאן משתמשת ב-Class שהגדרנו ב-CSS
 st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
 
 img_b64 = get_base64_image("profile.png")
