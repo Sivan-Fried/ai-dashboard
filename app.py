@@ -13,7 +13,7 @@ def get_base64_image(path):
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS מוחלט - החזרת עיצוב הרשומות המקורי ---
+# --- 2. CSS מוחלט - שחזור עיצוב הרשומות המקורי ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap');
@@ -30,7 +30,7 @@ st.markdown("""
         background: linear-gradient(90deg, #4facfe, #00f2fe) !important;
         -webkit-background-clip: text !important;
         -webkit-text-fill-color: transparent !important;
-        text-align: center !important; font-size: 2.2rem !important; font-weight: 800; margin-bottom: 20px;
+        text-align: center !important; font-size: 2.2rem !important; font-weight: 800;
     }
 
     .profile-img {
@@ -40,7 +40,7 @@ st.markdown("""
 
     .kpi-card {
         background: white !important; padding: 15px !important; border-radius: 12px !important;
-        text-align: center !important; box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important; border: none !important;
+        text-align: center !important; box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
     }
     .kpi-card b { font-size: 1.4rem; color: #1f2a44; display: block; }
 
@@ -49,8 +49,8 @@ st.markdown("""
         border-right: 5px solid #4facfe !important; border-radius: 18px !important; padding: 20px !important;
     }
 
-    /* עיצוב הרשומות (כרטיסיות) - חזר למקור המדויק */
-    .record-row {
+    /* עיצוב הכרטיסיות (הרשומות) - שחזור מלא */
+    .record-card {
         background: white !important;
         padding: 12px 15px !important;
         border-radius: 10px !important;
@@ -61,6 +61,7 @@ st.markdown("""
         align-items: center !important;
         direction: rtl !important;
         box-shadow: 0 2px 4px rgba(0,0,0,0.03) !important;
+        text-align: right !important;
     }
 
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 3px 10px; border-radius: 6px; }
@@ -82,7 +83,7 @@ except:
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders.copy()
 if "ai_analysis" not in st.session_state: st.session_state.ai_analysis = ""
 
-# --- 4. תצוגה עליונה ---
+# --- 4. כותרת ופרופיל ---
 st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
 p1, p2, p3 = st.columns([1, 1, 2])
 with p2:
@@ -110,14 +111,9 @@ with col_right:
         st.markdown("### 📁 פרויקטים ומרכיבים")
         with st.container(height=350, border=False):
             for _, row in projects.iterrows():
-                st.markdown(f'''
-                    <div class="record-row">
-                        <span>📂 {row["project_name"]}</span>
-                        <span class="tag-blue">{row.get("project_type", "פרויקט")}</span>
-                    </div>
-                ''', unsafe_allow_html=True)
+                st.markdown(f'''<div class="record-card"><span>📂 {row["project_name"]}</span><span class="tag-blue">{row.get("project_type", "פרויקט")}</span></div>''', unsafe_allow_html=True)
 
-    # AI Oracle - ללא שינוי
+    # AI Oracle - ללא מגע
     with st.container(border=True):
         st.markdown("### ✨ AI Oracle")
         a1, a2 = st.columns([1, 2])
@@ -137,21 +133,14 @@ with col_left:
         st.markdown("### 📅 פגישות היום")
         t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
         for _, r in t_m.iterrows():
-            st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="record-card"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
 
-    # תזכורות - גלילה + פלוס בלבד בסוף
+    # תזכורות - גלילה + פלוס בלבד
     with st.container(border=True):
         st.markdown("### 🔔 תזכורות")
         with st.container(height=280, border=False):
             t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
             for _, row in t_r.iterrows():
-                st.markdown(f'''
-                    <div class="record-row">
-                        <span>🔔 {row["reminder_text"]}</span>
-                        <span class="tag-orange">{row.get("project_name", "כללי")}</span>
-                    </div>
-                ''', unsafe_allow_html=True)
+                st.markdown(f'''<div class="record-card"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>''', unsafe_allow_html=True)
         
-        # פלוס בלבד מתחת
-        if st.button("➕", use_container_width=True):
-            st.toast("הוספת תזכורת תופעל כאן")
+        st.button("➕", use_container_width=True)
