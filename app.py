@@ -335,32 +335,40 @@ with col_left:
 # AI
 # =========================
 # =========================
-# AI (Gemini חדש)
+# 🤖 AI AREA (Gemini)
 # =========================
+import streamlit as st
 import google.generativeai as genai
 import os
-
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-
-model = genai.GenerativeModel("gemini-1.5-flash")
-
-response = model.generate_content(prompt)
-result = response.text
 
 st.markdown("<hr>", unsafe_allow_html=True)
 st.markdown("### 🤖 אזור AI")
 
-selected = st.selectbox("בחרי פרויקט", projects["project_name"].tolist())
+# ---------- בחירת פרויקט ----------
+selected = st.selectbox(
+    "בחרי פרויקט",
+    projects["project_name"].tolist()
+)
+
+# ---------- שאלה ----------
 question = st.text_area("שאלה חופשית")
 
+# ---------- כפתור ----------
 if st.button("שלח ל-AI"):
 
+    # בדיקה שיש שאלה
+    if not question.strip():
+        st.warning("אנא הזיני שאלה")
+        st.stop()
+
+    # שליפת פרויקט
     row = projects[projects["project_name"] == selected].iloc[0]
 
+    # ---------- פרומפט ----------
     prompt = f"""
-את עוזרת לניהול פרויקטים.
+את עוזרת חכמה לניהול פרויקטים.
 
-נתוני פרויקטים:
+נתוני כל הפרויקטים:
 {projects.to_string(index=False)}
 
 פרויקט נבחר:
@@ -370,21 +378,35 @@ if st.button("שלח ל-AI"):
 שאלה:
 {question}
 
-עני בעברית קצר, ברור, עם המלצות מעשיות.
+הנחיות:
+- עני בעברית
+- קצר וברור
+- תני המלצה פרקטית אם צריך
 """
 
+    # ---------- AI ----------
     try:
-        client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+        api_key = os.getenv("GEMINI_API_KEY")
 
-        response = client.models.generate_content(
-            model="gemini-1.5-flash",
-            contents=prompt
-        )
+        if not api_key:
+            result = "❌ חסר GEMINI_API_KEY בסביבה"
+        else:
+            genai.configure(api_key=api_key)
 
-        result = response.text
+            model = genai.GenerativeModel("gemini-1.5-flash")
+
+            response = model.generate_content(prompt)
+
+            result = response.text
 
     except Exception as e:
         result = f"⚠️ שגיאה: {str(e)}"
+
+    # ---------- תוצאה ----------
+    st.markdown(
+        f"<div class='ai-card'>{result}</div>",
+        unsafe_allow_html=True
+    )
         
 
     st.markdown(
