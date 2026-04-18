@@ -358,7 +358,7 @@ if not api_key:
     st.error("GEMINI_API_KEY לא מוגדר ב-Streamlit Secrets")
     st.stop()
 
-genai.configure(api_key=api_key))
+genai.configure(api_key=api_key)
 model = genai.GenerativeModel("gemini-pro")
 
 if st.button("שלח ל-AI", key="ai_button"):
