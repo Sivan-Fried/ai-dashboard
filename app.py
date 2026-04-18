@@ -5,7 +5,7 @@ import base64
 import datetime
 from zoneinfo import ZoneInfo
 
-# 1. הגדרות עמוד ועיצוב CSS (כולל התיקון למלבן הלבן)
+# 1. הגדרות עמוד ועיצוב CSS משופר
 st.set_page_config(layout="wide", page_title="ניהול פרויקטים - לוח בקרה")
 
 st.markdown("""
@@ -31,13 +31,13 @@ st.markdown("""
         box-shadow: 0 4px 10px rgba(0,0,0,0.03);
     }
 
-    /* עיצוב המלבן הלבן המאחד (זה מה שביקשת - שייראה כמו ה-KPI) */
-    div[data-testid="stVerticalBlockBorderWrapper"] {
+    /* תיקון קריטי: עיצוב ה-Container שייראה בדיוק כמו ה-KPI */
+    [data-testid="stVerticalBlockBorderWrapper"] {
         background-color: white !important;
         border: 1px solid #eee !important;
-        border-radius: 12px !important;
-        padding: 15px !important;
+        border-radius: 10px !important;
         box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
+        padding: 15px !important;
     }
 
     .card {
@@ -63,12 +63,6 @@ st.markdown("""
     .kpi-card p { margin: 0; font-size: 0.9rem; color: #666; }
 
     h3 { color: #1f2a44; text-align: right; direction: rtl; margin-top: 0; }
-
-    div[data-baseweb="select"] > div, 
-    div[data-baseweb="input"] input {
-        background-color: white !important;
-        direction: rtl !important;
-    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -130,7 +124,7 @@ with k4: st.markdown(f"<div class='kpi-card' style='border-top: 3px solid green;
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 5. פרויקטים - האזור עם המלבן המאוחד (המראה של ה-KPI)
+# 5. פרויקטים - עם המלבן המאוחד בתוך ה-Container
 st.markdown("<div class='section-wrap'>", unsafe_allow_html=True)
 st.markdown("<h3>📁 פרויקטים</h3>", unsafe_allow_html=True)
 
@@ -140,14 +134,16 @@ def type_icon(project_type):
     elif project_type == "תחזוקה": return "🔧"
     else: return "📁"
 
-# יצירת המלבן הלבן המאחד
+# יצירת המלבן הלבן שביקשת (ה-border=True מפעיל את ה-CSS שהוספנו למעלה)
 with st.container(border=True):
     for _, row in projects.iterrows():
         icon = type_icon(row["project_type"])
         dot = "🟢" if row["status"]=="ירוק" else "🟡" if row["status"]=="צהוב" else "🔴"
+        
+        # הרשומות הפנימיות
         st.markdown(f"""
-        <div style="background:#fcfcfc; padding:8px 10px; border-radius:8px; margin-bottom:4px; border:1px solid #eee; direction:rtl; text-align:right; font-size:14px;">
-            {icon} {row['project_name']}
+        <div style="background:#fcfcfc; padding:10px; border-radius:8px; margin-bottom:6px; border:1px solid #eee; direction:rtl; text-align:right; font-size:14px;">
+            {icon} <b>{row['project_name']}</b> 
             <span style="color:gray; font-size:12px;"> | {row['project_type']}</span>
             <span style="float:left;">{dot}</span>
         </div>
@@ -191,24 +187,16 @@ with col_left:
             st.session_state.add_mode = True
             st.rerun()
     else:
+        # טופס הוספה
         col1, col2, col3, col4 = st.columns([5, 3, 2, 1])
-        with col1:
-            text = st.text_input("", placeholder="תזכורת חדשה", key="new_text")
-        with col2:
-            project = st.selectbox("", projects["project_name"].tolist(), key="new_proj")
-        with col3:
-            priority = st.selectbox("", ["נמוכה", "בינונית", "גבוהה"], key="new_pri")
+        with col1: text = st.text_input("", placeholder="תזכורת חדשה", key="new_text")
+        with col2: project = st.selectbox("", projects["project_name"].tolist(), key="new_proj")
+        with col3: priority = st.selectbox("", ["נמוכה", "בינונית", "גבוהה"], key="new_pri")
         with col4:
             if st.button("✔"):
                 if text:
                     reverse = {"נמוכה":"low","בינונית":"medium","גבוהה":"high"}
-                    new_row = {
-                        "reminder_text": text,
-                        "project_name": project,
-                        "date": today,
-                        "priority": reverse[priority],
-                        "source": "manual"
-                    }
+                    new_row = {"reminder_text": text, "project_name": project, "date": today, "priority": reverse[priority], "source": "manual"}
                     st.session_state.reminders_live.loc[len(st.session_state.reminders_live)] = new_row
                 st.session_state.add_mode = False
                 st.rerun()
