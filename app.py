@@ -379,6 +379,7 @@ if st.button("שלח ל-AI"):
 
     except Exception as e:
         result = f"⚠️ שגיאה: {str(e)}"
+        
 
     st.markdown(
         f"<div class='ai-card'>{result}</div>",
