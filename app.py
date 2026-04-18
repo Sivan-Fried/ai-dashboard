@@ -24,23 +24,23 @@ st.markdown("""
                     linear-gradient(90deg, #4facfe, #00f2fe) border-box;
         border: 2px solid transparent;
         border-radius: 15px;
-        padding: 20px;
+        padding: 25px;
         margin-bottom: 25px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         direction: rtl;
         text-align: right;
     }
 
-    /* שורת פרויקט מעוצבת */
+    /* שורת פרויקט מעוצבת - תיקון הצצגה */
     .project-item {
         background: #fdfdfd;
-        padding: 12px;
+        padding: 15px;
         border-radius: 10px;
-        margin-bottom: 8px;
+        margin-bottom: 12px;
         border: 1px solid #eee;
         display: flex;
-        justify-content: space-between;
         align-items: center;
+        gap: 15px;
         direction: rtl;
     }
 
@@ -64,8 +64,10 @@ st.markdown("""
         margin-bottom: 10px; 
         border: 1px solid #eee;
         box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+        text-align: right;
     }
 
+    /* יישור כללי לימין */
     .stMarkdown, .stText, div[data-testid="stBlock"] {
         direction: rtl;
         text-align: right;
@@ -115,28 +117,29 @@ with k4: st.markdown(f"<div class='kpi-card'><p style='color:gray; font-size:13p
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 5. אזור הפרויקטים - בנייה משולבת ומאובטחת
+# 5. אזור הפרויקטים - בנייה מאובטחת בתוך המלבן
 icons = {"פרויקט אקטיבי": "🚀", "חבילת עבודה": "📦", "תחזוקה": "🔧"}
-project_list_html = ""
+project_list_content = ""
 
 for _, row in projects.iterrows():
     icon = icons.get(row['project_type'], "📁")
     dot = "🟢" if row["status"]=="ירוק" else "🟡" if row["status"]=="צהוב" else "🔴"
     
-    # בניית כל שורה בנפרד
-    project_list_html += f"""
+    # בניית ה-HTML של כל שורה
+    project_list_content += f"""
     <div class="project-item">
-        <span style="font-size:18px;">{dot}</span>
-        <div style="text-align:right; flex-grow:1; margin-right:15px;">
-            <b>{icon} {row['project_name']}</b> | <small style="color:gray;">{row['project_type']}</small>
+        <span style="font-size:20px;">{dot}</span>
+        <div style="flex-grow:1; text-align:right;">
+            <span style="font-size:16px; font-weight:bold; color:#1f2a44;">{icon} {row['project_name']}</span>
+            <span style="color:gray; font-size:13px; margin-right:10px;">| {row['project_type']}</span>
         </div>
     </div>"""
 
-# הזרקת הכל למלבן המעוצב
+# הזרקת הכל למלבן המעוצב כיחידה אחת
 st.markdown(f"""
 <div class="fancy-border-box">
-    <h3 style="margin-bottom:15px; color:#1f2a44;">📁 פרויקטים ומרכיבים</h3>
-    {project_list_html}
+    <h3 style="margin-top:0; margin-bottom:20px; color:#1f2a44;">📁 פרויקטים ומרכיבים</h3>
+    {project_list_content}
 </div>
 """, unsafe_allow_html=True)
 
