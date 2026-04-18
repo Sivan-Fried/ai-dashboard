@@ -5,7 +5,7 @@ import base64
 import datetime
 from zoneinfo import ZoneInfo
 
-# 1. הגדרות עמוד ועיצוב (איחוד כל התיקונים)
+# 1. הגדרות עמוד ועיצוב
 st.set_page_config(layout="wide", page_title="ניהול פרויקטים - לוח בקרה")
 
 st.markdown("""
@@ -33,7 +33,16 @@ st.markdown("""
         box-shadow: 0 4px 10px rgba(0,0,0,0.03);
     }
 
-    /* רשומות פנימיות - העיצוב המקורי והנקי */
+    /* מלבן ריכוז פנימי (כמו מתחת ל-KPI) */
+    .content-area {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        border: 1px solid #eee;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    /* רשומות פנימיות - העיצוב המקורי */
     .card {
         background: white; 
         padding: 15px; 
@@ -45,7 +54,7 @@ st.markdown("""
         box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
 
-    /* KPI מוקטן וקומפקטי - 4 עמודות */
+    /* KPI מוקטן וקומפקטי */
     .kpi-card {
         background: white;
         padding: 10px;
@@ -57,18 +66,11 @@ st.markdown("""
     .kpi-card h4 { margin: 0; padding: 0; font-size: 1.2rem; }
     .kpi-card p { margin: 0; font-size: 0.9rem; color: #666; }
 
-    /* כותרות בתוך האזורים */
     h3 { color: #1f2a44; text-align: right; direction: rtl; margin-top: 0; }
-
-    div[data-baseweb="select"] > div, 
-    div[data-baseweb="input"] input {
-        background-color: white !important;
-        direction: rtl !important;
-    }
 </style>
 """, unsafe_allow_html=True)
 
-# כותרת ראשית (הגרסה המוקטנת)
+# כותרת ראשית
 st.markdown("""
 <div style="text-align:center; margin-bottom:20px;">
     <h2 style="font-weight:800; direction:rtl; font-size: 1.8rem;">
@@ -87,8 +89,7 @@ def get_base64_image(path):
 
 img_base64 = get_base64_image("profile.png")
 now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
-hour = now.hour
-greeting = "בוקר טוב" if 5 <= hour < 12 else "צהריים טובים" if 12 <= hour < 18 else "ערב טוב" if 18 <= hour < 22 else "לילה טוב"
+greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב" if 18 <= now.hour < 22 else "לילה טוב"
 
 left, center, right = st.columns([1.2, 1, 1.2])
 with left:
@@ -112,7 +113,7 @@ except Exception as e:
 if "reminders_live" not in st.session_state:
     st.session_state.reminders_live = reminders.copy()
 
-# 4. KPI - הגרסה המוקטנת והמתוקנת
+# 4. KPI 
 k1, k2, k3, k4 = st.columns(4)
 with k1: st.markdown(f"<div class='kpi-card'><p>סה״כ פרויקטים</p><h4>{len(projects)}</h4></div>", unsafe_allow_html=True)
 with k2: st.markdown(f"<div class='kpi-card' style='border-top: 3px solid red;'><p>בסיכון 🔴</p><h4 style='color:red;'>{len(projects[projects['status']=='אדום'])}</h4></div>", unsafe_allow_html=True)
@@ -121,9 +122,12 @@ with k4: st.markdown(f"<div class='kpi-card' style='border-top: 3px solid green;
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 5. פרויקטים - בתוך מעטפת מעוצבת
+# 5. פרויקטים - התיקון המבוקש
 st.markdown("<div class='section-wrap'>", unsafe_allow_html=True)
 st.markdown("<h3>📁 פרויקטים</h3>", unsafe_allow_html=True)
+
+# פתיחת המלבן המרכז את הרשימה
+st.markdown("<div class='content-area'>", unsafe_allow_html=True)
 
 def type_icon(project_type):
     if project_type == "פרויקט אקטיבי": return "🚀"
@@ -141,7 +145,9 @@ for _, row in projects.iterrows():
         <span style="float:left;">{dot}</span>
     </div>
     """, unsafe_allow_html=True)
-st.markdown("</div>", unsafe_allow_html=True)
+
+st.markdown("</div>", unsafe_allow_html=True) # סגירת ה-content-area
+st.markdown("</div>", unsafe_allow_html=True) # סגירת ה-section-wrap
 
 # 6. לו"ז ותזכורות
 col_right, col_left = st.columns(2)
@@ -149,17 +155,19 @@ col_right, col_left = st.columns(2)
 with col_right:
     st.markdown("<div class='section-wrap'>", unsafe_allow_html=True)
     st.markdown("### 📅 פגישות היום")
+    st.markdown("<div class='content-area'>", unsafe_allow_html=True) # הוספתי גם כאן לנראות אחידה
     today_meetings = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
     if today_meetings.empty:
         st.info("אין פגישות היום 🎉")
     else:
         for _, row in today_meetings.iterrows():
             st.markdown(f"<div class='card'>📌 {row['meeting_title']}<br>🕒 {row['time']}<br>📁 {row['project_name']}</div>", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div></div>", unsafe_allow_html=True)
 
 with col_left:
     st.markdown("<div class='section-wrap'>", unsafe_allow_html=True)
     st.markdown("### 🔔 תזכורות")
+    st.markdown("<div class='content-area'>", unsafe_allow_html=True)
     today_reminders = st.session_state.reminders_live[pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today]
     
     container = st.container(height=260)
@@ -184,7 +192,7 @@ with col_left:
                 st.session_state.reminders_live = pd.concat([st.session_state.reminders_live, pd.DataFrame([new_row])], ignore_index=True)
                 st.session_state.add_mode = False
                 st.rerun()
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div></div>", unsafe_allow_html=True)
 
 # 7. AI האורקל
 st.markdown("<div class='section-wrap' style='border-right: 6px solid #4facfe;'>", unsafe_allow_html=True)
