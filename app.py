@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import base64
 import datetime
+import time
 from zoneinfo import ZoneInfo
 
 # --- 1. הגדרות דף ---
@@ -12,7 +13,7 @@ def get_base64_image(path):
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS יציב (החזרתי את המקורי) ---
+# --- 2. CSS יציב (ללא שינוי) ---
 st.markdown("""
 <style>
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
@@ -33,7 +34,6 @@ st.markdown("""
         border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
     }
 
-    /* KPI - לבן נקי בלי מסגרת תכלת */
     .kpi-card {
         background: white !important;
         padding: 15px !important;
@@ -44,7 +44,6 @@ st.markdown("""
     }
     .kpi-card b { font-size: 1.4rem; color: #1f2a44; display: block; }
 
-    /* מסגרות הקונטיינרים */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background: linear-gradient(white, white) padding-box,
                     linear-gradient(90deg, #4facfe, #00f2fe) border-box !important;
@@ -75,7 +74,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 3. טעינת נתונים ---
+# --- 3. טעינת נתונים וניהול מצב ---
 try:
     projects = pd.read_excel("my_projects.xlsx")
     meetings = pd.read_excel("meetings.xlsx")
@@ -85,6 +84,8 @@ except:
     st.error("Missing Files"); st.stop()
 
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders.copy()
+# משתנה לשמירת תשובת ה-AI
+if "ai_response" not in st.session_state: st.session_state.ai_response = ""
 
 # --- 4. תצוגה עליונה ---
 st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
@@ -123,9 +124,21 @@ with col_right:
     with st.container(border=True):
         st.markdown("### ✨ AI Oracle")
         a1, a2 = st.columns([1, 2])
-        with a1: st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
-        with a2: st.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
-        st.button("שגר שאילתה 🚀", use_container_width=True)
+        with a1: sel_p = st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
+        with a2: q_in = st.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
+        
+        if st.button("שגר שאילתה 🚀", use_container_width=True):
+            if q_in:
+                with st.spinner("מנתח נתונים..."):
+                    time.sleep(1.5) # סימולציה של חשיבה
+                    # כאן את יכולה להכניס לוגיקה אמיתית. כרגע זו תשובת דוגמה:
+                    st.session_state.ai_response = f"**ניתוח עבור {sel_p}:** על סמך הנתונים, הפרויקט נמצא בסטטוס תקין, אך מומלץ לבדוק את אבני הדרך של שבוע הבא עקב עומס פגישות צפוי."
+            else:
+                st.warning("נא להזין שאלה")
+        
+        # הצגת הניתוח במידה וקיים
+        if st.session_state.ai_response:
+            st.info(st.session_state.ai_response)
 
 with col_left:
     with st.container(border=True):
@@ -136,7 +149,6 @@ with col_left:
             for _, r in t_m.iterrows():
                 st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
 
-    # תזכורות עם גלילה - כאן התיקון הקריטי
     with st.container(border=True):
         st.markdown("### 🔔 תזכורות")
         with st.container(height=250, border=False):
