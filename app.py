@@ -341,16 +341,11 @@ import streamlit as st
 import google.generativeai as genai
 import os
 
-# ---------- CSS (רקע לבן אמיתי) ----------
+# ---------- CSS ----------
 st.markdown("""
 <style>
+.ai-container { direction: rtl; }
 
-/* RTL כללי */
-.ai-container {
-    direction: rtl;
-}
-
-/* textarea של Streamlit */
 textarea {
     background-color: #ffffff !important;
     color: #000000 !important;
@@ -358,13 +353,11 @@ textarea {
     border: 1px solid #ccc !important;
 }
 
-/* selectbox */
 div[data-baseweb="select"] > div {
     background-color: #ffffff !important;
     color: #000000 !important;
 }
 
-/* כרטיס תשובה */
 .ai-card {
     background-color: #ffffff !important;
     color: #000000 !important;
@@ -372,19 +365,14 @@ div[data-baseweb="select"] > div {
     border-radius: 12px;
     border: 1px solid #ddd;
     margin-top: 12px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-    direction: rtl;
 }
-
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- כותרת ----------
 st.markdown("<hr>", unsafe_allow_html=True)
 st.markdown("<div class='ai-container'>", unsafe_allow_html=True)
 st.markdown("### 🤖 אזור AI")
 
-# ---------- UI ----------
 selected = st.selectbox(
     "בחרי פרויקט",
     projects["project_name"].tolist()
@@ -392,57 +380,46 @@ selected = st.selectbox(
 
 question = st.text_area("שאלה חופשית")
 
-# ---------- כפתור ----------
 if st.button("שלח ל-AI"):
 
     row = projects[projects["project_name"] == selected].iloc[0]
 
     prompt = f"""
-את עוזרת חכמה לניהול פרויקטים.
+את עוזרת לניהול פרויקטים.
 
 נתוני פרויקטים:
 {projects.to_string(index=False)}
 
 פרויקט נבחר:
-שם: {row['project_name']}
-סטטוס: {row['status']}
+{row['project_name']} - {row['status']}
 
 שאלה:
 {question}
 
-הנחיות:
-- עני בעברית
-- קצר, ברור ומעשי
-- צייני סיכונים אם יש
-- תני המלצות לפעולה
+עני בעברית קצר וברור עם המלצות.
 """
 
-    # ---------- חיבור ל-API ----------
     api_key = os.getenv("GEMINI_API_KEY")
 
     if not api_key:
-        result = "❌ אין API KEY. בדקי משתנה GEMINI_API_KEY"
+        result = "❌ אין API KEY"
     else:
         genai.configure(api_key=api_key)
 
         try:
-            # מודל עדכני
-            model = genai.GenerativeModel("gemini-1.5-flash-latest")
+            # 🔥 מודל שעובד עם v1beta
+            model = genai.GenerativeModel("gemini-pro")
 
             response = model.generate_content(prompt)
 
             if hasattr(response, "text") and response.text:
                 result = response.text
-            elif response.candidates:
-                result = response.candidates[0].content.parts[0].text
             else:
-                result = "לא התקבלה תשובה מה-AI"
+                result = "אין תשובה מה-AI"
 
         except Exception as e:
-            # חשוב! לא מסתירים שגיאה
-            result = f"⚠️ שגיאה: {str(e)}"
+            result = f"שגיאה: {str(e)}"
 
-    # ---------- תוצאה ----------
     st.markdown(f"<div class='ai-card'>{result}</div>", unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
