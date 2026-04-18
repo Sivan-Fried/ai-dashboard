@@ -12,10 +12,10 @@ def get_base64_image(path):
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS מקיף לעיצוב, מסגרות ופוקוס תמונה ---
+# --- 2. CSS אגרסיבי למסגרות, כותרת ופוקוס תמונה ---
 st.markdown("""
 <style>
-    /* רקע ויישור כללי */
+    /* רקע כללי */
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
     
     /* כותרת מוקטנת עם גרדיאנט */
@@ -39,15 +39,15 @@ st.markdown("""
     .profile-img {
         width: 130px;
         height: 130px;
-        border-radius: 50%;
-        object-fit: cover;
-        object-position: center 20%; /* פוקוס על הפנים */
-        border: 4px solid white;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        border-radius: 50% !important;
+        object-fit: cover !important;
+        object-position: center 20% !important;
+        border: 4px solid white !important;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
     }
 
-    /* מסגרות גרדיאנט לאזורים - סלקטור חזק */
-    div[data-testid="stVerticalBlockBorderWrapper"] {
+    /* כפיית מסגרות גרדיאנט על מכולות */
+    [data-testid="stVerticalBlockBorderWrapper"] {
         background: linear-gradient(white, white) padding-box,
                     linear-gradient(90deg, #4facfe, #00f2fe) border-box !important;
         border: 2px solid transparent !important;
@@ -57,7 +57,7 @@ st.markdown("""
         margin-bottom: 20px !important;
     }
 
-    /* רשומות פס תכלת אחיד */
+    /* רשומות פס תכלת */
     .record-box {
         background: #ffffff !important;
         padding: 12px 15px !important;
@@ -72,7 +72,7 @@ st.markdown("""
         text-align: right !important;
     }
 
-    /* יישור לימין לכל רכיבי המערכת */
+    /* יישור RTL גלובלי */
     div[data-testid="stMarkdownContainer"], .stSelectbox, .stTextInput, .stButton, label, h3, p {
         text-align: right !important; direction: rtl !important;
     }
@@ -86,14 +86,13 @@ try:
     reminders = pd.read_excel("reminders.xlsx")
     today = pd.Timestamp.today().date()
 except:
-    st.error("Missing Files"); st.stop()
+    st.error("Missing Data Files"); st.stop()
 
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders.copy()
 
-# --- 4. כותרת ---
+# --- 4. תצוגה ---
 st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
 
-# --- 5. פרופיל וברכה ---
 img_b64 = get_base64_image("profile.png")
 now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
 greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
@@ -105,16 +104,14 @@ with p2:
 with p3:
     st.markdown(f"<div style='margin-top:20px;'><h3>{greeting}, סיון!</h3><p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p></div>", unsafe_allow_html=True)
 
-# --- 6. KPI ---
 st.markdown("<br>", unsafe_allow_html=True)
 k1, k2, k3, k4 = st.columns(4)
-k_box = "background:white; padding:15px; border-radius:12px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.02);"
-with k1: st.markdown(f"<div style='{k_box} border-top:4px solid #ff4b4b;'>בסיכון 🔴<br><b>{len(projects[projects['status']=='אדום'])}</b></div>", unsafe_allow_html=True)
-with k2: st.markdown(f"<div style='{k_box} border-top:4px solid #ffa500;'>במעקב 🟡<br><b>{len(projects[projects['status']=='צהוב'])}</b></div>", unsafe_allow_html=True)
-with k3: st.markdown(f"<div style='{k_box} border-top:4px solid #00c853;'>בתקין 🟢<br><b>{len(projects[projects['status']=='ירוק'])}</b></div>", unsafe_allow_html=True)
-with k4: st.markdown(f"<div style='{k_box}'>סה\"כ פרויקטים<br><b>{len(projects)}</b></div>", unsafe_allow_html=True)
+k_style = "background:white; padding:15px; border-radius:12px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.02);"
+with k1: st.markdown(f"<div style='{k_style} border-top:4px solid #ff4b4b;'>בסיכון 🔴<br><b>{len(projects[projects['status']=='אדום'])}</b></div>", unsafe_allow_html=True)
+with k2: st.markdown(f"<div style='{k_style} border-top:4px solid #ffa500;'>במעקב 🟡<br><b>{len(projects[projects['status']=='צהוב'])}</b></div>", unsafe_allow_html=True)
+with k3: st.markdown(f"<div style='{k_style} border-top:4px solid #00c853;'>בתקין 🟢<br><b>{len(projects[projects['status']=='ירוק'])}</b></div>", unsafe_allow_html=True)
+with k4: st.markdown(f"<div style='{k_style}'>סה\"כ פרויקטים<br><b>{len(projects)}</b></div>", unsafe_allow_html=True)
 
-# --- 7. גוף הדשבורד ---
 st.markdown("<br>", unsafe_allow_html=True)
 c_right, c_left = st.columns([2, 1.2])
 
@@ -127,9 +124,9 @@ with c_right:
     with st.container(border=True):
         st.markdown("### ✨ AI Oracle")
         a1, a2 = st.columns([1, 2])
-        with a1: st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p_final")
-        with a2: st.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i_final")
-        st.button("שגר שאילתה 🚀", use_container_width=True, key="ai_b_final")
+        with a1: st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p_fixed")
+        with a2: st.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i_fixed")
+        st.button("שגר שאילתה 🚀", use_container_width=True, key="ai_b_fixed")
 
 with c_left:
     with st.container(border=True):
@@ -146,10 +143,10 @@ with c_left:
         for i, row in t_r.iterrows():
             st.markdown(f'<div class="record-box"><span>🔔 {row["reminder_text"]}</span></div>', unsafe_allow_html=True)
         
-        if st.button("➕ הוסף תזכורת", key="add_rem_final"): st.session_state.add_mode = True
+        if st.button("➕ הוסף תזכורת", key="add_r_fixed"): st.session_state.add_mode = True
         if st.session_state.get("add_mode"):
-            nt = st.text_input("משימה:", key="nt_input_final")
-            if st.button("✅ שמור", key="save_rem_final"):
+            nt = st.text_input("משימה:", key="nt_input_fixed")
+            if st.button("✅ שמור", key="save_r_fixed"):
                 st.session_state.rem_live = pd.concat([st.session_state.rem_live, pd.DataFrame([{"reminder_text": nt, "date": today}])], ignore_index=True)
                 st.session_state.add_mode = False
                 st.rerun()
