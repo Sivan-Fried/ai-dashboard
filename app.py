@@ -192,21 +192,26 @@ with col_left:
                 """, unsafe_allow_html=True)
 
 # =========================
-# 🤖 AI AREA (גרסה יציבה)
+# 🤖 AI AREA (גרסה מעודכנת לענן)
 # =========================
 
-api_key = os.getenv("GEMINI_API_KEY")
+# שליפת המפתח מתוך Streamlit Secrets
+if "GEMINI_API_KEY" in st.secrets:
+    api_key = st.secrets["GEMINI_API_KEY"]
+else:
+    api_key = None
 
 if not api_key:
-    st.error("❌ Missing GEMINI_API_KEY")
+    st.error("❌ Missing GEMINI_API_KEY in Streamlit Secrets. Please check your Dashboard settings.")
     st.stop()
 
+# הגדרת ה-API
 genai.configure(api_key=api_key)
 
-# 🔥 fallback בטוח
+# ניסיון טעינת המודל (Fallback)
 try:
     model = genai.GenerativeModel("gemini-1.5-flash")
-except:
+except Exception:
     model = genai.GenerativeModel("gemini-1.0-pro")
 
 st.markdown("---")
@@ -233,6 +238,7 @@ if st.button("שלח ל-AI"):
         st.warning("אנא הזיני שאלה")
         st.stop()
 
+    # שליפת הנתונים של הפרויקט הנבחר
     row = projects[projects["project_name"] == selected_project].iloc[0]
 
     prompt = f"""
@@ -248,9 +254,11 @@ if st.button("שלח ל-AI"):
 """
 
     try:
-        response = model.generate_content(prompt)
-        result = response.text
+        # יצירת התשובה
+        with st.spinner("ה-AI חושב..."):
+            response = model.generate_content(prompt)
+            result = response.text
     except Exception as e:
-        result = f"⚠️ שגיאה: {str(e)}"
+        result = f"⚠️ שגיאה בחיבור ל-Gemini: {str(e)}"
 
     st.markdown(f"<div class='card'>{result}</div>", unsafe_allow_html=True)
