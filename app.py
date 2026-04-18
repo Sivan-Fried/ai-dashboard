@@ -335,7 +335,6 @@ with col_left:
 # 🤖 AI AREA (FINAL CLEAN VERSION)
 # =========================
 
-from google import genai
 
 # ---------- API KEY ----------
 api_key = os.getenv("GEMINI_API_KEY")
