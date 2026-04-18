@@ -3,13 +3,12 @@ import pandas as pd
 import base64
 import os
 import datetime
-
-from google import genai   # ✅ SDK חדש שעובד
+import google.generativeai as genai
 
 st.set_page_config(layout="wide")
 
 # =========================
-# עיצוב בסיס
+# עיצוב
 # =========================
 st.markdown("""
 <style>
@@ -193,7 +192,7 @@ with col_left:
                 """, unsafe_allow_html=True)
 
 # =========================
-# 🤖 AI AREA (תיקון סופי ויציב)
+# 🤖 AI AREA (גרסה יציבה)
 # =========================
 
 api_key = os.getenv("GEMINI_API_KEY")
@@ -202,7 +201,13 @@ if not api_key:
     st.error("❌ Missing GEMINI_API_KEY")
     st.stop()
 
-client = genai.Client(api_key=api_key)
+genai.configure(api_key=api_key)
+
+# 🔥 fallback בטוח
+try:
+    model = genai.GenerativeModel("gemini-1.5-flash")
+except:
+    model = genai.GenerativeModel("gemini-1.0-pro")
 
 st.markdown("---")
 st.markdown("### 🤖 אזור AI")
@@ -243,12 +248,8 @@ if st.button("שלח ל-AI"):
 """
 
     try:
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt
-        )
+        response = model.generate_content(prompt)
         result = response.text
-
     except Exception as e:
         result = f"⚠️ שגיאה: {str(e)}"
 
