@@ -82,7 +82,7 @@ with col2:
         st.info("אין פגישות היום")
 
 # ==========================================
-# 🤖 אזור ה-AI המעודכן - הכל בלבן, תשובה בירוק
+# 🤖 אזור ה-AI המעודכן - שדות לבנים, כותרות כרגיל
 # ==========================================
 st.markdown("---")
 st.markdown("<h3 style='text-align:right;'>🤖 עוזר AI אישי</h3>", unsafe_allow_html=True)
@@ -90,19 +90,19 @@ st.markdown("<h3 style='text-align:right;'>🤖 עוזר AI אישי</h3>", unsa
 api_key = st.secrets.get("GEMINI_API_KEY")
 
 if api_key:
-    # CSS לעיצוב השדות בלבן ויישור לימין
+    # CSS ממוקד שצובע רק את תיבות הקלט בלבן
     st.markdown("""
         <style>
-        /* עיצוב תיבת הבחירה, תיבת הטקסט והתוויות בלבן */
-        div[data-baseweb="select"] > div, 
-        .stTextArea textarea,
-        div[data-testid="stSelectbox"] {
+        /* צביעת הרקע של תיבת הבחירה בלבן */
+        div[data-baseweb="select"] > div {
             background-color: white !important;
-            direction: rtl !important;
-            text-align: right !important;
         }
-        /* התאמת יישור הטקסט בתוך תיבת הבחירה */
-        div[data-testid="stSelectBaseInput"] {
+        /* צביעת הרקע של תיבת הטקסט בלבן */
+        .stTextArea textarea {
+            background-color: white !important;
+        }
+        /* יישור לימין לכל אזור הקלט */
+        div[data-testid="stSelectbox"], .stTextArea {
             direction: rtl !important;
             text-align: right !important;
         }
@@ -112,16 +112,13 @@ if api_key:
     with st.container():
         ca1, ca2 = st.columns(2)
         with ca1:
-            # שדה בחירת פרויקט - עכשיו בלבן
             s_proj = st.selectbox("בחרי פרויקט לניתוח", projects["project_name"].tolist(), key="final_v_2026")
         with ca2:
-            # שדה השאלה - בלבן
             u_q = st.text_area("מה תרצי לדעת?", placeholder="למשל: מהם צעדי המניעה לפרויקט באדום?", key="q_2026")
 
     if st.button("בצע ניתוח AI", key="btn_2026"):
         if u_q:
             p_info = projects[projects["project_name"] == s_proj].iloc[0]
-            # הנחיה לתמציתיות מוחלטת
             context = f"נתוני פרויקט: {p_info.to_string()}. ענה בעברית, בנקודות תמציתיות מאוד, ללא כותרות ענק. שאלה: {u_q}"
             
             with st.spinner("מנתח נתונים..."):
@@ -136,7 +133,7 @@ if api_key:
                     if response.status_code == 200:
                         answer = res_json['candidates'][0]['content']['parts'][0]['text']
                         
-                        # תצוגת התשובה בירוק (Success) מיושר לימין
+                        # תצוגת התשובה בתיבה ירוקה מיושרת לימין
                         st.markdown(f"""
                         <div style="direction: rtl; text-align: right; background-color: #d4edda; color: #155724; 
                                     padding: 15px; border-radius: 10px; border: 1px solid #c3e6cb; 
