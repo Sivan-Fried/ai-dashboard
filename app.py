@@ -5,7 +5,7 @@ import base64
 import datetime
 from zoneinfo import ZoneInfo
 
-# 1. הגדרות עמוד ועיצוב CSS משופר
+# 1. הגדרות עמוד ועיצוב
 st.set_page_config(layout="wide", page_title="ניהול פרויקטים - לוח בקרה")
 
 st.markdown("""
@@ -31,13 +31,14 @@ st.markdown("""
         box-shadow: 0 4px 10px rgba(0,0,0,0.03);
     }
 
-    /* תיקון קריטי: עיצוב ה-Container שייראה בדיוק כמו ה-KPI */
-    [data-testid="stVerticalBlockBorderWrapper"] {
-        background-color: white !important;
-        border: 1px solid #eee !important;
-        border-radius: 10px !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
-        padding: 15px !important;
+    /* עיצוב המלבן המאחד - בדיוק כמו ה-KPI */
+    .unified-card-area {
+        background-color: white;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        margin-bottom: 10px;
     }
 
     .card {
@@ -124,7 +125,7 @@ with k4: st.markdown(f"<div class='kpi-card' style='border-top: 3px solid green;
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 5. פרויקטים - עם המלבן המאוחד בתוך ה-Container
+# 5. פרויקטים - פתרון HTML ישיר למלבן המאחד
 st.markdown("<div class='section-wrap'>", unsafe_allow_html=True)
 st.markdown("<h3>📁 פרויקטים</h3>", unsafe_allow_html=True)
 
@@ -134,20 +135,26 @@ def type_icon(project_type):
     elif project_type == "תחזוקה": return "🔧"
     else: return "📁"
 
-# יצירת המלבן הלבן שביקשת (ה-border=True מפעיל את ה-CSS שהוספנו למעלה)
-with st.container(border=True):
-    for _, row in projects.iterrows():
-        icon = type_icon(row["project_type"])
-        dot = "🟢" if row["status"]=="ירוק" else "🟡" if row["status"]=="צהוב" else "🔴"
-        
-        # הרשומות הפנימיות
-        st.markdown(f"""
-        <div style="background:#fcfcfc; padding:10px; border-radius:8px; margin-bottom:6px; border:1px solid #eee; direction:rtl; text-align:right; font-size:14px;">
-            {icon} <b>{row['project_name']}</b> 
-            <span style="color:gray; font-size:12px;"> | {row['project_type']}</span>
-            <span style="float:left;">{dot}</span>
-        </div>
-        """, unsafe_allow_html=True)
+# יצירת כל רשימת הפרויקטים כמחרוזת HTML אחת גדולה בתוך מלבן מאחד
+project_items_html = ""
+for _, row in projects.iterrows():
+    icon = type_icon(row["project_type"])
+    dot = "🟢" if row["status"]=="ירוק" else "🟡" if row["status"]=="צהוב" else "🔴"
+    project_items_html += f"""
+    <div style="background:#fcfcfc; padding:10px; border-radius:8px; margin-bottom:6px; border:1px solid #eee; direction:rtl; text-align:right; font-size:14px;">
+        {icon} <b>{row['project_name']}</b> 
+        <span style="color:gray; font-size:12px;"> | {row['project_type']}</span>
+        <span style="float:left;">{dot}</span>
+    </div>
+    """
+
+# הדפסת המלבן הלבן המאחד ובתוכו כל הפרויקטים
+st.markdown(f"""
+<div class="unified-card-area">
+    {project_items_html}
+</div>
+""", unsafe_allow_html=True)
+
 st.markdown("</div>", unsafe_allow_html=True)
 
 # 6. לו"ז ותזכורות
@@ -187,7 +194,6 @@ with col_left:
             st.session_state.add_mode = True
             st.rerun()
     else:
-        # טופס הוספה
         col1, col2, col3, col4 = st.columns([5, 3, 2, 1])
         with col1: text = st.text_input("", placeholder="תזכורת חדשה", key="new_text")
         with col2: project = st.selectbox("", projects["project_name"].tolist(), key="new_proj")
