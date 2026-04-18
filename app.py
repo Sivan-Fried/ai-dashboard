@@ -3,7 +3,7 @@ import pandas as pd
 import base64
 import os
 import datetime
-import google.generativeai as genai
+# import google.generativeai as genai
 
 st.set_page_config(layout="wide")
 
@@ -337,7 +337,10 @@ with col_left:
 
 
 # ---------- API KEY ----------
-api_key = os.getenv("GEMINI_API_KEY")
+from google import genai
+
+client = genai.Client(api_key=api_key)
+# api_key = os.getenv("GEMINI_API_KEY")
 
 if not api_key:
     st.error("❌ חסר GEMINI_API_KEY (ב-Streamlit Secrets או Environment Variables)")
@@ -392,9 +395,13 @@ if st.button("שלח ל-AI", key="ai_button_final"):
 
     # קריאה ל-Gemini
     try:
-      response = model.generate_content(prompt)
+        
+       response = client.models.generate_content(
+       model="gemini-1.5-flash",
+       contents=prompt
+)
 
-      result = response.text
+       result = response.text
 
     except Exception as e:
         result = f"⚠️ שגיאה: {str(e)}"
