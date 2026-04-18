@@ -43,7 +43,50 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
+# החלפת הכותרת הקודמת בקוד הזה:
+
+st.markdown("""
+<style>
+    /* הגדרת האנימציה והצבעים לגרדיאנט */
+    .text-gradient {
+        background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+    }
+    
+    .main-title-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .main-title {
+        font-size: clamp(2rem, 5vw, 4rem); /* התאמה רספונסיבית לגודל מסך */
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        color: #1f2a44; /* צבע הכתב של "לניהול פרויקטים" */
+        direction: rtl;
+    }
+</style>
+
+<div class="main-title-container">
+    <h1 class="main-title">
+        <span class="text-gradient">📊 Dashboard AI</span>
+        <span>לניהול פרויקטים</span>
+    </h1>
+</div>
+""", unsafe_allow_html=True)
+
+# st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
 
 # 2. פונקציית תמונה ופרופיל
 def get_base64_image(path):
