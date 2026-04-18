@@ -5,7 +5,7 @@ import base64
 import datetime
 from zoneinfo import ZoneInfo
 
-# 1. הגדרות עמוד ועיצוב בסיסי מקורי
+# 1. הגדרות עמוד ועיצוב
 st.set_page_config(layout="wide", page_title="ניהול פרויקטים - לוח בקרה")
 
 st.markdown("""
@@ -22,8 +22,6 @@ st.markdown("""
         box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
     h1, h2, h3 { color: #1f2a44; text-align: right; direction: rtl; }
-    
-    /* שמירה על שדות קלט לבנים ונקיים */
     div[data-baseweb="select"] > div, 
     div[data-baseweb="input"] input {
         background-color: white !important;
@@ -32,10 +30,9 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# כותרת ראשית מקורית
 st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
 
-# 2. פונקציית תמונה ופרופיל (המבנה המקורי והיציב)
+# 2. פרופיל
 def get_base64_image(path):
     try:
         with open(path, "rb") as img_file:
@@ -44,252 +41,110 @@ def get_base64_image(path):
 
 img_base64 = get_base64_image("profile.png")
 now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
-hour = now.hour
-
-if 5 <= hour < 12: greeting = "בוקר טוב"
-elif 12 <= hour < 18: greeting = "צהריים טובים"
-elif 18 <= hour < 22: greeting = "ערב טוב"
-else: greeting = "לילה טוב"
+today = pd.Timestamp.today().date()
 
 left, center, right = st.columns([1.2, 1, 1.2])
 with left:
-    st.markdown(f"""
-    <div style="direction:rtl; text-align:right; margin-top:40px; color:#1f2a44;">
-        <div style="font-size:22px;">{greeting}, סיון!</div>
-        <div style="font-size:13px; color:gray;">{now.strftime('%d/%m/%Y %H:%M')}</div>
-    </div>
-    """, unsafe_allow_html=True)
-
+    st.markdown(f"<div style='direction:rtl; text-align:right; margin-top:40px;'><div>{now.strftime('%d/%m/%Y %H:%M')}</div></div>", unsafe_allow_html=True)
 with center:
     if img_base64:
-        st.markdown(f"""
-        <div style="display:flex; justify-content:center; margin-top:10px;">
-            <div style="width:140px; height:140px; border-radius:50%; overflow:hidden; border:5px solid white; box-shadow:0 10px 25px rgba(0,0,0,0.1);">
-                <img src="data:image/png;base64,{img_base64}" style="width:100%; height:100%; object-fit: cover; object-position: center top;">
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(f'<div style="display:flex; justify-content:center; margin-top:10px;"><div style="width:140px; height:140px; border-radius:50%; overflow:hidden; border:5px solid white; box-shadow:0 10px 25px rgba(0,0,0,0.1);"><img src="data:image/png;base64,{img_base64}" style="width:100%; height:100%; object-fit: cover; object-position: center top;"></div></div>', unsafe_allow_html=True)
 
-st.markdown("---")
-
-# =========================
-# נתונים
-# =========================
+# 3. נתונים
 projects = pd.read_excel("my_projects.xlsx")
 meetings = pd.read_excel("meetings.xlsx")
 reminders = pd.read_excel("reminders.xlsx")
 
-today = pd.Timestamp.today().date()
-
-# =========================
-# AI תזכורות
-# =========================
+# לוגיקת AI לתזכורות
 def generate_ai_reminders(df):
     ai = []
     for _, row in df.iterrows():
         if row["status"] in ["צהוב", "אדום"]:
             ai.append({
-                "reminder_text": f"התחלה/מעקב על {row['project_name']}",
+                "reminder_text": f"מעקב דחוף: {row['project_name']}",
                 "project_name": row["project_name"],
                 "date": today,
-                "priority": "medium",
                 "source": "ai"
             })
     return pd.DataFrame(ai)
 
-ai_reminders = generate_ai_reminders(projects)
-
 if "reminders_live" not in st.session_state:
-    st.session_state.reminders_live = pd.concat([reminders, ai_reminders], ignore_index=True)
+    ai_df = generate_ai_reminders(projects)
+    st.session_state.reminders_live = pd.concat([reminders, ai_df], ignore_index=True)
 
-# =========================
-# KPI
-# =========================
+# 4. KPI
 c1, c2, c3 = st.columns(3)
+with c1: st.markdown(f"<div class='card'><b>סה״כ פרויקטים</b><br>{len(projects)}</div>", unsafe_allow_html=True)
+with c2: st.markdown(f"<div class='card'><b>בסיכון 🔴</b><br>{len(projects[projects['status']=='אדום'])}</div>", unsafe_allow_html=True)
+with c3: st.markdown(f"<div class='card'><b>במעקב 🟡</b><br>{len(projects[projects['status']=='צהוב'])}</div>", unsafe_allow_html=True)
 
-with c1:
-    st.markdown(f"<div class='card'><b>סה״כ פרויקטים</b><br>{len(projects)}</div>", unsafe_allow_html=True)
-
-with c2:
-    st.markdown(f"<div class='card'><b>בסיכון 🔴</b><br>{len(projects[projects['status']=='אדום'])}</div>", unsafe_allow_html=True)
-
-with c3:
-    st.markdown(f"<div class='card'><b>במעקב 🟡</b><br>{len(projects[projects['status']=='צהוב'])}</div>", unsafe_allow_html=True)
-
-st.markdown("<br>", unsafe_allow_html=True)
-
-# =========================
-# פרויקטים
-# =========================
-st.markdown(
-    "<h3 style='text-align:right; direction:rtl;'>📁 פרויקטים</h3>",
-    unsafe_allow_html=True
-)
-
-def type_icon(project_type):
-    if project_type == "פרויקט אקטיבי":
-        return "🚀"
-    elif project_type == "חבילת עבודה":
-        return "📦"
-    elif project_type == "תחזוקה":
-        return "🔧"
-    else:
-        return "📁"
-
-def status_dot(status):
-    if status == "ירוק":
-        return "🟢"
-    elif status == "צהוב":
-        return "🟡"
-    else:
-        return "🔴"
-
+# 5. פרויקטים
+st.markdown("### 📁 פרויקטים")
 for _, row in projects.iterrows():
-
-    project_name = row["project_name"]
-    project_type = row["project_type"]
-    status = row["status"]
-
-    icon = type_icon(project_type)
-    dot = status_dot(status)
-
-    st.markdown(f"""
-    <div style="
-        background:white;
-        padding:8px 10px;
-        border-radius:8px;
-        margin-bottom:4px;
-        border:1px solid #eee;
-        direction:rtl;
-        text-align:right;
-        font-size:14px;
-    ">
-        {icon} {project_name}
-        <span style="color:gray; font-size:12px;"> | {project_type}</span>
-        <span style="float:left;">{dot}</span>
-    </div>
-    """, unsafe_allow_html=True)
-    
-# --- ריק לשמירה על איזון ---
-with right:
-    st.write("")
+    dot = "🟢" if row["status"]=="ירוק" else "🟡" if row["status"]=="צהוב" else "🔴"
+    st.markdown(f"<div class='card'>{row['project_name']} <span style='color:gray; font-size:12px;'>| {row['project_type']}</span> <span style='float:left;'>{dot}</span></div>", unsafe_allow_html=True)
 
 st.markdown("---")
 
-# =========================
-# 🔥 חשוב – הגדרת עמודות (לא לגעת!)
-# =========================
-col_right, col_left = st.columns(2)
+# 6. הגדרת עמודות ללו"ז ותזכורות
+col_meetings, col_reminders = st.columns(2)
 
-# -------- פגישות --------
-with col_right:
-
+with col_meetings:
     st.markdown("### 📅 פגישות היום")
-
     today_meetings = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-
     if today_meetings.empty:
         st.info("אין פגישות היום 🎉")
     else:
         for _, row in today_meetings.iterrows():
-            st.markdown(f"""
-            <div class='card'>
-                📌 {row['meeting_title']}<br>
-                🕒 {row['time']}<br>
-                📁 {row['project_name']}
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(f"<div class='card'>📌 {row['meeting_title']}<br><small>{row['time']} | {row['project_name']}</small></div>", unsafe_allow_html=True)
 
-# -------- תזכורות --------
-with col_left:
-
+with col_reminders:
     st.markdown("### 🔔 תזכורות")
+    
+    # --- התיקון כאן: מציג הכל, או מסנן רק לכאלו שהתאריך שלהן עבר/הגיע ---
+    display_reminders = st.session_state.reminders_live.copy()
+    # אם רוצים לסנן רק להיום ומטה (כולל כאלו שאין להם תאריך):
+    display_reminders["date_dt"] = pd.to_datetime(display_reminders["date"]).dt.date
+    relevant_reminders = display_reminders[(display_reminders["date_dt"] <= today) | (display_reminders["date_dt"].isna())]
 
-    today_reminders = st.session_state.reminders_live[
-        pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today
-    ]
-
-    # 🔥 גלילה אמיתית
-    container = st.container(height=260)
-
+    container = st.container(height=300)
     with container:
-
-        if today_reminders.empty:
-            st.info("אין תזכורות להיום 🎉")
-
+        if relevant_reminders.empty:
+            st.info("אין תזכורות 🎉")
         else:
-            for _, row in today_reminders.iterrows():
-
-                icon = "🤖" if row["source"] == "ai" else "✍️"
-
+            for _, row in relevant_reminders.iterrows():
+                icon = "🤖" if row.get("source") == "ai" else "✍️"
+                p_name = row.get("project_name", "כללי")
                 st.markdown(f"""
                 <div class="card">
-                    {icon} {row['reminder_text']} | 📁 {row['project_name']}
+                    {icon} {row['reminder_text']} | <small style='color:blue;'>{p_name}</small>
                 </div>
                 """, unsafe_allow_html=True)
 
-    # =========================
-    # ➕ הוספה
-    # =========================
-    st.markdown("---")
-
-    if "add_mode" not in st.session_state:
-        st.session_state.add_mode = False
-
-    if not st.session_state.add_mode:
-
-        if st.button("➕ הוספת תזכורת"):
-            st.session_state.add_mode = True
-            st.rerun()
-
-    else:
-
-        col1, col2, col3, col4 = st.columns([5, 3, 2, 1])
-
-        with col1:
-            text = st.text_input("", placeholder="תזכורת חדשה")
-
-        with col2:
-            project = st.selectbox("", projects["project_name"].tolist())
-
-        with col3:
-            priority = st.selectbox("", ["נמוכה", "בינונית", "גבוהה"])
-
-        with col4:
-            if st.button("✔"):
-
-                reverse = {"נמוכה":"low","בינונית":"medium","גבוהה":"high"}
-
-                new_row = {
-                    "reminder_text": text,
-                    "project_name": project,
-                    "date": today,
-                    "priority": reverse[priority],
-                    "source": "manual"
-                }
-
-                st.session_state.reminders_live.loc[len(st.session_state.reminders_live)] = new_row
-
+    # כפתור הוספה
+    if st.button("➕ הוספת תזכורת"):
+        st.session_state.add_mode = True
+    
+    if st.session_state.get("add_mode"):
+        with st.form("new_rem"):
+            t = st.text_input("מה התזכורת?")
+            p = st.selectbox("פרויקט", projects["project_name"].tolist())
+            if st.form_submit_button("שמור"):
+                new_row = {"reminder_text": t, "project_name": p, "date": today, "source": "manual"}
+                st.session_state.reminders_live = pd.concat([st.session_state.reminders_live, pd.DataFrame([new_row])], ignore_index=True)
                 st.session_state.add_mode = False
                 st.rerun()
 
-# 6. אזור ה-AI המקורי
+# 7. AI Oracle
 st.markdown("---")
-st.markdown("### ✨ שאל את ה-AI על הפרויקטים")
-api_key = st.secrets.get("GEMINI_API_KEY")
-
+st.markdown("### ✨ האורקל הדיגיטלי")
 ca1, ca2 = st.columns([1, 2])
-with ca1:
-    sel_p = st.selectbox("בחר פרויקט", projects["project_name"].tolist(), key="p_sel")
-with ca2:
-    q_in = st.text_input("מה תרצי לדעת?", key="q_in")
+with ca1: s_p = st.selectbox("פרויקט לניתוח", projects["project_name"].tolist())
+with ca2: u_q = st.text_input("שאלי את האורקל...")
 
-if st.button("בצע ניתוח"):
-    if q_in:
-        with st.spinner("מנתח נתונים..."):
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key={api_key}"
-            try:
-                res = requests.post(url, json={"contents": [{"parts": [{"text": f"Project: {sel_p}. Question: {q_in}"}]}]}, timeout=10)
-                ans = res.json()['candidates'][0]['content']['parts'][0]['text']
-                st.markdown(f"<div class='card' style='background-color:#f8f9fa;'>{ans}</div>", unsafe_allow_html=True)
-            except: st.error("שגיאה בתקשורת עם ה-AI")
+if st.button("שאל"):
+    api_key = st.secrets.get("GEMINI_API_KEY")
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key={api_key}"
+    res = requests.post(url, json={"contents": [{"parts": [{"text": f"Project: {s_p}. Question: {u_q}"}]}]})
+    if res.status_code == 200:
+        st.info(res.json()['candidates'][0]['content']['parts'][0]['text'])
