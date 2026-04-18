@@ -4,70 +4,75 @@ import base64
 import datetime
 from zoneinfo import ZoneInfo
 
-# --- 1. הגדרות דף ---
-st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
+# --- 1. הגדרות בסיסיות ---
+st.set_page_config(layout="wide", page_title="Dashboard AI", initial_sidebar_state="collapsed")
 
-# --- 2. פונקציות עזר ---
 def get_base64_image(path):
     try:
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 3. הזרקת CSS "אלים" (כדי שהעיצוב לא ייעלם) ---
+# --- 2. CSS גלובלי (יישור ורקע) ---
 st.markdown("""
 <style>
-    /* רקע ויישור כללי */
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
     
-    /* עיצוב המסגרות המעוצבות - חובה להשתמש ב-!important */
-    div[data-testid="stVerticalBlockBorderWrapper"] {
-        background: linear-gradient(white, white) padding-box,
-                    linear-gradient(90deg, #4facfe, #00f2fe) border-box !important;
-        border: 2px solid transparent !important;
-        border-radius: 15px !important;
-        padding: 22px !important;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08) !important;
-        margin-bottom: 20px !important;
+    /* יישור טקסט ואלמנטים לימין בצורה גורפת */
+    [data-testid="stVerticalBlock"] { direction: rtl !important; }
+    div[data-testid="stMarkdownContainer"], .stSelectbox, .stTextInput, .stButton, label {
+        text-align: right !important; direction: rtl !important;
+    }
+    
+    /* עיצוב כותרת גרדיאנט ראשית */
+    .main-title {
+        background: linear-gradient(90deg, #4facfe, #00f2fe);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 3rem;
+        font-weight: 800;
+        text-align: center;
+        margin-bottom: 20px;
     }
 
-    /* יישור טקסט ואלמנטים לימין */
-    div[data-testid="stMarkdownContainer"], .stSelectbox, .stTextInput, .stButton, label, h3 {
-        text-align: right !important;
-        direction: rtl !important;
-    }
-
-    /* עיצוב רשימות ו-KPI */
-    .list-item {
-        background: #fdfdfd; padding: 12px; border-radius: 10px;
-        margin-bottom: 10px; border: 1px solid #eee;
-        display: flex; align-items: center; gap: 12px;
-    }
+    /* עיצוב KPI */
     .kpi-card {
         background: white; padding: 15px; border-radius: 12px;
         text-align: center; border: 1px solid #e0e6ed;
         box-shadow: 0 2px 5px rgba(0,0,0,0.02);
     }
-    .text-gradient {
-        background: linear-gradient(90deg, #4facfe, #00f2fe);
-        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        font-weight: 800;
+    
+    /* עיצוב פריטי רשימה */
+    .list-item {
+        background: #fdfdfd; padding: 10px; border-radius: 10px;
+        margin-bottom: 8px; border: 1px solid #eee;
+        display: flex; align-items: center; gap: 10px;
+    }
+
+    /* הזרקת העיצוב למכולות של Streamlit */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        background: linear-gradient(white, white) padding-box,
+                    linear-gradient(90deg, #4facfe, #00f2fe) border-box !important;
+        border: 2px solid transparent !important;
+        border-radius: 15px !important;
+        padding: 20px !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08) !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# --- 4. טעינת נתונים ---
+# --- 3. טעינת נתונים ---
 try:
     projects = pd.read_excel("my_projects.xlsx")
     meetings = pd.read_excel("meetings.xlsx")
     reminders = pd.read_excel("reminders.xlsx")
     today = pd.Timestamp.today().date()
 except:
-    st.error("קובצי הנתונים חסרים"); st.stop()
+    st.error("וודאי שקובצי האקסל קיימים"); st.stop()
 
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders.copy()
 
-# --- 5. Header (פוקוס תמונה משופר) ---
-st.markdown("<h1 style='text-align:center;' class='text-gradient'>Dashboard AI</h1>", unsafe_allow_html=True)
+# --- 4. Header & Profile ---
+st.markdown('<h1 class="main-title">Dashboard AI</h1>', unsafe_allow_html=True)
 
 img_b64 = get_base64_image("profile.png")
 now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
@@ -85,7 +90,7 @@ with col_p2:
 with col_p3:
     st.markdown(f"<div style='margin-top:25px;'><h3>{greeting}, סיון!</h3><p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p></div>", unsafe_allow_html=True)
 
-# --- 6. KPI Section ---
+# --- 5. KPI Row ---
 st.markdown("<br>", unsafe_allow_html=True)
 k1, k2, k3, k4 = st.columns(4)
 with k1: st.markdown(f"<div class='kpi-card' style='border-top:4px solid red;'>בסיכון 🔴<br><b>{len(projects[projects['status']=='אדום'])}</b></div>", unsafe_allow_html=True)
@@ -93,7 +98,7 @@ with k2: st.markdown(f"<div class='kpi-card' style='border-top:4px solid orange;
 with k3: st.markdown(f"<div class='kpi-card' style='border-top:4px solid green;'>בתקין 🟢<br><b>{len(projects[projects['status']=='ירוק'])}</b></div>", unsafe_allow_html=True)
 with k4: st.markdown(f"<div class='kpi-card'>סה\"כ פרויקטים<br><b>{len(projects)}</b></div>", unsafe_allow_html=True)
 
-# --- 7. גוף ה-Dashboard (שימוש ב-border=True להחלת העיצוב) ---
+# --- 6. גוף ה-Dashboard ---
 st.markdown("<br>", unsafe_allow_html=True)
 col_right, col_left = st.columns([2, 1.2])
 
@@ -106,6 +111,7 @@ with col_right:
 
     with st.container(border=True):
         st.markdown("### ✨ AI Oracle")
+        # כל רכיבי ה-AI בתוך המכולה המעוצבת
         a1, a2 = st.columns([1, 2])
         with a1: st.selectbox("בחר פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="sel_ai")
         with a2: st.text_input("שאלה ל-AI", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="txt_ai")
