@@ -5,26 +5,20 @@ import datetime
 from zoneinfo import ZoneInfo
 
 # --- 1. הגדרות דף ---
-st.set_page_config(layout="wide", page_title="Dashboard AI")
+st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
 def get_base64_image(path):
     try:
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS אגרסיבי וסופי ---
+# --- 2. CSS מאוחד: מסגרות גרדיאנט + רשומות מעוצבות ---
 st.markdown("""
 <style>
     /* רקע ויישור כללי */
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
     
-    /* הכרחת יישור לימין לכל מה שזז */
-    [data-testid="stVerticalBlock"] { direction: rtl !important; text-align: right !important; }
-    div[data-testid="stMarkdownContainer"], .stSelectbox, .stTextInput, .stButton, label, h3 {
-        text-align: right !important; direction: rtl !important;
-    }
-
-    /* כותרת גרדיאנט חסינה */
+    /* כותרת גרדיאנט */
     .dashboard-header {
         background: linear-gradient(90deg, #4facfe, #00f2fe) !important;
         -webkit-background-clip: text !important;
@@ -32,30 +26,43 @@ st.markdown("""
         text-align: center !important;
         font-size: 3.5rem !important;
         font-weight: 900 !important;
-        margin: 20px 0 !important;
+        margin-bottom: 25px !important;
     }
 
-    /* עיצוב המכולות המעוצבות - תופס הכל כולל ה-AI והרשימות */
+    /* המסגרות הגדולות (ה-Cards) */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background: linear-gradient(white, white) padding-box,
                     linear-gradient(90deg, #4facfe, #00f2fe) border-box !important;
         border: 2px solid transparent !important;
         border-radius: 18px !important;
         padding: 25px !important;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05) !important;
-        margin-bottom: 25px !important;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
+        margin-bottom: 20px !important;
     }
 
-    /* עיצוב פריטי רשימה בתוך המכולות */
-    .custom-item {
-        background: #fdfdfd; 
-        padding: 12px; 
+    /* הרשומות שבתוך המסגרות (העיצוב שאהבת) */
+    .record-box {
+        background: #ffffff;
+        padding: 12px 15px;
         border-radius: 10px;
-        margin-bottom: 10px; 
-        border: 1px solid #eee;
-        border-right: 5px solid #4facfe;
-        display: block;
-        width: 100%;
+        margin-bottom: 10px;
+        border: 1px solid #edf2f7;
+        border-right: 5px solid #4facfe; /* פס כחול בצד ימין */
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        color: #1f2a44;
+    }
+
+    /* התאמת צבע הפס לפי סטטוס הפרויקט */
+    .status-green { border-right-color: #00c853; }
+    .status-yellow { border-right-color: #ffa500; }
+    .status-red { border-right-color: #ff4b4b; }
+
+    /* יישור RTL גורף */
+    div[data-testid="stMarkdownContainer"], .stSelectbox, .stTextInput, .stButton, label, h3 {
+        text-align: right !important; direction: rtl !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -67,7 +74,7 @@ try:
     reminders = pd.read_excel("reminders.xlsx")
     today = pd.Timestamp.today().date()
 except:
-    st.error("קובצי הנתונים חסרים"); st.stop()
+    st.error("וודאי שקובצי האקסל קיימים"); st.stop()
 
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders.copy()
 
@@ -78,8 +85,8 @@ img_b64 = get_base64_image("profile.png")
 now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
 greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
 
-col_p1, col_p2, col_p3 = st.columns([1, 1, 2])
-with col_p2:
+c1, c2, c3 = st.columns([1, 1, 2])
+with c2:
     if img_b64:
         st.markdown(f'''
             <div style="display:flex; justify-content:center;">
@@ -87,7 +94,7 @@ with col_p2:
                     <img src="data:image/png;base64,{img_b64}" style="width:100%; height:100%; object-fit: cover; object-position: center 20%;">
                 </div>
             </div>''', unsafe_allow_html=True)
-with col_p3:
+with c3:
     st.markdown(f"<div style='margin-top:25px;'><h3>{greeting}, סיון!</h3><p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p></div>", unsafe_allow_html=True)
 
 # --- 5. KPI Row ---
@@ -101,46 +108,52 @@ with k4: st.markdown(f"<div style='{k_style}'>סה\"כ פרויקטים<br><b>{l
 
 # --- 6. גוף הדשבורד ---
 st.markdown("<br>", unsafe_allow_html=True)
-col_right, col_left = st.columns([2, 1.2])
+right_col, left_col = st.columns([2, 1.2])
 
-with col_right:
-    # פרויקטים - הכל בתוך המכולה
+with right_col:
+    # מכולת פרויקטים
     with st.container(border=True):
         st.markdown("### 📁 פרויקטים ומרכיבים")
         for _, row in projects.iterrows():
-            st.markdown(f'<div class="custom-item">{row["project_name"]}</div>', unsafe_allow_html=True)
+            # בחירת קלאס לפי סטטוס
+            s_class = "status-green" if row["status"] == "ירוק" else "status-yellow" if row["status"] == "צהוב" else "status-red"
+            st.markdown(f"""
+                <div class="record-box {s_class}">
+                    <span><b>{row['project_name']}</b></span>
+                    <span style="color:gray; font-size:0.85em;">{row.get('project_type', 'פרויקט')}</span>
+                </div>
+            """, unsafe_allow_html=True)
 
-    # AI Oracle - עכשיו הוא נשאר בפנים
+    # מכולת AI Oracle
     with st.container(border=True):
         st.markdown("### ✨ AI Oracle")
-        a_col1, a_col2 = st.columns([1, 2])
-        with a_col1: st.selectbox("בחר פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p_final")
-        with a_col2: st.text_input("שאלה ל-AI", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_q_final")
+        a1, a2 = st.columns([1, 2])
+        with a1: st.selectbox("בחר פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_sel")
+        with a2: st.text_input("שאלה ל-AI", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_in")
         st.button("שגר שאילתה 🚀", use_container_width=True)
 
-with col_left:
-    # פגישות
+with left_col:
+    # מכולת פגישות
     with st.container(border=True):
         st.markdown("### 📅 פגישות היום")
-        today_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-        if today_m.empty: st.write("אין פגישות היום")
+        t_meetings = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
+        if t_meetings.empty: st.write("אין פגישות היום")
         else:
-            for _, r in today_m.iterrows():
-                st.markdown(f'<div class="custom-item">📌 {r["meeting_title"]}</div>', unsafe_allow_html=True)
+            for _, r in t_meetings.iterrows():
+                st.markdown(f'<div class="record-box"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
 
-    # תזכורות
+    # מכולת תזכורות
     with st.container(border=True):
         st.markdown("### 🔔 תזכורות")
-        today_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
-        with st.container(height=180, border=False):
-            for _, row in today_r.iterrows():
-                st.markdown(f'<div class="custom-item">🔔 {row["reminder_text"]}</div>', unsafe_allow_html=True)
+        t_reminders = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
+        with st.container(height=200, border=False):
+            for _, row in t_reminders.iterrows():
+                st.markdown(f'<div class="record-box"><span>🔔 {row["reminder_text"]}</span></div>', unsafe_allow_html=True)
         
-        st.markdown("---")
-        if st.button("➕ הוסף תזכורת"): st.session_state.add_task = True
-        if st.session_state.get("add_task"):
-            nt = st.text_input("מה המשימה?", key="nt_final")
+        if st.button("➕ הוסף תזכורת"): st.session_state.add_mode = True
+        if st.session_state.get("add_mode"):
+            nt = st.text_input("משימה חדשה:", key="new_task_in")
             if st.button("✅ שמור"):
                 st.session_state.rem_live = pd.concat([st.session_state.rem_live, pd.DataFrame([{"reminder_text": nt, "date": today}])], ignore_index=True)
-                st.session_state.add_task = False
+                st.session_state.add_mode = False
                 st.rerun()
