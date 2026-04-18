@@ -5,12 +5,35 @@ import base64
 import datetime
 from zoneinfo import ZoneInfo
 
-# 1. הגדרות עמוד ועיצוב בסיסי (חזרה למקור)
+# 1. הגדרות עמוד ועיצוב (החזרת הניקיון המקורי + מסגרות גרדיאנט)
 st.set_page_config(layout="wide", page_title="ניהול פרויקטים - לוח בקרה")
 
 st.markdown("""
 <style>
     body, .stApp { background-color: #f2f4f7; }
+    
+    /* הגדרת הגרדיאנט לכותרת ולמסגרות */
+    .text-gradient {
+        background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+    }
+
+    /* תיחום אזורים עם מסגרת גרדיאנט בלבד */
+    .section-container {
+        background: linear-gradient(white, white) padding-box,
+                    linear-gradient(90deg, #4facfe, #00f2fe) border-box;
+        border: 2px solid transparent;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        direction: rtl;
+        text-align: right;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    }
+
+    /* הרשומות המקוריות - נשארות לבנות ונקיות לגמרי */
     .card {
         background: white; 
         padding: 15px; 
@@ -21,8 +44,7 @@ st.markdown("""
         text-align: right;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
-    h1, h2, h3 { color: #1f2a44; text-align: right; direction: rtl; }
-    
+
     /* KPI מוקטן וקומפקטי */
     .kpi-card {
         background: white;
@@ -43,50 +65,15 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# החלפת הכותרת הקודמת בקוד הזה:
-
+# כותרת מעוצבת
 st.markdown("""
-<style>
-    /* הגדרת האנימציה והצבעים לגרדיאנט */
-    .text-gradient {
-        background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 800;
-    }
-    
-    .main-title-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 20px;
-        text-align: center;
-    }
-
-    .main-title {
-        font-size: clamp(2rem, 5vw, 4rem); /* התאמה רספונסיבית לגודל מסך */
-        font-weight: 800;
-        letter-spacing: -0.025em;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        gap: 15px;
-        color: #1f2a44; /* צבע הכתב של "לניהול פרויקטים" */
-        direction: rtl;
-    }
-</style>
-
-<div class="main-title-container">
-    <h1 class="main-title">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 20px; text-align: center;">
+    <h1 style="font-size: clamp(2rem, 5vw, 4rem); font-weight: 800; letter-spacing: -0.025em; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px; direction: rtl;">
         <span class="text-gradient">📊 Dashboard AI</span>
-        <span>לניהול פרויקטים</span>
+        <span style="color: #1f2a44;">לניהול פרויקטים</span>
     </h1>
 </div>
 """, unsafe_allow_html=True)
-
-# st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
 
 # 2. פונקציית תמונה ופרופיל
 def get_base64_image(path):
@@ -122,7 +109,7 @@ except Exception as e:
 if "reminders_live" not in st.session_state:
     st.session_state.reminders_live = reminders.copy()
 
-# 4. KPI - הגרסה המוקטנת עם "לפי התכנון"
+# 4. KPI - הגרסה המוקטנת
 k1, k2, k3, k4 = st.columns(4)
 with k1: st.markdown(f"<div class='kpi-card'><p>סה״כ פרויקטים</p><h4>{len(projects)}</h4></div>", unsafe_allow_html=True)
 with k2: st.markdown(f"<div class='kpi-card' style='border-top: 3px solid red;'><p>בסיכון 🔴</p><h4 style='color:red;'>{len(projects[projects['status']=='אדום'])}</h4></div>", unsafe_allow_html=True)
@@ -131,8 +118,9 @@ with k4: st.markdown(f"<div class='kpi-card' style='border-top: 3px solid green;
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 5. פרויקטים
-st.markdown("<h3 style='text-align:right; direction:rtl;'>📁 פרויקטים</h3>", unsafe_allow_html=True)
+# 5. פרויקטים (תחום בתוך מסגרת גרדיאנט)
+st.markdown("<div class='section-container'>", unsafe_allow_html=True)
+st.markdown("<h3 style='margin-bottom:15px;'>📁 פרויקטים</h3>", unsafe_allow_html=True)
 
 def type_icon(project_type):
     if project_type == "פרויקט אקטיבי": return "🚀"
@@ -140,14 +128,9 @@ def type_icon(project_type):
     elif project_type == "תחזוקה": return "🔧"
     else: return "📁"
 
-def status_dot(status):
-    if status == "ירוק": return "🟢"
-    elif status == "צהוב": return "🟡"
-    else: return "🔴"
-
 for _, row in projects.iterrows():
     icon = type_icon(row["project_type"])
-    dot = status_dot(row["status"])
+    dot = "🟢" if row["status"] == "ירוק" else "🟡" if row["status"] == "צהוב" else "🔴"
     st.markdown(f"""
     <div style="background:white; padding:8px 10px; border-radius:8px; margin-bottom:4px; border:1px solid #eee; direction:rtl; text-align:right; font-size:14px;">
         {icon} {row['project_name']}
@@ -155,13 +138,13 @@ for _, row in projects.iterrows():
         <span style="float:left;">{dot}</span>
     </div>
     """, unsafe_allow_html=True)
+st.markdown("</div>", unsafe_allow_html=True)
 
-st.markdown("---")
-
-# 6. לו"ז ותזכורות
+# 6. לו"ז ותזכורות (תחומים במסגרות)
 col_right, col_left = st.columns(2)
 
 with col_right:
+    st.markdown("<div class='section-container'>", unsafe_allow_html=True)
     st.markdown("### 📅 פגישות היום")
     today_meetings = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
     if today_meetings.empty:
@@ -169,8 +152,10 @@ with col_right:
     else:
         for _, row in today_meetings.iterrows():
             st.markdown(f"<div class='card'>📌 {row['meeting_title']}<br>🕒 {row['time']}<br>📁 {row['project_name']}</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
 with col_left:
+    st.markdown("<div class='section-container'>", unsafe_allow_html=True)
     st.markdown("### 🔔 תזכורות")
     today_reminders = st.session_state.reminders_live[pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today]
     
@@ -196,9 +181,10 @@ with col_left:
                 st.session_state.reminders_live = pd.concat([st.session_state.reminders_live, pd.DataFrame([new_row])], ignore_index=True)
                 st.session_state.add_mode = False
                 st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
 
-# 7. AI
-st.markdown("---")
+# 7. AI (תחום במסגרת עם דגש קל)
+st.markdown("<div class='section-container' style='border-right: 5px solid #4facfe;'>", unsafe_allow_html=True)
 st.markdown("### ✨ שאל את ה-AI על הפרויקטים")
 api_key = st.secrets.get("GEMINI_API_KEY")
 ca1, ca2 = st.columns([1, 2])
@@ -212,5 +198,6 @@ if st.button("בצע ניתוח"):
             try:
                 res = requests.post(url, json={"contents": [{"parts": [{"text": f"Project: {sel_p}. Question: {q_in}"}]}]}, timeout=10)
                 ans = res.json()['candidates'][0]['content']['parts'][0]['text']
-                st.markdown(f"<div class='card'>{ans}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='card' style='background-color:#f8f9fa;'>{ans}</div>", unsafe_allow_html=True)
             except: st.error("שגיאה בתקשורת")
+st.markdown("</div>", unsafe_allow_html=True)
