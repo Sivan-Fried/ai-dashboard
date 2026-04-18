@@ -95,13 +95,13 @@ if api_key:
     with ca2:
         u_q = st.text_area("שאלה", key="final_v2")
 
-    if st.button("בצע ניתוח", key="final_v3"):
+ if st.button("בצע ניתוח", key="final_v3"):
         if u_q:
             p_info = projects[projects["project_name"] == s_proj].iloc[0]
             prompt = f"פרויקט: {p_info['project_name']}, סטטוס: {p_info['status']}. שאלה: {u_q}"
             with st.spinner("מנתח..."):
                 try:
-                    # שימוש ב-GenerativeModel במקום ב-Client
+                    # התיקון כאן: הסרנו את הקידומת models/ והשארנו רק gemini-1.5-flash
                     model = genai.GenerativeModel('gemini-1.5-flash')
                     res = model.generate_content(prompt)
                     st.success(res.text)
