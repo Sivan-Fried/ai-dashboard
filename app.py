@@ -346,7 +346,7 @@ if not api_key:
 # ---------- CLIENT ----------
 genai.configure(api_key=api_key)
 
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-1.0-pro")
 
 st.markdown("---")
 st.markdown("### 🤖 אזור AI")
