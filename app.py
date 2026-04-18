@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
+import requests
+import json
 import base64
 import os
 import datetime
-import google.generativeai as genai
 
 # הגדרת עמוד
 st.set_page_config(layout="wide", page_title="AI Dashboard")
@@ -81,7 +82,7 @@ with col2:
         st.info("אין פגישות היום")
 
 # ==========================================
-# 🤖 אזור ה-AI המוגן (עוקף שגיאות 404)
+# 🤖 אזור ה-AI - שיטה ישירה (Direct API)
 # ==========================================
 st.markdown("---")
 st.markdown("### 🤖 עוזר AI")
@@ -89,8 +90,6 @@ st.markdown("### 🤖 עוזר AI")
 api_key = st.secrets.get("GEMINI_API_KEY")
 
 if api_key:
-    genai.configure(api_key=api_key)
-    
     ca1, ca2 = st.columns(2)
     with ca1:
         s_proj = st.selectbox("בחרי פרויקט", projects["project_name"].tolist(), key="final_v1")
@@ -100,25 +99,30 @@ if api_key:
     if st.button("בצע ניתוח", key="final_v3"):
         if u_q:
             p_info = projects[projects["project_name"] == s_proj].iloc[0]
-            prompt = f"פרויקט: {p_info['project_name']}, סטטוס: {p_info['status']}. שאלה: {u_q}"
+            context = f"פרויקט: {p_info['project_name']}, סטטוס: {p_info['status']}. שאלה: {u_q}"
             
             with st.spinner("מנתח..."):
-                # מנסים כמה וריאציות של שם המודל כדי לעקוף שגיאות 404
-                success = False
-                for model_name in ['gemini-1.5-flash', 'models/gemini-1.5-flash', 'gemini-1.5-flash-latest']:
-                    if success: break
-                    try:
-                        model = genai.GenerativeModel(model_name)
-                        res = model.generate_content(prompt)
-                        st.success(res.text)
-                        success = True
-                    except Exception as e:
-                        last_error = e
-                        continue
+                # קריאה ישירה ל-API ללא שימוש בספרייה של גוגל
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+                headers = {'Content-Type': 'application/json'}
+                data = {
+                    "contents": [{"parts": [{"text": context}]}]
+                }
                 
-                if not success:
-                    st.error(f"שגיאה בניתוח: {last_error}")
-                    st.info("טיפ: ודאי שה-API Key ב-Secrets מעודכן ושהוא נוצר ב-Google AI Studio.")
+                try:
+                    response = requests.post(url, headers=headers, json=data)
+                    res_json = response.json()
+                    
+                    if response.status_code == 200:
+                        answer = res_json['candidates'][0]['content']['parts'][0]['text']
+                        st.success(answer)
+                    else:
+                        error_msg = res_json.get('error', {}).get('message', 'Unknown error')
+                        st.error(f"שגיאה מהשרת ({response.status_code}): {error_msg}")
+                        if "API_KEY_INVALID" in error_msg:
+                            st.info("טיפ: המפתח ב-Secrets לא תקין. נסי ליצור חדש ב-Google AI Studio.")
+                except Exception as e:
+                    st.error(f"שגיאה טכנית בחיבור: {e}")
         else:
             st.warning("נא להזין שאלה.")
 else:
