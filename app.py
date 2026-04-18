@@ -348,7 +348,7 @@ if not api_key:
 # ---------- CONFIG ----------
 genai.configure(api_key=api_key)
 
-# ✔ מודל תקין ונתמך
+# ✔ מודל תקין ויציב (זה הכי חשוב)
 model = genai.GenerativeModel("gemini-1.5-flash")
 
 st.markdown("---")
