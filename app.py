@@ -334,38 +334,103 @@ with col_left:
 # =========================
 # AI
 # =========================
+# =========================
+# AI
+# =========================
+import streamlit as st
+import google.generativeai as genai
+import os
+
+# --- CSS לעיצוב ---
+st.markdown("""
+<style>
+.ai-container {
+    direction: rtl;
+}
+
+.ai-input textarea {
+    background-color: white !important;
+    color: black !important;
+    border-radius: 10px !important;
+    border: 1px solid #ddd !important;
+}
+
+.ai-select div[data-baseweb="select"] {
+    background-color: white !important;
+    color: black !important;
+    border-radius: 10px !important;
+}
+
+.ai-card {
+    background-color: white;
+    color: black;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #e6e6e6;
+    margin-top: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+</style>
+""", unsafe_allow_html=True)
+
 st.markdown("<hr>", unsafe_allow_html=True)
+st.markdown("<div class='ai-container'>", unsafe_allow_html=True)
 st.markdown("### 🤖 אזור AI")
 
-selected = st.selectbox("בחרי פרויקט", projects["project_name"].tolist())
-question = st.text_area("שאלה חופשית")
+# --- בחירת פרויקט ---
+selected = st.selectbox(
+    "בחרי פרויקט",
+    projects["project_name"].tolist(),
+    key="ai_project"
+)
+
+# --- שאלה ---
+st.markdown("<div class='ai-input'>", unsafe_allow_html=True)
+question = st.text_area("שאלה חופשית", key="ai_question")
+st.markdown("</div>", unsafe_allow_html=True)
 
 if st.button("שלח ל-AI"):
 
     row = projects[projects["project_name"] == selected].iloc[0]
 
     prompt = f"""
-את עוזרת לניהול פרויקטים.
+את עוזרת חכמה לניהול פרויקטים.
 
-פרויקטים:
+נתוני פרויקטים:
 {projects.to_string(index=False)}
 
-פרויקט:
-{row['project_name']} - {row['status']}
+פרויקט נבחר:
+שם: {row['project_name']}
+סטטוס: {row['status']}
 
 שאלה:
 {question}
 
-ענה בעברית קצר וברור
+הנחיות:
+- עני בעברית
+- תהיי קצרה, ברורה ומעשית
+- אם יש סיכון בפרויקט – צייני אותו
+- אם יש המלצה לפעולה – כתבי אותה
 """
 
     genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-1.5-flash-latest")
 
     try:
-        result = model.generate_content(prompt).text
-    except Exception as e:
-        result = str(e)
+        response = model.generate_content(prompt)
 
-    st.markdown(f"<div class='card'>{result}</div>", unsafe_allow_html=True)
+        if hasattr(response, "text") and response.text:
+            result = response.text
+        elif response.candidates:
+            result = response.candidates[0].content.parts[0].text
+        else:
+            result = "לא התקבלה תשובה מה-AI"
+
+    except Exception:
+        result = "⚠️ שגיאה זמנית בחיבור ל-AI, נסי שוב בעוד רגע"
+
+    # --- תצוגת תשובה עם רקע לבן ---
+    st.markdown(f"<div class='ai-card'>{result}</div>", unsafe_allow_html=True)
+
+st.markdown("</div>", unsafe_allow_html=True)
     
