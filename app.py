@@ -18,7 +18,7 @@ st.markdown("""
         font-weight: 800;
     }
 
-    /* עיצוב המלבן המעוצב */
+    /* המלבן המעוצב */
     .fancy-container {
         background: linear-gradient(white, white) padding-box,
                     linear-gradient(90deg, #4facfe, #00f2fe) border-box;
@@ -93,16 +93,19 @@ with col_h2:
 with col_h3:
     st.markdown(f'<div style="margin-top:25px; text-align:right;"><h3>{greeting}, סיון!</h3><p style="color:gray;">{now.strftime("%d/%m/%Y | %H:%M")}</p></div>', unsafe_allow_html=True)
 
+# הוספת רווח משמעותי בין הפרופיל ל-KPI
+st.markdown("<div style='margin-bottom:50px;'></div>", unsafe_allow_html=True)
+
 # 4. KPI
 k1, k2, k3, k4 = st.columns(4)
 with k1: st.markdown(f"<div class='kpi-card' style='border-top:3px solid red;'><p style='color:gray; margin:0;'>בסיכון 🔴</p><b>{len(projects[projects['status']=='אדום'])}</b></div>", unsafe_allow_html=True)
 with k2: st.markdown(f"<div class='kpi-card' style='border-top:3px solid orange;'><p style='color:gray; margin:0;'>במעקב 🟡</p><b>{len(projects[projects['status']=='צהוב'])}</b></div>", unsafe_allow_html=True)
 with k3: st.markdown(f"<div class='kpi-card' style='border-top:3px solid green;'><p style='color:gray; margin:0;'>בתקין 🟢</p><b>{len(projects[projects['status']=='ירוק'])}</b></div>", unsafe_allow_html=True)
-with k4: st.markdown(f"<div class='kpi-card'><p style='color:gray; margin:0;'>סה\"כ</p><b>{len(projects)}</b></div>", unsafe_allow_html=True)
+with k4: st.markdown(f"<div class='kpi-card'><p style='color:gray; margin:0;'>סה\"כ פרויקטים</p><b>{len(projects)}</b></div>", unsafe_allow_html=True)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 5. פריסת המסגרות
+# 5. פריסה מרכזית
 col_main, col_side = st.columns([2, 1.2])
 
 with col_main:
@@ -115,13 +118,13 @@ with col_main:
         p_html += f'<div class="list-item"><span>{dot}</span><div style="flex-grow:1;"><b>{icon} {row["project_name"]}</b> <small style="color:gray;">| {row["project_type"]}</small></div></div>'
     st.markdown(f'<div class="fancy-container"><h3 style="margin-top:0;">📁 פרויקטים ומרכיבים</h3>{p_html}</div>', unsafe_allow_html=True)
 
-    # מלבן AI Oracle המעוצב (סגור הרמטית כ-HTML)
+    # מלבן AI Oracle - מסגרת שלמה לכל האלמנטים
     st.markdown('<div class="fancy-container"><h3 style="margin-top:0;">✨ AI Oracle</h3>', unsafe_allow_html=True)
-    c_ai1, c_ai2, c_ai3 = st.columns([1, 1.5, 0.5])
-    with c_ai1: st.selectbox("בחר פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
-    with c_ai2: st.text_input("שאלה לניתוח", placeholder="שאל משהו...", label_visibility="collapsed", key="ai_q")
-    with c_ai3: 
-        if st.button("🚀", use_container_width=True): st.info("מנתח...")
+    ca_1, ca_2, ca_3 = st.columns([1, 1.5, 0.5])
+    with ca_1: st.selectbox("בחר פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
+    with ca_2: st.text_input("שאלה", placeholder="שאל את ה-AI על הפרויקט...", label_visibility="collapsed", key="ai_q")
+    with ca_3: 
+        if st.button("🚀", use_container_width=True, key="ai_go"): st.info("מנתח...")
     st.markdown('</div>', unsafe_allow_html=True)
 
 with col_side:
@@ -130,25 +133,30 @@ with col_side:
     m_html = "".join([f'<div class="list-item">📌 <b>{r["meeting_title"]}</b></div>' for _, r in today_m.iterrows()])
     st.markdown(f'<div class="fancy-container"><h3 style="margin-top:0;">📅 פגישות היום</h3>{m_html if m_html else "אין פגישות"}</div>', unsafe_allow_html=True)
 
-    # מלבן תזכורות
+    # מלבן תזכורות - הכל נשאר בתוך ה-fancy-container
     st.markdown('<div class="fancy-container"><h3 style="margin-top:0;">🔔 תזכורות</h3>', unsafe_allow_html=True)
     today_r = st.session_state.reminders_live[pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today]
-    for _, row in today_r.iterrows():
-        st.markdown(f"""
-        <div class="list-item">
-            🔔 <div style="flex-grow:1;"><b>{row['reminder_text']}</b><br><small style="color:#4facfe;">{row['project_name']}</small></div>
-        </div>
-        """, unsafe_allow_html=True)
     
-    # הוספה מהירה
+    # רינדור רשימת התזכורות כ-HTML בתוך המלבן
+    rem_items_html = ""
+    for _, row in today_r.iterrows():
+        rem_items_html += f"""
+        <div class="list-item">
+            🔔 <div style="flex-grow:1;"><b>{row['reminder_text']}</b><br><small style="color:#4facfe;">פרויקט: {row['project_name']}</small></div>
+        </div>
+        """
+    st.markdown(rem_items_html, unsafe_allow_html=True)
+    
+    # כפתור ושורת הוספה (מחוץ ל-HTML הסטטי אבל בתוך ה-Container של המלבן)
     if st.button("➕ הוסף תזכורת", key="add_btn"): st.session_state.show_add = True
     
     if st.session_state.get("show_add"):
-        ca, cb, cc = st.columns([1.5, 1, 0.6])
-        with ca: nt = st.text_input("תזכורת", label_visibility="collapsed", key="nt")
-        with cb: np = st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="np")
-        with cc: 
-            if st.button("✅"):
+        # שורה דקה להוספה
+        ra, rb, rc = st.columns([1.5, 1, 0.6])
+        with ra: nt = st.text_input("תזכורת", label_visibility="collapsed", key="nt")
+        with rb: np = st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="np")
+        with rc: 
+            if st.button("✅", key="save_new"):
                 if nt:
                     new_r = {"reminder_text": nt, "project_name": np, "date": today}
                     st.session_state.reminders_live = pd.concat([st.session_state.reminders_live, pd.DataFrame([new_r])], ignore_index=True)
