@@ -121,30 +121,32 @@ with k4: st.markdown(f"<div class='kpi-card' style='border-top: 3px solid green;
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 5. פרויקטים
+# 5. פרויקטים - בתוך מלבן לבן מעוצב
 st.markdown("<div class='section-wrap'>", unsafe_allow_html=True)
 st.markdown("<h3>📁 פרויקטים</h3>", unsafe_allow_html=True)
 
-def type_icon(project_type):
-    if project_type == "פרויקט אקטיבי": return "🚀"
-    elif project_type == "חבילת עבודה": return "📦"
-    elif project_type == "תחזוקה": return "🔧"
-    else: return "📁"
+# המלבן הלבן המאחד (Container)
+with st.container(border=True):
+    def type_icon(project_type):
+        if project_type == "פרויקט אקטיבי": return "🚀"
+        elif project_type == "חבילת עבודה": return "📦"
+        elif project_type == "תחזוקה": return "🔧"
+        else: return "📁"
 
-for _, row in projects.iterrows():
-    icon = type_icon(row["project_type"])
-    dot = "🟢" if row["status"]=="ירוק" else "🟡" if row["status"]=="צהוב" else "🔴"
-    st.markdown(f"""
-    <div style="background:white; padding:8px 10px; border-radius:8px; margin-bottom:4px; border:1px solid #eee; direction:rtl; text-align:right; font-size:14px;">
-        {icon} {row['project_name']}
-        <span style="color:gray; font-size:12px;"> | {row['project_type']}</span>
-        <span style="float:left;">{dot}</span>
-    </div>
-    """, unsafe_allow_html=True)
+    for _, row in projects.iterrows():
+        icon = type_icon(row["project_type"])
+        dot = "🟢" if row["status"]=="ירוק" else "🟡" if row["status"]=="צהוב" else "🔴"
+        
+        # הרשומות בתוך המלבן
+        st.markdown(f"""
+        <div style="background:#ffffff; padding:10px; border-radius:8px; margin-bottom:6px; border:1px solid #f0f0f0; direction:rtl; text-align:right; font-size:14px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+            {icon} <b>{row['project_name']}</b>
+            <span style="color:gray; font-size:12px;"> | {row['project_type']}</span>
+            <span style="float:left;">{dot}</span>
+        </div>
+        """, unsafe_allow_html=True)
+
 st.markdown("</div>", unsafe_allow_html=True)
-
-
-
 
 # =========================
 # 🔥 חשוב – הגדרת עמודות (לא לגעת!)
