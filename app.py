@@ -12,7 +12,7 @@ def get_base64_image(path):
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS ממוקד: הסרת מסגרות KPI והגדרת גלילה קשיחה ---
+# --- 2. CSS גלובלי ---
 st.markdown("""
 <style>
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
@@ -33,13 +33,17 @@ st.markdown("""
         border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
     }
 
-    /* KPI - נקי בלי מסגרות, דק יותר */
+    /* KPI - רקע לבן, בלי מסגרת תכלת, עובי דק */
     .kpi-card {
-        background: transparent; padding: 5px; text-align: center;
+        background: white !important;
+        padding: 10px !important;
+        border-radius: 12px !important;
+        text-align: center !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+        border: none !important; /* הסרת המסגרת לחלוטין */
     }
-    .kpi-card b { font-size: 1.4rem; color: #1f2a44; }
 
-    /* מסגרות הדירוג הכלליות - עובי מוקטן */
+    /* מסגרות הקונטיינרים */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background: linear-gradient(white, white) padding-box,
                     linear-gradient(90deg, #4facfe, #00f2fe) border-box !important;
@@ -49,33 +53,37 @@ st.markdown("""
         background-color: white !important;
     }
 
-    /* תיקון גלילה: גובה שמתאים ל-5 תזכורות בערך */
-    .scroll-container {
-        max-height: 320px !important; /* גובה מותאם ל-5 רשומות */
-        overflow-y: auto !important;
-        padding-left: 10px; /* רווח לסרגל גלילה */
-        direction: rtl;
-    }
-
-    /* עיצוב רשומה */
-    .record-row {
-        background: #ffffff !important;
-        padding: 10px 15px !important;
-        border-radius: 10px !important;
-        margin-bottom: 8px !important;
-        border: 1px solid #edf2f7 !important;
-        border-right: 5px solid #4facfe !important;
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-    }
-
-    .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
-    .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
-
     h3, p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
 </style>
 """, unsafe_allow_html=True)
+
+# פונקציה ליצירת רשימה נגללת בתוך HTML כדי להבטיח גלילה
+def render_scrollable_list(df, type_tag="blue", is_reminder=False):
+    rows_html = ""
+    for _, row in df.iterrows():
+        label = row.get('project_name', 'כללי')
+        text = row['reminder_text'] if is_reminder else row['project_name']
+        tag_class = "tag-orange" if is_reminder else "tag-blue"
+        icon = "🔔" if is_reminder else "📂"
+        
+        rows_html += f"""
+        <div style="background:white; padding:10px 15px; border-radius:10px; margin-bottom:8px; 
+                    border:1px solid #edf2f7; border-right:5px solid #4facfe; display:flex; 
+                    justify-content:space-between; align-items:center; direction:rtl; font-family:sans-serif;">
+            <span style="font-size:0.95rem; color:#1f2a44;">{icon} {text}</span>
+            <span style="color:{'#d97706' if is_reminder else '#4facfe'}; font-size:0.8em; font-weight:600; 
+                        background:{'#fffbeb' if is_reminder else '#f0f9ff'}; padding:2px 8px; border-radius:5px;">
+                {label if is_reminder else row.get('project_type', 'פרויקט')}
+            </span>
+        </div>
+        """
+    
+    full_html = f"""
+    <div style="max-height:300px; overflow-y:auto; padding:5px; direction:rtl;">
+        {rows_html}
+    </div>
+    """
+    return st.components.v1.html(full_html, height=310, scrolling=False)
 
 # --- 3. טעינת נתונים ---
 try:
@@ -89,7 +97,7 @@ except:
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders.copy()
 if "show_add" not in st.session_state: st.session_state.show_add = False
 
-# --- 4. כותרת ופרופיל ---
+# --- 4. תצוגה עליונה ---
 st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
 
 img_b64 = get_base64_image("profile.png")
@@ -103,7 +111,7 @@ with p2:
 with p3:
     st.markdown(f"<div><h3>{greeting}, סיון!</h3><p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p></div>", unsafe_allow_html=True)
 
-# --- 5. שורת KPI נקייה ללא מסגרות ---
+# --- 5. שורת KPI - רקע לבן, בלי בורדר תכלת ---
 st.markdown("<br>", unsafe_allow_html=True)
 k1, k2, k3, k4 = st.columns(4)
 with k1: st.markdown(f'<div class="kpi-card">בסיכון 🔴<br><b>{len(projects[projects["status"]=="אדום"])}</b></div>', unsafe_allow_html=True)
@@ -116,15 +124,10 @@ st.markdown("<br>", unsafe_allow_html=True)
 col_right, col_left = st.columns([2, 1.2])
 
 with col_right:
-    # פרויקטים
     with st.container(border=True):
         st.markdown("### 📁 פרויקטים ומרכיבים")
-        st.markdown('<div class="scroll-container">', unsafe_allow_html=True)
-        for _, row in projects.iterrows():
-            st.markdown(f'<div class="record-row"><b>📂 {row["project_name"]}</b><span class="tag-blue">{row.get("project_type", "פרויקט")}</span></div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        render_scrollable_list(projects)
 
-    # AI Oracle
     with st.container(border=True):
         st.markdown("### ✨ AI Oracle")
         a1, a2 = st.columns([1, 2])
@@ -133,41 +136,36 @@ with col_right:
         st.button("שגר שאילתה 🚀", key="ai_btn", use_container_width=True)
 
 with col_left:
-    # פגישות
     with st.container(border=True):
         st.markdown("### 📅 פגישות היום")
         t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
         if t_m.empty: st.write("אין פגישות היום")
         else:
             for _, r in t_m.iterrows():
-                st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
+                st.markdown(f'<div style="background:white; padding:10px; border-radius:10px; border-right:5px solid #4facfe; margin-bottom:5px;">📌 {r["meeting_title"]}</div>', unsafe_allow_html=True)
 
-    # תזכורות עם גלילה מעל 5 רשומות
     with st.container(border=True):
         st.markdown("### 🔔 תזכורות")
-        st.markdown('<div class="scroll-container">', unsafe_allow_html=True)
         t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
-        for _, row in t_r.iterrows():
-            p_val = row.get('project_name', 'כללי')
-            st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{p_val}</span></div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        render_scrollable_list(t_r, is_reminder=True)
         
-        st.markdown("<br>", unsafe_allow_html=True)
         if not st.session_state.show_add:
             if st.button("➕ הוסף תזכורת", key="add_btn"):
                 st.session_state.show_add = True
                 st.rerun()
         else:
-            c1, c2, c3 = st.columns([1.5, 1.2, 0.4])
-            with c1: nt = st.text_input("משימה", label_visibility="collapsed", key="new_t")
-            with c2: np = st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="new_p")
-            with c3:
-                if st.button("✅", key="save_t"):
+            st.markdown("---")
+            nt = st.text_input("משימה", key="new_t")
+            np = st.selectbox("פרויקט", projects["project_name"].tolist(), key="new_p")
+            c1, c2 = st.columns(2)
+            with c1:
+                if st.button("✅ שמור"):
                     if nt:
                         new_r = pd.DataFrame([{"reminder_text": nt, "date": today, "project_name": np}])
                         st.session_state.rem_live = pd.concat([st.session_state.rem_live, new_r], ignore_index=True)
                         st.session_state.show_add = False
                         st.rerun()
-            if st.button("ביטול", key="cancel"):
-                st.session_state.show_add = False
-                st.rerun()
+            with c2:
+                if st.button("ביטול"):
+                    st.session_state.show_add = False
+                    st.rerun()
