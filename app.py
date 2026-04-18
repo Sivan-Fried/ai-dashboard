@@ -339,7 +339,7 @@ with col_left:
 # =========================
 import os
 import streamlit as st
-from google import genai
+import google.genai as genai
 
 st.markdown("<hr>", unsafe_allow_html=True)
 st.markdown("### 🤖 אזור AI")
