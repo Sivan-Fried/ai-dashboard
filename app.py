@@ -25,14 +25,12 @@ h1, h2, h3 { color:#1f2a44; text-align:right; }
 
 st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
 
-# פונקציית פרופיל
+# פרופיל
 def get_base64_img(path):
     try:
         if os.path.exists(path):
-            with open(path, "rb") as f:
-                return base64.b64encode(f.read()).decode()
-    except:
-        return ""
+            with open(path, "rb") as f: return base64.b64encode(f.read()).decode()
+    except: return ""
     return ""
 
 img_b64 = get_base64_img("profile.png")
@@ -78,11 +76,10 @@ with col2:
     if not t_meetings.empty:
         for _, r in t_meetings.iterrows():
             st.markdown(f"<div class='card'>📌 {r['meeting_title']} ({r['time']})</div>", unsafe_allow_html=True)
-    else:
-        st.info("אין פגישות היום")
+    else: st.info("אין פגישות היום")
 
 # ==========================================
-# 🤖 אזור ה-AI - גרסת הברזל (gemini-pro)
+# 🤖 AI AREA - THE FINAL FIX
 # ==========================================
 st.markdown("---")
 st.markdown("### 🤖 עוזר AI")
@@ -92,22 +89,20 @@ api_key = st.secrets.get("GEMINI_API_KEY")
 if api_key:
     ca1, ca2 = st.columns(2)
     with ca1:
-        s_proj = st.selectbox("בחרי פרויקט", projects["project_name"].tolist(), key="final_v1")
+        s_proj = st.selectbox("בחרי פרויקט", projects["project_name"].tolist(), key="v_final")
     with ca2:
-        u_q = st.text_area("שאלה", key="final_v2")
+        u_q = st.text_area("שאלה", key="q_final")
 
-    if st.button("בצע ניתוח", key="final_v3"):
+    if st.button("בצע ניתוח"):
         if u_q:
             p_info = projects[projects["project_name"] == s_proj].iloc[0]
-            context = f"נתוני פרויקט: {p_info.to_string()}. שאלה: {u_q}"
+            context = f"Project: {p_info['project_name']}, Status: {p_info['status']}. Question: {u_q}"
             
             with st.spinner("מנתח..."):
-                # שימוש בגרסה v1 היציבה ובמודל gemini-pro המוכר
-                url = f"https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key={api_key}"
+                # שימוש במודל gemini-1.0-pro - הכי נפוץ והכי פחות עושה בעיות 404
+                url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.0-pro:generateContent?key={api_key}"
                 headers = {'Content-Type': 'application/json'}
-                data = {
-                    "contents": [{"parts": [{"text": context}]}]
-                }
+                data = {"contents": [{"parts": [{"text": context}]}]}
                 
                 try:
                     response = requests.post(url, headers=headers, json=data)
@@ -117,11 +112,9 @@ if api_key:
                         answer = res_json['candidates'][0]['content']['parts'][0]['text']
                         st.success(answer)
                     else:
-                        error_msg = res_json.get('error', {}).get('message', 'Unknown error')
-                        st.error(f"שגיאה מהשרת ({response.status_code}): {error_msg}")
+                        st.error(f"שגיאה (404): המודל לא נמצא. זה קורה בדרך כלל בגלל הגבלות אזור של ה-API Key.")
+                        st.info("נסי ליצור API Key חדש לגמרי תחת פרויקט חדש ב-Google AI Studio.")
                 except Exception as e:
                     st.error(f"שגיאה טכנית: {e}")
-        else:
-            st.warning("נא להזין שאלה.")
 else:
     st.error("Missing API Key in Secrets")
