@@ -107,21 +107,25 @@ with k2: st.markdown(f"<div class='kpi-card' style='border-top:3px solid red;'><
 with k3: st.markdown(f"<div class='kpi-card' style='border-top:3px solid orange;'><p>במעקב 🟡</p><h4 style='color:orange;'>{len(projects[projects['status']=='צהוב'])}</h4></div>", unsafe_allow_html=True)
 with k4: st.markdown(f"<div class='kpi-card' style='border-top:3px solid green;'><p>לפי התכנון 🟢</p><h4 style='color:green;'>{len(projects[projects['status']=='ירוק'])}</h4></div>", unsafe_allow_html=True)
 
-# 5. פרויקטים - המבנה היציב
-st.markdown("<div class='section-wrap'><h3>📁 פרויקטים</h3>", unsafe_allow_html=True)
+# 5. פרויקטים - מבנה תיקייה מאוחד
+st.markdown("<div class='section-wrap'>", unsafe_allow_html=True)
 
-def type_icon(ptype):
-    icons = {"פרויקט אקטיבי": "🚀", "חבילת עבודה": "📦", "תחזוקה": "🔧"}
-    return icons.get(ptype, "📁")
+# המלבן הלבן המאחד שכולל את הכל
+with st.container(border=True):
+    # הכותרת עכשיו בתוך המלבן
+    st.markdown("<h3 style='margin-bottom:15px;'>📁 פרויקטים ומרכיבים</h3>", unsafe_allow_html=True)
+    
+    def type_icon(ptype):
+        icons = {"פרויקט אקטיבי": "🚀", "חבילת עבודה": "📦", "תחזוקה": "🔧"}
+        return icons.get(ptype, "📁")
 
-# שימוש ב-Container של Streamlit כ"מלבן מאחד"
-with st.container():
+    # הרשומות רצות בתוך אותו מלבן
     for _, row in projects.iterrows():
         icon = type_icon(row["project_type"])
         dot = "🟢" if row["status"]=="ירוק" else "🟡" if row["status"]=="צהוב" else "🔴"
         
         st.markdown(f"""
-        <div class="project-row">
+        <div style="background:#fcfcfc; padding:10px; border-radius:8px; margin-bottom:6px; border:1px solid #eee; direction:rtl; text-align:right;">
             <span style="float:left;">{dot}</span>
             <div>
                 {icon} <b>{row['project_name']}</b> 
@@ -129,6 +133,7 @@ with st.container():
             </div>
         </div>
         """, unsafe_allow_html=True)
+
 st.markdown("</div>", unsafe_allow_html=True)
 
 # 6. לו"ז ותזכורות
