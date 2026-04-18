@@ -192,94 +192,55 @@ with col_left:
                 """, unsafe_allow_html=True)
 
 # ==========================================
-# 🤖 AI AREA - גרסה מעודכנת ותואמת ענן
-# ==========================================
-
-# 1. שליפת ה-API KEY בצורה מאובטחת מה-Secrets של Streamlit
-if "GEMINI_API_KEY" in st.secrets:
-    api_key = st.secrets["GEMINI_API_KEY"]
-else:
-    api_key = None
-
-# בדיקה אם המפתח קיים
-if not api_key:
-    st.error("❌ Missing GEMINI_API_KEY in Streamlit Secrets. Please check your Dashboard.")
-    st.stop()
-
-# ==========================================
-# 🤖 AI AREA - גרסה סופית ויציבה (Fix 404 & Duplicate)
+# 🤖 AI AREA - גרסה סופית ומוחלטת
 # ==========================================
 
 st.markdown("---")
 st.markdown("### 🤖 עוזר AI לניהול פרויקטים")
 
-# 1. שליפת ה-API KEY מה-Secrets
-if "GEMINI_API_KEY" in st.secrets:
-    api_key = st.secrets["GEMINI_API_KEY"]
-else:
-    api_key = None
+# 1. בדיקת API KEY
+api_key = st.secrets.get("GEMINI_API_KEY")
 
 if not api_key:
-    st.error("❌ חסר מפתח API (GEMINI_API_KEY) ב-Secrets.")
+    st.error("❌ חסר מפתח API ב-Secrets.")
 else:
-    # 2. אתחול הלקוח עם הגדרת גרסה יציבה (v1) למניעת שגיאת 404
     try:
-        client = genai.Client(
-            api_key=api_key,
-            http_options={'api_version': 'v1'}
-        )
-        # שימוש במודל בפורמט הנקי שלו
-        model_id = "gemini-1.5-flash"
+        # 2. אתחול לקוח בגרסה יציבה
+        client = genai.Client(api_key=api_key, http_options={'api_version': 'v1'})
         
-        ai_col1, ai_col2 = st.columns(2)
+        col_ai_1, col_ai_2 = st.columns(2)
 
-        with ai_col1:
-            if not projects.empty:
+        with col_ai_1:
+            if 'projects' in locals() and not projects.empty:
                 selected_project = st.selectbox(
-                    "בחרי פרויקט לניתוח",
+                    "בחרי פרויקט", 
                     projects["project_name"].tolist(),
-                    key="ai_project_selector_unique" # מפתח ייחודי
+                    key="unique_select_v100" # מפתח ייחודי
                 )
-            else:
-                st.warning("לא נמצאו פרויקטים בדאטה.")
+        
+        with col_ai_2:
+            question = st.text_area("שאלה ל-AI", key="unique_text_v100") # מפתח ייחודי
 
-        with ai_col2:
-            question = st.text_area(
-                "מה תרצי לדעת על הפרויקט?",
-                placeholder="למשל: תן לי סיכום מצב ומה הצעד הבא",
-                key="ai_question_input_unique" # מפתח ייחודי
-            )
-
-        # 3. כפתור שליחה עם מפתח ייחודי
-        if st.button("שלח ל-AI", key="ai_final_submit_btn"):
-            if not question.strip():
-                st.warning("אנא הזיני שאלה לפני השליחה.")
-            else:
+        # 3. הכפתור הבעייתי - הוספתי לו מפתח שחייב לעבוד
+        if st.button("שלח ל-AI", key="super_unique_ai_button_2026"):
+            if question:
                 try:
-                    # שליפת נתוני הפרויקט הנבחר
                     row = projects[projects["project_name"] == selected_project].iloc[0]
+                    prompt = f"פרויקט: {row['project_name']}, סטטוס: {row['status']}. שאלה: {question}"
                     
-                    # בניית הפרומפט
-                    prompt = f"""
-את עוזרת מקצועית לניהול פרויקטים.
-נתוני הפרויקט הנוכחי:
-שם הפרויקט: {row['project_name']}
-סטטוס: {row['status']}
-
-השאלה של המנהלת:
-{question}
-
-עני בעברית, בצורה מקצועית, קצרה ועניינית.
-"""
-
-                    with st.spinner("ה-AI מנתח את הנתונים..."):
-                        # הרצת המודל
+                    with st.spinner("מנתח..."):
                         response = client.models.generate_content(
-                            model=model_id,
+                            model="gemini-1.5-flash",
                             contents=prompt
                         )
-                        result = response.text
+                        st.info(response.text)
+                except Exception as e:
+                    st.error(f"שגיאה: {e}")
+            else:
+                st.warning("נא לכתוב שאלה.")
 
+    except Exception as e:
+        st.error(f"שגיאה באתחול: {e}")
                     # הצגת התוצאה
                     st.markdown(f"<div class='card'>{result}</div>", unsafe_allow_html=True)
 
