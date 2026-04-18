@@ -5,14 +5,14 @@ import base64
 import datetime
 from zoneinfo import ZoneInfo
 
-# 1. הגדרות ועיצוב (חזרה למבנה היציב + סטייל האורקל ל-AI)
-st.set_page_config(layout="wide", page_title="Stable Project Dashboard")
+# 1. הגדרות ועיצוב (חזרה למקור + שדות לבנים באזור ה-AI)
+st.set_page_config(layout="wide", page_title="Dashboard")
 
 st.markdown("""
 <style>
     body, .stApp { background-color: #f2f4f7; }
     
-    /* כרטיסייה סטנדרטית לשאר האזורים */
+    /* כרטיסיות רגילות */
     .card {
         background:white; padding:15px; border-radius:10px;
         margin-bottom:10px; border:1px solid #eee;
@@ -20,7 +20,7 @@ st.markdown("""
         box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
     
-    /* עיצוב האורקל הדיגיטלי - השינוי היחיד */
+    /* אזור האורקל - AI */
     .oracle-box {
         background: rgba(255, 255, 255, 0.85);
         backdrop-filter: blur(12px);
@@ -33,12 +33,22 @@ st.markdown("""
         text-align: right;
         margin-top: 30px;
     }
+
+    /* תיקון: החזרת שדות הקלט ללבן בתוך אזור ה-AI */
+    .oracle-box div[data-baseweb="select"] > div, 
+    .oracle-box input {
+        background-color: white !important;
+        border: 1px solid #ddd !important;
+    }
     
     h1, h2, h3 { color:#1f2a44; text-align:right; direction:rtl; }
 </style>
 """, unsafe_allow_html=True)
 
-# 2. פונקציית תמונה ופרופיל (שמירה על פוקוס ומסגרת)
+# כותרת ראשית (החזרתי!)
+st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
+
+# 2. פרופיל, ברכה, תאריך ושעה (החזרתי הכל למקום!)
 def get_base64_image(path):
     try:
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
@@ -50,7 +60,13 @@ greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים
 
 l, c, r = st.columns([1.2, 1, 1.2])
 with l:
-    st.markdown(f"<div style='direction:rtl; text-align:right; margin-top:40px;'><h3>{greeting}, סיון!</h3><p style='color:gray;'>{now.strftime('%d/%m/%Y')}</p></div>", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div style="direction:rtl; text-align:right; margin-top:40px; color:#1f2a44;">
+        <div style="font-size:22px;">{greeting}, סיון!</div>
+        <div style="font-size:13px; color:gray;">{now.strftime('%d/%m/%Y %H:%M')}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
 with c:
     if img_base64:
         st.markdown(f"""
@@ -74,14 +90,14 @@ except Exception as e:
     st.error(f"שגיאה בטעינה: {e}")
     st.stop()
 
-# 4. KPI 
+# 4. KPI
 k1, k2, k3, k4 = st.columns(4)
 with k1: st.markdown(f"<div class='card'><b>סה״כ פרויקטים</b><br><h2>{len(projects)}</h2></div>", unsafe_allow_html=True)
 with k2: st.markdown(f"<div class='card' style='border-top: 3px solid red;'><b>בסיכון 🔴</b><br><h2 style='color:red;'>{len(projects[projects['status']=='אדום'])}</h2></div>", unsafe_allow_html=True)
 with k3: st.markdown(f"<div class='card' style='border-top: 3px solid orange;'><b>במעקב 🟡</b><br><h2 style='color:orange;'>{len(projects[projects['status']=='צהוב'])}</h2></div>", unsafe_allow_html=True)
 with k4: st.markdown(f"<div class='card' style='border-top: 3px solid green;'><b>תקין 🟢</b><br><h2 style='color:green;'>{len(projects[projects['status']=='ירוק'])}</h2></div>", unsafe_allow_html=True)
 
-# 5. גוף הדשבורד (פרויקטים בימין, לו"ז ותזכורות בשמאל)
+# 5. פריסת פרויקטים ולו"ז
 col_left, col_right = st.columns([1.2, 1])
 
 with col_right:
@@ -104,33 +120,33 @@ with col_left:
     
     if st.button("➕ הוספת תזכורת"): st.session_state.add_mode = True
     if st.session_state.get("add_mode"):
-        with st.form("reminder_form"):
-            t = st.text_input("מה להוסיף?")
+        with st.form("r_form"):
+            t = st.text_input("תזכורת חדשה:")
             if st.form_submit_button("שמור"):
                 st.session_state.reminders_live = pd.concat([st.session_state.reminders_live, pd.DataFrame([{"reminder_text": t, "date": today}])], ignore_index=True)
                 st.session_state.add_mode = False
                 st.rerun()
 
-# 6. אזור ה-AI המעוצב כאורקל
+# 6. אזור ה-AI המעוצב (עם שדות לבנים כפי שביקשת)
 st.markdown("---")
 st.markdown("<div class='oracle-box'>", unsafe_allow_html=True)
-st.markdown("<h3 style='margin-top:0; color:#5056af; display:flex; align-items:center; gap:10px;'>✨ האורקל הדיגיטלי</h3>", unsafe_allow_html=True)
+st.markdown("<h3 style='margin-top:0; color:#5056af;'>✨ האורקל הדיגיטלי</h3>", unsafe_allow_html=True)
 
 api_key = st.secrets.get("GEMINI_API_KEY")
-c_ai1, c_ai2 = st.columns([1, 2])
-with c_ai1:
-    s_p = st.selectbox("בחר פרויקט", projects["project_name"].tolist(), key="ai_proj_select")
-with c_ai2:
-    u_q = st.text_input("שאלי אותי כל דבר על הפרויקטים שלך...", key="ai_query_input")
+ca1, ca2 = st.columns([1, 2])
+with ca1:
+    s_p = st.selectbox("בחר פרויקט לניתוח", projects["project_name"].tolist(), key="final_p")
+with ca2:
+    u_q = st.text_input("שאלי אותי כל דבר על הפרויקטים שלך...", key="final_q")
 
-if st.button("שאל את האורקל"):
+if st.button("בצע ניתוח AI"):
     if u_q:
-        with st.spinner("האורקל חושב..."):
+        with st.spinner("האורקל מנתח..."):
             url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key={api_key}"
             try:
                 res = requests.post(url, json={"contents": [{"parts": [{"text": f"Project: {s_p}. Question: {u_q}"}]}]}, timeout=10)
                 ans = res.json()['candidates'][0]['content']['parts'][0]['text']
-                st.markdown(f"<div style='background:rgba(80,86,175,0.05); padding:20px; border-radius:15px; border:1px solid #d0d3ff; margin-top:15px; color:#1e1b4b;'>{ans}</div>", unsafe_allow_html=True)
-            except: st.error("חלה שגיאה בחיבור לאורקל.")
+                st.markdown(f"<div style='background:rgba(80,86,175,0.05); padding:15px; border-radius:15px; border:1px solid #d0d3ff; margin-top:10px;'>{ans}</div>", unsafe_allow_html=True)
+            except: st.error("שגיאה")
 
 st.markdown("</div>", unsafe_allow_html=True)
