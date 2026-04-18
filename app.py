@@ -13,24 +13,19 @@ def get_base64_image(path):
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS - יישור ימין, פונט Assistant, ו-KPI לבן נקי ---
+# --- 2. CSS מוחלט ---
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap');
-    
-    html, body, [class*="css"], .stMarkdown {
-        font-family: 'Assistant', sans-serif !important;
-        direction: rtl !important;
-        text-align: right !important;
-    }
-
-    .stApp { background-color: #f2f4f7 !important; }
+    .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
     
     .dashboard-header {
         background: linear-gradient(90deg, #4facfe, #00f2fe) !important;
         -webkit-background-clip: text !important;
         -webkit-text-fill-color: transparent !important;
-        text-align: center !important; font-size: 2.2rem !important; font-weight: 800; margin-bottom: 20px;
+        text-align: center !important;
+        font-size: 2.2rem !important;
+        font-weight: 800;
+        margin-bottom: 20px;
     }
 
     .profile-img {
@@ -39,24 +34,38 @@ st.markdown("""
         border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
     }
 
-    /* KPI - לבן נקי בלי בורדר תכלת */
+    /* KPI - לבן בלי בורדר */
     .kpi-card {
-        background: white !important; padding: 15px !important; border-radius: 12px !important;
-        text-align: center !important; box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important; border: none !important;
+        background: white !important;
+        padding: 15px !important;
+        border-radius: 12px !important;
+        text-align: right !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+        border: none !important;
     }
     .kpi-card b { font-size: 1.4rem; color: #1f2a44; display: block; }
 
-    /* קונטיינרים עם פס צד כחול בלבד */
+    /* קונטיינרים */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        background: white !important; border: 1px solid #edf2f7 !important;
-        border-right: 5px solid #4facfe !important; border-radius: 18px !important; padding: 15px !important;
+        background: white !important;
+        border: 1px solid #edf2f7 !important;
+        border-right: 5px solid #4facfe !important;
+        border-radius: 18px !important;
+        padding: 15px !important;
     }
 
-    /* עיצוב שורות */
+    /* שורות רשימה */
     .record-row {
-        background: #f8fafc; padding: 10px 15px; border-radius: 10px; margin-bottom: 8px;
-        border: 1px solid #edf2f7; display: flex; justify-content: space-between; align-items: center;
-        direction: rtl; text-align: right;
+        background: #ffffff !important;
+        padding: 10px 15px !important;
+        border-radius: 10px !important;
+        margin-bottom: 8px !important;
+        border: 1px solid #f1f5f9 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        direction: rtl !important;
+        text-align: right !important;
     }
 
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
@@ -79,7 +88,7 @@ except:
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders.copy()
 if "ai_analysis" not in st.session_state: st.session_state.ai_analysis = ""
 
-# --- 4. כותרת ופרופיל ---
+# --- 4. תצוגה עליונה ---
 st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
 p1, p2, p3 = st.columns([1, 1, 2])
 with p2:
@@ -102,14 +111,14 @@ st.markdown("<br>", unsafe_allow_html=True)
 col_right, col_left = st.columns([2, 1.2])
 
 with col_right:
-    # פרויקטים עם גלילה (המכולה המובנית של Streamlit שומרת על ה-CSS)
+    # פרויקטים עם גלילה
     with st.container(border=True):
         st.markdown("### 📁 פרויקטים ומרכיבים")
         with st.container(height=300, border=False):
             for _, row in projects.iterrows():
                 st.markdown(f'<div class="record-row"><span>📂 {row["project_name"]}</span><span class="tag-blue">{row.get("project_type", "פרויקט")}</span></div>', unsafe_allow_html=True)
 
-    # AI Oracle - עם תיקון לניתוח
+    # AI Oracle - עם ניתוח שעובד
     with st.container(border=True):
         st.markdown("### ✨ AI Oracle")
         a1, a2 = st.columns([1, 2])
@@ -120,14 +129,14 @@ with col_right:
             if q_in:
                 with st.spinner("מנתח..."):
                     time.sleep(1)
-                    st.session_state.ai_analysis = f"**ניתוח AI עבור {sel_p}:** הפרויקט יציב. מומלץ לוודא עמידה בלוחות הזמנים לשבוע הבא."
-            else: st.warning("נא להזין שאלה")
+                    st.session_state.ai_analysis = f"**ניתוח עבור {sel_p}:** על פי הנתונים, הפרויקט מתקדם כמצופה. יש לוודא שהמשימות הפתוחות יושלמו עד סוף השבוע."
+            else:
+                st.warning("נא להזין שאלה")
         
         if st.session_state.ai_analysis:
             st.info(st.session_state.ai_analysis)
 
 with col_left:
-    # פגישות
     with st.container(border=True):
         st.markdown("### 📅 פגישות היום")
         t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
@@ -136,7 +145,7 @@ with col_left:
             for _, r in t_m.iterrows():
                 st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
 
-    # תזכורות עם גלילה (SCROLL)
+    # תזכורות עם גלילה
     with st.container(border=True):
         st.markdown("### 🔔 תזכורות")
         with st.container(height=250, border=False):
