@@ -79,7 +79,7 @@ with col2:
     else: st.info("אין פגישות היום")
 
 # ==========================================
-# 🤖 AI AREA - THE FINAL FIX
+# 🤖 אזור ה-AI המעודכן - בדיקה ישירה
 # ==========================================
 st.markdown("---")
 st.markdown("### 🤖 עוזר AI")
@@ -87,34 +87,30 @@ st.markdown("### 🤖 עוזר AI")
 api_key = st.secrets.get("GEMINI_API_KEY")
 
 if api_key:
-    ca1, ca2 = st.columns(2)
-    with ca1:
-        s_proj = st.selectbox("בחרי פרויקט", projects["project_name"].tolist(), key="v_final")
-    with ca2:
-        u_q = st.text_area("שאלה", key="q_final")
-
-    if st.button("בצע ניתוח"):
+    u_q = st.text_area("שאלי את ה-AI על הפרויקטים שלך:", key="ai_input")
+    
+    if st.button("בצע ניתוח", key="analyze_btn"):
         if u_q:
-            p_info = projects[projects["project_name"] == s_proj].iloc[0]
-            context = f"Project: {p_info['project_name']}, Status: {p_info['status']}. Question: {u_q}"
-            
             with st.spinner("מנתח..."):
-                # שימוש במודל gemini-1.0-pro - הכי נפוץ והכי פחות עושה בעיות 404
-                url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.0-pro:generateContent?key={api_key}"
-                headers = {'Content-Type': 'application/json'}
-                data = {"contents": [{"parts": [{"text": context}]}]}
+                # שימוש בשם המודל העדכני ביותר ל-2026
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+                
+                data = {
+                    "contents": [{"parts": [{"text": f"נתוני פרויקטים: {projects.to_string()}. שאלה: {u_q}"}]}]
+                }
                 
                 try:
-                    response = requests.post(url, headers=headers, json=data)
+                    response = requests.post(url, json=data)
                     res_json = response.json()
                     
                     if response.status_code == 200:
                         answer = res_json['candidates'][0]['content']['parts'][0]['text']
                         st.success(answer)
                     else:
-                        st.error(f"שגיאה (404): המודל לא נמצא. זה קורה בדרך כלל בגלל הגבלות אזור של ה-API Key.")
-                        st.info("נסי ליצור API Key חדש לגמרי תחת פרויקט חדש ב-Google AI Studio.")
+                        st.error(f"שגיאה {response.status_code}: {res_json.get('error', {}).get('message', 'Unknown error')}")
                 except Exception as e:
                     st.error(f"שגיאה טכנית: {e}")
+        else:
+            st.warning("נא להזין שאלה.")
 else:
     st.error("Missing API Key in Secrets")
