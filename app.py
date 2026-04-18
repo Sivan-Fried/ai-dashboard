@@ -334,15 +334,57 @@ with col_left:
 # =========================
 # AI
 # =========================
+# =========================
+# 🤖 AI AREA (STABLE)
+# =========================
+import streamlit as st
 import google.generativeai as genai
 import os
-import streamlit as st
 
+# ---------- עיצוב (רקע לבן קבוע) ----------
+st.markdown("""
+<style>
+.ai-card {
+    background-color: white !important;
+    color: #111 !important;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #e6e6e6;
+}
+
+textarea, input {
+    background-color: white !important;
+    color: black !important;
+}
+
+div[data-baseweb="select"] > div {
+    background-color: white !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("<hr>", unsafe_allow_html=True)
+st.markdown("### 🤖 אזור AI")
+
+# ---------- בחירת פרויקט ----------
+selected = st.selectbox(
+    "בחרי פרויקט",
+    projects["project_name"].tolist()
+)
+
+# ---------- שאלה ----------
+question = st.text_area("שאלה חופשית")
+
+# ---------- AI setup ----------
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-
 model = genai.GenerativeModel("gemini-1.5-flash")
 
+# ---------- כפתור ----------
 if st.button("שלח ל-AI"):
+
+    if not question.strip():
+        st.warning("אנא הזיני שאלה")
+        st.stop()
 
     row = projects[projects["project_name"] == selected].iloc[0]
 
@@ -354,9 +396,17 @@ if st.button("שלח ל-AI"):
 
 שאלה:
 {question}
+
+עני בעברית קצר וברור.
 """
 
-    response = model.generate_content(prompt)
-    result = response.text
+    try:
+        response = model.generate_content(prompt)
+        result = response.text
+    except Exception as e:
+        result = f"⚠️ שגיאה: {str(e)}"
 
-    st.markdown(f"<div class='ai-card'>{result}</div>", unsafe_allow_html=True)
+    st.markdown(
+        f"<div class='ai-card'>{result}</div>",
+        unsafe_allow_html=True
+    )
