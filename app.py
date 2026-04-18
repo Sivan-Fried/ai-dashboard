@@ -4,7 +4,7 @@ import base64
 import datetime
 from zoneinfo import ZoneInfo
 
-# 1. הגדרות עמוד ועיצוב CSS - הגרסה היציבה והמעוצבת
+# 1. הגדרות עמוד ועיצוב CSS
 st.set_page_config(layout="wide", page_title="ניהול פרויקטים - לוח בקרה")
 
 st.markdown("""
@@ -18,8 +18,8 @@ st.markdown("""
         font-weight: 800;
     }
 
-    /* המלבן המעוצב שמתאים את עצמו לתוכן */
-    .dynamic-fancy-container {
+    /* המלבן המעוצב - המעטפת החיצונית */
+    .fancy-border-box {
         background: linear-gradient(white, white) padding-box,
                     linear-gradient(90deg, #4facfe, #00f2fe) border-box;
         border: 2px solid transparent;
@@ -27,26 +27,9 @@ st.markdown("""
         padding: 20px;
         margin-bottom: 25px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        width: 100%;
         direction: rtl;
         text-align: right;
     }
-
-    /* KPI קומפקטי */
-    .kpi-card {
-        background: white;
-        padding: 10px;
-        border-radius: 10px;
-        text-align: center;
-        border: 1px solid #e0e6ed;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        height: 85px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-    .kpi-title { color: gray; font-size: 13px; margin: 0; }
-    .kpi-value { font-size: 22px; font-weight: bold; margin: 0; }
 
     /* שורת פרויקט מעוצבת */
     .project-item {
@@ -61,15 +44,25 @@ st.markdown("""
         direction: rtl;
     }
 
-    /* כרטיסי פגישות ותזכורות - גרסה יציבה */
+    .kpi-card {
+        background: white;
+        padding: 10px;
+        border-radius: 10px;
+        text-align: center;
+        border: 1px solid #e0e6ed;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        height: 85px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
     .card-stable {
         background: white; 
         padding: 15px; 
         border-radius: 10px;
         margin-bottom: 10px; 
         border: 1px solid #eee;
-        direction: rtl; 
-        text-align: right;
         box-shadow: 0 2px 5px rgba(0,0,0,0.04);
     }
 
@@ -80,7 +73,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 2. חלק עליון: פרופיל וברכה (פוקוס ומיקום יציבים)
+# 2. חלק עליון: פרופיל וברכה
 def get_base64_image(path):
     try:
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
@@ -95,19 +88,9 @@ st.markdown("<div style='text-align:center; margin-bottom:20px;'><h2 style='font
 col_spacer_r, col_img, col_info, col_spacer_l = st.columns([1, 1, 2, 0.5])
 with col_img:
     if img_base64:
-        st.markdown(f'''
-        <div style="display:flex; justify-content:center;">
-            <div style="width:130px; height:130px; border-radius:50%; overflow:hidden; border:5px solid white; box-shadow:0 10px 25px rgba(0,0,0,0.1);">
-                <img src="data:image/png;base64,{img_base64}" style="width:100%; height:100%; object-fit: cover; object-position: center top;">
-            </div>
-        </div>''', unsafe_allow_html=True)
-
+        st.markdown(f'<div style="display:flex; justify-content:center;"><div style="width:130px; height:130px; border-radius:50%; overflow:hidden; border:5px solid white; box-shadow:0 10px 25px rgba(0,0,0,0.1);"><img src="data:image/png;base64,{img_base64}" style="width:100%; height:100%; object-fit: cover; object-position: center top;"></div></div>', unsafe_allow_html=True)
 with col_info:
-    st.markdown(f'''
-    <div style="direction:rtl; text-align:right; margin-top:30px;">
-        <div style="font-size:24px; font-weight:bold; color:#1f2a44;">{greeting}, סיון!</div>
-        <div style="font-size:14px; color:gray; margin-top:5px;">{now.strftime("%d/%m/%Y | %H:%M")}</div>
-    </div>''', unsafe_allow_html=True)
+    st.markdown(f'<div style="direction:rtl; text-align:right; margin-top:30px;"><div style="font-size:24px; font-weight:bold; color:#1f2a44;">{greeting}, סיון!</div><div style="font-size:14px; color:gray; margin-top:5px;">{now.strftime("%d/%m/%Y | %H:%M")}</div></div>', unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -118,27 +101,30 @@ try:
     reminders = pd.read_excel("reminders.xlsx")
     today = pd.Timestamp.today().date()
 except:
-    st.error("שגיאה בטעינת הקבצים"); st.stop()
+    st.error("וודאי שקובצי האקסל קיימים"); st.stop()
 
 if "reminders_live" not in st.session_state: 
     st.session_state.reminders_live = reminders.copy()
 
-# 4. KPI - סדר יציב
+# 4. KPI
 k1, k2, k3, k4 = st.columns(4)
-with k1: st.markdown(f"<div class='kpi-card' style='border-top:3px solid red;'><p class='kpi-title'>בסיכון 🔴</p><p class='kpi-value' style='color:red;'>{len(projects[projects['status']=='אדום'])}</p></div>", unsafe_allow_html=True)
-with k2: st.markdown(f"<div class='kpi-card' style='border-top:3px solid orange;'><p class='kpi-title'>במעקב 🟡</p><p class='kpi-value' style='color:orange;'>{len(projects[projects['status']=='צהוב'])}</p></div>", unsafe_allow_html=True)
-with k3: st.markdown(f"<div class='kpi-card' style='border-top:3px solid green;'><p class='kpi-title'>בתקין 🟢</p><p class='kpi-value' style='color:green;'>{len(projects[projects['status']=='ירוק'])}</p></div>", unsafe_allow_html=True)
-with k4: st.markdown(f"<div class='kpi-card'><p class='kpi-title'>סה\"כ פרויקטים</p><p class='kpi-value'>{len(projects)}</p></div>", unsafe_allow_html=True)
+with k1: st.markdown(f"<div class='kpi-card' style='border-top:3px solid red;'><p style='color:gray; font-size:13px; margin:0;'>בסיכון 🔴</p><p style='font-size:22px; font-weight:bold; margin:0; color:red;'>{len(projects[projects['status']=='אדום'])}</p></div>", unsafe_allow_html=True)
+with k2: st.markdown(f"<div class='kpi-card' style='border-top:3px solid orange;'><p style='color:gray; font-size:13px; margin:0;'>במעקב 🟡</p><p style='font-size:22px; font-weight:bold; margin:0; color:orange;'>{len(projects[projects['status']=='צהוב'])}</p></div>", unsafe_allow_html=True)
+with k3: st.markdown(f"<div class='kpi-card' style='border-top:3px solid green;'><p style='color:gray; font-size:13px; margin:0;'>בתקין 🟢</p><p style='font-size:22px; font-weight:bold; margin:0; color:green;'>{len(projects[projects['status']=='ירוק'])}</p></div>", unsafe_allow_html=True)
+with k4: st.markdown(f"<div class='kpi-card'><p style='color:gray; font-size:13px; margin:0;'>סה\"כ פרויקטים</p><p style='font-size:22px; font-weight:bold; margin:0;'>{len(projects)}</p></div>", unsafe_allow_html=True)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 5. בנייה מחדש של אזור הפרויקטים בתוך המלבן המעוצב
+# 5. אזור הפרויקטים - בנייה משולבת ומאובטחת
 icons = {"פרויקט אקטיבי": "🚀", "חבילת עבודה": "📦", "תחזוקה": "🔧"}
-project_items_html = ""
+project_list_html = ""
+
 for _, row in projects.iterrows():
     icon = icons.get(row['project_type'], "📁")
     dot = "🟢" if row["status"]=="ירוק" else "🟡" if row["status"]=="צהוב" else "🔴"
-    project_items_html += f"""
+    
+    # בניית כל שורה בנפרד
+    project_list_html += f"""
     <div class="project-item">
         <span style="font-size:18px;">{dot}</span>
         <div style="text-align:right; flex-grow:1; margin-right:15px;">
@@ -146,15 +132,15 @@ for _, row in projects.iterrows():
         </div>
     </div>"""
 
-# הזרקה של כל הבלוק המעוצב בבת אחת
+# הזרקת הכל למלבן המעוצב
 st.markdown(f"""
-<div class="dynamic-fancy-container">
-    <h3 style="margin-bottom:15px; text-align:right; color:#1f2a44;">📁 פרויקטים ומרכיבים</h3>
-    {project_items_html}
+<div class="fancy-border-box">
+    <h3 style="margin-bottom:15px; color:#1f2a44;">📁 פרויקטים ומרכיבים</h3>
+    {project_list_html}
 </div>
 """, unsafe_allow_html=True)
 
-# 6. לו"ז ותזכורות - החזרה לגרסה היציבה
+# 6. לו"ז ותזכורות (הגרסה היציבה)
 col_r, col_l = st.columns(2)
 with col_r:
     st.markdown("### 📅 פגישות היום")
