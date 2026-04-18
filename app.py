@@ -12,13 +12,11 @@ def get_base64_image(path):
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS מוחלט (בלי פשרות) ---
-st.html("""
+# --- 2. CSS אבסולוטי לעיצוב הרשומות והמסגרות ---
+st.markdown("""
 <style>
-    /* רקע כללי ויישור לימין */
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
     
-    /* כותרת גרדיאנט */
     .dashboard-header {
         background: linear-gradient(90deg, #4facfe, #00f2fe) !important;
         -webkit-background-clip: text !important;
@@ -29,7 +27,7 @@ st.html("""
         margin-bottom: 25px !important;
     }
 
-    /* מסגרת גרדיאנט לכל הקונטיינרים - כפייה על האלמנט של Streamlit */
+    /* מסגרת גרדיאנט לקונטיינרים */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background: linear-gradient(white, white) padding-box,
                     linear-gradient(90deg, #4facfe, #00f2fe) border-box !important;
@@ -40,12 +38,12 @@ st.html("""
         box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
     }
 
-    /* עיצוב רשומות - מבנה ה"פס" המקורי */
+    /* עיצוב רשומות - שם מימין, תגית משמאל */
     .record-row {
         background: #ffffff !important;
-        padding: 12px 15px !important;
+        padding: 10px 15px !important;
         border-radius: 10px !important;
-        margin-bottom: 10px !important;
+        margin-bottom: 8px !important;
         border: 1px solid #edf2f7 !important;
         border-right: 6px solid #4facfe !important;
         display: flex !important;
@@ -54,36 +52,36 @@ st.html("""
         direction: rtl !important;
     }
 
-    .project-type-tag {
+    .project-tag {
         color: #4facfe;
-        font-size: 0.85em;
+        font-size: 0.8em;
         font-weight: 600;
         background: #f0f9ff;
-        padding: 2px 10px;
-        border-radius: 6px;
+        padding: 2px 8px;
+        border-radius: 5px;
     }
 
-    /* יישור טקסט מערכתי */
+    /* תיקון יישור לכל הממשק */
     h3, p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
+    
+    /* הוספת תזכורת בשורה אחת */
+    .inline-form { display: flex; gap: 10px; align-items: flex-end; }
 </style>
-""")
+""", unsafe_allow_html=True)
 
 # --- 3. טעינת נתונים ---
 try:
     projects = pd.read_excel("my_projects.xlsx")
     meetings = pd.read_excel("meetings.xlsx")
-    reminders = pd.read_excel("reminders.xlsx")
+    reminders = pd.read_excel("reminders.xlsx") # וודאי שיש כאן עמודה בשם 'project' או 'related_project'
     today = pd.Timestamp.today().date()
-except:
-    st.error("Missing Files (xlsx)"); st.stop()
+except Exception as e:
+    st.error(f"Error loading files: {e}"); st.stop()
 
-# ניהול סטייט לתזכורות
 if "rem_live" not in st.session_state:
-    df_rem = reminders.copy()
-    if 'related_project' not in df_rem.columns: df_rem['related_project'] = "כללי"
-    st.session_state.rem_live = df_rem
+    st.session_state.rem_live = reminders.copy()
 
-# --- 4. כותרת ופרופיל ---
+# --- 4. תצוגה עליונה ---
 st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
 
 img_b64 = get_base64_image("profile.png")
@@ -97,19 +95,19 @@ with p2:
 with p3:
     st.markdown(f"<div><h3>{greeting}, סיון!</h3><p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p></div>", unsafe_allow_html=True)
 
-# --- 5. גוף הדשבורד ---
+# --- 5. דשבורד מרכזי ---
 st.markdown("<br>", unsafe_allow_html=True)
 col_right, col_left = st.columns([2, 1.2])
 
 with col_right:
-    # פרויקטים ומרכיבים
+    # פרויקטים
     with st.container(border=True):
         st.markdown("### 📁 פרויקטים ומרכיבים")
         for _, row in projects.iterrows():
             st.markdown(f"""
                 <div class="record-row">
-                    <span style="font-weight:bold; color:#1f2a44;">📂 {row['project_name']}</span>
-                    <span class="project-type-tag">{row.get('project_type', 'פרויקט')}</span>
+                    <span style="font-weight:bold;">📂 {row['project_name']}</span>
+                    <span class="project-tag">{row.get('project_type', 'פרויקט')}</span>
                 </div>
             """, unsafe_allow_html=True)
 
@@ -117,12 +115,12 @@ with col_right:
     with st.container(border=True):
         st.markdown("### ✨ AI Oracle")
         a1, a2 = st.columns([1, 2])
-        with a1: st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
+        with a1: st.selectbox("בחר פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
         with a2: st.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
         st.button("שגר שאילתה 🚀", key="ai_btn", use_container_width=True)
 
 with col_left:
-    # פגישות היום
+    # פגישות
     with st.container(border=True):
         st.markdown("### 📅 פגישות היום")
         t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
@@ -131,31 +129,31 @@ with col_left:
             for _, r in t_m.iterrows():
                 st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
 
-    # תזכורות
+    # תזכורות עם שם פרויקט אמיתי
     with st.container(border=True):
         st.markdown("### 🔔 תזכורות")
         t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
         
         for _, row in t_r.iterrows():
-            p_tag = row.get('related_project', 'כללי')
+            # מנסה לקחת את שם הפרויקט מהעמודה המתאימה בקובץ reminders.xlsx
+            p_name = row.get('project', row.get('related_project', 'כללי'))
             st.markdown(f"""
                 <div class="record-row">
                     <span>🔔 {row['reminder_text']}</span>
-                    <span class="project-type-tag" style="background:#fef3c7; color:#d97706;">{p_tag}</span>
+                    <span class="project-tag" style="background:#fef3c7; color:#d97706;">{p_name}</span>
                 </div>
             """, unsafe_allow_html=True)
         
-        st.markdown("---")
-        if st.button("➕ הוסף תזכורת", key="add_r"):
-            st.session_state.add_mode = True
+        st.markdown("<br>", unsafe_allow_html=True)
         
-        if st.session_state.get("add_mode"):
-            with st.form("reminder_form"):
-                nt = st.text_input("מה המשימה?")
-                np = st.selectbox("שיוך לפרויקט:", ["כללי"] + projects["project_name"].tolist())
-                if st.form_submit_button("✅ שמור"):
-                    if nt:
-                        new_row = pd.DataFrame([{"reminder_text": nt, "date": today, "related_project": np}])
-                        st.session_state.rem_live = pd.concat([st.session_state.rem_live, new_row], ignore_index=True)
-                        st.session_state.add_mode = False
-                        st.rerun()
+        # הוספה בשורה אחת
+        with st.expander("➕ הוסף תזכורת מהירה", expanded=False):
+            c1, c2, c3 = st.columns([2, 1, 0.5])
+            with c1: nt = st.text_input("משימה", label_visibility="collapsed", placeholder="מה עושים?", key="new_t")
+            with c2: np = st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="new_p")
+            with c3: save = st.button("✅", key="save_t")
+            
+            if save and nt:
+                new_data = pd.DataFrame([{"reminder_text": nt, "date": today, "project": np}])
+                st.session_state.rem_live = pd.concat([st.session_state.rem_live, new_data], ignore_index=True)
+                st.rerun()
