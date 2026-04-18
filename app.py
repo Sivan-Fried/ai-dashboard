@@ -13,7 +13,7 @@ def get_base64_image(path):
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS סופי - יישור ימין, KPI לבן, וגלילה קשיחה ---
+# --- 2. CSS מוחלט - פתרון לבעיית היישור והגלילה ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap');
@@ -26,35 +26,30 @@ st.markdown("""
 
     .stApp { background-color: #f2f4f7 !important; }
     
-    /* כותרת */
     .dashboard-header {
         background: linear-gradient(90deg, #4facfe, #00f2fe) !important;
         -webkit-background-clip: text !important;
         -webkit-text-fill-color: transparent !important;
-        text-align: center !important; font-size: 2.2rem !important; font-weight: 800; margin-bottom: 20px;
+        text-align: center !important; font-size: 2.2rem !important; font-weight: 800;
     }
 
-    /* תמונה */
     .profile-img {
         width: 130px; height: 130px; border-radius: 50% !important;
         object-fit: cover !important; object-position: center 25% !important;
         border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
     }
 
-    /* KPI - לבן נקי בלי תכלת */
     .kpi-card {
         background: white !important; padding: 15px !important; border-radius: 12px !important;
         text-align: center !important; box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important; border: none !important;
     }
     .kpi-card b { font-size: 1.4rem; color: #1f2a44; display: block; }
 
-    /* קונטיינרים עם בורדר דק */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background: white !important; border: 1px solid #edf2f7 !important;
         border-right: 5px solid #4facfe !important; border-radius: 18px !important; padding: 15px !important;
     }
 
-    /* שורות רשימה */
     .record-row {
         background: #f8fafc; padding: 10px 15px; border-radius: 10px; margin-bottom: 8px;
         border: 1px solid #edf2f7; display: flex; justify-content: space-between; align-items: center;
@@ -69,7 +64,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 3. נתונים וניהול מצב (Session State) ---
+# --- 3. נתונים ---
 try:
     projects = pd.read_excel("my_projects.xlsx")
     meetings = pd.read_excel("meetings.xlsx")
@@ -78,10 +73,12 @@ try:
 except:
     st.error("Missing Files"); st.stop()
 
+# ניהול מצב (Session State)
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders.copy()
 if "ai_analysis" not in st.session_state: st.session_state.ai_analysis = ""
+if "show_form" not in st.session_state: st.session_state.show_form = False
 
-# --- 4. כותרת ופרופיל ---
+# --- 4. תצוגה עליונה ---
 st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
 p1, p2, p3 = st.columns([1, 1, 2])
 with p2:
@@ -104,14 +101,14 @@ st.markdown("<br>", unsafe_allow_html=True)
 col_right, col_left = st.columns([2, 1.2])
 
 with col_right:
-    # פרויקטים עם גלילה
+    # פרויקטים עם גלילה (Height קבוע מייצר גלילה אוטומטית)
     with st.container(border=True):
         st.markdown("### 📁 פרויקטים ומרכיבים")
         with st.container(height=300, border=False):
             for _, row in projects.iterrows():
                 st.markdown(f'<div class="record-row"><span>📂 {row["project_name"]}</span><span class="tag-blue">{row.get("project_type", "פרויקט")}</span></div>', unsafe_allow_html=True)
 
-    # AI Oracle - עובד ומתעדכן
+    # AI Oracle - תיקון פונקציונליות
     with st.container(border=True):
         st.markdown("### ✨ AI Oracle")
         a1, a2 = st.columns([1, 2])
@@ -120,10 +117,9 @@ with col_right:
         
         if st.button("שגר שאילתה 🚀", use_container_width=True):
             if q_in:
-                with st.spinner("מנתח..."):
+                with st.spinner("מנתח נתונים..."):
                     time.sleep(1)
-                    st.session_state.ai_analysis = f"**ניתוח AI עבור {sel_p}:** הפרויקט נמצא במצב יציב. מומלץ לעקוב אחר אבני הדרך של שבוע הבא."
-                    st.rerun()
+                    st.session_state.ai_analysis = f"**ניתוח AI עבור {sel_p}:** על פי מדדי הביצוע, הפרויקט נמצא בסטטוס תקין. מומלץ לוודא עמידה ביעדי שבוע הבא."
             else: st.warning("נא להזין שאלה")
         
         if st.session_state.ai_analysis:
@@ -139,21 +135,29 @@ with col_left:
             for _, r in t_m.iterrows():
                 st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
 
-    # תזכורות - הוספה בשורה אחת וגלילה
+    # תזכורות - תיקון גלילה והוספה
     with st.container(border=True):
         st.markdown("### 🔔 תזכורות")
-        
-        # שורת הוספה מהירה
-        c1, c2 = st.columns([3, 1])
-        with c1: new_txt = st.text_input("תזכורת חדשה...", label_visibility="collapsed", key="quick_rem")
-        with c2: 
-            if st.button("הוסף", use_container_width=True) and new_txt:
-                new_data = pd.DataFrame([{"reminder_text": new_txt, "date": today, "project_name": "כללי"}])
-                st.session_state.rem_live = pd.concat([st.session_state.rem_live, new_data], ignore_index=True)
-                st.rerun()
-
-        # אזור גלילה לתזכורות
         with st.container(height=250, border=False):
             t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
             for _, row in t_r.iterrows():
                 st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
+        
+        # מנגנון הוספה תקין
+        if not st.session_state.show_form:
+            if st.button("➕ הוסף תזכורת", use_container_width=True):
+                st.session_state.show_form = True
+                st.rerun()
+        else:
+            with st.form("add_reminder"):
+                new_text = st.text_input("מה התזכורת?")
+                new_proj = st.selectbox("שייך לפרויקט", projects["project_name"].tolist())
+                submit = st.form_submit_button("שמור", use_container_width=True)
+                if submit and new_text:
+                    new_row = pd.DataFrame([{"reminder_text": new_text, "date": today, "project_name": new_proj}])
+                    st.session_state.rem_live = pd.concat([st.session_state.rem_live, new_row], ignore_index=True)
+                    st.session_state.show_form = False
+                    st.rerun()
+                if st.form_submit_button("ביטול", use_container_width=True):
+                    st.session_state.show_form = False
+                    st.rerun()
