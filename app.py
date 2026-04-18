@@ -5,18 +5,19 @@ import datetime
 from zoneinfo import ZoneInfo
 
 # --- 1. הגדרות דף ---
-st.set_page_config(layout="wide", page_title="Dashboard Sivan")
+st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
 def get_base64_image(path):
     try:
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS יציב וסופי ---
+# --- 2. CSS סופי - ללא פשרות ---
 st.markdown("""
 <style>
     .stApp { background-color: #f2f4f7; direction: rtl; }
     
+    /* כותרת דשבורד מוקטנת */
     .dashboard-header {
         background: linear-gradient(90deg, #4facfe, #00f2fe);
         -webkit-background-clip: text;
@@ -24,24 +25,24 @@ st.markdown("""
         text-align: center;
         font-size: 2.2rem;
         font-weight: 800;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
     }
 
-    /* מסגרת הגרדיאנט - מיושמת על DIV חיצוני */
+    /* מסגרת הגרדיאנט לכל הבלוקים */
     .fancy-container {
         background: linear-gradient(white, white) padding-box,
                     linear-gradient(90deg, #4facfe, #00f2fe) border-box;
         border: 2.5px solid transparent;
         border-radius: 18px;
-        padding: 20px;
+        padding: 22px;
         margin-bottom: 25px;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
     }
 
-    /* רשומות פס תכלת */
+    /* עיצוב רשומות (פרויקטים, פגישות, תזכורות) */
     .record-box {
         background: #ffffff;
-        padding: 12px;
+        padding: 12px 15px;
         border-radius: 10px;
         margin-bottom: 10px;
         border: 1px solid #edf2f7;
@@ -50,10 +51,14 @@ st.markdown("""
         justify-content: space-between;
         align-items: center;
         direction: rtl;
+        color: #1f2a44;
     }
 
+    /* יישור טקסט */
     h3, p, span, label { text-align: right !important; direction: rtl !important; }
-    .stButton>button { width: 100%; border-radius: 10px; }
+    
+    /* כפתור אחיד */
+    .stButton>button { width: 100%; border-radius: 10px; height: 45px; font-weight: bold; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -96,7 +101,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 col_right, col_left = st.columns([2, 1.2])
 
 with col_right:
-    # אזור פרויקטים - תיקון רשימה
+    # פרויקטים
     st.markdown('<div class="fancy-container"><h3>📁 פרויקטים ומרכיבים</h3>', unsafe_allow_html=True)
     for _, row in projects.iterrows():
         st.markdown(f"""
@@ -107,16 +112,16 @@ with col_right:
         """, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # אזור AI Oracle - בתוך מסגרת
+    # AI Oracle
     st.markdown('<div class="fancy-container"><h3>✨ AI Oracle</h3>', unsafe_allow_html=True)
     a1, a2 = st.columns([1, 2])
-    with a1: st.selectbox("בחר", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_sel")
-    with a2: st.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_in")
+    with a1: st.selectbox("בחר פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
+    with a2: st.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
     st.button("שגר שאילתה 🚀", key="ai_btn")
     st.markdown('</div>', unsafe_allow_html=True)
 
 with col_left:
-    # אזור פגישות
+    # פגישות
     st.markdown('<div class="fancy-container"><h3>📅 פגישות היום</h3>', unsafe_allow_html=True)
     t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
     if t_m.empty: st.write("אין פגישות היום")
@@ -125,16 +130,16 @@ with col_left:
             st.markdown(f'<div class="record-box"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # אזור תזכורות - בתוך מסגרת
+    # תזכורות
     st.markdown('<div class="fancy-container"><h3>🔔 תזכורות</h3>', unsafe_allow_html=True)
     t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
     for _, row in t_r.iterrows():
         st.markdown(f'<div class="record-box"><span>🔔 {row["reminder_text"]}</span></div>', unsafe_allow_html=True)
     
-    if st.button("➕ הוסף תזכורת", key="add_btn"): st.session_state.add_mode = True
+    if st.button("➕ הוסף תזכורת", key="add_r"): st.session_state.add_mode = True
     if st.session_state.get("add_mode"):
-        nt = st.text_input("משימה חדשה:", key="nt_input")
-        if st.button("✅ שמור", key="save_btn"):
+        nt = st.text_input("משימה:", key="nt_i")
+        if st.button("✅ שמור", key="save_r"):
             st.session_state.rem_live = pd.concat([st.session_state.rem_live, pd.DataFrame([{"reminder_text": nt, "date": today}])], ignore_index=True)
             st.session_state.add_mode = False
             st.rerun()
