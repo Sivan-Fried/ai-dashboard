@@ -72,7 +72,7 @@ st.markdown("""
 st.markdown("""
 <div style="text-align:center; margin-bottom:20px;">
     <h2 style="font-weight:800; direction:rtl; font-size: 1.8rem;">
-        <span class="text-gradient">📊 Dashboard AI</span>
+        <span class="text-gradient">Dashboard AI</span>
         <span style="color: #1f2a44;">לניהול פרויקטים</span>
     </h2>
 </div>
