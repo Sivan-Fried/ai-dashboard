@@ -3,6 +3,7 @@ import pandas as pd
 import base64
 import os
 import datetime
+import google.generativeai as genai
 
 st.set_page_config(layout="wide")
 
@@ -53,6 +54,7 @@ img_base64 = get_base64_image("profile.png")
 now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=2)))
 
 hour = now.hour
+
 if 5 <= hour < 12:
     greeting = "בוקר טוב"
 elif 12 <= hour < 18:
@@ -156,6 +158,7 @@ col_right, col_left = st.columns(2)
 
 with col_right:
     st.markdown("### 📅 פגישות היום")
+
     today_meetings = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
 
     if today_meetings.empty:
@@ -184,18 +187,16 @@ with col_left:
             st.info("אין תזכורות להיום 🎉")
         else:
             for _, row in today_reminders.iterrows():
+                icon = "🤖" if row["source"] == "ai" else "✍️"
                 st.markdown(f"""
-                <div class='card'>
-                    {row['reminder_text']} | 📁 {row['project_name']}
+                <div class="card">
+                    {icon} {row['reminder_text']} | 📁 {row['project_name']}
                 </div>
                 """, unsafe_allow_html=True)
 
 # =========================
-# 🤖 AI (FIXED – SDK חדש בלבד)
+# 🤖 AI AREA (FIXED)
 # =========================
-
-from google import genai
-import os
 
 api_key = os.getenv("GEMINI_API_KEY")
 
@@ -203,7 +204,9 @@ if not api_key:
     st.error("❌ Missing GEMINI_API_KEY")
     st.stop()
 
-client = genai.Client(api_key=api_key)
+genai.configure(api_key=api_key)
+
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 st.markdown("---")
 st.markdown("### 🤖 אזור AI")
@@ -218,7 +221,10 @@ with ai_col1:
     )
 
 with ai_col2:
-    question = st.text_area("שאלה חופשית", key="ai_question")
+    question = st.text_area(
+        "שאלה חופשית",
+        key="ai_question"
+    )
 
 if st.button("שלח ל-AI"):
 
@@ -241,10 +247,7 @@ if st.button("שלח ל-AI"):
 """
 
     try:
-        response = client.models.generate_content(
-            model="gemini-1.5-flash",
-            contents=prompt
-        )
+        response = model.generate_content(prompt)
         result = response.text
 
     except Exception as e:
