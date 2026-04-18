@@ -4,7 +4,7 @@ import base64
 import datetime
 from zoneinfo import ZoneInfo
 
-# 1. הגדרות עמוד ועיצוב CSS קשיח
+# 1. הגדרות עמוד ועיצוב CSS
 st.set_page_config(layout="wide", page_title="ניהול פרויקטים - לוח בקרה")
 
 st.markdown("""
@@ -31,19 +31,18 @@ st.markdown("""
         box-shadow: 0 4px 10px rgba(0,0,0,0.03);
     }
 
-    /* עיצוב ה-KPI - מרכוז ויישור */
+    /* KPI קומפקטי ויציב */
     .kpi-container {
         background: white;
-        padding: 15px;
+        padding: 10px;
         border-radius: 10px;
         text-align: center;
         border: 1px solid #e0e6ed;
         box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
     }
+    
+    .kpi-title { color: gray; font-size: 14px; margin: 0; }
+    .kpi-value { font-size: 24px; font-weight: bold; margin: 0; }
 
     .project-row {
         background: white;
@@ -67,7 +66,6 @@ st.markdown("""
         text-align: right;
     }
 
-    /* יישור טקסט גלובלי לימין */
     .stMarkdown, .stText, div[data-testid="stBlock"] {
         direction: rtl;
         text-align: right;
@@ -75,7 +73,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 2. חלק עליון: תמונה וברכה משמאלה
+# 2. חלק עליון: פרופיל וברכה (מיקום נשמר, פוקוס תוקן)
 def get_base64_image(path):
     try:
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
@@ -87,14 +85,13 @@ greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים
 
 st.markdown("<div style='text-align:center; margin-bottom:20px;'><h2 style='font-weight:800; direction:rtl;'><span class='text-gradient'>Dashboard AI</span> <span style='color: #1f2a44;'>ניהול פרויקטים</span></h2></div>", unsafe_allow_html=True)
 
-# מבנה: עמודה לתמונה (מרכזית) ועמודה לברכה (משמאל לתמונה)
 col_spacer_r, col_img, col_info, col_spacer_l = st.columns([1, 1, 2, 0.5])
 
 with col_img:
     if img_base64:
         st.markdown(f"""
-        <div style="display:flex; justify-content:center; align-items:center;">
-            <div style="width:140px; height:140px; border-radius:50%; overflow:hidden; border:5px solid white; box-shadow:0 10px 25px rgba(0,0,0,0.15);">
+        <div style="display:flex; justify-content:center;">
+            <div style="width:130px; height:130px; border-radius:50%; overflow:hidden; border:5px solid white; box-shadow:0 10px 25px rgba(0,0,0,0.1);">
                 <img src="data:image/png;base64,{img_base64}" style="width:100%; height:100%; object-fit: cover; object-position: center;">
             </div>
         </div>
@@ -102,9 +99,9 @@ with col_img:
 
 with col_info:
     st.markdown(f"""
-    <div style="direction:rtl; text-align:right; margin-top:35px;">
-        <div style="font-size:26px; font-weight:bold; color:#1f2a44;">{greeting}, סיון!</div>
-        <div style="font-size:16px; color:gray; margin-top:5px;">{now.strftime("%d/%m/%Y | %H:%M")}</div>
+    <div style="direction:rtl; text-align:right; margin-top:30px;">
+        <div style="font-size:24px; font-weight:bold; color:#1f2a44;">{greeting}, סיון!</div>
+        <div style="font-size:14px; color:gray; margin-top:5px;">{now.strftime("%d/%m/%Y | %H:%M")}</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -122,12 +119,12 @@ except:
 if "reminders_live" not in st.session_state: 
     st.session_state.reminders_live = reminders.copy()
 
-# 4. KPI - תיקון יישור ונראות
+# 4. KPI - קומפקטי ומסודר כפי שהיה
 k1, k2, k3, k4 = st.columns(4)
-with k1: st.markdown(f"<div class='kpi-container'><small style='color:gray;'>פרויקטים</small><h3 style='margin:5px 0;'>{len(projects)}</h3></div>", unsafe_allow_html=True)
-with k2: st.markdown(f"<div class='kpi-container' style='border-top:3px solid red;'><small style='color:gray;'>בסיכון 🔴</small><h3 style='color:red; margin:5px 0;'>{len(projects[projects['status']=='אדום'])}</h3></div>", unsafe_allow_html=True)
-with k3: st.markdown(f"<div class='kpi-container' style='border-top:3px solid orange;'><small style='color:gray;'>במעקב 🟡</small><h3 style='color:orange; margin:5px 0;'>{len(projects[projects['status']=='צהוב'])}</h3></div>", unsafe_allow_html=True)
-with k4: st.markdown(f"<div class='kpi-container' style='border-top:3px solid green;'><small style='color:gray;'>בתקין 🟢</small><h3 style='color:green; margin:5px 0;'>{len(projects[projects['status']=='ירוק'])}</h3></div>", unsafe_allow_html=True)
+with k1: st.markdown(f"<div class='kpi-container'><p class='kpi-title'>פרויקטים</p><p class='kpi-value'>{len(projects)}</p></div>", unsafe_allow_html=True)
+with k2: st.markdown(f"<div class='kpi-container' style='border-top:3px solid red;'><p class='kpi-title'>בסיכון 🔴</p><p class='kpi-value' style='color:red;'>{len(projects[projects['status']=='אדום'])}</p></div>", unsafe_allow_html=True)
+with k3: st.markdown(f"<div class='kpi-container' style='border-top:3px solid orange;'><p class='kpi-title'>במעקב 🟡</p><p class='kpi-value' style='color:orange;'>{len(projects[projects['status']=='צהוב'])}</p></div>", unsafe_allow_html=True)
+with k4: st.markdown(f"<div class='kpi-container' style='border-top:3px solid green;'><p class='kpi-title'>בתקין 🟢</p><p class='kpi-value' style='color:green;'>{len(projects[projects['status']=='ירוק'])}</p></div>", unsafe_allow_html=True)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
@@ -179,7 +176,7 @@ with col_l:
                 st.session_state.add_mode = False
                 st.rerun()
 
-# 7. AI
+# 7. AI Oracle
 st.markdown("<div class='section-wrap' style='border-right: 6px solid #4facfe;'><h3>✨ AI Oracle</h3>", unsafe_allow_html=True)
 ca1, ca2 = st.columns([1, 2])
 with ca1: st.selectbox("בחר פרויקט", projects["project_name"].tolist(), key="p_ai")
