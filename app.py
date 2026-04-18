@@ -82,7 +82,7 @@ with col2:
         st.info("אין פגישות היום")
 
 # ==========================================
-# 🤖 אזור ה-AI המעודכן - עיצוב לבן ותשובה ירוקה
+# 🤖 אזור ה-AI המעודכן - הכל בלבן, תשובה בירוק
 # ==========================================
 st.markdown("---")
 st.markdown("<h3 style='text-align:right;'>🤖 עוזר AI אישי</h3>", unsafe_allow_html=True)
@@ -90,30 +90,39 @@ st.markdown("<h3 style='text-align:right;'>🤖 עוזר AI אישי</h3>", unsa
 api_key = st.secrets.get("GEMINI_API_KEY")
 
 if api_key:
-    # עיצוב אזור השאלה ברקע לבן
+    # CSS לעיצוב השדות בלבן ויישור לימין
     st.markdown("""
         <style>
-        div[data-testid="stForm"], .stTextArea textarea {
+        /* עיצוב תיבת הבחירה, תיבת הטקסט והתוויות בלבן */
+        div[data-baseweb="select"] > div, 
+        .stTextArea textarea,
+        div[data-testid="stSelectbox"] {
             background-color: white !important;
-            direction: rtl;
-            text-align: right;
+            direction: rtl !important;
+            text-align: right !important;
+        }
+        /* התאמת יישור הטקסט בתוך תיבת הבחירה */
+        div[data-testid="stSelectBaseInput"] {
+            direction: rtl !important;
+            text-align: right !important;
         }
         </style>
     """, unsafe_allow_html=True)
 
     with st.container():
-        # תיבת השאלה ברקע לבן
         ca1, ca2 = st.columns(2)
         with ca1:
+            # שדה בחירת פרויקט - עכשיו בלבן
             s_proj = st.selectbox("בחרי פרויקט לניתוח", projects["project_name"].tolist(), key="final_v_2026")
         with ca2:
-            u_q = st.text_area("מה תרצי לדעת?", placeholder="למשל: למה הפרויקט באדום ואיך מתקדמים?", key="q_2026")
+            # שדה השאלה - בלבן
+            u_q = st.text_area("מה תרצי לדעת?", placeholder="למשל: מהם צעדי המניעה לפרויקט באדום?", key="q_2026")
 
     if st.button("בצע ניתוח AI", key="btn_2026"):
         if u_q:
             p_info = projects[projects["project_name"] == s_proj].iloc[0]
-            # הנחיה לתמציתיות
-            context = f"נתוני פרויקט: {p_info.to_string()}. ענה בעברית, בנקודות תמציתיות, ללא כותרות גדולות. שאלה: {u_q}"
+            # הנחיה לתמציתיות מוחלטת
+            context = f"נתוני פרויקט: {p_info.to_string()}. ענה בעברית, בנקודות תמציתיות מאוד, ללא כותרות ענק. שאלה: {u_q}"
             
             with st.spinner("מנתח נתונים..."):
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key={api_key}"
@@ -127,7 +136,7 @@ if api_key:
                     if response.status_code == 200:
                         answer = res_json['candidates'][0]['content']['parts'][0]['text']
                         
-                        # תצוגת התשובה בירוק זרחני (כפי שביקשת) עם יישור לימין
+                        # תצוגת התשובה בירוק (Success) מיושר לימין
                         st.markdown(f"""
                         <div style="direction: rtl; text-align: right; background-color: #d4edda; color: #155724; 
                                     padding: 15px; border-radius: 10px; border: 1px solid #c3e6cb; 
@@ -137,9 +146,9 @@ if api_key:
                         """, unsafe_allow_html=True)
                         
                     elif response.status_code == 429:
-                        st.warning("המערכת זקוקה למנוחה של דקה (מכסת שימוש). נסי שוב בעוד רגע.")
+                        st.warning("המכסה זמנית הסתיימה. נסי שוב בעוד דקה.")
                     else:
-                        st.error(f"שגיאה {response.status_code}: {res_json.get('error', {}).get('message', 'Unknown error')}")
+                        st.error(f"שגיאה {response.status_code}")
                 except Exception as e:
                     st.error(f"שגיאה בחיבור: {e}")
         else:
