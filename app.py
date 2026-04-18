@@ -4,7 +4,7 @@ import base64
 import datetime
 from zoneinfo import ZoneInfo
 
-# --- 1. הזרקת CSS מסיבית (דריסה של כל רכיבי ה-Container) ---
+# --- 1. הזרקת CSS אגרסיבי (עוקף את המערכת של Streamlit) ---
 st.set_page_config(layout="wide", page_title="Dashboard Sivan")
 
 st.markdown("""
@@ -12,7 +12,19 @@ st.markdown("""
     /* רקע כללי ויישור לימין */
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
     
-    /* העיצוב של המלבנים - דריסה מוחלטת של המכולות של Streamlit */
+    /* עיצוב הכותרת הראשית - קיבוע גודל וצבע */
+    .main-header {
+        background: linear-gradient(90deg, #4facfe, #00f2fe) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        text-align: center !important;
+        font-size: 3.5rem !important;
+        font-weight: 800 !important;
+        margin-bottom: 20px !important;
+        display: block !important;
+    }
+
+    /* עיצוב המסגרות - סלקטור אוניברסלי לכל מכולה עם border */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background: linear-gradient(white, white) padding-box,
                     linear-gradient(90deg, #4facfe, #00f2fe) border-box !important;
@@ -23,34 +35,20 @@ st.markdown("""
         margin-bottom: 25px !important;
     }
 
-    /* תיקון צבע הכותרת הראשית שיהיה גרדיאנט נקי */
-    .main-header {
-        background: linear-gradient(90deg, #4facfe, #00f2fe);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-align: center;
-        font-size: 3.5rem;
-        font-weight: 800;
-        margin-bottom: 30px;
-        font-family: sans-serif;
-    }
-
-    /* עיצוב פריטי רשימה */
+    /* עיצוב פריטי רשימה בתוך המלבנים */
     .list-item {
         background: #fdfdfd; padding: 12px; border-radius: 10px;
         margin-bottom: 10px; border: 1px solid #eee;
-        display: flex; align-items: center; gap: 12px;
-        text-align: right; direction: rtl;
+        display: flex; align-items: center; gap: 12px; text-align: right;
     }
 
-    /* עיצוב KPI */
+    /* עיצוב כרטיסי KPI */
     .kpi-card {
         background: white; padding: 15px; border-radius: 12px;
         text-align: center; border: 1px solid #e0e6ed;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
     }
 
-    /* יישור לימין לכל רכיבי המערכת */
+    /* יישור לימין לכל רכיבי Streamlit */
     div[data-testid="stMarkdownContainer"], .stSelectbox, .stTextInput, .stButton, label, h3 {
         text-align: right !important; direction: rtl !important;
     }
@@ -74,8 +72,8 @@ except:
 
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders.copy()
 
-# --- 4. Header & Profile (פוקוס תמונה משופר) ---
-st.markdown('<div class="main-header">Dashboard AI</div>', unsafe_allow_html=True)
+# --- 4. Header & Profile ---
+st.markdown('<h1 class="main-header">Dashboard AI</h1>', unsafe_allow_html=True)
 
 img_b64 = get_base64_image("profile.png")
 now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
@@ -93,7 +91,7 @@ with col_p2:
 with col_p3:
     st.markdown(f"<div style='margin-top:25px;'><h3>{greeting}, סיון!</h3><p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p></div>", unsafe_allow_html=True)
 
-# --- 5. שורת KPI ---
+# --- 5. KPI Section ---
 st.markdown("<br>", unsafe_allow_html=True)
 k1, k2, k3, k4 = st.columns(4)
 with k1: st.markdown(f"<div class='kpi-card' style='border-top:4px solid #ff4b4b;'>בסיכון 🔴<br><b>{len(projects[projects['status']=='אדום'])}</b></div>", unsafe_allow_html=True)
@@ -101,7 +99,7 @@ with k2: st.markdown(f"<div class='kpi-card' style='border-top:4px solid #ffa500
 with k3: st.markdown(f"<div class='kpi-card' style='border-top:4px solid #00c853;'>בתקין 🟢<br><b>{len(projects[projects['status']=='ירוק'])}</b></div>", unsafe_allow_html=True)
 with k4: st.markdown(f"<div class='kpi-card'>סה\"כ פרויקטים<br><b>{len(projects)}</b></div>", unsafe_allow_html=True)
 
-# --- 6. הגוף המרכזי - הכל בתוך המכולות ---
+# --- 6. גוף ה-Dashboard ---
 st.markdown("<br>", unsafe_allow_html=True)
 col_right, col_left = st.columns([2, 1.2])
 
@@ -118,7 +116,7 @@ with col_right:
         st.markdown("### ✨ AI Oracle")
         ai_col1, ai_col2 = st.columns([1, 2])
         with ai_col1: st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
-        with ai_col2: st.text_input("שאלה ל-AI", placeholder="שאלי משהו...", label_visibility="collapsed", key="ai_q")
+        with ai_col2: st.text_input("שאלה", placeholder="שאלי משהו...", label_visibility="collapsed", key="ai_q")
         st.button("שגר שאילתה 🚀", use_container_width=True)
 
 with col_left:
@@ -126,7 +124,7 @@ with col_left:
     with st.container(border=True):
         st.markdown("### 📅 פגישות היום")
         today_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-        if today_m.empty: st.write("אין פגישות להיום")
+        if today_m.empty: st.write("אין פגישות היום")
         else:
             for _, r in today_m.iterrows():
                 st.markdown(f'<div class="list-item">📌 {r["meeting_title"]}</div>', unsafe_allow_html=True)
