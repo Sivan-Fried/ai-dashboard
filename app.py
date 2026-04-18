@@ -12,13 +12,13 @@ def get_base64_image(path):
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS מאוחד: מסגרות גרדיאנט + רשומות מעוצבות ---
+# --- 2. CSS מאוחד וסופי ---
 st.markdown("""
 <style>
     /* רקע ויישור כללי */
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
     
-    /* כותרת גרדיאנט */
+    /* כותרת גרדיאנט חזקה */
     .dashboard-header {
         background: linear-gradient(90deg, #4facfe, #00f2fe) !important;
         -webkit-background-clip: text !important;
@@ -29,38 +29,34 @@ st.markdown("""
         margin-bottom: 25px !important;
     }
 
-    /* המסגרות הגדולות (ה-Cards) */
+    /* המסגרות הגדולות המעוצבות - כפייה אגרסיבית */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background: linear-gradient(white, white) padding-box,
                     linear-gradient(90deg, #4facfe, #00f2fe) border-box !important;
         border: 2px solid transparent !important;
         border-radius: 18px !important;
-        padding: 25px !important;
+        padding: 22px !important;
         box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
         margin-bottom: 20px !important;
     }
 
-    /* הרשומות שבתוך המסגרות (העיצוב שאהבת) */
+    /* עיצוב הרשומות הפנימיות (תיבות תכלת) */
     .record-box {
-        background: #ffffff;
-        padding: 12px 15px;
-        border-radius: 10px;
-        margin-bottom: 10px;
-        border: 1px solid #edf2f7;
-        border-right: 5px solid #4facfe; /* פס כחול בצד ימין */
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        color: #1f2a44;
+        background: #ffffff !important;
+        padding: 12px 15px !important;
+        border-radius: 10px !important;
+        margin-bottom: 10px !important;
+        border: 1px solid #edf2f7 !important;
+        border-right: 5px solid #4facfe !important; /* תכלת קבוע לכולן */
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
+        color: #1f2a44 !important;
+        text-align: right !important;
     }
 
-    /* התאמת צבע הפס לפי סטטוס הפרויקט */
-    .status-green { border-right-color: #00c853; }
-    .status-yellow { border-right-color: #ffa500; }
-    .status-red { border-right-color: #ff4b4b; }
-
-    /* יישור RTL גורף */
+    /* יישור RTL לכל רכיבי Streamlit */
     div[data-testid="stMarkdownContainer"], .stSelectbox, .stTextInput, .stButton, label, h3 {
         text-align: right !important; direction: rtl !important;
     }
@@ -115,10 +111,9 @@ with right_col:
     with st.container(border=True):
         st.markdown("### 📁 פרויקטים ומרכיבים")
         for _, row in projects.iterrows():
-            # בחירת קלאס לפי סטטוס
-            s_class = "status-green" if row["status"] == "ירוק" else "status-yellow" if row["status"] == "צהוב" else "status-red"
+            # שימוש ב-record-box עם פס תכלת אחיד
             st.markdown(f"""
-                <div class="record-box {s_class}">
+                <div class="record-box">
                     <span><b>{row['project_name']}</b></span>
                     <span style="color:gray; font-size:0.85em;">{row.get('project_type', 'פרויקט')}</span>
                 </div>
@@ -128,8 +123,8 @@ with right_col:
     with st.container(border=True):
         st.markdown("### ✨ AI Oracle")
         a1, a2 = st.columns([1, 2])
-        with a1: st.selectbox("בחר פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_sel")
-        with a2: st.text_input("שאלה ל-AI", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_in")
+        with a1: st.selectbox("בחר פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_sel_v2")
+        with a2: st.text_input("שאלה ל-AI", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_in_v2")
         st.button("שגר שאילתה 🚀", use_container_width=True)
 
 with left_col:
@@ -152,7 +147,7 @@ with left_col:
         
         if st.button("➕ הוסף תזכורת"): st.session_state.add_mode = True
         if st.session_state.get("add_mode"):
-            nt = st.text_input("משימה חדשה:", key="new_task_in")
+            nt = st.text_input("משימה חדשה:", key="new_task_v2")
             if st.button("✅ שמור"):
                 st.session_state.rem_live = pd.concat([st.session_state.rem_live, pd.DataFrame([{"reminder_text": nt, "date": today}])], ignore_index=True)
                 st.session_state.add_mode = False
