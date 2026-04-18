@@ -207,84 +207,78 @@ if not api_key:
     st.stop()
 
 # ==========================================
-# 🤖 AI AREA - הגדרה מעודכנת
+# 🤖 AI AREA - גרסה סופית, תקינה ומעודכנת
 # ==========================================
-
-# 2. אתחול הלקוח (החלפה של configure הישן)
-try:
-    client = genai.Client(api_key=api_key)
-    model_id = "gemini-1.5-flash"
-except Exception as e:
-    st.error(f"שגיאה באתחול ה-AI: {e}")
-    st.stop()
-
-# ... כאן מגיע הקוד של ה-selectbox וה-text_area ...
-
-if st.button("שלח ל-AI"):
-    # ... (הקוד של שליפת השורה והפרומפט נשאר דומה) ...
-    
-    try:
-        with st.spinner("ה-AI מנתח..."):
-            # שימי לב: הקריאה למודל השתנתה לפורמט הזה:
-            response = client.models.generate_content(
-                model=model_id,
-                contents=prompt
-            )
-            result = response.text
-    except Exception as e:
-        result = f"⚠️ שגיאה: {str(e)}"
-    
-    st.markdown(f"<div class='card'>{result}</div>", unsafe_allow_html=True)
 
 st.markdown("---")
 st.markdown("### 🤖 עוזר AI לניהול פרויקטים")
 
-ai_col1, ai_col2 = st.columns(2)
+# 1. שליפת ה-API KEY מה-Secrets
+if "GEMINI_API_KEY" in st.secrets:
+    api_key = st.secrets["GEMINI_API_KEY"]
+else:
+    api_key = None
 
-with ai_col1:
-    selected_project = st.selectbox(
-        "בחרי פרויקט לניתוח",
-        projects["project_name"].tolist(),
-        key="ai_project"
-    )
-
-with ai_col2:
-    question = st.text_area(
-        "מה תרצי לדעת על הפרויקט?",
-        placeholder="למשל: מה הסטטוס הנוכחי ומה הצעד הבא?",
-        key="ai_question"
-    )
-
-if st.button("שלח ל-AI"):
-    if not question.strip():
-        st.warning("אנא הזיני שאלה לפני השליחה")
-        st.stop()
-
-    # שליפת שורת הנתונים של הפרויקט הנבחר מתוך ה-DataFrame
+if not api_key:
+    st.error("❌ חסר מפתח API (GEMINI_API_KEY) בתוך ה-Secrets של Streamlit.")
+else:
+    # 2. אתחול הלקוח בשיטה החדשה (Client)
     try:
-        row = projects[projects["project_name"] == selected_project].iloc[0]
+        client = genai.Client(api_key=api_key)
+        model_id = "gemini-1.5-flash"
         
-        # בניית הפרומפט עם הנתונים מהדאשבורד
-        prompt = f"""
-את עוזרת מקצועית לניהול פרויקטים.
-נתוני הפרויקט הנוכחי:
-שם הפרויקט: {row['project_name']}
-סטטוס: {row['status']}
+        ai_col1, ai_col2 = st.columns(2)
 
-השאלה של המנהלת:
-{question}
+        with ai_col1:
+            if not projects.empty:
+                selected_project = st.selectbox(
+                    "בחרי פרויקט לניתוח",
+                    projects["project_name"].tolist(),
+                    key="ai_project_selector" # מפתח ייחודי
+                )
+            else:
+                st.warning("לא נמצאו פרויקטים להצגה.")
 
-עני בעברית, בצורה מקצועית, קצרה ועניינית.
-"""
+        with ai_col2:
+            question = st.text_area(
+                "מה תרצי לדעת על הפרויקט?",
+                placeholder="למשל: מה הסטטוס ומה הצעדים הבאים?",
+                key="ai_question_input" # מפתח ייחודי
+            )
 
-        # 4. הרצת המודל עם חיווי ויזואלי למשתמש
-        with st.spinner("ה-AI מנתח את הנתונים..."):
-            response = model.generate_content(prompt)
-            result = response.text
+        # 3. כפתור שליחה עם KEY ייחודי למניעת שגיאת Duplicate
+        if st.button("שלח ל-AI", key="ai_final_submit_button"):
+            if not question.strip():
+                st.warning("אנא הזיני שאלה.")
+            else:
+                try:
+                    # שליפת נתוני הפרויקט הנבחר
+                    row = projects[projects["project_name"] == selected_project].iloc[0]
+                    
+                    prompt = f"""
+                    את עוזרת מקצועית לניהול פרויקטים.
+                    נתוני הפרויקט:
+                    שם: {row['project_name']}
+                    סטטוס: {row['status']}
+                    
+                    השאלה: {question}
+                    
+                    עני בעברית בצורה קצרה ומקצועית.
+                    """
+
+                    with st.spinner("ה-AI מנתח את הנתונים..."):
+                        # קריאה למודל בפורמט החדש
+                        response = client.models.generate_content(
+                            model=model_id,
+                            contents=prompt
+                        )
+                        result = response.text
+                        
+                    # הצגת התוצאה בתוך Card
+                    st.markdown(f"<div class='card'>{result}</div>", unsafe_allow_html=True)
+
+                except Exception as e:
+                    st.error(f"⚠️ שגיאה בעיבוד הנתונים: {str(e)}")
 
     except Exception as e:
-        # טיפול בשגיאות API (כמו מפתח לא תקין או בעיות רשת)
-        result = f"⚠️ שגיאה בתקשורת עם Gemini: {str(e)}"
-
-    # הצגת התוצאה בעיצוב ה-Card שהגדרת
-    st.markdown(f"<div class='card'>{result}</div>", unsafe_allow_html=True)
+        st.error(f"⚠️ שגיאה בחיבור ל-AI: {str(e)}")
