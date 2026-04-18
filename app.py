@@ -341,54 +341,58 @@ import streamlit as st
 import google.generativeai as genai
 import os
 
-# --- CSS לעיצוב ---
+# ---------- CSS (רקע לבן אמיתי) ----------
 st.markdown("""
 <style>
+
+/* RTL כללי */
 .ai-container {
     direction: rtl;
 }
 
-.ai-input textarea {
-    background-color: white !important;
-    color: black !important;
+/* textarea של Streamlit */
+textarea {
+    background-color: #ffffff !important;
+    color: #000000 !important;
     border-radius: 10px !important;
-    border: 1px solid #ddd !important;
+    border: 1px solid #ccc !important;
 }
 
-.ai-select div[data-baseweb="select"] {
-    background-color: white !important;
-    color: black !important;
-    border-radius: 10px !important;
+/* selectbox */
+div[data-baseweb="select"] > div {
+    background-color: #ffffff !important;
+    color: #000000 !important;
 }
 
+/* כרטיס תשובה */
 .ai-card {
-    background-color: white;
-    color: black;
-    padding: 15px;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    padding: 16px;
     border-radius: 12px;
-    border: 1px solid #e6e6e6;
-    margin-top: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    border: 1px solid #ddd;
+    margin-top: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    direction: rtl;
 }
+
 </style>
 """, unsafe_allow_html=True)
 
+# ---------- כותרת ----------
 st.markdown("<hr>", unsafe_allow_html=True)
 st.markdown("<div class='ai-container'>", unsafe_allow_html=True)
 st.markdown("### 🤖 אזור AI")
 
-# --- בחירת פרויקט ---
+# ---------- UI ----------
 selected = st.selectbox(
     "בחרי פרויקט",
-    projects["project_name"].tolist(),
-    key="ai_project"
+    projects["project_name"].tolist()
 )
 
-# --- שאלה ---
-st.markdown("<div class='ai-input'>", unsafe_allow_html=True)
-question = st.text_area("שאלה חופשית", key="ai_question")
-st.markdown("</div>", unsafe_allow_html=True)
+question = st.text_area("שאלה חופשית")
 
+# ---------- כפתור ----------
 if st.button("שלח ל-AI"):
 
     row = projects[projects["project_name"] == selected].iloc[0]
@@ -408,28 +412,37 @@ if st.button("שלח ל-AI"):
 
 הנחיות:
 - עני בעברית
-- תהיי קצרה, ברורה ומעשית
-- אם יש סיכון בפרויקט – צייני אותו
-- אם יש המלצה לפעולה – כתבי אותה
+- קצר, ברור ומעשי
+- צייני סיכונים אם יש
+- תני המלצות לפעולה
 """
 
-    genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-    model = genai.GenerativeModel("gemini-1.5-flash-latest")
+    # ---------- חיבור ל-API ----------
+    api_key = os.getenv("GEMINI_API_KEY")
 
-    try:
-        response = model.generate_content(prompt)
+    if not api_key:
+        result = "❌ אין API KEY. בדקי משתנה GEMINI_API_KEY"
+    else:
+        genai.configure(api_key=api_key)
 
-        if hasattr(response, "text") and response.text:
-            result = response.text
-        elif response.candidates:
-            result = response.candidates[0].content.parts[0].text
-        else:
-            result = "לא התקבלה תשובה מה-AI"
+        try:
+            # מודל עדכני
+            model = genai.GenerativeModel("gemini-1.5-flash-latest")
 
-    except Exception:
-        result = "⚠️ שגיאה זמנית בחיבור ל-AI, נסי שוב בעוד רגע"
+            response = model.generate_content(prompt)
 
-    # --- תצוגת תשובה עם רקע לבן ---
+            if hasattr(response, "text") and response.text:
+                result = response.text
+            elif response.candidates:
+                result = response.candidates[0].content.parts[0].text
+            else:
+                result = "לא התקבלה תשובה מה-AI"
+
+        except Exception as e:
+            # חשוב! לא מסתירים שגיאה
+            result = f"⚠️ שגיאה: {str(e)}"
+
+    # ---------- תוצאה ----------
     st.markdown(f"<div class='ai-card'>{result}</div>", unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
