@@ -4,7 +4,7 @@ import base64
 import os
 import datetime
 
-from google import genai
+import google.genai as genai
 
 st.set_page_config(layout="wide")
 
