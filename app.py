@@ -12,10 +12,10 @@ def get_base64_image(path):
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS גלובלי ---
+# --- 2. CSS גלובלי - יישור מוחלט לימין ---
 st.markdown("""
 <style>
-    .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
+    .stApp { background-color: #f2f4f7 !important; direction: rtl !important; text-align: right !important; }
     
     .dashboard-header {
         background: linear-gradient(90deg, #4facfe, #00f2fe) !important;
@@ -33,15 +33,17 @@ st.markdown("""
         border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
     }
 
-    /* KPI - רקע לבן, בלי מסגרת תכלת, עובי דק */
+    /* KPI - רקע לבן בלי מסגרת, יישור לימין */
     .kpi-card {
         background: white !important;
-        padding: 10px !important;
+        padding: 15px !important;
         border-radius: 12px !important;
-        text-align: center !important;
+        text-align: right !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
-        border: none !important; /* הסרת המסגרת לחלוטין */
+        border: none !important;
+        direction: rtl !important;
     }
+    .kpi-card b { font-size: 1.4rem; color: #1f2a44; display: block; margin-top: 5px; }
 
     /* מסגרות הקונטיינרים */
     div[data-testid="stVerticalBlockBorderWrapper"] {
@@ -51,39 +53,50 @@ st.markdown("""
         border-radius: 18px !important;
         padding: 15px !important;
         background-color: white !important;
+        direction: rtl !important;
     }
 
-    h3, p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
+    h3, p, span, label, .stSelectbox, .stTextInput, .stButton { 
+        text-align: right !important; 
+        direction: rtl !important; 
+    }
+    
+    /* תיקון יישור לתוויות של Selectbox ו-Input */
+    label[data-testid="stWidgetLabel"] {
+        width: 100% !important;
+        justify-content: flex-start !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# פונקציה ליצירת רשימה נגללת בתוך HTML כדי להבטיח גלילה
+# פונקציית הגלילה עם יישור לימין בתוך ה-HTML
 def render_scrollable_list(df, type_tag="blue", is_reminder=False):
     rows_html = ""
     for _, row in df.iterrows():
         label = row.get('project_name', 'כללי')
         text = row['reminder_text'] if is_reminder else row['project_name']
-        tag_class = "tag-orange" if is_reminder else "tag-blue"
+        tag_color = '#d97706' if is_reminder else '#4facfe'
+        tag_bg = '#fffbeb' if is_reminder else '#f0f9ff'
         icon = "🔔" if is_reminder else "📂"
         
         rows_html += f"""
         <div style="background:white; padding:10px 15px; border-radius:10px; margin-bottom:8px; 
                     border:1px solid #edf2f7; border-right:5px solid #4facfe; display:flex; 
-                    justify-content:space-between; align-items:center; direction:rtl; font-family:sans-serif;">
+                    justify-content:space-between; align-items:center; direction:rtl; font-family:sans-serif; text-align:right;">
             <span style="font-size:0.95rem; color:#1f2a44;">{icon} {text}</span>
-            <span style="color:{'#d97706' if is_reminder else '#4facfe'}; font-size:0.8em; font-weight:600; 
-                        background:{'#fffbeb' if is_reminder else '#f0f9ff'}; padding:2px 8px; border-radius:5px;">
+            <span style="color:{tag_color}; font-size:0.8em; font-weight:600; 
+                        background:{tag_bg}; padding:2px 8px; border-radius:5px;">
                 {label if is_reminder else row.get('project_type', 'פרויקט')}
             </span>
         </div>
         """
     
     full_html = f"""
-    <div style="max-height:300px; overflow-y:auto; padding:5px; direction:rtl;">
+    <div style="max-height:280px; overflow-y:auto; padding:5px; direction:rtl; text-align:right;">
         {rows_html}
     </div>
     """
-    return st.components.v1.html(full_html, height=310, scrolling=False)
+    return st.components.v1.html(full_html, height=300, scrolling=False)
 
 # --- 3. טעינת נתונים ---
 try:
@@ -92,7 +105,7 @@ try:
     reminders = pd.read_excel("reminders.xlsx")
     today = pd.Timestamp.today().date()
 except:
-    st.error("Missing Files"); st.stop()
+    st.error("נראה שחסרים קבצי הנתונים"); st.stop()
 
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders.copy()
 if "show_add" not in st.session_state: st.session_state.show_add = False
@@ -111,7 +124,7 @@ with p2:
 with p3:
     st.markdown(f"<div><h3>{greeting}, סיון!</h3><p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p></div>", unsafe_allow_html=True)
 
-# --- 5. שורת KPI - רקע לבן, בלי בורדר תכלת ---
+# --- 5. שורת KPI מיושרת לימין ---
 st.markdown("<br>", unsafe_allow_html=True)
 k1, k2, k3, k4 = st.columns(4)
 with k1: st.markdown(f'<div class="kpi-card">בסיכון 🔴<br><b>{len(projects[projects["status"]=="אדום"])}</b></div>', unsafe_allow_html=True)
@@ -131,8 +144,8 @@ with col_right:
     with st.container(border=True):
         st.markdown("### ✨ AI Oracle")
         a1, a2 = st.columns([1, 2])
-        with a1: st.selectbox("בחר פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
-        with a2: st.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
+        with a1: st.selectbox("בחר פרויקט", projects["project_name"].tolist(), key="ai_p")
+        with a2: st.text_input("שאלה", placeholder="מה תרצי לדעת?", key="ai_i")
         st.button("שגר שאילתה 🚀", key="ai_btn", use_container_width=True)
 
 with col_left:
@@ -142,7 +155,7 @@ with col_left:
         if t_m.empty: st.write("אין פגישות היום")
         else:
             for _, r in t_m.iterrows():
-                st.markdown(f'<div style="background:white; padding:10px; border-radius:10px; border-right:5px solid #4facfe; margin-bottom:5px;">📌 {r["meeting_title"]}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div style="background:white; padding:12px; border-radius:10px; border-right:5px solid #4facfe; margin-bottom:8px; text-align:right;">📌 {r["meeting_title"]}</div>', unsafe_allow_html=True)
 
     with st.container(border=True):
         st.markdown("### 🔔 תזכורות")
@@ -150,22 +163,22 @@ with col_left:
         render_scrollable_list(t_r, is_reminder=True)
         
         if not st.session_state.show_add:
-            if st.button("➕ הוסף תזכורת", key="add_btn"):
+            if st.button("➕ הוסף תזכורת", key="add_btn", use_container_width=True):
                 st.session_state.show_add = True
                 st.rerun()
         else:
             st.markdown("---")
-            nt = st.text_input("משימה", key="new_t")
-            np = st.selectbox("פרויקט", projects["project_name"].tolist(), key="new_p")
+            nt = st.text_input("משימה:", key="new_t")
+            np = st.selectbox("פרויקט משויך:", projects["project_name"].tolist(), key="new_p")
             c1, c2 = st.columns(2)
             with c1:
-                if st.button("✅ שמור"):
+                if st.button("✅ שמור", use_container_width=True):
                     if nt:
                         new_r = pd.DataFrame([{"reminder_text": nt, "date": today, "project_name": np}])
                         st.session_state.rem_live = pd.concat([st.session_state.rem_live, new_r], ignore_index=True)
                         st.session_state.show_add = False
                         st.rerun()
             with c2:
-                if st.button("ביטול"):
+                if st.button("ביטול", use_container_width=True):
                     st.session_state.show_add = False
                     st.rerun()
