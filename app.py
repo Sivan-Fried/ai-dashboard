@@ -5,7 +5,7 @@ import base64
 import datetime
 from zoneinfo import ZoneInfo
 
-# 1. הגדרות עמוד ועיצוב
+# 1. הגדרות עמוד ועיצוב (CSS משופר ויציב)
 st.set_page_config(layout="wide", page_title="ניהול פרויקטים - לוח בקרה")
 
 st.markdown("""
@@ -33,13 +33,14 @@ st.markdown("""
         box-shadow: 0 4px 10px rgba(0,0,0,0.03);
     }
 
-    /* מלבן ריכוז פנימי (כמו מתחת ל-KPI) */
-    .content-area {
-        background: white;
+    /* מלבן הריכוז הלבן שביקשת (כמו מתחת ל-KPI) */
+    .inner-white-container {
+        background-color: white;
         border-radius: 10px;
         padding: 15px;
         border: 1px solid #eee;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        box-shadow: inset 0 0 5px rgba(0,0,0,0.02);
+        margin-top: 10px;
     }
 
     /* רשומות פנימיות - העיצוב המקורי */
@@ -54,23 +55,22 @@ st.markdown("""
         box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
 
-    /* KPI מוקטן וקומפקטי */
+    /* KPI מוקטן */
     .kpi-card {
         background: white;
         padding: 10px;
         border-radius: 10px;
         text-align: center;
         border: 1px solid #eee;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     }
-    .kpi-card h4 { margin: 0; padding: 0; font-size: 1.2rem; }
+    .kpi-card h4 { margin: 0; font-size: 1.2rem; }
     .kpi-card p { margin: 0; font-size: 0.9rem; color: #666; }
 
     h3 { color: #1f2a44; text-align: right; direction: rtl; margin-top: 0; }
 </style>
 """, unsafe_allow_html=True)
 
-# כותרת ראשית
+# כותרת ראשית מוקטנת
 st.markdown("""
 <div style="text-align:center; margin-bottom:20px;">
     <h2 style="font-weight:800; direction:rtl; font-size: 1.8rem;">
@@ -93,7 +93,7 @@ greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים
 
 left, center, right = st.columns([1.2, 1, 1.2])
 with left:
-    st.markdown(f'<div style="direction:rtl; text-align:right; margin-top:40px; color:#1f2a44;"><div style="font-size:22px;">{greeting}, סיון!</div><div style="font-size:13px; color:gray;">{now.strftime("%d/%m/%Y %H:%M")}</div></div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="direction:rtl; text-align:right; margin-top:40px;"><div style="font-size:22px;">{greeting}, סיון!</div><div style="font-size:13px; color:gray;">{now.strftime("%d/%m/%Y %H:%M")}</div></div>', unsafe_allow_html=True)
 with center:
     if img_base64:
         st.markdown(f'<div style="display:flex; justify-content:center; margin-top:10px;"><div style="width:140px; height:140px; border-radius:50%; overflow:hidden; border:5px solid white; box-shadow:0 10px 25px rgba(0,0,0,0.1);"><img src="data:image/png;base64,{img_base64}" style="width:100%; height:100%; object-fit: cover; object-position: center top;"></div></div>', unsafe_allow_html=True)
@@ -122,22 +122,21 @@ with k4: st.markdown(f"<div class='kpi-card' style='border-top: 3px solid green;
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 5. פרויקטים - התיקון המבוקש
+# 5. פרויקטים - התיחום המבוקש
 st.markdown("<div class='section-wrap'>", unsafe_allow_html=True)
 st.markdown("<h3>📁 פרויקטים</h3>", unsafe_allow_html=True)
+st.markdown("<div class='inner-white-container'>", unsafe_allow_html=True) # פתיחת המלבן הלבן
 
-# פתיחת המלבן המרכז את הרשימה
-st.markdown("<div class='content-area'>", unsafe_allow_html=True)
-
-def type_icon(project_type):
-    if project_type == "פרויקט אקטיבי": return "🚀"
-    elif project_type == "חבילת עבודה": return "📦"
-    elif project_type == "תחזוקה": return "🔧"
-    else: return "📁"
+def type_icon(p_type):
+    if p_type == "פרויקט אקטיבי": return "🚀"
+    elif p_type == "חבילת עבודה": return "📦"
+    elif p_type == "תחזוקה": return "🔧"
+    return "📁"
 
 for _, row in projects.iterrows():
     icon = type_icon(row["project_type"])
     dot = "🟢" if row["status"]=="ירוק" else "🟡" if row["status"]=="צהוב" else "🔴"
+    # הרשומה עצמה נשארת כפי שהייתה
     st.markdown(f"""
     <div style="background:white; padding:8px 10px; border-radius:8px; margin-bottom:4px; border:1px solid #eee; direction:rtl; text-align:right; font-size:14px;">
         {icon} {row['project_name']}
@@ -146,8 +145,7 @@ for _, row in projects.iterrows():
     </div>
     """, unsafe_allow_html=True)
 
-st.markdown("</div>", unsafe_allow_html=True) # סגירת ה-content-area
-st.markdown("</div>", unsafe_allow_html=True) # סגירת ה-section-wrap
+st.markdown("</div></div>", unsafe_allow_html=True) # סגירת המלבן הלבן וסגירת המעטפת
 
 # 6. לו"ז ותזכורות
 col_right, col_left = st.columns(2)
@@ -155,7 +153,7 @@ col_right, col_left = st.columns(2)
 with col_right:
     st.markdown("<div class='section-wrap'>", unsafe_allow_html=True)
     st.markdown("### 📅 פגישות היום")
-    st.markdown("<div class='content-area'>", unsafe_allow_html=True) # הוספתי גם כאן לנראות אחידה
+    st.markdown("<div class='inner-white-container'>", unsafe_allow_html=True)
     today_meetings = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
     if today_meetings.empty:
         st.info("אין פגישות היום 🎉")
@@ -167,17 +165,17 @@ with col_right:
 with col_left:
     st.markdown("<div class='section-wrap'>", unsafe_allow_html=True)
     st.markdown("### 🔔 תזכורות")
-    st.markdown("<div class='content-area'>", unsafe_allow_html=True)
+    st.markdown("<div class='inner-white-container'>", unsafe_allow_html=True)
     today_reminders = st.session_state.reminders_live[pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today]
     
-    container = st.container(height=260)
-    with container:
+    # שימוש ב-st.container פנימי כדי לשמור על גובה קבוע אם צריך
+    rem_sub_container = st.container(height=260)
+    with rem_sub_container:
         if today_reminders.empty:
             st.info("אין תזכורות להיום 🎉")
         else:
             for _, row in today_reminders.iterrows():
-                source = row.get("source", "manual")
-                icon = "🤖" if source == "ai" else "✍️"
+                icon = "🤖" if row.get("source") == "ai" else "✍️"
                 st.markdown(f"<div class='card'>{icon} {row['reminder_text']} | 📁 {row.get('project_name', 'כללי')}</div>", unsafe_allow_html=True)
 
     if not st.session_state.get("add_mode"):
