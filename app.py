@@ -3,7 +3,7 @@ import pandas as pd
 import base64
 import os
 import datetime
-import google.generativeai as genai
+from google import genai
 
 st.set_page_config(layout="wide")
 
@@ -332,15 +332,13 @@ with col_left:
                 st.rerun()
 
 # =========================
-# AI
-# =========================
-# =========================
-# 🤖 AI AREA (FIXED)
+# 🤖 AI AREA
 # =========================
 
 st.markdown("---")
 st.markdown("### 🤖 אזור AI")
 
+# ---------- UI ----------
 selected = st.selectbox(
     "בחרי פרויקט",
     projects["project_name"].tolist(),
@@ -352,23 +350,27 @@ question = st.text_area(
     key="ai_question"
 )
 
+# ---------- API KEY ----------
 api_key = os.getenv("GEMINI_API_KEY")
 
 if not api_key:
-    st.error("GEMINI_API_KEY לא מוגדר ב-Streamlit Secrets")
+    st.error("❌ חסר GEMINI_API_KEY (ב-Streamlit Secrets או Environment Variables)")
     st.stop()
 
-genai.configure(api_key=api_key)
-model = genai.GenerativeModel("gemini-pro")
+# ---------- Client ----------
+client = genai.Client(api_key=api_key)
 
+# ---------- כפתור ----------
 if st.button("שלח ל-AI", key="ai_button"):
 
     if not question.strip():
         st.warning("אנא הזיני שאלה")
         st.stop()
 
+    # שליפת פרויקט
     row = projects[projects["project_name"] == selected].iloc[0]
 
+    # פרומפט
     prompt = f"""
 את עוזרת לניהול פרויקטים.
 
@@ -382,12 +384,16 @@ if st.button("שלח ל-AI", key="ai_button"):
 """
 
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=prompt
+        )
         result = response.text
+
     except Exception as e:
         result = f"⚠️ שגיאה: {str(e)}"
 
     st.markdown(
-        f"<div class='ai-card'>{result}</div>",
+        f"<div class='card'>{result}</div>",
         unsafe_allow_html=True
     )
