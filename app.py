@@ -4,24 +4,31 @@ import base64
 import datetime
 from zoneinfo import ZoneInfo
 
-# --- 1. עיצוב CSS (מוגדר פעם אחת למעלה) ---
+# --- 1. עיצוב CSS ---
 st.set_page_config(layout="wide", page_title="Sivan Dashboard")
 
 st.markdown("""
 <style>
     .stApp { background-color: #f2f4f7; direction: rtl; }
     
-    /* עיצוב המלבן המעוצב שלנו */
-    .custom-card {
+    /* העיצוב של המסגרת הגנרית */
+    .card-start {
         background: linear-gradient(white, white) padding-box,
                     linear-gradient(90deg, #4facfe, #00f2fe) border-box;
         border: 2px solid transparent;
         border-radius: 15px;
-        padding: 20px;
+        padding: 25px;
         margin-bottom: 20px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.06);
         text-align: right;
         direction: rtl;
+    }
+
+    .text-gradient {
+        background: linear-gradient(90deg, #4facfe, #00f2fe);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
     }
 
     .kpi-box {
@@ -33,25 +40,18 @@ st.markdown("""
         box-shadow: 0 2px 5px rgba(0,0,0,0.02);
     }
 
-    .text-gradient {
-        background: linear-gradient(90deg, #4facfe, #00f2fe);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 800;
-    }
-
     .list-item {
         background: #fdfdfd;
-        padding: 10px;
-        border-radius: 8px;
+        padding: 12px;
+        border-radius: 10px;
         border: 1px solid #eee;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
     }
 
-    /* תיקון יישור לרכיבי Streamlit */
+    /* תיקון רכיבי Streamlit שיהיו RTL */
     div[data-testid="stMarkdownContainer"], .stSelectbox, .stTextInput, .stButton {
         text-align: right !important;
         direction: rtl !important;
@@ -59,7 +59,13 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 2. פונקציות עזר גנריות ---
+# --- 2. פונקציות עזר גנריות למסגרות ---
+def open_card(title, icon=""):
+    st.markdown(f'<div class="card-start"><h3>{icon} {title}</h3>', unsafe_allow_html=True)
+
+def close_card():
+    st.markdown('</div>', unsafe_allow_html=True)
+
 def get_base64_image(path):
     try:
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
@@ -72,7 +78,7 @@ try:
     reminders = pd.read_excel("reminders.xlsx")
     today = pd.Timestamp.today().date()
 except:
-    st.error("וודאי שקובצי האקסל קיימים באותה תיקייה"); st.stop()
+    st.error("וודאי שקובצי האקסל קיימים"); st.stop()
 
 if "reminders_live" not in st.session_state: 
     st.session_state.reminders_live = reminders.copy()
@@ -101,38 +107,38 @@ with k4: st.markdown(f"<div class='kpi-box'>סה\"כ פרויקטים<br><b>{len
 
 st.markdown("<div style='margin-bottom:30px;'></div>", unsafe_allow_html=True)
 
-# --- 6. Main Content Area ---
+# --- 6. הגוף המרכזי - פריסה בתוך המסגרות ---
 col_right, col_left = st.columns([2, 1.2])
 
 with col_right:
-    # מלבן פרויקטים
-    st.markdown('<div class="custom-card"><h3>📁 פרויקטים ומרכיבים</h3>', unsafe_allow_html=True)
+    # --- מלבן פרויקטים ---
+    open_card("פרויקטים ומרכיבים", "📁")
     for _, row in projects.iterrows():
         dot = "🟢" if row["status"]=="ירוק" else "🟡" if row["status"]=="צהוב" else "🔴"
         st.markdown(f'<div class="list-item"><span>{dot}</span><div style="flex-grow:1;"><b>{row["project_name"]}</b> <small style="color:gray;">| {row["project_type"]}</small></div></div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    close_card()
 
-    # מלבן AI Oracle (שימי לב איך הרכיבים "מוזרקים" לתוך ה-HTML)
-    st.markdown('<div class="custom-card"><h3>✨ AI Oracle</h3>', unsafe_allow_html=True)
-    ai_col1, ai_col2, ai_col3 = st.columns([1, 1.5, 0.5])
-    with ai_col1: st.selectbox("בחר פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
-    with ai_col2: st.text_input("שאלה ל-AI", placeholder="שאל משהו...", label_visibility="collapsed", key="ai_q")
-    with ai_col3: 
+    # --- מלבן AI Oracle ---
+    open_card("AI Oracle", "✨")
+    ai_c1, ai_c2, ai_c3 = st.columns([1, 1.5, 0.5])
+    with ai_c1: st.selectbox("בחר פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
+    with ai_c2: st.text_input("שאלה ל-AI", placeholder="שאל משהו...", label_visibility="collapsed", key="ai_q")
+    with ai_c3: 
         if st.button("🚀", key="ai_go"): st.info("מנתח...")
-    st.markdown('</div>', unsafe_allow_html=True)
+    close_card()
 
 with col_left:
-    # מלבן פגישות
-    st.markdown('<div class="custom-card"><h3>📅 פגישות היום</h3>', unsafe_allow_html=True)
+    # --- מלבן פגישות ---
+    open_card("פגישות היום", "📅")
     today_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
     if today_m.empty: st.write("אין פגישות להיום")
     else:
         for _, r in today_m.iterrows():
             st.markdown(f'<div class="list-item">📌 <b>{r["meeting_title"]}</b></div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    close_card()
 
-    # מלבן תזכורות
-    st.markdown('<div class="custom-card"><h3>🔔 תזכורות</h3>', unsafe_allow_html=True)
+    # --- מלבן תזכורות ---
+    open_card("תזכורות", "🔔")
     today_r = st.session_state.reminders_live[pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today]
     
     # אזור גלילה פנימי
@@ -144,12 +150,12 @@ with col_left:
     if st.button("➕ הוסף תזכורת"): st.session_state.show_add = True
     if st.session_state.get("show_add"):
         r_col1, r_col2 = st.columns([2, 1])
-        with r_col1: nt = st.text_input("תזכורת", key="nt", label_visibility="collapsed")
-        with r_col2: np = st.selectbox("פרויקט", projects["project_name"].tolist(), key="np", label_visibility="collapsed")
+        with r_col1: nt = st.text_input("מה נזכור?", key="nt", label_visibility="collapsed")
+        with r_col2: np = st.selectbox("לאיזה פרויקט?", projects["project_name"].tolist(), key="np", label_visibility="collapsed")
         if st.button("✅ שמור"):
             if nt:
                 new_row = {"reminder_text": nt, "project_name": np, "date": today}
                 st.session_state.reminders_live = pd.concat([st.session_state.reminders_live, pd.DataFrame([new_row])], ignore_index=True)
                 st.session_state.show_add = False
                 st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+    close_card()
