@@ -4,7 +4,7 @@ import base64
 import datetime
 from zoneinfo import ZoneInfo
 
-# 1. הגדרות עמוד ועיצוב CSS
+# 1. הגדרות עמוד ועיצוב CSS מאוחד לכל האזורים
 st.set_page_config(layout="wide", page_title="ניהול פרויקטים - לוח בקרה")
 
 st.markdown("""
@@ -18,25 +18,25 @@ st.markdown("""
         font-weight: 800;
     }
 
-    /* המלבן המעוצב */
-    .fancy-border-box {
+    /* המלבן המעוצב לכל האזורים */
+    .fancy-container {
         background: linear-gradient(white, white) padding-box,
                     linear-gradient(90deg, #4facfe, #00f2fe) border-box;
         border: 2px solid transparent;
         border-radius: 15px;
-        padding: 25px;
-        margin-bottom: 25px;
+        padding: 20px;
+        margin-bottom: 20px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         direction: rtl;
         text-align: right;
     }
 
-    /* שורת פרויקט מעוצבת - ללא ריווחים ששוברים Markdown */
-    .project-item {
+    /* עיצוב שורות/כרטיסים בתוך המלבנים */
+    .list-item {
         background: #fdfdfd;
         padding: 12px;
         border-radius: 10px;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         border: 1px solid #eee;
         display: flex;
         align-items: center;
@@ -54,16 +54,6 @@ st.markdown("""
         display: flex;
         flex-direction: column;
         justify-content: center;
-    }
-    
-    .card-stable {
-        background: white; 
-        padding: 15px; 
-        border-radius: 10px;
-        margin-bottom: 10px; 
-        border: 1px solid #eee;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.04);
-        text-align: right;
     }
 
     .stMarkdown, .stText, div[data-testid="stBlock"] {
@@ -115,43 +105,41 @@ with k4: st.markdown(f"<div class='kpi-card'><p style='color:gray; font-size:13p
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 5. אזור הפרויקטים - בנייה של מחרוזת אחת ארוכה ללא רווחים מיותרים
-icons = {"פרויקט אקטיבי": "🚀", "חבילת עבודה": "📦", "תחזוקה": "🔧"}
-project_list_content = ""
-
+# 5. אזור הפרויקטים (המלבן הראשון)
+icons_map = {"פרויקט אקטיבי": "🚀", "חבילת עבודה": "📦", "תחזוקה": "🔧"}
+project_list_html = ""
 for _, row in projects.iterrows():
-    icon = icons.get(row['project_type'], "📁")
+    icon = icons_map.get(row['project_type'], "📁")
     dot = "🟢" if row["status"]=="ירוק" else "🟡" if row["status"]=="צהוב" else "🔴"
-    
-    # בניית שורה כבלוק טקסט אחד רציף
-    item_html = f'<div class="project-item"><span style="font-size:20px; margin-left:10px;">{dot}</span><div style="flex-grow:1; text-align:right;"><span style="font-size:16px; font-weight:bold; color:#1f2a44;">{icon} {row["project_name"]}</span><span style="color:gray; font-size:13px; margin-right:10px;">| {row["project_type"]}</span></div></div>'
-    project_list_content += item_html
+    project_list_html += f'<div class="list-item"><span style="font-size:20px; margin-left:10px;">{dot}</span><div style="flex-grow:1; text-align:right;"><span style="font-size:16px; font-weight:bold; color:#1f2a44;">{icon} {row["project_name"]}</span><span style="color:gray; font-size:13px; margin-right:10px;">| {row["project_type"]}</span></div></div>'
 
-# הזרקה סופית - הכל בתוך f-string אחד לתוך ה-container
-full_html = f"""<div class="fancy-border-box"><h3 style="margin-top:0; margin-bottom:20px; color:#1f2a44;">📁 פרויקטים ומרכיבים</h3>{project_list_content}</div>"""
+st.markdown(f'<div class="fancy-container"><h3 style="margin-top:0; color:#1f2a44;">📁 פרויקטים ומרכיבים</h3>{project_list_html}</div>', unsafe_allow_html=True)
 
-st.markdown(full_html, unsafe_allow_html=True)
-
-# 6. לו"ז ותזכורות
+# 6. אזור פגישות ותזכורות (שני מלבנים צמודים)
 col_r, col_l = st.columns(2)
+
 with col_r:
-    st.markdown("### 📅 פגישות היום")
     today_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-    if today_m.empty: st.info("אין פגישות היום")
+    meetings_html = ""
+    if today_m.empty:
+        meetings_html = "<p style='color:gray;'>אין פגישות היום</p>"
     else:
         for _, row in today_m.iterrows():
-            st.markdown(f"<div class='card-stable'>📌 <b>{row['meeting_title']}</b><br><small>{row['time']} | {row['project_name']}</small></div>", unsafe_allow_html=True)
+            meetings_html += f'<div class="list-item">📌 <div style="margin-right:10px;"><b>{row["meeting_title"]}</b><br><small>{row["time"]} | {row["project_name"]}</small></div></div>'
+    
+    st.markdown(f'<div class="fancy-container" style="height:100%;"><h3 style="margin-top:0; color:#1f2a44;">📅 פגישות היום</h3>{meetings_html}</div>', unsafe_allow_html=True)
 
 with col_l:
-    st.markdown("### 🔔 תזכורות")
     today_r = st.session_state.reminders_live[pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today]
-    with st.container(height=280):
-        for _, row in today_r.iterrows():
-            st.markdown(f"<div class='card-stable'>🔔 {row['reminder_text']} | {row['project_name']}</div>", unsafe_allow_html=True)
+    reminders_html = ""
+    for _, row in today_r.iterrows():
+        reminders_html += f'<div class="list-item">🔔 <div style="margin-right:10px;">{row["reminder_text"]} | <small>{row["project_name"]}</small></div></div>'
     
-    if st.button("➕ הוספת תזכורת"):
+    st.markdown(f'<div class="fancy-container"><h3 style="margin-top:0; color:#1f2a44;">🔔 תזכורות</h3><div style="max-height:200px; overflow-y:auto;">{reminders_html}</div></div>', unsafe_allow_html=True)
+    
+    # כפתור הוספה (מחוץ למלבן ה-HTML כדי שיעבוד)
+    if st.button("➕ הוספת תזכורת מהירה"):
         st.session_state.add_mode = True
-    
     if st.session_state.get("add_mode"):
         with st.form("new_rem"):
             t = st.text_input("תזכורת:")
@@ -161,11 +149,14 @@ with col_l:
                 st.session_state.add_mode = False
                 st.rerun()
 
-# 7. AI Oracle
-st.markdown("---")
-with st.container(border=True):
-    st.markdown("### ✨ AI Oracle")
+# 7. אזור AI Oracle (מלבן מעוצב)
+# נבנה את התוכן של ה-AI בתוך מלבן
+st.markdown('<div class="fancy-container"><h3 style="margin-top:0; color:#1f2a44;">✨ AI Oracle</h3><p style="font-size:14px; color:gray;">שאל את הבינה המלאכותית על מצב הפרויקטים שלך</p></div>', unsafe_allow_html=True)
+
+# כאן נשתמש ב-columns בתוך המלבן (באמצעות קוד Streamlit רגיל הפעם כדי לשמור על פונקציונליות)
+with st.container():
     ca1, ca2 = st.columns([1, 2])
-    with ca1: st.selectbox("בחר פרויקט", projects["project_name"].tolist(), key="p_ai")
-    with ca2: st.text_input("שאלה לניתוח", key="q_ai")
-    if st.button("בצע ניתוח"): st.info("מנתח נתונים...")
+    with ca1: st.selectbox("בחר פרויקט לניתוח", projects["project_name"].tolist(), key="p_ai")
+    with ca2: st.text_input("שאלה ספציפית (למשל: מה הסיכון העיקרי?)", key="q_ai")
+    if st.button("הפעל ניתוח חכם"):
+        st.info("המערכת מנתחת את נתוני האקסל... אנא המתן")
