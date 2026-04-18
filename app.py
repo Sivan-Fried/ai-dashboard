@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import base64
 import datetime
-import time
 from zoneinfo import ZoneInfo
 
 # --- 1. הגדרות דף ---
@@ -13,7 +12,7 @@ def get_base64_image(path):
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS מוחלט ---
+# --- 2. CSS יציב (החזרתי את המקורי) ---
 st.markdown("""
 <style>
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
@@ -34,38 +33,38 @@ st.markdown("""
         border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
     }
 
-    /* KPI - לבן בלי בורדר */
+    /* KPI - לבן נקי בלי מסגרת תכלת */
     .kpi-card {
         background: white !important;
         padding: 15px !important;
         border-radius: 12px !important;
-        text-align: right !important;
+        text-align: center !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
         border: none !important;
     }
     .kpi-card b { font-size: 1.4rem; color: #1f2a44; display: block; }
 
-    /* קונטיינרים */
+    /* מסגרות הקונטיינרים */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        background: white !important;
-        border: 1px solid #edf2f7 !important;
-        border-right: 5px solid #4facfe !important;
+        background: linear-gradient(white, white) padding-box,
+                    linear-gradient(90deg, #4facfe, #00f2fe) border-box !important;
+        border: 1.5px solid transparent !important;
         border-radius: 18px !important;
         padding: 15px !important;
+        background-color: white !important;
     }
 
-    /* שורות רשימה */
     .record-row {
         background: #ffffff !important;
         padding: 10px 15px !important;
         border-radius: 10px !important;
         margin-bottom: 8px !important;
-        border: 1px solid #f1f5f9 !important;
+        border: 1px solid #edf2f7 !important;
+        border-right: 5px solid #4facfe !important;
         display: flex !important;
         justify-content: space-between !important;
         align-items: center !important;
         direction: rtl !important;
-        text-align: right !important;
     }
 
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
@@ -76,7 +75,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 3. נתונים ---
+# --- 3. טעינת נתונים ---
 try:
     projects = pd.read_excel("my_projects.xlsx")
     meetings = pd.read_excel("meetings.xlsx")
@@ -86,19 +85,22 @@ except:
     st.error("Missing Files"); st.stop()
 
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders.copy()
-if "ai_analysis" not in st.session_state: st.session_state.ai_analysis = ""
 
 # --- 4. תצוגה עליונה ---
 st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
+
+img_b64 = get_base64_image("profile.png")
+now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
+greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
+
 p1, p2, p3 = st.columns([1, 1, 2])
 with p2:
-    img = get_base64_image("profile.png")
-    if img: st.markdown(f'<div style="display:flex; justify-content:center;"><img src="data:image/png;base64,{img}" class="profile-img"></div>', unsafe_allow_html=True)
+    if img_b64:
+        st.markdown(f'<div style="display:flex; justify-content:center;"><img src="data:image/png;base64,{img_b64}" class="profile-img"></div>', unsafe_allow_html=True)
 with p3:
-    now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
-    st.markdown(f"<div><h3 style='margin:0;'>שלום, סיון!</h3><p style='color:gray;'>{now.strftime('%H:%M | %d/%m/%Y')}</p></div>", unsafe_allow_html=True)
+    st.markdown(f"<div><h3 style='margin-bottom:0;'>{greeting}, סיון!</h3><p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p></div>", unsafe_allow_html=True)
 
-# --- 5. KPI ---
+# --- 5. שורת KPI ---
 st.markdown("<br>", unsafe_allow_html=True)
 k1, k2, k3, k4 = st.columns(4)
 with k1: st.markdown(f'<div class="kpi-card">בסיכון 🔴<br><b>{len(projects[projects["status"]=="אדום"])}</b></div>', unsafe_allow_html=True)
@@ -116,25 +118,14 @@ with col_right:
         st.markdown("### 📁 פרויקטים ומרכיבים")
         with st.container(height=300, border=False):
             for _, row in projects.iterrows():
-                st.markdown(f'<div class="record-row"><span>📂 {row["project_name"]}</span><span class="tag-blue">{row.get("project_type", "פרויקט")}</span></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="record-row"><b>📂 {row["project_name"]}</b><span class="tag-blue">{row.get("project_type", "פרויקט")}</span></div>', unsafe_allow_html=True)
 
-    # AI Oracle - עם ניתוח שעובד
     with st.container(border=True):
         st.markdown("### ✨ AI Oracle")
         a1, a2 = st.columns([1, 2])
-        with a1: sel_p = st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
-        with a2: q_in = st.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
-        
-        if st.button("שגר שאילתה 🚀", use_container_width=True):
-            if q_in:
-                with st.spinner("מנתח..."):
-                    time.sleep(1)
-                    st.session_state.ai_analysis = f"**ניתוח עבור {sel_p}:** על פי הנתונים, הפרויקט מתקדם כמצופה. יש לוודא שהמשימות הפתוחות יושלמו עד סוף השבוע."
-            else:
-                st.warning("נא להזין שאלה")
-        
-        if st.session_state.ai_analysis:
-            st.info(st.session_state.ai_analysis)
+        with a1: st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
+        with a2: st.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
+        st.button("שגר שאילתה 🚀", use_container_width=True)
 
 with col_left:
     with st.container(border=True):
@@ -145,7 +136,7 @@ with col_left:
             for _, r in t_m.iterrows():
                 st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
 
-    # תזכורות עם גלילה
+    # תזכורות עם גלילה - כאן התיקון הקריטי
     with st.container(border=True):
         st.markdown("### 🔔 תזכורות")
         with st.container(height=250, border=False):
