@@ -4,7 +4,7 @@ import base64
 import datetime
 from zoneinfo import ZoneInfo
 
-# 1. הגדרות עמוד ועיצוב CSS
+# 1. הגדרות עמוד ועיצוב CSS חזק למסגור
 st.set_page_config(layout="wide", page_title="ניהול פרויקטים - לוח בקרה")
 
 st.markdown("""
@@ -18,19 +18,18 @@ st.markdown("""
         font-weight: 800;
     }
 
-    /* המלבן המעוצב */
-    .fancy-container {
+    /* עיצוב גלובלי למכולות של Streamlit - זה מבטיח שהכל יישאר בפנים */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
         background: linear-gradient(white, white) padding-box,
-                    linear-gradient(90deg, #4facfe, #00f2fe) border-box;
-        border: 2px solid transparent;
-        border-radius: 15px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        direction: rtl;
-        text-align: right;
+                    linear-gradient(90deg, #4facfe, #00f2fe) border-box !important;
+        border: 2px solid transparent !important;
+        border-radius: 15px !important;
+        padding: 20px !important;
+        margin-bottom: 20px !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important;
     }
 
+    /* עיצוב שורות הרשימה */
     .list-item {
         background: #fdfdfd;
         padding: 10px 15px;
@@ -40,6 +39,8 @@ st.markdown("""
         display: flex;
         align-items: center;
         gap: 12px;
+        direction: rtl;
+        text-align: right;
     }
 
     .kpi-card {
@@ -55,7 +56,8 @@ st.markdown("""
         justify-content: center;
     }
 
-    .stSelectbox, .stTextInput, .stButton {
+    /* התאמות יישור */
+    .stSelectbox, .stTextInput, .stButton, .stMarkdown {
         direction: rtl;
         text-align: right;
     }
@@ -93,7 +95,7 @@ with col_h2:
 with col_h3:
     st.markdown(f'<div style="margin-top:25px; text-align:right;"><h3>{greeting}, סיון!</h3><p style="color:gray;">{now.strftime("%d/%m/%Y | %H:%M")}</p></div>', unsafe_allow_html=True)
 
-# הוספת רווח משמעותי בין הפרופיל ל-KPI
+# רווח מוגדל בין הפרופיל ל-KPI
 st.markdown("<div style='margin-bottom:50px;'></div>", unsafe_allow_html=True)
 
 # 4. KPI
@@ -105,61 +107,62 @@ with k4: st.markdown(f"<div class='kpi-card'><p style='color:gray; margin:0;'>ס
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 5. פריסה מרכזית
+# 5. פריסה מרכזית - שימוש ב-st.container(border=True) כדי להפעיל את ה-CSS המעוצב
 col_main, col_side = st.columns([2, 1.2])
 
 with col_main:
     # מלבן פרויקטים
-    icons_map = {"פרויקט אקטיבי": "🚀", "חבילת עבודה": "📦", "תחזוקה": "🔧"}
-    p_html = ""
-    for _, row in projects.iterrows():
-        dot = "🟢" if row["status"]=="ירוק" else "🟡" if row["status"]=="צהוב" else "🔴"
-        icon = icons_map.get(row['project_type'], "📁")
-        p_html += f'<div class="list-item"><span>{dot}</span><div style="flex-grow:1;"><b>{icon} {row["project_name"]}</b> <small style="color:gray;">| {row["project_type"]}</small></div></div>'
-    st.markdown(f'<div class="fancy-container"><h3 style="margin-top:0;">📁 פרויקטים ומרכיבים</h3>{p_html}</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown('<h3 style="margin-top:0;">📁 פרויקטים ומרכיבים</h3>', unsafe_allow_html=True)
+        icons_map = {"פרויקט אקטיבי": "🚀", "חבילת עבודה": "📦", "תחזוקה": "🔧"}
+        for _, row in projects.iterrows():
+            dot = "🟢" if row["status"]=="ירוק" else "🟡" if row["status"]=="צהוב" else "🔴"
+            icon = icons_map.get(row['project_type'], "📁")
+            st.markdown(f'<div class="list-item"><span>{dot}</span><div style="flex-grow:1;"><b>{icon} {row["project_name"]}</b> <small style="color:gray;">| {row["project_type"]}</small></div></div>', unsafe_allow_html=True)
 
-    # מלבן AI Oracle - מסגרת שלמה לכל האלמנטים
-    st.markdown('<div class="fancy-container"><h3 style="margin-top:0;">✨ AI Oracle</h3>', unsafe_allow_html=True)
-    ca_1, ca_2, ca_3 = st.columns([1, 1.5, 0.5])
-    with ca_1: st.selectbox("בחר פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
-    with ca_2: st.text_input("שאלה", placeholder="שאל את ה-AI על הפרויקט...", label_visibility="collapsed", key="ai_q")
-    with ca_3: 
-        if st.button("🚀", use_container_width=True, key="ai_go"): st.info("מנתח...")
-    st.markdown('</div>', unsafe_allow_html=True)
+    # מלבן AI Oracle - עכשיו הכל כלול בפנים בזכות ה-CSS
+    with st.container(border=True):
+        st.markdown('<h3 style="margin-top:0;">✨ AI Oracle</h3>', unsafe_allow_html=True)
+        st.markdown('<p style="font-size:14px; color:gray;">ניתוח חכם של נתוני הפרויקטים</p>', unsafe_allow_html=True)
+        ca_1, ca_2, ca_3 = st.columns([1, 1.5, 0.5])
+        with ca_1: st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
+        with ca_2: st.text_input("שאלה", placeholder="שאל את ה-AI...", label_visibility="collapsed", key="ai_q")
+        with ca_3: 
+            if st.button("🚀", use_container_width=True, key="ai_go"): st.info("מנתח...")
 
 with col_side:
     # מלבן פגישות
-    today_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-    m_html = "".join([f'<div class="list-item">📌 <b>{r["meeting_title"]}</b></div>' for _, r in today_m.iterrows()])
-    st.markdown(f'<div class="fancy-container"><h3 style="margin-top:0;">📅 פגישות היום</h3>{m_html if m_html else "אין פגישות"}</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown('<h3 style="margin-top:0;">📅 פגישות היום</h3>', unsafe_allow_html=True)
+        today_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
+        if today_m.empty: st.markdown("<p style='color:gray;'>אין פגישות</p>", unsafe_allow_html=True)
+        else:
+            for _, r in today_m.iterrows():
+                st.markdown(f'<div class="list-item">📌 <b>{r["meeting_title"]}</b></div>', unsafe_allow_html=True)
 
-    # מלבן תזכורות - הכל נשאר בתוך ה-fancy-container
-    st.markdown('<div class="fancy-container"><h3 style="margin-top:0;">🔔 תזכורות</h3>', unsafe_allow_html=True)
-    today_r = st.session_state.reminders_live[pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today]
-    
-    # רינדור רשימת התזכורות כ-HTML בתוך המלבן
-    rem_items_html = ""
-    for _, row in today_r.iterrows():
-        rem_items_html += f"""
-        <div class="list-item">
-            🔔 <div style="flex-grow:1;"><b>{row['reminder_text']}</b><br><small style="color:#4facfe;">פרויקט: {row['project_name']}</small></div>
-        </div>
-        """
-    st.markdown(rem_items_html, unsafe_allow_html=True)
-    
-    # כפתור ושורת הוספה (מחוץ ל-HTML הסטטי אבל בתוך ה-Container של המלבן)
-    if st.button("➕ הוסף תזכורת", key="add_btn"): st.session_state.show_add = True
-    
-    if st.session_state.get("show_add"):
-        # שורה דקה להוספה
-        ra, rb, rc = st.columns([1.5, 1, 0.6])
-        with ra: nt = st.text_input("תזכורת", label_visibility="collapsed", key="nt")
-        with rb: np = st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="np")
-        with rc: 
-            if st.button("✅", key="save_new"):
-                if nt:
-                    new_r = {"reminder_text": nt, "project_name": np, "date": today}
-                    st.session_state.reminders_live = pd.concat([st.session_state.reminders_live, pd.DataFrame([new_r])], ignore_index=True)
-                    st.session_state.show_add = False
-                    st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+    # מלבן תזכורות - פתרון סופי למסגור
+    with st.container(border=True):
+        st.markdown('<h3 style="margin-top:0;">🔔 תזכורות</h3>', unsafe_allow_html=True)
+        today_r = st.session_state.reminders_live[pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today]
+        
+        for _, row in today_r.iterrows():
+            st.markdown(f"""
+            <div class="list-item">
+                🔔 <div style="flex-grow:1;"><b>{row['reminder_text']}</b><br><small style="color:#4facfe;">פרויקט: {row['project_name']}</small></div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.button("➕ הוסף תזכורת", key="add_btn"): st.session_state.show_add = True
+        
+        if st.session_state.get("show_add"):
+            ra, rb, rc = st.columns([1.5, 1, 0.6])
+            with ra: nt = st.text_input("תזכורת", label_visibility="collapsed", key="nt")
+            with rb: np = st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="np")
+            with rc: 
+                if st.button("✅", key="save_new"):
+                    if nt:
+                        new_r = {"reminder_text": nt, "project_name": np, "date": today}
+                        st.session_state.reminders_live = pd.concat([st.session_state.reminders_live, pd.DataFrame([new_r])], ignore_index=True)
+                        st.session_state.show_add = False
+                        st.rerun()
