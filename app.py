@@ -3,7 +3,7 @@ import pandas as pd
 import base64
 import os
 import datetime
-import google.generativeai as genai
+from google import genai
 
 st.set_page_config(layout="wide")
 
