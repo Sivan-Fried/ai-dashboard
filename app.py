@@ -5,7 +5,7 @@ import base64
 import datetime
 from zoneinfo import ZoneInfo
 
-# 1. הגדרות עמוד ועיצוב בסיסי
+# 1. הגדרות עמוד ועיצוב בסיסי מקורי
 st.set_page_config(layout="wide", page_title="ניהול פרויקטים - לוח בקרה")
 
 st.markdown("""
@@ -82,25 +82,10 @@ except Exception as e:
     st.error(f"שגיאה בטעינת קבצים: {e}")
     st.stop()
 
-# AI תזכורות
-def generate_ai_reminders(df):
-    ai = []
-    for _, row in df.iterrows():
-        if row["status"] in ["צהוב", "אדום"]:
-            ai.append({
-                "reminder_text": f"התחלה/מעקב על {row['project_name']}",
-                "project_name": row["project_name"],
-                "date": today,
-                "priority": "medium",
-                "source": "ai"
-            })
-    return pd.DataFrame(ai)
-
 if "reminders_live" not in st.session_state:
-    ai_reminders = generate_ai_reminders(projects)
-    st.session_state.reminders_live = pd.concat([reminders, ai_reminders], ignore_index=True)
+    st.session_state.reminders_live = reminders.copy()
 
-# 4. KPI - הגרסה המתוקנת עם 4 עמודות
+# 4. KPI - עיצוב מתוקן עם "לפי התכנון"
 k1, k2, k3, k4 = st.columns(4)
 with k1: 
     st.markdown(f"<div class='card'><b>סה״כ פרויקטים</b><br><h2>{len(projects)}</h2></div>", unsafe_allow_html=True)
@@ -109,7 +94,7 @@ with k2:
 with k3: 
     st.markdown(f"<div class='card' style='border-top: 3px solid orange;'><b>במעקב 🟡</b><br><h2 style='color:orange;'>{len(projects[projects['status']=='צהוב'])}</h2></div>", unsafe_allow_html=True)
 with k4: 
-    st.markdown(f"<div class='card' style='border-top: 3px solid green;'><b>תקין 🟢</b><br><h2 style='color:green;'>{len(projects[projects['status']=='ירוק'])}</h2></div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='card' style='border-top: 3px solid green;'><b>לפי התכנון 🟢</b><br><h2 style='color:green;'>{len(projects[projects['status']=='ירוק'])}</h2></div>", unsafe_allow_html=True)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
@@ -162,8 +147,10 @@ with col_left:
             st.info("אין תזכורות להיום 🎉")
         else:
             for _, row in today_reminders.iterrows():
-                icon = "🤖" if row["source"] == "ai" else "✍️"
-                st.markdown(f"<div class='card'>{icon} {row['reminder_text']} | 📁 {row['project_name']}</div>", unsafe_allow_html=True)
+                # בדיקה אם קיימת עמודת source, אם לא ברירת מחדל היא manual
+                source = row.get("source", "manual")
+                icon = "🤖" if source == "ai" else "✍️"
+                st.markdown(f"<div class='card'>{icon} {row['reminder_text']} | 📁 {row.get('project_name', 'כללי')}</div>", unsafe_allow_html=True)
 
     st.markdown("---")
     if "add_mode" not in st.session_state: st.session_state.add_mode = False
@@ -181,7 +168,7 @@ with col_left:
             if st.button("✔"):
                 p_map = {"נמוכה":"low","בינונית":"medium","גבוהה":"high"}
                 new_row = {"reminder_text": text, "project_name": project, "date": today, "priority": p_map[priority], "source": "manual"}
-                st.session_state.reminders_live.loc[len(st.session_state.reminders_live)] = new_row
+                st.session_state.reminders_live = pd.concat([st.session_state.reminders_live, pd.DataFrame([new_row])], ignore_index=True)
                 st.session_state.add_mode = False
                 st.rerun()
 
