@@ -335,52 +335,27 @@ with col_left:
 # AI
 # =========================
 # =========================
-# 🤖 AI AREA (STABLE)
+# 🤖 AI AREA (FIXED)
 # =========================
-import streamlit as st
-import google.generativeai as genai
-import os
 
-# ---------- עיצוב (רקע לבן קבוע) ----------
-st.markdown("""
-<style>
-.ai-card {
-    background-color: white !important;
-    color: #111 !important;
-    padding: 16px;
-    border-radius: 12px;
-    border: 1px solid #e6e6e6;
-}
-
-textarea, input {
-    background-color: white !important;
-    color: black !important;
-}
-
-div[data-baseweb="select"] > div {
-    background-color: white !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown("<hr>", unsafe_allow_html=True)
+st.markdown("---")
 st.markdown("### 🤖 אזור AI")
 
-# ---------- בחירת פרויקט ----------
 selected = st.selectbox(
     "בחרי פרויקט",
-    projects["project_name"].tolist()
+    projects["project_name"].tolist(),
+    key="ai_project"
 )
 
-# ---------- שאלה ----------
-question = st.text_area("שאלה חופשית")
+question = st.text_area(
+    "שאלה חופשית",
+    key="ai_question"
+)
 
-# ---------- AI setup ----------
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-pro")
+model = genai.GenerativeModel("gemini-1.5-pro")
 
-# ---------- כפתור ----------
-if st.button("שלח ל-AI"):
+if st.button("שלח ל-AI", key="ai_button"):
 
     if not question.strip():
         st.warning("אנא הזיני שאלה")
