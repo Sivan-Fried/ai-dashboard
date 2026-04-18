@@ -3,7 +3,7 @@ import pandas as pd
 import base64
 import os
 import datetime
-import google.generativeai as genai # שורה 6 התקינה
+import google.generativeai as genai
 
 # הגדרת עמוד
 st.set_page_config(layout="wide", page_title="AI Dashboard")
@@ -77,16 +77,13 @@ with col2:
             st.markdown(f"<div class='card'>📌 {r['meeting_title']} ({r['time']})</div>", unsafe_allow_html=True)
     else: st.info("אין פגישות היום")
 
-# ==========================================
-# 🤖 AI AREA - מותאם לספריה היציבה
-# ==========================================
+# AI AREA
 st.markdown("---")
 st.markdown("### 🤖 עוזר AI")
 
 api_key = st.secrets.get("GEMINI_API_KEY")
 
 if api_key:
-    # אתחול ה-AI בשיטה הישנה והטובה
     genai.configure(api_key=api_key)
     
     ca1, ca2 = st.columns(2)
@@ -95,13 +92,12 @@ if api_key:
     with ca2:
         u_q = st.text_area("שאלה", key="final_v2")
 
- if st.button("בצע ניתוח", key="final_v3"):
+    if st.button("בצע ניתוח", key="final_v3"):
         if u_q:
             p_info = projects[projects["project_name"] == s_proj].iloc[0]
             prompt = f"פרויקט: {p_info['project_name']}, סטטוס: {p_info['status']}. שאלה: {u_q}"
             with st.spinner("מנתח..."):
                 try:
-                    # התיקון כאן: הסרנו את הקידומת models/ והשארנו רק gemini-1.5-flash
                     model = genai.GenerativeModel('gemini-1.5-flash')
                     res = model.generate_content(prompt)
                     st.success(res.text)
