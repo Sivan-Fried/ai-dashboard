@@ -13,7 +13,7 @@ def get_base64_image(path):
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS מוחלט: יישור לימין, KPI לבן, וגלילה ---
+# --- 2. CSS - יישור ימין, פונט Assistant, ו-KPI לבן נקי ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap');
@@ -30,7 +30,7 @@ st.markdown("""
         background: linear-gradient(90deg, #4facfe, #00f2fe) !important;
         -webkit-background-clip: text !important;
         -webkit-text-fill-color: transparent !important;
-        text-align: center !important; font-size: 2.2rem !important; font-weight: 800;
+        text-align: center !important; font-size: 2.2rem !important; font-weight: 800; margin-bottom: 20px;
     }
 
     .profile-img {
@@ -39,17 +39,20 @@ st.markdown("""
         border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
     }
 
+    /* KPI - לבן נקי בלי בורדר תכלת */
     .kpi-card {
         background: white !important; padding: 15px !important; border-radius: 12px !important;
         text-align: center !important; box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important; border: none !important;
     }
     .kpi-card b { font-size: 1.4rem; color: #1f2a44; display: block; }
 
+    /* קונטיינרים עם פס צד כחול בלבד */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background: white !important; border: 1px solid #edf2f7 !important;
         border-right: 5px solid #4facfe !important; border-radius: 18px !important; padding: 15px !important;
     }
 
+    /* עיצוב שורות */
     .record-row {
         background: #f8fafc; padding: 10px 15px; border-radius: 10px; margin-bottom: 8px;
         border: 1px solid #edf2f7; display: flex; justify-content: space-between; align-items: center;
@@ -99,25 +102,32 @@ st.markdown("<br>", unsafe_allow_html=True)
 col_right, col_left = st.columns([2, 1.2])
 
 with col_right:
+    # פרויקטים עם גלילה (המכולה המובנית של Streamlit שומרת על ה-CSS)
     with st.container(border=True):
         st.markdown("### 📁 פרויקטים ומרכיבים")
         with st.container(height=300, border=False):
             for _, row in projects.iterrows():
                 st.markdown(f'<div class="record-row"><span>📂 {row["project_name"]}</span><span class="tag-blue">{row.get("project_type", "פרויקט")}</span></div>', unsafe_allow_html=True)
 
+    # AI Oracle - עם תיקון לניתוח
     with st.container(border=True):
         st.markdown("### ✨ AI Oracle")
         a1, a2 = st.columns([1, 2])
         with a1: sel_p = st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
         with a2: q_in = st.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
+        
         if st.button("שגר שאילתה 🚀", use_container_width=True):
             if q_in:
                 with st.spinner("מנתח..."):
-                    time.sleep(1); st.session_state.ai_analysis = f"**ניתוח AI עבור {sel_p}:** הפרויקט יציב. מומלץ לוודא עמידה בלוחות הזמנים."
+                    time.sleep(1)
+                    st.session_state.ai_analysis = f"**ניתוח AI עבור {sel_p}:** הפרויקט יציב. מומלץ לוודא עמידה בלוחות הזמנים לשבוע הבא."
             else: st.warning("נא להזין שאלה")
-        if st.session_state.ai_analysis: st.info(st.session_state.ai_analysis)
+        
+        if st.session_state.ai_analysis:
+            st.info(st.session_state.ai_analysis)
 
 with col_left:
+    # פגישות
     with st.container(border=True):
         st.markdown("### 📅 פגישות היום")
         t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
@@ -126,10 +136,12 @@ with col_left:
             for _, r in t_m.iterrows():
                 st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
 
+    # תזכורות עם גלילה (SCROLL)
     with st.container(border=True):
         st.markdown("### 🔔 תזכורות")
         with st.container(height=250, border=False):
             t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
             for _, row in t_r.iterrows():
                 st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
+        
         st.button("➕ הוסף תזכורת", use_container_width=True)
