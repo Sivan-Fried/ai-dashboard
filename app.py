@@ -352,8 +352,14 @@ question = st.text_area(
     key="ai_question"
 )
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-1.5-pro")
+api_key = os.getenv("GEMINI_API_KEY")
+
+if not api_key:
+    st.error("GEMINI_API_KEY לא מוגדר ב-Streamlit Secrets")
+    st.stop()
+
+genai.configure(api_key=api_key))
+model = genai.GenerativeModel("gemini-pro")
 
 if st.button("שלח ל-AI", key="ai_button"):
 
