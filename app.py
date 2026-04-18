@@ -24,12 +24,14 @@ h1, h2, h3 { color:#1f2a44; text-align:right; }
 
 st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
 
-# פרופיל
+# פונקציית פרופיל
 def get_base64_img(path):
     try:
         if os.path.exists(path):
-            with open(path, "rb") as f: return base64.b64encode(f.read()).decode()
-    except: return ""
+            with open(path, "rb") as f:
+                return base64.b64encode(f.read()).decode()
+    except:
+        return ""
     return ""
 
 img_b64 = get_base64_img("profile.png")
@@ -75,9 +77,12 @@ with col2:
     if not t_meetings.empty:
         for _, r in t_meetings.iterrows():
             st.markdown(f"<div class='card'>📌 {r['meeting_title']} ({r['time']})</div>", unsafe_allow_html=True)
-    else: st.info("אין פגישות היום")
+    else:
+        st.info("אין פגישות היום")
 
-# AI AREA
+# ==========================================
+# 🤖 אזור ה-AI המוגן (עוקף שגיאות 404)
+# ==========================================
 st.markdown("---")
 st.markdown("### 🤖 עוזר AI")
 
@@ -96,20 +101,24 @@ if api_key:
         if u_q:
             p_info = projects[projects["project_name"] == s_proj].iloc[0]
             prompt = f"פרויקט: {p_info['project_name']}, סטטוס: {p_info['status']}. שאלה: {u_q}"
+            
             with st.spinner("מנתח..."):
-                try:
-                    # הוספנו כאן את ה-gemini-1.5-flash-latest וניסיון נוסף
-                    model = genai.GenerativeModel('gemini-1.5-flash')
-                    res = model.generate_content(prompt)
-                    st.success(res.text)
-                except Exception as e:
-                    # אם זה נכשל, ננסה את המודל הישן יותר רק כדי לבדוק אם זו בעיית הרשאות
+                # מנסים כמה וריאציות של שם המודל כדי לעקוף שגיאות 404
+                success = False
+                for model_name in ['gemini-1.5-flash', 'models/gemini-1.5-flash', 'gemini-1.5-flash-latest']:
+                    if success: break
                     try:
-                        model_alt = genai.GenerativeModel('gemini-1.0-pro')
-                        res = model_alt.generate_content(prompt)
+                        model = genai.GenerativeModel(model_name)
+                        res = model.generate_content(prompt)
                         st.success(res.text)
-                    except:
-                        st.error(f"שגיאה בניתוח: {e}")
+                        success = True
+                    except Exception as e:
+                        last_error = e
+                        continue
+                
+                if not success:
+                    st.error(f"שגיאה בניתוח: {last_error}")
+                    st.info("טיפ: ודאי שה-API Key ב-Secrets מעודכן ושהוא נוצר ב-Google AI Studio.")
         else:
             st.warning("נא להזין שאלה.")
 else:
