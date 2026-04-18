@@ -12,57 +12,65 @@ def get_base64_image(path):
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS סופי - ללא פשרות ---
+# --- 2. CSS אבסולוטי - צובע את ה-Containers המובנים של Streamlit ---
 st.markdown("""
 <style>
-    .stApp { background-color: #f2f4f7; direction: rtl; }
+    /* רקע כללי */
+    .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
     
-    /* כותרת דשבורד מוקטנת */
+    /* כותרת גרדיאנט */
     .dashboard-header {
-        background: linear-gradient(90deg, #4facfe, #00f2fe);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-align: center;
-        font-size: 2.2rem;
-        font-weight: 800;
-        margin-bottom: 25px;
+        background: linear-gradient(90deg, #4facfe, #00f2fe) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        text-align: center !important;
+        font-size: 2.2rem !important;
+        font-weight: 800 !important;
+        margin-bottom: 25px !important;
     }
 
-    /* מסגרת הגרדיאנט לכל הבלוקים */
-    .fancy-container {
+    /* עיצוב התמונה */
+    .profile-img {
+        width: 130px; height: 130px; border-radius: 50% !important;
+        object-fit: cover !important; object-position: center 20% !important;
+        border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+
+    /* הקסם: צביעת המסגרת של st.container(border=True) */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
         background: linear-gradient(white, white) padding-box,
-                    linear-gradient(90deg, #4facfe, #00f2fe) border-box;
-        border: 2.5px solid transparent;
-        border-radius: 18px;
-        padding: 22px;
-        margin-bottom: 25px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+                    linear-gradient(90deg, #4facfe, #00f2fe) border-box !important;
+        border: 2.5px solid transparent !important;
+        border-radius: 18px !important;
+        padding: 20px !important;
+        background-color: white !important;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
     }
 
-    /* עיצוב רשומות (פרויקטים, פגישות, תזכורות) */
+    /* עיצוב רשומות (פס תכלת) */
     .record-box {
-        background: #ffffff;
-        padding: 12px 15px;
-        border-radius: 10px;
-        margin-bottom: 10px;
-        border: 1px solid #edf2f7;
-        border-right: 6px solid #4facfe;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        direction: rtl;
-        color: #1f2a44;
+        background: #ffffff !important;
+        padding: 12px 15px !important;
+        border-radius: 10px !important;
+        margin-bottom: 10px !important;
+        border: 1px solid #edf2f7 !important;
+        border-right: 6px solid #4facfe !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        direction: rtl !important;
     }
 
-    /* יישור טקסט */
-    h3, p, span, label { text-align: right !important; direction: rtl !important; }
+    /* יישור לימין לכל רכיבי המערכת */
+    div[data-testid="stMarkdownContainer"], .stSelectbox, .stTextInput, .stButton, label, h3, p {
+        text-align: right !important; direction: rtl !important;
+    }
     
-    /* כפתור אחיד */
-    .stButton>button { width: 100%; border-radius: 10px; height: 45px; font-weight: bold; }
+    .stButton>button { width: 100% !important; border-radius: 10px !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# --- 3. טעינת נתונים ---
+# --- 3. נתונים ---
 try:
     projects = pd.read_excel("my_projects.xlsx")
     meetings = pd.read_excel("meetings.xlsx")
@@ -73,7 +81,7 @@ except:
 
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders.copy()
 
-# --- 4. כותרת ופרופיל ---
+# --- 4. תצוגה ---
 st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
 
 img_b64 = get_base64_image("profile.png")
@@ -83,7 +91,7 @@ greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים
 p1, p2, p3 = st.columns([1, 1, 2])
 with p2:
     if img_b64:
-        st.markdown(f'<div style="display:flex; justify-content:center;"><img src="data:image/png;base64,{img_b64}" style="width:130px; height:130px; border-radius:50%; object-fit: cover; object-position: center 20%; border: 4px solid white; box-shadow: 0 10px 20px rgba(0,0,0,0.1);"></div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="display:flex; justify-content:center;"><img src="data:image/png;base64,{img_b64}" class="profile-img"></div>', unsafe_allow_html=True)
 with p3:
     st.markdown(f"<div style='margin-top:20px;'><h3>{greeting}, סיון!</h3><p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p></div>", unsafe_allow_html=True)
 
@@ -96,51 +104,41 @@ with k2: st.markdown(f"<div style='{k_style} border-top:4px solid #ffa500;'>במ
 with k3: st.markdown(f"<div style='{k_style} border-top:4px solid #00c853;'>לפי התכנון 🟢<br><b>{len(projects[projects['status']=='ירוק'])}</b></div>", unsafe_allow_html=True)
 with k4: st.markdown(f"<div style='{k_style}'>סה\"כ פרויקטים<br><b>{len(projects)}</b></div>", unsafe_allow_html=True)
 
-# --- 5. גוף הדשבורד ---
 st.markdown("<br>", unsafe_allow_html=True)
 col_right, col_left = st.columns([2, 1.2])
 
 with col_right:
-    # פרויקטים
-    st.markdown('<div class="fancy-container"><h3>📁 פרויקטים ומרכיבים</h3>', unsafe_allow_html=True)
-    for _, row in projects.iterrows():
-        st.markdown(f"""
-            <div class="record-box">
-                <span style="font-weight:bold;">{row['project_name']}</span>
-                <span style="color:gray; font-size:0.85em;">{row.get('project_type', 'פרויקט')}</span>
-            </div>
-        """, unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown("### 📁 פרויקטים ומרכיבים")
+        for _, row in projects.iterrows():
+            st.markdown(f'<div class="record-box"><span style="font-weight:bold;">{row["project_name"]}</span><span style="color:gray; font-size:0.85em;">{row.get("project_type", "פרויקט")}</span></div>', unsafe_allow_html=True)
 
-    # AI Oracle
-    st.markdown('<div class="fancy-container"><h3>✨ AI Oracle</h3>', unsafe_allow_html=True)
-    a1, a2 = st.columns([1, 2])
-    with a1: st.selectbox("בחר פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
-    with a2: st.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
-    st.button("שגר שאילתה 🚀", key="ai_btn")
-    st.markdown('</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown("### ✨ AI Oracle")
+        a1, a2 = st.columns([1, 2])
+        with a1: st.selectbox("בחר פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
+        with a2: st.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
+        st.button("שגר שאילתה 🚀", key="ai_btn")
 
 with col_left:
-    # פגישות
-    st.markdown('<div class="fancy-container"><h3>📅 פגישות היום</h3>', unsafe_allow_html=True)
-    t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-    if t_m.empty: st.write("אין פגישות היום")
-    else:
-        for _, r in t_m.iterrows():
-            st.markdown(f'<div class="record-box"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown("### 📅 פגישות היום")
+        t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
+        if t_m.empty: st.write("אין פגישות היום")
+        else:
+            for _, r in t_m.iterrows():
+                st.markdown(f'<div class="record-box"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
 
-    # תזכורות
-    st.markdown('<div class="fancy-container"><h3>🔔 תזכורות</h3>', unsafe_allow_html=True)
-    t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
-    for _, row in t_r.iterrows():
-        st.markdown(f'<div class="record-box"><span>🔔 {row["reminder_text"]}</span></div>', unsafe_allow_html=True)
-    
-    if st.button("➕ הוסף תזכורת", key="add_r"): st.session_state.add_mode = True
-    if st.session_state.get("add_mode"):
-        nt = st.text_input("משימה:", key="nt_i")
-        if st.button("✅ שמור", key="save_r"):
-            st.session_state.rem_live = pd.concat([st.session_state.rem_live, pd.DataFrame([{"reminder_text": nt, "date": today}])], ignore_index=True)
-            st.session_state.add_mode = False
-            st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown("### 🔔 תזכורות")
+        t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
+        for _, row in t_r.iterrows():
+            st.markdown(f'<div class="record-box"><span>🔔 {row["reminder_text"]}</span></div>', unsafe_allow_html=True)
+        
+        if st.button("➕ הוסף תזכורת", key="add_r"): st.session_state.add_mode = True
+        if st.session_state.get("add_mode"):
+            nt = st.text_input("משימה:", key="nt_i")
+            if st.button("✅ שמור", key="save_r"):
+                st.session_state.rem_live = pd.concat([st.session_state.rem_live, pd.DataFrame([{"reminder_text": nt, "date": today}])], ignore_index=True)
+                st.session_state.add_mode = False
+                st.rerun()
