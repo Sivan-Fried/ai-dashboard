@@ -13,7 +13,7 @@ def get_base64_image(path):
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS מוחלט - פתרון לבעיית היישור והגלילה ---
+# --- 2. CSS מוחלט: יישור לימין, KPI לבן, וגלילה ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap');
@@ -73,12 +73,10 @@ try:
 except:
     st.error("Missing Files"); st.stop()
 
-# ניהול מצב (Session State)
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders.copy()
 if "ai_analysis" not in st.session_state: st.session_state.ai_analysis = ""
-if "show_form" not in st.session_state: st.session_state.show_form = False
 
-# --- 4. תצוגה עליונה ---
+# --- 4. כותרת ופרופיל ---
 st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
 p1, p2, p3 = st.columns([1, 1, 2])
 with p2:
@@ -101,32 +99,25 @@ st.markdown("<br>", unsafe_allow_html=True)
 col_right, col_left = st.columns([2, 1.2])
 
 with col_right:
-    # פרויקטים עם גלילה (Height קבוע מייצר גלילה אוטומטית)
     with st.container(border=True):
         st.markdown("### 📁 פרויקטים ומרכיבים")
         with st.container(height=300, border=False):
             for _, row in projects.iterrows():
                 st.markdown(f'<div class="record-row"><span>📂 {row["project_name"]}</span><span class="tag-blue">{row.get("project_type", "פרויקט")}</span></div>', unsafe_allow_html=True)
 
-    # AI Oracle - תיקון פונקציונליות
     with st.container(border=True):
         st.markdown("### ✨ AI Oracle")
         a1, a2 = st.columns([1, 2])
         with a1: sel_p = st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
         with a2: q_in = st.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
-        
         if st.button("שגר שאילתה 🚀", use_container_width=True):
             if q_in:
-                with st.spinner("מנתח נתונים..."):
-                    time.sleep(1)
-                    st.session_state.ai_analysis = f"**ניתוח AI עבור {sel_p}:** על פי מדדי הביצוע, הפרויקט נמצא בסטטוס תקין. מומלץ לוודא עמידה ביעדי שבוע הבא."
+                with st.spinner("מנתח..."):
+                    time.sleep(1); st.session_state.ai_analysis = f"**ניתוח AI עבור {sel_p}:** הפרויקט יציב. מומלץ לוודא עמידה בלוחות הזמנים."
             else: st.warning("נא להזין שאלה")
-        
-        if st.session_state.ai_analysis:
-            st.info(st.session_state.ai_analysis)
+        if st.session_state.ai_analysis: st.info(st.session_state.ai_analysis)
 
 with col_left:
-    # פגישות
     with st.container(border=True):
         st.markdown("### 📅 פגישות היום")
         t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
@@ -135,29 +126,10 @@ with col_left:
             for _, r in t_m.iterrows():
                 st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
 
-    # תזכורות - תיקון גלילה והוספה
     with st.container(border=True):
         st.markdown("### 🔔 תזכורות")
         with st.container(height=250, border=False):
             t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
             for _, row in t_r.iterrows():
                 st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
-        
-        # מנגנון הוספה תקין
-        if not st.session_state.show_form:
-            if st.button("➕ הוסף תזכורת", use_container_width=True):
-                st.session_state.show_form = True
-                st.rerun()
-        else:
-            with st.form("add_reminder"):
-                new_text = st.text_input("מה התזכורת?")
-                new_proj = st.selectbox("שייך לפרויקט", projects["project_name"].tolist())
-                submit = st.form_submit_button("שמור", use_container_width=True)
-                if submit and new_text:
-                    new_row = pd.DataFrame([{"reminder_text": new_text, "date": today, "project_name": new_proj}])
-                    st.session_state.rem_live = pd.concat([st.session_state.rem_live, new_row], ignore_index=True)
-                    st.session_state.show_form = False
-                    st.rerun()
-                if st.form_submit_button("ביטול", use_container_width=True):
-                    st.session_state.show_form = False
-                    st.rerun()
+        st.button("➕ הוסף תזכורת", use_container_width=True)
