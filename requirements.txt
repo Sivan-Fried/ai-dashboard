@@ -2,3 +2,4 @@ streamlit
 pandas
 openpyxl
 google-genai==1.73.1
+# force rebuild
