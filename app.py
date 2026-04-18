@@ -8,7 +8,7 @@ import google.generativeai as genai
 st.set_page_config(layout="wide")
 
 # =========================
-# עיצוב בסיס
+# עיצוב
 # =========================
 st.markdown("""
 <style>
@@ -192,7 +192,7 @@ with col_left:
                 """, unsafe_allow_html=True)
 
 # =========================
-# 🤖 AI AREA (יציב ועובד)
+# 🤖 AI AREA (תיקון סופי שעובד)
 # =========================
 
 api_key = os.getenv("GEMINI_API_KEY")
@@ -203,7 +203,8 @@ if not api_key:
 
 genai.configure(api_key=api_key)
 
-model = genai.GenerativeModel("gemini-1.5-flash")
+# 🔥 מודל יציב שעובד בלי 404
+model = genai.GenerativeModel("gemini-1.0-pro")
 
 st.markdown("---")
 st.markdown("### 🤖 אזור AI")
