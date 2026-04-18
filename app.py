@@ -12,7 +12,7 @@ def get_base64_image(path):
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS - תיקון KPI, גלילה ופוקוס ---
+# --- 2. CSS ממוקד: הסרת מסגרות KPI והגדרת גלילה קשיחה ---
 st.markdown("""
 <style>
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
@@ -33,34 +33,31 @@ st.markdown("""
         border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
     }
 
-    /* עיצוב KPI - דק, תכלת, בלי צבעים בולטים */
-    .kpi-container {
-        display: flex; justify-content: space-around; gap: 10px; margin-bottom: 20px;
-    }
+    /* KPI - נקי בלי מסגרות, דק יותר */
     .kpi-card {
-        flex: 1; background: white; padding: 10px; border-radius: 12px; text-align: center;
-        border: 1px solid #4facfe; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        background: transparent; padding: 5px; text-align: center;
     }
-    .kpi-card b { font-size: 1.2rem; color: #1f2a44; }
+    .kpi-card b { font-size: 1.4rem; color: #1f2a44; }
 
-    /* מסגרות עם גלילה כפויה */
+    /* מסגרות הדירוג הכלליות - עובי מוקטן */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background: linear-gradient(white, white) padding-box,
                     linear-gradient(90deg, #4facfe, #00f2fe) border-box !important;
-        border: 1.5px solid transparent !important; /* עובי מוקטן */
+        border: 1.5px solid transparent !important;
         border-radius: 18px !important;
         padding: 15px !important;
         background-color: white !important;
     }
 
-    /* אזור גלילה לתזכורות ופרויקטים */
-    .scroll-box {
-        max-height: 350px !important;
+    /* תיקון גלילה: גובה שמתאים ל-5 תזכורות בערך */
+    .scroll-container {
+        max-height: 320px !important; /* גובה מותאם ל-5 רשומות */
         overflow-y: auto !important;
-        padding-right: 5px;
+        padding-left: 10px; /* רווח לסרגל גלילה */
         direction: rtl;
     }
 
+    /* עיצוב רשומה */
     .record-row {
         background: #ffffff !important;
         padding: 10px 15px !important;
@@ -92,7 +89,7 @@ except:
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders.copy()
 if "show_add" not in st.session_state: st.session_state.show_add = False
 
-# --- 4. תצוגה עליונה ---
+# --- 4. כותרת ופרופיל ---
 st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
 
 img_b64 = get_base64_image("profile.png")
@@ -106,7 +103,7 @@ with p2:
 with p3:
     st.markdown(f"<div><h3>{greeting}, סיון!</h3><p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p></div>", unsafe_allow_html=True)
 
-# --- 5. שורת KPI דקה ותכלת ---
+# --- 5. שורת KPI נקייה ללא מסגרות ---
 st.markdown("<br>", unsafe_allow_html=True)
 k1, k2, k3, k4 = st.columns(4)
 with k1: st.markdown(f'<div class="kpi-card">בסיכון 🔴<br><b>{len(projects[projects["status"]=="אדום"])}</b></div>', unsafe_allow_html=True)
@@ -119,10 +116,10 @@ st.markdown("<br>", unsafe_allow_html=True)
 col_right, col_left = st.columns([2, 1.2])
 
 with col_right:
-    # פרויקטים עם גלילה
+    # פרויקטים
     with st.container(border=True):
         st.markdown("### 📁 פרויקטים ומרכיבים")
-        st.markdown('<div class="scroll-box">', unsafe_allow_html=True)
+        st.markdown('<div class="scroll-container">', unsafe_allow_html=True)
         for _, row in projects.iterrows():
             st.markdown(f'<div class="record-row"><b>📂 {row["project_name"]}</b><span class="tag-blue">{row.get("project_type", "פרויקט")}</span></div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
@@ -145,10 +142,10 @@ with col_left:
             for _, r in t_m.iterrows():
                 st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
 
-    # תזכורות עם גלילה
+    # תזכורות עם גלילה מעל 5 רשומות
     with st.container(border=True):
         st.markdown("### 🔔 תזכורות")
-        st.markdown('<div class="scroll-box">', unsafe_allow_html=True)
+        st.markdown('<div class="scroll-container">', unsafe_allow_html=True)
         t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
         for _, row in t_r.iterrows():
             p_val = row.get('project_name', 'כללי')
