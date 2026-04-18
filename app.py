@@ -191,74 +191,85 @@ with col_left:
                 </div>
                 """, unsafe_allow_html=True)
 
-# =========================
-# 🤖 AI AREA (גרסה מעודכנת לענן)
-# =========================
+# ==========================================
+# 🤖 AI AREA - גרסה מעודכנת ותואמת ענן
+# ==========================================
 
-# שליפת המפתח מתוך Streamlit Secrets
+# 1. שליפת ה-API KEY בצורה מאובטחת מה-Secrets של Streamlit
 if "GEMINI_API_KEY" in st.secrets:
     api_key = st.secrets["GEMINI_API_KEY"]
 else:
     api_key = None
 
+# בדיקה אם המפתח קיים
 if not api_key:
-    st.error("❌ Missing GEMINI_API_KEY in Streamlit Secrets. Please check your Dashboard settings.")
+    st.error("❌ Missing GEMINI_API_KEY in Streamlit Secrets. Please check your Dashboard.")
     st.stop()
 
-# הגדרת ה-API
+# 2. הגדרת ה-API של Google
 genai.configure(api_key=api_key)
 
-# ניסיון טעינת המודל (Fallback)
+# 3. טעינת המודל עם מנגנון הגנה (Fallback)
 try:
+    # שימוש בגרסה המעודכנת ביותר
     model = genai.GenerativeModel("gemini-1.5-flash")
 except Exception:
-    model = genai.GenerativeModel("gemini-1.0-pro")
+    try:
+        # ניסיון לגרסה קודמת במקרה של בעיית תאימות
+        model = genai.GenerativeModel("gemini-1.0-pro")
+    except Exception as e:
+        st.error(f"שגיאה קריטית בטעינת המודל: {e}")
+        st.stop()
 
 st.markdown("---")
-st.markdown("### 🤖 אזור AI")
+st.markdown("### 🤖 עוזר AI לניהול פרויקטים")
 
 ai_col1, ai_col2 = st.columns(2)
 
 with ai_col1:
     selected_project = st.selectbox(
-        "בחרי פרויקט",
+        "בחרי פרויקט לניתוח",
         projects["project_name"].tolist(),
         key="ai_project"
     )
 
 with ai_col2:
     question = st.text_area(
-        "שאלה חופשית",
+        "מה תרצי לדעת על הפרויקט?",
+        placeholder="למשל: מה הסטטוס הנוכחי ומה הצעד הבא?",
         key="ai_question"
     )
 
 if st.button("שלח ל-AI"):
-
     if not question.strip():
-        st.warning("אנא הזיני שאלה")
+        st.warning("אנא הזיני שאלה לפני השליחה")
         st.stop()
 
-    # שליפת הנתונים של הפרויקט הנבחר
-    row = projects[projects["project_name"] == selected_project].iloc[0]
+    # שליפת שורת הנתונים של הפרויקט הנבחר מתוך ה-DataFrame
+    try:
+        row = projects[projects["project_name"] == selected_project].iloc[0]
+        
+        # בניית הפרומפט עם הנתונים מהדאשבורד
+        prompt = f"""
+את עוזרת מקצועית לניהול פרויקטים.
+נתוני הפרויקט הנוכחי:
+שם הפרויקט: {row['project_name']}
+סטטוס: {row['status']}
 
-    prompt = f"""
-את עוזרת לניהול פרויקטים.
-
-פרויקט:
-{row['project_name']} - {row['status']}
-
-שאלה:
+השאלה של המנהלת:
 {question}
 
-עני בעברית קצר וברור.
+עני בעברית, בצורה מקצועית, קצרה ועניינית.
 """
 
-    try:
-        # יצירת התשובה
-        with st.spinner("ה-AI חושב..."):
+        # 4. הרצת המודל עם חיווי ויזואלי למשתמש
+        with st.spinner("ה-AI מנתח את הנתונים..."):
             response = model.generate_content(prompt)
             result = response.text
-    except Exception as e:
-        result = f"⚠️ שגיאה בחיבור ל-Gemini: {str(e)}"
 
+    except Exception as e:
+        # טיפול בשגיאות API (כמו מפתח לא תקין או בעיות רשת)
+        result = f"⚠️ שגיאה בתקשורת עם Gemini: {str(e)}"
+
+    # הצגת התוצאה בעיצוב ה-Card שהגדרת
     st.markdown(f"<div class='card'>{result}</div>", unsafe_allow_html=True)
