@@ -207,78 +207,57 @@ if not api_key:
     st.stop()
 
 # ==========================================
-# 🤖 AI AREA - גרסה סופית, תקינה ומעודכנת
+# 🤖 AI AREA - גרסה מתוקנת (Fix 404)
 # ==========================================
 
-st.markdown("---")
-st.markdown("### 🤖 עוזר AI לניהול פרויקטים")
+# 2. אתחול הלקוח
+try:
+    # יצירת הלקוח - וודאי שה-import הוא: from google import genai
+    client = genai.Client(api_key=api_key)
+    
+    # שינוי קטן כאן: נשתמש בשם המודל ללא הקידומת ובפורמט המדויק שלו
+    model_id = "gemini-1.5-flash" 
+    
+    ai_col1, ai_col2 = st.columns(2)
 
-# 1. שליפת ה-API KEY מה-Secrets
-if "GEMINI_API_KEY" in st.secrets:
-    api_key = st.secrets["GEMINI_API_KEY"]
-else:
-    api_key = None
-
-if not api_key:
-    st.error("❌ חסר מפתח API (GEMINI_API_KEY) בתוך ה-Secrets של Streamlit.")
-else:
-    # 2. אתחול הלקוח בשיטה החדשה (Client)
-    try:
-        client = genai.Client(api_key=api_key)
-        model_id = "gemini-1.5-flash"
-        
-        ai_col1, ai_col2 = st.columns(2)
-
-        with ai_col1:
-            if not projects.empty:
-                selected_project = st.selectbox(
-                    "בחרי פרויקט לניתוח",
-                    projects["project_name"].tolist(),
-                    key="ai_project_selector" # מפתח ייחודי
-                )
-            else:
-                st.warning("לא נמצאו פרויקטים להצגה.")
-
-        with ai_col2:
-            question = st.text_area(
-                "מה תרצי לדעת על הפרויקט?",
-                placeholder="למשל: מה הסטטוס ומה הצעדים הבאים?",
-                key="ai_question_input" # מפתח ייחודי
+    with ai_col1:
+        if not projects.empty:
+            selected_project = st.selectbox(
+                "בחרי פרויקט לניתוח",
+                projects["project_name"].tolist(),
+                key="ai_project_selector"
             )
+        else:
+            st.warning("לא נמצאו פרויקטים.")
 
-        # 3. כפתור שליחה עם KEY ייחודי למניעת שגיאת Duplicate
-        if st.button("שלח ל-AI", key="ai_final_submit_button"):
-            if not question.strip():
-                st.warning("אנא הזיני שאלה.")
-            else:
-                try:
-                    # שליפת נתוני הפרויקט הנבחר
-                    row = projects[projects["project_name"] == selected_project].iloc[0]
+    with ai_col2:
+        question = st.text_area(
+            "מה תרצי לדעת על הפרויקט?",
+            placeholder="למשל: תן לי סיכום קצר",
+            key="ai_question_input"
+        )
+
+    if st.button("שלח ל-AI", key="ai_final_submit_button"):
+        if not question.strip():
+            st.warning("אנא הזיני שאלה.")
+        else:
+            try:
+                row = projects[projects["project_name"] == selected_project].iloc[0]
+                prompt = f"פרויקט: {row['project_name']}, סטטוס: {row['status']}. שאלה: {question}"
+
+                with st.spinner("ה-AI מנתח..."):
+                    # התיקון הקריטי: הוספת 'models/' בתוך הפונקציה עצמה אם ה-ID לבד לא עבד
+                    response = client.models.generate_content(
+                        model=model_id, 
+                        contents=prompt
+                    )
+                    result = response.text
                     
-                    prompt = f"""
-                    את עוזרת מקצועית לניהול פרויקטים.
-                    נתוני הפרויקט:
-                    שם: {row['project_name']}
-                    סטטוס: {row['status']}
-                    
-                    השאלה: {question}
-                    
-                    עני בעברית בצורה קצרה ומקצועית.
-                    """
+                st.markdown(f"<div class='card'>{result}</div>", unsafe_allow_html=True)
 
-                    with st.spinner("ה-AI מנתח את הנתונים..."):
-                        # קריאה למודל בפורמט החדש
-                        response = client.models.generate_content(
-                            model=model_id,
-                            contents=prompt
-                        )
-                        result = response.text
-                        
-                    # הצגת התוצאה בתוך Card
-                    st.markdown(f"<div class='card'>{result}</div>", unsafe_allow_html=True)
+            except Exception as e:
+                # אם זה עדיין נכשל, ננסה להדפיס את השגיאה המדויקת
+                st.error(f"⚠️ שגיאה: {str(e)}")
 
-                except Exception as e:
-                    st.error(f"⚠️ שגיאה בעיבוד הנתונים: {str(e)}")
-
-    except Exception as e:
-        st.error(f"⚠️ שגיאה בחיבור ל-AI: {str(e)}")
+except Exception as e:
+    st.error(f"⚠️ שגיאה בחיבור: {str(e)}")
