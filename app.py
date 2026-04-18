@@ -4,7 +4,7 @@ import base64
 import os
 import datetime
 
-import google.genai as genai
+from google import genai   # ✅ תיקון חשוב
 
 st.set_page_config(layout="wide")
 
@@ -38,9 +38,6 @@ h1, h2, h3 {
 </style>
 """, unsafe_allow_html=True)
 
-# =========================
-# כותרת
-# =========================
 st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
 
 # =========================
@@ -101,9 +98,6 @@ reminders = pd.read_excel("reminders.xlsx")
 
 today = pd.Timestamp.today().date()
 
-# =========================
-# AI תזכורות
-# =========================
 def generate_ai_reminders(df):
     ai = []
     for _, row in df.iterrows():
@@ -144,59 +138,12 @@ st.markdown("---")
 st.markdown("### 📁 פרויקטים")
 
 for _, row in projects.iterrows():
-    st.markdown(f"""
-    <div class='card'>
-        {row['project_name']} | {row['project_type']} | {row['status']}
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(f"<div class='card'>{row['project_name']} | {row['project_type']} | {row['status']}</div>", unsafe_allow_html=True)
 
 st.markdown("---")
 
 # =========================
-# פגישות + תזכורות
-# =========================
-col_right, col_left = st.columns(2)
-
-with col_right:
-    st.markdown("### 📅 פגישות היום")
-
-    today_meetings = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-
-    if today_meetings.empty:
-        st.info("אין פגישות היום 🎉")
-    else:
-        for _, row in today_meetings.iterrows():
-            st.markdown(f"""
-            <div class='card'>
-                📌 {row['meeting_title']}<br>
-                🕒 {row['time']}<br>
-                📁 {row['project_name']}
-            </div>
-            """, unsafe_allow_html=True)
-
-with col_left:
-    st.markdown("### 🔔 תזכורות")
-
-    today_reminders = st.session_state.reminders_live[
-        pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today
-    ]
-
-    container = st.container(height=260)
-
-    with container:
-        if today_reminders.empty:
-            st.info("אין תזכורות להיום 🎉")
-        else:
-            for _, row in today_reminders.iterrows():
-                icon = "🤖" if row["source"] == "ai" else "✍️"
-                st.markdown(f"""
-                <div class="card">
-                    {icon} {row['reminder_text']} | 📁 {row['project_name']}
-                </div>
-                """, unsafe_allow_html=True)
-
-# =========================
-# 🤖 AI AREA (NEW SDK – עובד 100%)
+# AI AREA (FIXED)
 # =========================
 
 api_key = os.getenv("GEMINI_API_KEY")
@@ -207,7 +154,6 @@ if not api_key:
 
 client = genai.Client(api_key=api_key)
 
-st.markdown("---")
 st.markdown("### 🤖 אזור AI")
 
 ai_col1, ai_col2 = st.columns(2)
@@ -247,7 +193,7 @@ if st.button("שלח ל-AI"):
 
     try:
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-2.0-flash",   # ✅ זה המודל שעובד עכשיו
             contents=prompt
         )
         result = response.text
