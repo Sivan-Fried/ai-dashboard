@@ -13,7 +13,7 @@ def get_base64_image(path):
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS מוחלט - החזרת עיצוב הרשומות המלא ---
+# --- 2. CSS קשיח - החזרת העיצוב המקורי והיפה ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap');
@@ -38,18 +38,20 @@ st.markdown("""
         object-fit: cover !important; border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
     }
 
+    /* KPI לבן נקי */
     .kpi-card {
         background: white !important; padding: 15px !important; border-radius: 12px !important;
         text-align: center !important; box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important; border: none !important;
     }
     .kpi-card b { font-size: 1.4rem; color: #1f2a44; display: block; }
 
+    /* מסגרות קונטיינרים */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background: white !important; border: 1px solid #edf2f7 !important;
         border-right: 5px solid #4facfe !important; border-radius: 18px !important; padding: 20px !important;
     }
 
-    /* עיצוב הרשומות (כרטיסיות) - חזר למקור */
+    /* עיצוב הרשומות ככרטיסיות מעוצבות */
     .record-row {
         background: white !important;
         padding: 12px 15px !important;
@@ -67,13 +69,10 @@ st.markdown("""
     .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 3px 10px; border-radius: 6px; }
 
     h3, p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
-    
-    /* כפתור הפלוס */
-    .stButton button { border-radius: 50% !important; width: 40px !important; height: 40px !important; padding: 0 !important; font-size: 20px !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# --- 3. נתונים ---
+# --- 3. נתונים וניהול מצב ---
 try:
     projects = pd.read_excel("my_projects.xlsx")
     meetings = pd.read_excel("meetings.xlsx")
@@ -108,14 +107,14 @@ st.markdown("<br>", unsafe_allow_html=True)
 col_right, col_left = st.columns([2, 1.3])
 
 with col_right:
-    # פרויקטים עם גלילה
+    # פרויקטים עם גלילה מובנית
     with st.container(border=True):
         st.markdown("### 📁 פרויקטים ומרכיבים")
-        with st.container(height=300, border=False):
+        with st.container(height=350, border=False):
             for _, row in projects.iterrows():
                 st.markdown(f'<div class="record-row"><span>📂 {row["project_name"]}</span><span class="tag-blue">{row.get("project_type", "פרויקט")}</span></div>', unsafe_allow_html=True)
 
-    # AI Oracle - ללא מגע יד אדם
+    # AI Oracle - עובד תקין
     with st.container(border=True):
         st.markdown("### ✨ AI Oracle")
         a1, a2 = st.columns([1, 2])
@@ -134,10 +133,12 @@ with col_left:
     with st.container(border=True):
         st.markdown("### 📅 פגישות היום")
         t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-        for _, r in t_m.iterrows():
-            st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
+        if t_m.empty: st.write("אין פגישות היום")
+        else:
+            for _, r in t_m.iterrows():
+                st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
 
-    # תזכורות - גלילה + פלוס מתחת
+    # תזכורות - גלילה וכפתור פלוס
     with st.container(border=True):
         st.markdown("### 🔔 תזכורות")
         with st.container(height=280, border=False):
@@ -145,6 +146,6 @@ with col_left:
             for _, row in t_r.iterrows():
                 st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
         
-        # כפתור פלוס בלבד מתחת לרשימה
-        if st.button("➕"):
-            st.toast("הוספת תזכורת תופעל כאן") # כאן תבוא הלוגיקה אם תרצי
+        # כפתור פלוס בודד בסוף
+        if st.button("➕", use_container_width=True):
+            st.toast("פונקציית הוספה מהירה")
