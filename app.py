@@ -143,36 +143,46 @@ for _, row in projects.iterrows():
     """, unsafe_allow_html=True)
 st.markdown("</div>", unsafe_allow_html=True)
 
-# 6. לו"ז ותזכורות
-col_right, col_left = st.columns(2)
 
-with col_right:
-    st.markdown("<div class='section-wrap'>", unsafe_allow_html=True)
-    st.markdown("### 📅 פגישות היום")
-    today_meetings = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-    if today_meetings.empty:
-        st.info("אין פגישות היום 🎉")
-    else:
-        for _, row in today_meetings.iterrows():
-            st.markdown(f"<div class='card'>📌 {row['meeting_title']}<br>🕒 {row['time']}<br>📁 {row['project_name']}</div>", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
-
+# -------- תזכורות --------
 with col_left:
-    st.markdown("<div class='section-wrap'>", unsafe_allow_html=True)
+
     st.markdown("### 🔔 תזכורות")
-    today_reminders = st.session_state.reminders_live[pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today]
-    
+
+    today_reminders = st.session_state.reminders_live[
+        pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today
+    ]
+
+    # 🔥 גלילה אמיתית
     container = st.container(height=260)
+
     with container:
+
         if today_reminders.empty:
             st.info("אין תזכורות להיום 🎉")
+
         else:
             for _, row in today_reminders.iterrows():
-                source = row.get("source", "manual")
-                icon = "🤖" if source == "ai" else "✍️"
-                st.markdown(f"<div class='card'>{icon} {row['reminder_text']} | 📁 {row.get('project_name', 'כללי')}</div>", unsafe_allow_html=True)
 
-           if st.button("➕ הוספת תזכורת"):
+                icon = "🤖" if row["source"] == "ai" else "✍️"
+
+                st.markdown(f"""
+                <div class="card">
+                    {icon} {row['reminder_text']} | 📁 {row['project_name']}
+                </div>
+                """, unsafe_allow_html=True)
+
+    # =========================
+    # ➕ הוספה
+    # =========================
+    st.markdown("---")
+
+    if "add_mode" not in st.session_state:
+        st.session_state.add_mode = False
+
+    if not st.session_state.add_mode:
+
+        if st.button("➕ הוספת תזכורת"):
             st.session_state.add_mode = True
             st.rerun()
 
@@ -202,7 +212,10 @@ with col_left:
                     "source": "manual"
                 }
 
-    st.markdown("</div>", unsafe_allow_html=True)
+                st.session_state.reminders_live.loc[len(st.session_state.reminders_live)] = new_row
+
+                st.session_state.add_mode = False
+                st.rerun()
 
 # 7. AI האורקל
 st.markdown("<div class='section-wrap' style='border-right: 6px solid #4facfe;'>", unsafe_allow_html=True)
