@@ -3,8 +3,7 @@ import pandas as pd
 import base64
 import os
 import datetime
-
-from google import genai   # ✅ תיקון חשוב
+import google.generativeai as genai
 
 st.set_page_config(layout="wide")
 
@@ -98,6 +97,9 @@ reminders = pd.read_excel("reminders.xlsx")
 
 today = pd.Timestamp.today().date()
 
+# =========================
+# AI תזכורות
+# =========================
 def generate_ai_reminders(df):
     ai = []
     for _, row in df.iterrows():
@@ -138,20 +140,60 @@ st.markdown("---")
 st.markdown("### 📁 פרויקטים")
 
 for _, row in projects.iterrows():
-    st.markdown(f"<div class='card'>{row['project_name']} | {row['project_type']} | {row['status']}</div>", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class='card'>
+        {row['project_name']} | {row['project_type']} | {row['status']}
+    </div>
+    """, unsafe_allow_html=True)
 
 st.markdown("---")
 
 # =========================
-# AI AREA (FIXED)
+# פגישות + תזכורות
 # =========================
+col_right, col_left = st.columns(2)
+
+with col_right:
+    st.markdown("### 📅 פגישות היום")
+
+    today_meetings = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
+
+    if today_meetings.empty:
+        st.info("אין פגישות היום 🎉")
+    else:
+        for _, row in today_meetings.iterrows():
+            st.markdown(f"""
+            <div class='card'>
+                📌 {row['meeting_title']}<br>
+                🕒 {row['time']}<br>
+                📁 {row['project_name']}
+            </div>
+            """, unsafe_allow_html=True)
+
+with col_left:
+    st.markdown("### 🔔 תזכורות")
+
+    today_reminders = st.session_state.reminders_live[
+        pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today
+    ]
+
+    container = st.container(height=260)
+
+    with container:
+        if today_reminders.empty:
+            st.info("אין תזכורות להיום 🎉")
+        else:
+            for _, row in today_reminders.iterrows():
+                icon = "🤖" if row["source"] == "ai" else "✍️"
+                st.markdown(f"""
+                <div class="card">
+                    {icon} {row['reminder_text']} | 📁 {row['project_name']}
+                </div>
+                """, unsafe_allow_html=True)
 
 # =========================
-# AI AREA (FIXED 100%)
+# 🤖 AI AREA (יציב ועובד)
 # =========================
-
-from google import genai
-import os
 
 api_key = os.getenv("GEMINI_API_KEY")
 
@@ -159,8 +201,11 @@ if not api_key:
     st.error("❌ Missing GEMINI_API_KEY")
     st.stop()
 
-client = genai.Client(api_key=api_key)
+genai.configure(api_key=api_key)
 
+model = genai.GenerativeModel("gemini-1.5-flash")
+
+st.markdown("---")
 st.markdown("### 🤖 אזור AI")
 
 ai_col1, ai_col2 = st.columns(2)
@@ -199,13 +244,8 @@ if st.button("שלח ל-AI"):
 """
 
     try:
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt
-        )
-
+        response = model.generate_content(prompt)
         result = response.text
-
     except Exception as e:
         result = f"⚠️ שגיאה: {str(e)}"
 
