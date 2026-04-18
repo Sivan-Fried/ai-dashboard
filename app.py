@@ -5,7 +5,7 @@ import base64
 import datetime
 from zoneinfo import ZoneInfo
 
-# 1. הגדרות עמוד ועיצוב
+# 1. הגדרות עמוד ועיצוב CSS (כולל התיקון למלבן הלבן)
 st.set_page_config(layout="wide", page_title="ניהול פרויקטים - לוח בקרה")
 
 st.markdown("""
@@ -29,6 +29,15 @@ st.markdown("""
         direction: rtl;
         text-align: right;
         box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    }
+
+    /* עיצוב המלבן הלבן המאחד (זה מה שביקשת - שייראה כמו ה-KPI) */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        background-color: white !important;
+        border: 1px solid #eee !important;
+        border-radius: 12px !important;
+        padding: 15px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
     }
 
     .card {
@@ -121,130 +130,88 @@ with k4: st.markdown(f"<div class='kpi-card' style='border-top: 3px solid green;
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 5. פרויקטים - בתוך מלבן לבן מעוצב
+# 5. פרויקטים - האזור עם המלבן המאוחד (המראה של ה-KPI)
 st.markdown("<div class='section-wrap'>", unsafe_allow_html=True)
 st.markdown("<h3>📁 פרויקטים</h3>", unsafe_allow_html=True)
 
-# המלבן הלבן המאחד (Container)
-with st.container(border=True):
-    def type_icon(project_type):
-        if project_type == "פרויקט אקטיבי": return "🚀"
-        elif project_type == "חבילת עבודה": return "📦"
-        elif project_type == "תחזוקה": return "🔧"
-        else: return "📁"
+def type_icon(project_type):
+    if project_type == "פרויקט אקטיבי": return "🚀"
+    elif project_type == "חבילת עבודה": return "📦"
+    elif project_type == "תחזוקה": return "🔧"
+    else: return "📁"
 
+# יצירת המלבן הלבן המאחד
+with st.container(border=True):
     for _, row in projects.iterrows():
         icon = type_icon(row["project_type"])
         dot = "🟢" if row["status"]=="ירוק" else "🟡" if row["status"]=="צהוב" else "🔴"
-        
-        # הרשומות בתוך המלבן
         st.markdown(f"""
-        <div style="background:#ffffff; padding:10px; border-radius:8px; margin-bottom:6px; border:1px solid #f0f0f0; direction:rtl; text-align:right; font-size:14px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-            {icon} <b>{row['project_name']}</b>
+        <div style="background:#fcfcfc; padding:8px 10px; border-radius:8px; margin-bottom:4px; border:1px solid #eee; direction:rtl; text-align:right; font-size:14px;">
+            {icon} {row['project_name']}
             <span style="color:gray; font-size:12px;"> | {row['project_type']}</span>
             <span style="float:left;">{dot}</span>
         </div>
         """, unsafe_allow_html=True)
-
 st.markdown("</div>", unsafe_allow_html=True)
 
-# =========================
-# 🔥 חשוב – הגדרת עמודות (לא לגעת!)
-# =========================
+# 6. לו"ז ותזכורות
 col_right, col_left = st.columns(2)
 
-# -------- פגישות --------
 with col_right:
-
     st.markdown("### 📅 פגישות היום")
-
     today_meetings = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-
     if today_meetings.empty:
         st.info("אין פגישות היום 🎉")
     else:
         for _, row in today_meetings.iterrows():
-            st.markdown(f"""
-            <div class='card'>
-                📌 {row['meeting_title']}<br>
-                🕒 {row['time']}<br>
-                📁 {row['project_name']}
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(f"<div class='card'>📌 {row['meeting_title']}<br>🕒 {row['time']}<br>📁 {row['project_name']}</div>", unsafe_allow_html=True)
 
-# -------- תזכורות --------
 with col_left:
-
     st.markdown("### 🔔 תזכורות")
-
     today_reminders = st.session_state.reminders_live[
         pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today
     ]
 
-    # 🔥 גלילה אמיתית
     container = st.container(height=260)
-
     with container:
-
         if today_reminders.empty:
             st.info("אין תזכורות להיום 🎉")
-
         else:
             for _, row in today_reminders.iterrows():
-
                 icon = "🤖" if row["source"] == "ai" else "✍️"
+                st.markdown(f"<div class='card'>{icon} {row['reminder_text']} | 📁 {row['project_name']}</div>", unsafe_allow_html=True)
 
-                st.markdown(f"""
-                <div class="card">
-                    {icon} {row['reminder_text']} | 📁 {row['project_name']}
-                </div>
-                """, unsafe_allow_html=True)
-
-    # =========================
-    # ➕ הוספה
-    # =========================
     st.markdown("---")
-
+    
     if "add_mode" not in st.session_state:
         st.session_state.add_mode = False
 
     if not st.session_state.add_mode:
-
         if st.button("➕ הוספת תזכורת"):
             st.session_state.add_mode = True
             st.rerun()
-
     else:
-
         col1, col2, col3, col4 = st.columns([5, 3, 2, 1])
-
         with col1:
-            text = st.text_input("", placeholder="תזכורת חדשה")
-
+            text = st.text_input("", placeholder="תזכורת חדשה", key="new_text")
         with col2:
-            project = st.selectbox("", projects["project_name"].tolist())
-
+            project = st.selectbox("", projects["project_name"].tolist(), key="new_proj")
         with col3:
-            priority = st.selectbox("", ["נמוכה", "בינונית", "גבוהה"])
-
+            priority = st.selectbox("", ["נמוכה", "בינונית", "גבוהה"], key="new_pri")
         with col4:
             if st.button("✔"):
-
-                reverse = {"נמוכה":"low","בינונית":"medium","גבוהה":"high"}
-
-                new_row = {
-                    "reminder_text": text,
-                    "project_name": project,
-                    "date": today,
-                    "priority": reverse[priority],
-                    "source": "manual"
-                }
-
-                st.session_state.reminders_live.loc[len(st.session_state.reminders_live)] = new_row
-
+                if text:
+                    reverse = {"נמוכה":"low","בינונית":"medium","גבוהה":"high"}
+                    new_row = {
+                        "reminder_text": text,
+                        "project_name": project,
+                        "date": today,
+                        "priority": reverse[priority],
+                        "source": "manual"
+                    }
+                    st.session_state.reminders_live.loc[len(st.session_state.reminders_live)] = new_row
                 st.session_state.add_mode = False
                 st.rerun()
-
 
 # 7. AI האורקל
 st.markdown("<div class='section-wrap' style='border-right: 6px solid #4facfe;'>", unsafe_allow_html=True)
