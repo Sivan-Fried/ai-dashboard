@@ -1,207 +1,159 @@
 import streamlit as st
 import pandas as pd
 import base64
-import os
 import datetime
-import google.generativeai as genai
+import time
+from zoneinfo import ZoneInfo
 
-st.set_page_config(layout="wide")
+# --- 1. הגדרות דף ---
+st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
-# =========================
-# עיצוב
-# =========================
+def get_base64_image(path):
+    try:
+        with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
+    except: return ""
+
+# --- 2. CSS יציב (ללא שינוי) ---
 st.markdown("""
 <style>
-body { background-color: #f2f4f7; }
-.stApp { background-color: #f2f4f7; }
-.card {
-    background:white;
-    padding:8px 10px;
-    border-radius:8px;
-    margin-bottom:6px;
-    border:1px solid #eee;
-    direction:rtl;
-    text-align:right;
-    font-size:14px;
-}
-h1, h2, h3 { color:#1f2a44; }
+    .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
+    
+    .dashboard-header {
+        background: linear-gradient(90deg, #4facfe, #00f2fe) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        text-align: center !important;
+        font-size: 2.2rem !important;
+        font-weight: 800;
+        margin-bottom: 20px;
+    }
+
+    .profile-img {
+        width: 130px; height: 130px; border-radius: 50% !important;
+        object-fit: cover !important; object-position: center 25% !important;
+        border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+
+    .kpi-card {
+        background: white !important;
+        padding: 15px !important;
+        border-radius: 12px !important;
+        text-align: center !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+        border: none !important;
+    }
+    .kpi-card b { font-size: 1.4rem; color: #1f2a44; display: block; }
+
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        background: linear-gradient(white, white) padding-box,
+                    linear-gradient(90deg, #4facfe, #00f2fe) border-box !important;
+        border: 1.5px solid transparent !important;
+        border-radius: 18px !important;
+        padding: 15px !important;
+        background-color: white !important;
+    }
+
+    .record-row {
+        background: #ffffff !important;
+        padding: 10px 15px !important;
+        border-radius: 10px !important;
+        margin-bottom: 8px !important;
+        border: 1px solid #edf2f7 !important;
+        border-right: 5px solid #4facfe !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        direction: rtl !important;
+    }
+
+    .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
+    .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
+
+    h3, p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
+    div[data-testid="stWidgetLabel"] { justify-content: flex-start !important; }
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h2 style='text-align:center'>📊 Dashboard AI לניהול פרויקטים</h2>", unsafe_allow_html=True)
-
-# =========================
-# פרופיל
-# =========================
-def get_base64_image(path):
-    with open(path, "rb") as img_file:
-        return base64.b64encode(img_file.read()).decode()
-
-try:
-    img_base64 = get_base64_image("profile.png")
-except:
-    img_base64 = ""
-
-now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=2)))
-hour = now.hour
-
-if 5 <= hour < 12:
-    greeting = "בוקר טוב"
-elif 12 <= hour < 18:
-    greeting = "צהריים טובים"
-elif 18 <= hour < 22:
-    greeting = "ערב טוב"
-else:
-    greeting = "לילה טוב"
-
-date_str = now.strftime("%d/%m/%Y %H:%M")
-
-left, center, right = st.columns([1.2, 1, 1.2])
-
-with left:
-    st.markdown(f"""
-    <div style="direction:rtl;text-align:right;margin-top:40px;color:#1f2a44;">
-        <div style="font-size:22px;">{greeting}, סיון!</div>
-        <div style="font-size:13px;color:gray;">{date_str}</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-with center:
-    if img_base64:
-        st.markdown(f"""
-        <div style="display:flex;justify-content:center;margin-top:10px;">
-            <div style="width:140px;height:140px;border-radius:50%;overflow:hidden;border:3px solid #ddd;">
-                <img src="data:image/png;base64,{img_base64}" style="width:100%;height:100%;object-fit:cover;">
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-st.markdown("---")
-
-# =========================
-# נתונים
-# =========================
+# --- 3. טעינת נתונים וניהול מצב ---
 try:
     projects = pd.read_excel("my_projects.xlsx")
     meetings = pd.read_excel("meetings.xlsx")
     reminders = pd.read_excel("reminders.xlsx")
-except Exception as e:
-    st.error(f"שגיאה בטעינת קבצי האקסל: {e}")
-    st.stop()
+    today = pd.Timestamp.today().date()
+except:
+    st.error("Missing Files"); st.stop()
 
-today = pd.Timestamp.today().date()
+if "rem_live" not in st.session_state: st.session_state.rem_live = reminders.copy()
+# משתנה לשמירת תשובת ה-AI
+if "ai_response" not in st.session_state: st.session_state.ai_response = ""
 
-# =========================
-# AI תזכורות
-# =========================
-def generate_ai_reminders(df):
-    ai = []
-    for _, row in df.iterrows():
-        if row["status"] in ["צהוב", "אדום"]:
-            ai.append({
-                "reminder_text": f"התחלה/מעקב על {row['project_name']}",
-                "project_name": row["project_name"],
-                "date": today,
-                "priority": "medium",
-                "source": "ai"
-            })
-    return pd.DataFrame(ai)
+# --- 4. תצוגה עליונה ---
+st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
 
-ai_reminders = generate_ai_reminders(projects)
+img_b64 = get_base64_image("profile.png")
+now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
+greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
 
-if "reminders_live" not in st.session_state:
-    st.session_state.reminders_live = pd.concat([reminders, ai_reminders], ignore_index=True)
+p1, p2, p3 = st.columns([1, 1, 2])
+with p2:
+    if img_b64:
+        st.markdown(f'<div style="display:flex; justify-content:center;"><img src="data:image/png;base64,{img_b64}" class="profile-img"></div>', unsafe_allow_html=True)
+with p3:
+    st.markdown(f"<div><h3 style='margin-bottom:0;'>{greeting}, סיון!</h3><p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p></div>", unsafe_allow_html=True)
 
-# =========================
-# KPI
-# =========================
-c1, c2, c3 = st.columns(3)
+# --- 5. שורת KPI ---
+st.markdown("<br>", unsafe_allow_html=True)
+k1, k2, k3, k4 = st.columns(4)
+with k1: st.markdown(f'<div class="kpi-card">בסיכון 🔴<br><b>{len(projects[projects["status"]=="אדום"])}</b></div>', unsafe_allow_html=True)
+with k2: st.markdown(f'<div class="kpi-card">במעקב 🟡<br><b>{len(projects[projects["status"]=="צהוב"])}</b></div>', unsafe_allow_html=True)
+with k3: st.markdown(f'<div class="kpi-card">תקין 🟢<br><b>{len(projects[projects["status"]=="ירוק"])}</b></div>', unsafe_allow_html=True)
+with k4: st.markdown(f'<div class="kpi-card">סה"כ פרויקטים<br><b>{len(projects)}</b></div>', unsafe_allow_html=True)
 
-with c1:
-    st.markdown(f"<div class='card'><b>סה״כ פרויקטים</b><br>{len(projects)}</div>", unsafe_allow_html=True)
-with c2:
-    st.markdown(f"<div class='card'><b>בסיכון 🔴</b><br>{len(projects[projects['status']=='אדום'])}</div>", unsafe_allow_html=True)
-with c3:
-    st.markdown(f"<div class='card'><b>במעקב 🟡</b><br>{len(projects[projects['status']=='צהוב'])}</div>", unsafe_allow_html=True)
-
-st.markdown("---")
-
-# =========================
-# פרויקטים
-# =========================
-st.markdown("### 📁 פרויקטים")
-for _, row in projects.iterrows():
-    st.markdown(f"<div class='card'>{row['project_name']} | {row['project_type']} | {row['status']}</div>", unsafe_allow_html=True)
-
-st.markdown("---")
-
-# =========================
-# פגישות + תזכורות
-# =========================
-col_right, col_left = st.columns(2)
+# --- 6. גוף הדשבורד ---
+st.markdown("<br>", unsafe_allow_html=True)
+col_right, col_left = st.columns([2, 1.2])
 
 with col_right:
-    st.markdown("### 📅 פגישות היום")
-    today_meetings = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-    if today_meetings.empty:
-        st.info("אין פגישות היום 🎉")
-    else:
-        for _, row in today_meetings.iterrows():
-            st.markdown(f"<div class='card'>📌 {row['meeting_title']}<br>🕒 {row['time']}<br>📁 {row['project_name']}</div>", unsafe_allow_html=True)
+    # פרויקטים עם גלילה
+    with st.container(border=True):
+        st.markdown("### 📁 פרויקטים ומרכיבים")
+        with st.container(height=300, border=False):
+            for _, row in projects.iterrows():
+                st.markdown(f'<div class="record-row"><b>📂 {row["project_name"]}</b><span class="tag-blue">{row.get("project_type", "פרויקט")}</span></div>', unsafe_allow_html=True)
+
+    with st.container(border=True):
+        st.markdown("### ✨ AI Oracle")
+        a1, a2 = st.columns([1, 2])
+        with a1: sel_p = st.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
+        with a2: q_in = st.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
+        
+        if st.button("שגר שאילתה 🚀", use_container_width=True):
+            if q_in:
+                with st.spinner("מנתח נתונים..."):
+                    time.sleep(1.5) # סימולציה של חשיבה
+                    # כאן את יכולה להכניס לוגיקה אמיתית. כרגע זו תשובת דוגמה:
+                    st.session_state.ai_response = f"**ניתוח עבור {sel_p}:** על סמך הנתונים, הפרויקט נמצא בסטטוס תקין, אך מומלץ לבדוק את אבני הדרך של שבוע הבא עקב עומס פגישות צפוי."
+            else:
+                st.warning("נא להזין שאלה")
+        
+        # הצגת הניתוח במידה וקיים
+        if st.session_state.ai_response:
+            st.info(st.session_state.ai_response)
 
 with col_left:
-    st.markdown("### 🔔 תזכורות")
-    today_reminders = st.session_state.reminders_live[pd.to_datetime(st.session_state.reminders_live["date"]).dt.date == today]
-    container = st.container(height=260)
-    with container:
-        if today_reminders.empty:
-            st.info("אין תזכורות להיום 🎉")
+    with st.container(border=True):
+        st.markdown("### 📅 פגישות היום")
+        t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
+        if t_m.empty: st.write("אין פגישות היום")
         else:
-            for _, row in today_reminders.iterrows():
-                icon = "🤖" if row["source"] == "ai" else "✍️"
-                st.markdown(f"<div class='card'>{icon} {row['reminder_text']} | 📁 {row['project_name']}</div>", unsafe_allow_html=True)
+            for _, r in t_m.iterrows():
+                st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
 
-# ==========================================
-# 🤖 AI AREA - גרסה סופית ומתוקנת
-# ==========================================
-st.markdown("---")
-st.markdown("### 🤖 עוזר AI לניהול פרויקטים")
-
-api_key = st.secrets.get("GEMINI_API_KEY")
-
-if not api_key:
-    st.error("❌ חסר מפתח API ב-Secrets.")
-else:
-    try:
-        # אתחול הלקוח בגרסה יציבה v1
-        client = genai.Client(api_key=api_key, http_options={'api_version': 'v1'})
+    with st.container(border=True):
+        st.markdown("### 🔔 תזכורות")
+        with st.container(height=250, border=False):
+            t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
+            for _, row in t_r.iterrows():
+                st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
         
-        col_ai_1, col_ai_2 = st.columns(2)
-        with col_ai_1:
-            selected_project = st.selectbox(
-                "בחרי פרויקט לניתוח", 
-                projects["project_name"].tolist(),
-                key="sb_unique_2026_final"
-            )
-        
-        with col_ai_2:
-            question = st.text_area("מה תרצי לדעת?", key="ta_unique_2026_final")
-
-        if st.button("בצע ניתוח AI", key="btn_unique_2026_final"):
-            if question.strip():
-                try:
-                    row_data = projects[projects["project_name"] == selected_project].iloc[0]
-                    prompt = f"פרויקט: {row_data['project_name']}, סטטוס: {row_data['status']}. שאלה: {question}"
-                    
-                    with st.spinner("ה-AI מנתח..."):
-                        response = client.models.generate_content(
-                            model="gemini-1.5-flash",
-                            contents=prompt
-                        )
-                        st.markdown(f"<div class='card'>{response.text}</div>", unsafe_allow_html=True)
-                except Exception as e:
-                    st.error(f"שגיאה בעיבוד: {e}")
-            else:
-                st.warning("נא להזין שאלה.")
-    except Exception as e:
-        st.error(f"שגיאה בחיבור ל-AI: {e}")
+        st.button("➕ הוסף תזכורת", use_container_width=True)
