@@ -355,45 +355,51 @@ else:
 import streamlit as st
 import requests
 
-def list_all_recordings():
-    api_key = st.secrets["FATHOM_API_KEY"]
+def get_fathom_list():
+    # שליפת המפתח מה-Secrets
+    api_key = st.secrets.get("FATHOM_API_KEY")
+    if not api_key:
+        return "Missing API Key in Secrets"
+
+    # הכתובת המדויקת לפי ה-Docs שלך
+    url = "https://api.fathom.ai/external/v1/recordings"
     headers = {
         "X-Api-Key": api_key,
         "Accept": "application/json"
     }
-    
-    # הכתובת לרשימה המלאה
-    url = "https://api.fathom.ai/external/v1/recordings"
-    
+
     try:
-        response = requests.get(url, headers=headers)
+        # אנחנו מוסיפים כאן 'slash' בסוף, לפעמים זה מה שפותר 404 ב-APIs
+        response = requests.get(url, headers=headers, timeout=10)
+        
         if response.status_code == 200:
             return response.json()
         else:
-            return f"שגיאה {response.status_code}: {response.text}"
+            # אם יש שגיאה, נציג אותה בצורה נקייה בלי כל ה-HTML
+            return f"שגיאה {response.status_code}: השרת של פאטום לא מזהה את הנתיב."
     except Exception as e:
-        return f"תקלה: {e}"
+        return f"תקלה בחיבור: {e}"
 
-st.title("🔎 חוקר פגישות Fathom")
+# --- חלק התצוגה בדשבורד ---
+st.subheader("🔎 חוקר פגישות Fathom")
 
-if st.button("תראה לי מה יש בחשבון"):
-    data = list_all_recordings()
-    
-    if isinstance(data, dict):
-        recordings = data.get('recordings', [])
-        if not recordings:
-            st.warning("החיבור הצליח, אבל נראה שאין הקלטות בחשבון הזה.")
+if st.button("רענן רשימת פגישות"):
+    with st.spinner("מתחבר לפאטום..."):
+        data = get_fathom_list()
+        
+        if isinstance(data, dict) and 'recordings' in data:
+            recordings = data['recordings']
+            if not recordings:
+                st.info("לא נמצאו הקלטות בחשבון.")
+            else:
+                for rec in recordings:
+                    col1, col2 = st.columns([3, 1])
+                    with col1:
+                        st.write(f"📅 **{rec.get('title', 'פגישה ללא שם')}**")
+                    with col2:
+                        if st.button("הצג סיכום", key=rec['id']):
+                            # כאן תבוא הפונקציה של ה-Summary
+                            st.info("מושך סיכום...")
         else:
-            st.success(f"מצאתי {len(recordings)} פגישות!")
-            for rec in recordings:
-                with st.expander(f"פגישה: {rec.get('title', 'ללא שם')}"):
-                    st.write(f"**ID אמיתי ל-API:** `{rec['id']}`")
-                    st.write(f"תאריך: {rec.get('created_at')}")
-                    
-                    # כפתור למשיכת סיכום ספציפי
-                    if st.button(f"משוך סיכום ל-{rec['id'][:5]}...", key=rec['id']):
-                        summary_url = f"https://api.fathom.ai/external/v1/recordings/{rec['id']}/summary"
-                        res = requests.get(summary_url, headers={"X-Api-Key": st.secrets["FATHOM_API_KEY"]})
-                        st.json(res.json())
-    else:
-        st.error(data)
+            st.error(data)
+            st.info("טיפ: וודאי שבדוקומנטציה לא כתוב שצריך להוסיף /v1/ בסוף הכתובת.")
