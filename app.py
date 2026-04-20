@@ -57,6 +57,7 @@ st.markdown("""
         border: 1.5px solid transparent !important;
         border-radius: 18px !important;
         padding: 15px !important;
+        padding-bottom: 30px !important; /* הוספת הריווח בפינצטה בתחתית המכולה */
     }
 
     .project-link {
@@ -78,7 +79,7 @@ st.markdown("""
         background: #ffffff !important;
         padding: 10px 15px !important;
         border-radius: 10px !important;
-        margin-bottom: 3px !important; /* צמצום המרווח בפינצטה מ-6px ל-3px */
+        margin-bottom: 3px !important;
         border: 1px solid #edf2f7 !important;
         border-right: 5px solid #4facfe !important;
         display: flex !important;
@@ -89,7 +90,6 @@ st.markdown("""
         box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
     }
 
-    /* שמירה על אוויר למעלה רק ברשומה הראשונה למניעת חיתוך Hover */
     .project-link:first-child .record-row, .record-row:first-of-type {
         margin-top: 4px !important;
     }
@@ -180,7 +180,6 @@ else:
     col_right, col_left = st.columns([2, 1.2])
 
     with col_right:
-        # פרויקטים
         with st.container(border=True):
             st.markdown("### 📁 פרויקטים")
             with st.container(height=300, border=False):
@@ -198,7 +197,6 @@ else:
                         </a>
                     ''', unsafe_allow_html=True)
 
-        # אז'ור
         with st.container(border=True):
             st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
             tasks_data = get_azure_tasks()
@@ -221,7 +219,6 @@ else:
                     ''', unsafe_allow_html=True)
             else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
-        # עוזר AI אישי
         with st.container(border=True):
             st.markdown("### ✨ עוזר AI אישי")
             a1, a2 = st.columns([1, 2]); sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p"); q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
