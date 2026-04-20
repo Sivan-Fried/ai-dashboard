@@ -44,16 +44,12 @@ st.markdown("""
         border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
     }
     
-    /* מכולות לבנות */
+    /* מכולות לבנות - החזרה להגדרה היציבה */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background: white !important;
+        border: 1.5px solid transparent !important;
         border-radius: 18px !important;
         padding: 15px !important;
-    }
-
-    /* תיקון הרווח התחתון - הוספת מרווח פנימי לבלוק התוכן עצמו */
-    div[data-testid="stVerticalBlockBorderWrapper"] > div {
-        padding-bottom: 15px !important;
     }
 
     .kpi-card {
@@ -101,8 +97,9 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# (שאר הקוד הלוגי נשאר ללא שינוי כדי לשמור על יציבות)
-
+# =========================================================
+# 2. לוגיקה
+# =========================================================
 def get_azure_tasks():
     ORG_NAME = "amandigital"
     wiql_url = f"https://dev.azure.com/{ORG_NAME}/_apis/wit/wiql?api-version=6.0"
@@ -128,6 +125,9 @@ try:
 except:
     st.error("Missing Files"); st.stop()
 
+# =========================================================
+# 3. ניהול ניווט
+# =========================================================
 params = st.query_params
 if "proj" in params:
     st.session_state.selected_project = params["proj"]
@@ -138,6 +138,9 @@ if "ai_response" not in st.session_state: st.session_state.ai_response = ""
 if "adding_reminder" not in st.session_state: st.session_state.adding_reminder = False
 if "current_page" not in st.session_state: st.session_state.current_page = "main"
 
+# =========================================================
+# 4. תצוגת דפים
+# =========================================================
 if st.session_state.current_page == "project":
     p_name = st.session_state.selected_project
     st.markdown(f'<h1 class="dashboard-header">{p_name}</h1>', unsafe_allow_html=True)
@@ -171,6 +174,7 @@ else:
     col_right, col_left = st.columns([2, 1.2])
 
     with col_right:
+        # פרויקטים
         with st.container(border=True):
             st.markdown("### 📁 פרויקטים")
             with st.container(height=300, border=False):
@@ -188,6 +192,7 @@ else:
                         </a>
                     ''', unsafe_allow_html=True)
 
+        # אז'ור
         with st.container(border=True):
             st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
             tasks_data = get_azure_tasks()
@@ -197,22 +202,25 @@ else:
                     t_id, t_title, p_task = t.get('id'), f.get('System.Title', ''), f.get('System.TeamProject', 'General')
                     raw_date = f.get('System.CreatedDate', '')
                     fmt_date = f"{raw_date[8:10]}/{raw_date[5:7]} {raw_date[11:16]}" if raw_date else ""
-                    
                     t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_task)}/_workitems/edit/{t_id}"
                     st.markdown(f'''
                         <div class="record-row" style="white-space: nowrap;">
                             <div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis;">
                                 <a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: none; font-weight: 500;">🔗 {t_title}</a>
-                                <span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">הרשומה נוצרה ב {fmt_date}</span>
+                                <span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">{fmt_date}</span>
                             </div>
                             <span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_task}</span>
                         </div>
                     ''', unsafe_allow_html=True)
+                st.write("") # הוספת מרווח תחתון בלתי נראה
             else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
+        # עוזר AI אישי
         with st.container(border=True):
             st.markdown("### ✨ עוזר AI אישי")
-            a1, a2 = st.columns([1, 2]); sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p"); q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
+            a1, a2 = st.columns([1, 2])
+            sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
+            q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
             if st.button("שגר שאילתה 🚀", use_container_width=True):
                 if q_in:
                     with st.spinner("מנתח..."): time.sleep(0.5)
@@ -220,6 +228,7 @@ else:
             if st.session_state.ai_response: st.info(st.session_state.ai_response)
 
     with col_left:
+        # פגישות
         with st.container(border=True):
             st.markdown("### 📅 פגישות היום")
             t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
@@ -228,19 +237,20 @@ else:
                 for _, r in t_m.iterrows():
                     s_t = fmt_time(r.get('start_time', '')); e_t = fmt_time(r.get('end_time', ''))
                     st.markdown(f'<div class="record-row"><span style="flex-grow:1; text-align:right;">📌 {r["meeting_title"]}</span><span class="time-label">{s_t}-{e_t}</span></div>', unsafe_allow_html=True)
+                st.write("") # הוספת מרווח תחתון בלתי נראה
 
+        # תזכורות
         with st.container(border=True):
             st.markdown("### 🔔 תזכורות")
-            with st.container(border=False):
-                t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
-                for _, row in t_r.iterrows():
-                    st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
+            t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
+            for _, row in t_r.iterrows():
+                st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
             
             if st.session_state.adding_reminder:
                 with st.container(border=True):
                     r_col1, r_col2 = st.columns([1, 2])
-                    new_proj = r_col1.selectbox("בחר פרויקט", projects["project_name"].tolist() + ["כללי"], label_visibility="collapsed")
-                    new_text = r_col2.text_input("תיאור התזכורת", placeholder="מה להזכיר?", label_visibility="collapsed")
+                    new_proj = r_col1.selectbox("פרויקט", projects["project_name"].tolist() + ["כללי"], label_visibility="collapsed")
+                    new_text = r_col2.text_input("תיאור", placeholder="מה להזכיר?", label_visibility="collapsed")
                     b_col1, b_col2 = st.columns([1, 1])
                     if b_col1.button("✅"):
                         if new_text:
@@ -250,3 +260,4 @@ else:
                     if b_col2.button("❌"): st.session_state.adding_reminder = False; st.rerun()
             else:
                 if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
+            st.write("") # הוספת מרווח תחתון בלתי נראה
