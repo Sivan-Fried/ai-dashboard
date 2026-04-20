@@ -354,65 +354,67 @@ else:
 
 import streamlit as st
 import requests
+import google.generativeai as genai
 
-# 1. פונקציות עזר
-def get_fathom_meetings():
-    api_key = st.secrets["FATHOM_API_KEY"]
-    url = "https://api.fathom.ai/external/v1/meetings"
-    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
+# הגדרת Gemini
+genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+model = genai.GenerativeModel('gemini-1.5-flash')
+
+def refine_summary_with_gemini(raw_text):
+    """הופך את הסיכום הגולמי לסיכום מנהלים בעברית"""
+    prompt = f"""
+    אתה עוזר ניהולי בכיר. תרגם ושכתב את סיכום הפגישה הבא לעברית עסקית ורהוטה.
+    סדר את המידע בצורה הבאה:
+    1. **נושא הפגישה** (כותרת קצרה)
+    2. **תקציר מנהלים** (2-3 משפטים)
+    3. **החלטות מרכזיות** (בבולטים)
+    4. **משימות להמשך (Action Items)** (בבולטים)
+    
+    הטקסט לסיכום:
+    {raw_text}
+    """
     try:
-        response = requests.get(url, headers=headers, timeout=15)
-        if response.status_code == 200:
-            # לקיחת 5 הפגישות הראשונות בלבד מהרשימה שחוזרת
-            full_list = response.json().get('items', [])
-            return full_list[:5], 200
-        return response.text, response.status_code
+        response = model.generate_content(prompt)
+        return response.text
     except Exception as e:
-        return str(e), 500
+        return f"שגיאה בעיבוד ה-AI: {e}"
 
-def get_fathom_summary(recording_id):
-    api_key = st.secrets["FATHOM_API_KEY"]
-    url = f"https://api.fathom.ai/external/v1/recordings/{recording_id}/summary"
-    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
-    try:
-        response = requests.get(url, headers=headers, timeout=15)
-        if response.status_code == 200:
-            # שליפת ה-Markdown המעוצב
-            return response.json().get("summary", {}).get("markdown_formatted")
-        return None
-    except:
-        return None
-
-# --- 2. האזור להחלפה בדשבורד ---
+# --- האזור להחלפה בדשבורד ---
 st.markdown("---")
-st.subheader("✨ סיכומי פגישות Fathom")
+st.subheader("✨ סיכומי פגישות Fathom (מעובד AI)")
 
 if st.button("רענן 5 פגישות אחרונות", use_container_width=True):
-    with st.spinner("טוען פגישות..."):
-        items, status = get_fathom_meetings()
-        if status == 200:
-            st.session_state['fathom_meetings'] = items
-        else:
-            st.error(f"שגיאה בטעינה: {status}")
+    # כאן הקוד משתמש בפונקציה get_fathom_meetings הקיימת שלך
+    items, status = get_fathom_meetings() 
+    if status == 200:
+        st.session_state['fathom_meetings'] = items
 
 if 'fathom_meetings' in st.session_state:
     for mtg in st.session_state['fathom_meetings']:
-        title = mtg.get('title', 'פגישה ללא שם')
         rec_id = mtg.get('recording_id')
+        summary_key = f"sum_data_{rec_id}"
+        title = mtg.get('title', 'פגישה ללא שם')
         date_str = mtg.get('recording_start_time', '')[:10]
         
         with st.expander(f"📅 {title} | {date_str}"):
-            summary_key = f"sum_data_{rec_id}"
-            
-            if st.button(f"חלץ סיכום AI", key=f"btn_{rec_id}"):
-                with st.spinner("מחלץ סיכום מעוצב..."):
-                    res = get_fathom_summary(rec_id)
-                    if res:
-                        st.session_state[summary_key] = res
-                    else:
-                        st.error("לא נמצא סיכום לפגישה זו.")
-            
             if summary_key in st.session_state:
-                st.markdown("---")
-                # תצוגה בתצורת Markdown נקייה ומעובדת
-                st.markdown(st.session_state[summary_key])
+                # הצגת הסיכום ביישור לימין (RTL)
+                st.markdown(f"""
+                <div style="direction: rtl; text-align: right;">
+                {st.session_state[summary_key]}
+                </div>
+                """, unsafe_allow_html=True)
+                
+                if st.button("רענן סיכום (קריאה חוזרת)", key=f"redo_{rec_id}"):
+                    del st.session_state[summary_key]
+                    st.rerun()
+            else:
+                if st.button("צור סיכום מנהלים בעברית", key=f"btn_{rec_id}", use_container_width=True):
+                    with st.spinner("Gemini מנתח וכותב בעברית..."):
+                        raw_res = get_fathom_summary(rec_id) # הפונקציה הקיימת שלך
+                        if raw_res:
+                            refined = refine_summary_with_gemini(raw_res)
+                            st.session_state[summary_key] = refined
+                            st.rerun()
+                        else:
+                            st.error("לא נמצא סיכום גולמי בפאטום.")
