@@ -349,41 +349,58 @@ else:
             else:
                 if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
 
-# כותרת לבדיקה
-st.header("🔍 בדיקת חיבור אוטומטי")
 
-# משיכת המפתח מהסודות שהגדרת בממשק
-if "FATHOM_API_KEY" in st.secrets:
+#fathom check area
+
+def get_latest_fathom_summary():
+    # משיכת המפתח מה-Secrets של סטרימליט
     api_key = st.secrets["FATHOM_API_KEY"]
+    headers = {
+        "X-Api-Key": api_key,
+        "Accept": "application/json"
+    }
+
+    # שלב א': משיכת רשימת ההקלטות האחרונות
+    list_url = "https://api.fathom.ai/external/v1/recordings"
     
-    if st.button("תבדוק אם פאטום עונה"):
-        url = "https://api.fathom.video/v1/recordings"
-        headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Accept": "application/json"
-        }
+    try:
+        # נבקש רק את ההקלטה האחרונה (limit=1)
+        response = requests.get(list_url, headers=headers, params={"limit": 1})
         
-        try:
-            # אנחנו מוסיפים timeout כדי שהאפליקציה לא תיתקע אם יש חסימה
-            response = requests.get(url, headers=headers, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            recordings = data.get('recordings', [])
             
-            if response.status_code == 200:
-                data = response.json()
-                st.success("הצלחנו! יש תקשורת.")
-                
-                # אם יש פגישות, נראה מה השדות שיש בהן
-                if 'meetings' in data and len(data['meetings']) > 0:
-                    st.write("אלו השדות שקיבלנו (נחפש כאן את הסיכום):")
-                    st.json(list(data['meetings'][0].keys()))
-                else:
-                    st.info("החיבור הצליח אבל אין פגישות ברשימה.")
-                    
+            if not recordings:
+                return "לא נמצאו הקלטות בחשבון הפאטום שלך."
+
+            # שלב ב': משיכת הסיכום עבור ההקלטה שמצאנו
+            recording_id = recordings[0]['id']
+            summary_url = f"https://api.fathom.ai/external/v1/recordings/{recording_id}/summary"
+            
+            summary_response = requests.get(summary_url, headers=headers)
+            
+            if summary_response.status_code == 200:
+                return summary_response.json()
             else:
-                st.error(f"השרת ענה עם שגיאה: {response.status_code}")
-                st.write(response.text)
-                
-        except Exception as e:
-            st.error(f"גם הסטרימליט לא מצליח להגיע לפאטום: {e}")
-else:
-    st.warning("לא מצאתי את המפתח FATHOM_API_KEY ב-Secrets.")
-    
+                return f"שגיאה במשיכת הסיכום: {summary_response.status_code}"
+        else:
+            return f"שגיאה במשיכת רשימת ההקלטות: {response.status_code}"
+            
+    except Exception as e:
+        return f"תקלה בתקשורת: {e}"
+
+# --- תצוגה בדשבורד ---
+st.title("🤖 AI Dashboard: Fathom Integration")
+
+if st.button("טען סיכום פגישה אחרונה"):
+    with st.spinner("מתחבר לפאטום ומחלץ את הסיכום..."):
+        result = get_latest_fathom_summary()
+        
+        if isinstance(result, dict):
+            st.success("הסיכום נטען בהצלחה!")
+            # כאן את יכולה להציג את השדות הספציפיים (למשל 'text' או 'summary')
+            # אני מדפיס הכל כדי שתראי את המבנה בפעם הראשונה
+            st.write(result)
+        else:
+            st.error(result)
