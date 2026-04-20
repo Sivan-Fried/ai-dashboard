@@ -352,93 +352,21 @@ else:
 
 #fathom check area
 
-# =========================================================
-# 5. ניהול סיכומי פגישות Fathom - גרסה סופית ותקינה
-# =========================================================
-import google.generativeai as genai
-
-# --- פונקציות עזר (חובה להגדיר לפני השימוש) ---
-
-def get_fathom_meetings():
-    api_key = st.secrets["FATHOM_API_KEY"]
-    url = "https://api.fathom.ai/external/v1/meetings"
-    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
+# העתיקי את זה במקום הפונקציה הקיימת בקוד שלך
+def refine_summary_with_gemini(raw_text):
     try:
-        response = requests.get(url, headers=headers, timeout=15)
-        if response.status_code == 200:
-            full_list = response.json().get('items', [])
-            return full_list[:5], 200
-        return response.text, response.status_code
-    except Exception as e: return str(e), 500
-
-def get_fathom_summary(recording_id):
-    api_key = st.secrets["FATHOM_API_KEY"]
-    url = f"https://api.fathom.ai/external/v1/recordings/{recording_id}/summary"
-    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
-    try:
-        response = requests.get(url, headers=headers, timeout=15)
-        if response.status_code == 200:
-            return response.json().get("summary", {}).get("markdown_formatted")
-        return None
-    except: return None
-
-# --- הגדרת תצוגה ---
-
-st.markdown("---")
-with st.container(border=True):
-    st.markdown("### ✨ סיכומי פגישות Fathom")
-    
-    # כפתור טעינה ראשי
-    if st.button("טען 5 פגישות אחרונות 🔄", use_container_width=True):
-        with st.spinner("מושך נתונים..."):
-            items, status = get_fathom_meetings()
-            if status == 200:
-                st.session_state['fathom_meetings'] = items
-            else:
-                st.error(f"שגיאה בחיבור לפאטום: {status}")
-
-    # הצגת הפגישות רק אם לחצת על הכפתור
-    if 'fathom_meetings' in st.session_state:
-        # הגדרת המודל פעם אחת עבור כל הלופ
-        try:
-            genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-            model = genai.GenerativeModel('gemini-1.5-flash')
-        except Exception as e:
-            st.error(f"שגיאה בהגדרת Gemini: {e}")
-            model = None
-
-        for mtg in st.session_state['fathom_meetings']:
-            rec_id = mtg.get('recording_id')
-            title = mtg.get('title', 'פגישה ללא שם')
-            date_str = mtg.get('recording_start_time', '')[:10]
-            summary_key = f"sum_v3_{rec_id}"
-            
-            with st.expander(f"📅 {title} | {date_str}"):
-                if summary_key not in st.session_state:
-                    if st.button("צור סיכום מנהלים בעברית 🪄", key=f"btn_{rec_id}", use_container_width=True):
-                        if model:
-                            with st.spinner("Gemini מנתח..."):
-                                raw_text = get_fathom_summary(rec_id)
-                                if raw_text:
-                                    try:
-                                        prompt = f"סכם את הפגישה לעברית עסקית, בולטים, החלטות ומשימות:\n\n{raw_text}"
-                                        response = model.generate_content(prompt)
-                                        st.session_state[summary_key] = response.text
-                                        st.rerun()
-                                    except Exception as e:
-                                        st.error(f"שגיאת AI: {e}")
-                                else:
-                                    st.warning("לא נמצא סיכום גולמי בפאטום.")
-                        else:
-                            st.error("המודל לא הוגדר כראוי.")
-                
-                # הצגת הסיכום אם קיים
-                if summary_key in st.session_state:
-                    st.markdown(f"""
-                    <div style="direction: rtl; text-align: right; background-color: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid #eee;">
-                    {st.session_state[summary_key]}
-                    </div>
-                    """, unsafe_allow_html=True)
-                    
-                    if st.button("נקה 🗑️", key=f"del_{rec_id}"):
-                        del st.session_state[summary_key]; st.rerun()
+        # gemini-pro הוא המודל היציב ביותר שתמיד מזוהה
+        model = genai.GenerativeModel('gemini-pro')
+        
+        prompt = f"""
+        סכם את הפגישה הבאה לעברית עסקית רהוטה. 
+        השתמש במבנה של: נושא, תקציר, החלטות ומשימות.
+        
+        הטקסט לסיכום:
+        {raw_text}
+        """
+        
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        return f"שגיאה בעיבוד: {e}"
