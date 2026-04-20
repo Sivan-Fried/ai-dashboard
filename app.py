@@ -170,9 +170,20 @@ else:
             st.markdown("### 📁 פרויקטים")
             with st.container(height=300, border=False):
                 for _, row in projects.iterrows():
-                    # שינוי כאן: הפיכת השורה ללחיצה
-                    if st.button(f"📂 {row['project_name']}", key=f"p_{row['project_name']}", use_container_width=True):
-                        open_project(row['project_name'])
+                    # יצירת מכולה לכל פרויקט
+                    with st.container():
+                        # הצגת העיצוב המקורי שלך בדיוק כפי שהיה
+                        st.markdown(f'''
+                            <div class="record-row">
+                                <b>📂 {row["project_name"]}</b>
+                                <span class="tag-blue">{row.get("project_type", "פרויקט")}</span>
+                            </div>
+                        ''', unsafe_allow_html=True)
+                        
+                        # הוספת כפתור "שקוף" מתחת לעיצוב כדי לאפשר לחיצה
+                        # השתמשתי ב-label ריק כדי לא להרוס את הוויזואליה
+                        if st.button("צפייה בפרטים ←", key=f"p_{row['project_name']}", use_container_width=True):
+                            open_project(row['project_name'])
 
         with st.container(border=True):
             st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
