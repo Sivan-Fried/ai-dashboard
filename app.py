@@ -43,6 +43,19 @@ st.markdown("""
         object-fit: cover !important; object-position: center 25% !important;
         border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
     }
+    
+    /* מכולות לבנות */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        background: white !important;
+        border-radius: 18px !important;
+        padding: 15px !important;
+    }
+
+    /* תיקון הרווח התחתון - הוספת מרווח פנימי לבלוק התוכן עצמו */
+    div[data-testid="stVerticalBlockBorderWrapper"] > div {
+        padding-bottom: 15px !important;
+    }
+
     .kpi-card {
         background: white !important;
         padding: 15px !important;
@@ -51,25 +64,11 @@ st.markdown("""
         box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
     }
     .kpi-card b { font-size: 1.4rem; color: #1f2a44; display: block; }
-    
-    /* הגדרה כללית למכולות */
-    div[data-testid="stVerticalBlockBorderWrapper"], .st-emotion-cache-1ne20ew {
-        background: white !important;
-        border: 1.5px solid transparent !important;
-        border-radius: 18px !important;
-        padding: 15px !important;
-    }
-
-    /* תיקון ספציפי למרווח התחתון במלבני המשימות והפגישות */
-    [data-testid="stVerticalBlockBorderWrapper"] {
-        padding-bottom: 20px !important; 
-    }
 
     .project-link {
         text-decoration: none !important;
         color: inherit !important;
         display: block !important;
-        transition: all 0.2s ease;
     }
     
     .project-link:hover .record-row {
@@ -95,10 +94,6 @@ st.markdown("""
         box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
     }
 
-    .project-link:first-child .record-row, .record-row:first-of-type {
-        margin-top: 4px !important;
-    }
-
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
     .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
     .time-label { color: #64748b; font-size: 0.85em; font-weight: 500; font-family: monospace; }
@@ -106,9 +101,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# =========================================================
-# 2. לוגיקה (נשארת זהה)
-# =========================================================
+# (שאר הקוד הלוגי נשאר ללא שינוי כדי לשמור על יציבות)
 
 def get_azure_tasks():
     ORG_NAME = "amandigital"
@@ -135,9 +128,6 @@ try:
 except:
     st.error("Missing Files"); st.stop()
 
-# =========================================================
-# 3. ניהול ניווט (נשאר זהה)
-# =========================================================
 params = st.query_params
 if "proj" in params:
     st.session_state.selected_project = params["proj"]
@@ -147,10 +137,6 @@ if "rem_live" not in st.session_state: st.session_state.rem_live = reminders_df
 if "ai_response" not in st.session_state: st.session_state.ai_response = ""
 if "adding_reminder" not in st.session_state: st.session_state.adding_reminder = False
 if "current_page" not in st.session_state: st.session_state.current_page = "main"
-
-# =========================================================
-# 4. תצוגת דפים
-# =========================================================
 
 if st.session_state.current_page == "project":
     p_name = st.session_state.selected_project
@@ -185,7 +171,6 @@ else:
     col_right, col_left = st.columns([2, 1.2])
 
     with col_right:
-        # פרויקטים
         with st.container(border=True):
             st.markdown("### 📁 פרויקטים")
             with st.container(height=300, border=False):
@@ -203,7 +188,6 @@ else:
                         </a>
                     ''', unsafe_allow_html=True)
 
-        # אז'ור
         with st.container(border=True):
             st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
             tasks_data = get_azure_tasks()
@@ -226,7 +210,6 @@ else:
                     ''', unsafe_allow_html=True)
             else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
-        # עוזר AI אישי
         with st.container(border=True):
             st.markdown("### ✨ עוזר AI אישי")
             a1, a2 = st.columns([1, 2]); sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p"); q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
