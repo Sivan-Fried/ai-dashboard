@@ -361,10 +361,11 @@ def get_fathom_meetings():
     url = "https://api.fathom.ai/external/v1/meetings"
     headers = {"X-Api-Key": api_key, "Accept": "application/json"}
     try:
-        # הגבלה קשיחה ל-5 פגישות
-        response = requests.get(url, headers=headers, params={"limit": 5}, timeout=15)
+        response = requests.get(url, headers=headers, timeout=15)
         if response.status_code == 200:
-            return response.json().get('items', []), 200
+            # לקיחת 5 הפגישות הראשונות בלבד מהרשימה שחוזרת
+            full_list = response.json().get('items', [])
+            return full_list[:5], 200
         return response.text, response.status_code
     except Exception as e:
         return str(e), 500
@@ -376,6 +377,7 @@ def get_fathom_summary(recording_id):
     try:
         response = requests.get(url, headers=headers, timeout=15)
         if response.status_code == 200:
+            # שליפת ה-Markdown המעוצב
             return response.json().get("summary", {}).get("markdown_formatted")
         return None
     except:
@@ -385,7 +387,6 @@ def get_fathom_summary(recording_id):
 st.markdown("---")
 st.subheader("✨ סיכומי פגישות Fathom")
 
-# כפתור רענון שמנקה את הזיכרון וטוען 5 חדשות
 if st.button("רענן 5 פגישות אחרונות", use_container_width=True):
     with st.spinner("טוען פגישות..."):
         items, status = get_fathom_meetings()
@@ -394,7 +395,6 @@ if st.button("רענן 5 פגישות אחרונות", use_container_width=True)
         else:
             st.error(f"שגיאה בטעינה: {status}")
 
-# הצגת הפגישות מתוך הזיכרון (כדי שלא ייעלמו בלחיצה)
 if 'fathom_meetings' in st.session_state:
     for mtg in st.session_state['fathom_meetings']:
         title = mtg.get('title', 'פגישה ללא שם')
@@ -402,19 +402,17 @@ if 'fathom_meetings' in st.session_state:
         date_str = mtg.get('recording_start_time', '')[:10]
         
         with st.expander(f"📅 {title} | {date_str}"):
-            # בדיקה אם כבר יש סיכום שמור לפגישה הזו בזיכרון
             summary_key = f"sum_data_{rec_id}"
             
             if st.button(f"חלץ סיכום AI", key=f"btn_{rec_id}"):
-                with st.spinner("מחלץ סיכום..."):
+                with st.spinner("מחלץ סיכום מעוצב..."):
                     res = get_fathom_summary(rec_id)
                     if res:
                         st.session_state[summary_key] = res
                     else:
                         st.error("לא נמצא סיכום לפגישה זו.")
             
-            # אם יש סיכום בזיכרון - נציג אותו תמיד
             if summary_key in st.session_state:
                 st.markdown("---")
-                st.markdown("### 📝 סיכום הפגישה:")
-                st.info(st.session_state[summary_key])
+                # תצוגה בתצורת Markdown נקייה ומעובדת
+                st.markdown(st.session_state[summary_key])
