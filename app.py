@@ -22,14 +22,6 @@ def get_base64_image(path):
 st.markdown("""
 <style>
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
-    
-    div[data-testid="stVerticalBlockBorderWrapper"] {
-        background-color: white !important;
-        border-radius: 18px !important;
-        padding: 15px !important;
-        border: none !important;
-    }
-
     .dashboard-header {
         background: linear-gradient(90deg, #4facfe, #00f2fe) !important;
         -webkit-background-clip: text !important;
@@ -39,7 +31,6 @@ st.markdown("""
         font-weight: 800;
         margin-bottom: 20px;
     }
-    
     h3 {
         font-size: 1.15rem !important;
         font-weight: 700 !important;
@@ -47,13 +38,11 @@ st.markdown("""
         color: #1f2a44 !important;
         text-align: right !important;
     }
-
     .profile-img {
         width: 130px; height: 130px; border-radius: 50% !important;
         object-fit: cover !important; object-position: center 25% !important;
         border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
     }
-    
     .kpi-card {
         background: white !important;
         padding: 15px !important;
@@ -62,13 +51,26 @@ st.markdown("""
         box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
     }
     .kpi-card b { font-size: 1.4rem; color: #1f2a44; display: block; }
+    
+    div[data-testid="stVerticalBlockBorderWrapper"], .st-emotion-cache-1ne20ew {
+        background: white !important;
+        border: 1.5px solid transparent !important;
+        border-radius: 18px !important;
+        padding: 15px !important;
+    }
 
-    .project-link { text-decoration: none !important; color: inherit !important; display: block !important; }
+    .project-link {
+        text-decoration: none !important;
+        color: inherit !important;
+        display: block !important;
+        transition: all 0.2s ease;
+    }
     
     .project-link:hover .record-row {
         border-color: #4facfe !important;
         background-color: #f8fafc !important;
         transform: translateY(-1px);
+        z-index: 5;
         box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
     }
 
@@ -76,7 +78,7 @@ st.markdown("""
         background: #ffffff !important;
         padding: 10px 15px !important;
         border-radius: 10px !important;
-        margin-bottom: 4px !important;
+        margin-bottom: 3px !important; /* צמצום המרווח בפינצטה מ-6px ל-3px */
         border: 1px solid #edf2f7 !important;
         border-right: 5px solid #4facfe !important;
         display: flex !important;
@@ -87,6 +89,11 @@ st.markdown("""
         box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
     }
 
+    /* שמירה על אוויר למעלה רק ברשומה הראשונה למניעת חיתוך Hover */
+    .project-link:first-child .record-row, .record-row:first-of-type {
+        margin-top: 4px !important;
+    }
+
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
     .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
     .time-label { color: #64748b; font-size: 0.85em; font-weight: 500; font-family: monospace; }
@@ -95,8 +102,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =========================================================
-# 2. לוגיקה
+# 2. לוגיקה ושליפת נתונים
 # =========================================================
+
 def get_azure_tasks():
     ORG_NAME = "amandigital"
     wiql_url = f"https://dev.azure.com/{ORG_NAME}/_apis/wit/wiql?api-version=6.0"
@@ -138,6 +146,7 @@ if "current_page" not in st.session_state: st.session_state.current_page = "main
 # =========================================================
 # 4. תצוגת דפים
 # =========================================================
+
 if st.session_state.current_page == "project":
     p_name = st.session_state.selected_project
     st.markdown(f'<h1 class="dashboard-header">{p_name}</h1>', unsafe_allow_html=True)
@@ -147,6 +156,7 @@ if st.session_state.current_page == "project":
         st.rerun()
     with st.container(border=True):
         st.markdown(f"### ℹ️ מידע כללי על {p_name}")
+        st.write("כאן נוכל להוסיף את נתוני הפרויקט.")
 
 else:
     st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
@@ -170,6 +180,7 @@ else:
     col_right, col_left = st.columns([2, 1.2])
 
     with col_right:
+        # פרויקטים
         with st.container(border=True):
             st.markdown("### 📁 פרויקטים")
             with st.container(height=300, border=False):
@@ -187,6 +198,7 @@ else:
                         </a>
                     ''', unsafe_allow_html=True)
 
+        # אז'ור
         with st.container(border=True):
             st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
             tasks_data = get_azure_tasks()
@@ -196,23 +208,23 @@ else:
                     t_id, t_title, p_task = t.get('id'), f.get('System.Title', ''), f.get('System.TeamProject', 'General')
                     raw_date = f.get('System.CreatedDate', '')
                     fmt_date = f"{raw_date[8:10]}/{raw_date[5:7]} {raw_date[11:16]}" if raw_date else ""
+                    
                     t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_task)}/_workitems/edit/{t_id}"
                     st.markdown(f'''
-                        <div class="record-row">
+                        <div class="record-row" style="white-space: nowrap;">
                             <div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis;">
                                 <a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: none; font-weight: 500;">🔗 {t_title}</a>
-                                <span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">נוצרה ב-{fmt_date}</span>
+                                <span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">הרשומה נוצרה ב {fmt_date}</span>
                             </div>
                             <span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_task}</span>
                         </div>
                     ''', unsafe_allow_html=True)
-            else: st.write("אין משימות חדשות.")
+            else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
+        # עוזר AI אישי
         with st.container(border=True):
             st.markdown("### ✨ עוזר AI אישי")
-            a1, a2 = st.columns([1, 2])
-            sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
-            q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
+            a1, a2 = st.columns([1, 2]); sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p"); q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
             if st.button("שגר שאילתה 🚀", use_container_width=True):
                 if q_in:
                     with st.spinner("מנתח..."): time.sleep(0.5)
@@ -231,7 +243,22 @@ else:
 
         with st.container(border=True):
             st.markdown("### 🔔 תזכורות")
-            t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
-            for _, row in t_r.iterrows():
-                st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
-            if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True
+            with st.container(border=False):
+                t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
+                for _, row in t_r.iterrows():
+                    st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
+            
+            if st.session_state.adding_reminder:
+                with st.container(border=True):
+                    r_col1, r_col2 = st.columns([1, 2])
+                    new_proj = r_col1.selectbox("בחר פרויקט", projects["project_name"].tolist() + ["כללי"], label_visibility="collapsed")
+                    new_text = r_col2.text_input("תיאור התזכורת", placeholder="מה להזכיר?", label_visibility="collapsed")
+                    b_col1, b_col2 = st.columns([1, 1])
+                    if b_col1.button("✅"):
+                        if new_text:
+                            new_data = pd.DataFrame([{"date": today, "reminder_text": new_text, "project_name": new_proj}])
+                            st.session_state.rem_live = pd.concat([st.session_state.rem_live, new_data], ignore_index=True)
+                            st.session_state.adding_reminder = False; st.rerun()
+                    if b_col2.button("❌"): st.session_state.adding_reminder = False; st.rerun()
+            else:
+                if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
