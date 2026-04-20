@@ -354,52 +354,48 @@ else:
 
 import streamlit as st
 import requests
+import re
 
-def get_fathom_list():
-    # שליפת המפתח מה-Secrets
-    api_key = st.secrets.get("FATHOM_API_KEY")
-    if not api_key:
-        return "Missing API Key in Secrets"
-
-    # הכתובת המדויקת לפי ה-Docs שלך
-    url = "https://api.fathom.ai/external/v1/recordings"
+def get_fathom_summary(recording_id):
+    api_key = st.secrets["FATHOM_API_KEY"]
+    url = f"https://api.fathom.ai/external/v1/recordings/{recording_id}/summary"
+    
     headers = {
         "X-Api-Key": api_key,
         "Accept": "application/json"
     }
-
+    
     try:
-        # אנחנו מוסיפים כאן 'slash' בסוף, לפעמים זה מה שפותר 404 ב-APIs
-        response = requests.get(url, headers=headers, timeout=10)
-        
+        response = requests.get(url, headers=headers, timeout=15)
         if response.status_code == 200:
             return response.json()
-        else:
-            # אם יש שגיאה, נציג אותה בצורה נקייה בלי כל ה-HTML
-            return f"שגיאה {response.status_code}: השרת של פאטום לא מזהה את הנתיב."
-    except Exception as e:
-        return f"תקלה בחיבור: {e}"
+        return None
+    except Exception:
+        return None
 
-# --- חלק התצוגה בדשבורד ---
-st.subheader("🔎 חוקר פגישות Fathom")
+# --- בתוך הדשבורד שלך, תחת "עוזר AI אישי" ---
+st.markdown("---")
+st.subheader("✨ סיכום פגישה חכם (Fathom)")
 
-if st.button("רענן רשימת פגישות"):
-    with st.spinner("מתחבר לפאטום..."):
-        data = get_fathom_list()
-        
-        if isinstance(data, dict) and 'recordings' in data:
-            recordings = data['recordings']
-            if not recordings:
-                st.info("לא נמצאו הקלטות בחשבון.")
-            else:
-                for rec in recordings:
-                    col1, col2 = st.columns([3, 1])
-                    with col1:
-                        st.write(f"📅 **{rec.get('title', 'פגישה ללא שם')}**")
-                    with col2:
-                        if st.button("הצג סיכום", key=rec['id']):
-                            # כאן תבוא הפונקציה של ה-Summary
-                            st.info("מושך סיכום...")
+fathom_url = st.text_input("הדביקי לינק לפגישה:", placeholder="https://fathom.video/share/...")
+
+if st.button("חלץ סיכום פגישה"):
+    if fathom_url:
+        match = re.search(r'share/([^/?]+)', fathom_url)
+        if match:
+            rec_id = match.group(1)
+            with st.spinner("מנתח נתונים..."):
+                data = get_fathom_summary(rec_id)
+                
+                if data and "summary" in data:
+                    summary_content = data["summary"].get("markdown_formatted", "")
+                    if summary_content:
+                        # מציג את הסיכום המעוצב בצורה יפה
+                        st.info("הסיכום חולץ בהצלחה:")
+                        st.markdown(summary_content)
+                    else:
+                        st.warning("הפגישה נמצאה, אך הסיכום עדיין לא מוכן בפאטום.")
+                else:
+                    st.error("לא הצלחתי למשוך את הסיכום. וודאי שהמפתח תקין.")
         else:
-            st.error(data)
-            st.info("טיפ: וודאי שבדוקומנטציה לא כתוב שצריך להוסיף /v1/ בסוף הכתובת.")
+            st.warning("לינק לא תקין.")
