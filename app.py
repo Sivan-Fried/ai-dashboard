@@ -351,7 +351,7 @@ else:
 
 
 # =========================================================
-# 5. ניהול סיכומי פגישות Fathom - גרסה סופית ונקייה
+# 5. ניהול סיכומי פגישות Fathom - גרסה סופית ונקייה באמת
 # =========================================================
 import google.generativeai as genai
 
@@ -400,7 +400,7 @@ with st.container(border=True):
         for mtg in st.session_state['fathom_meetings']:
             rec_id, title = mtg.get('recording_id'), mtg.get('title', 'פגישה ללא שם')
             date_str = mtg.get('recording_start_time', '')[:10]
-            s_key = f"sum_v4_{rec_id}"
+            s_key = f"sum_final_v5_{rec_id}"
             
             with st.expander(f"📅 {title} | {date_str}"):
                 if s_key not in st.session_state:
@@ -411,12 +411,8 @@ with st.container(border=True):
                             st.rerun()
                 
                 if s_key in st.session_state:
-                    # כאן תוקן ה-HTML המיותר שצף על המסך
-                    st.markdown(f"""
-                    <div style="direction: rtl; text-align: right; background-color: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid #eee; line-height: 1.6;">
-                    {st.session_state[s_key]}
-                    </div>
-                    """, unsafe_allow_html=True)
+                    # שימוש ביישור לימין ללא סכנת תגיות צפות
+                    st.markdown(f'<div style="direction: rtl; text-align: right; background-color: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid #eee;">{st.session_state[s_key]}</div>', unsafe_allow_html=True)
                     
                     if st.button("נקה 🗑️", key=f"del_{rec_id}"):
                         del st.session_state[s_key]
