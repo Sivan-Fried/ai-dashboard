@@ -355,16 +355,16 @@ else:
 import streamlit as st
 import requests
 
-# 1. פונקציות עזר למשיכת נתונים מפאטום
+# 1. פונקציות עזר
 def get_fathom_meetings():
     api_key = st.secrets["FATHOM_API_KEY"]
     url = "https://api.fathom.ai/external/v1/meetings"
     headers = {"X-Api-Key": api_key, "Accept": "application/json"}
     try:
-        # הגבלה ל-5 פגישות אחרונות
+        # הגבלה קשיחה ל-5 פגישות
         response = requests.get(url, headers=headers, params={"limit": 5}, timeout=15)
         if response.status_code == 200:
-            return response.json(), 200
+            return response.json().get('items', []), 200
         return response.text, response.status_code
     except Exception as e:
         return str(e), 500
@@ -375,43 +375,46 @@ def get_fathom_summary(recording_id):
     headers = {"X-Api-Key": api_key, "Accept": "application/json"}
     try:
         response = requests.get(url, headers=headers, timeout=15)
-        return response.json() if response.status_code == 200 else None
+        if response.status_code == 200:
+            return response.json().get("summary", {}).get("markdown_formatted")
+        return None
     except:
         return None
 
-# --- 2. האזור להחלפה בדשבורד (תחת "עוזר AI אישי") ---
+# --- 2. האזור להחלפה בדשבורד ---
 st.markdown("---")
 st.subheader("✨ סיכומי פגישות Fathom")
 
+# כפתור רענון שמנקה את הזיכרון וטוען 5 חדשות
 if st.button("רענן 5 פגישות אחרונות", use_container_width=True):
-    with st.spinner("מעדכן רשימה..."):
-        data, status = get_fathom_meetings()
-        
-        if status == 200 and isinstance(data, dict):
-            meetings = data.get('items', [])
-            if not meetings:
-                st.info("לא נמצאו פגישות אחרונות.")
-            else:
-                # הצגת הפגישות כרשימה נפתחת
-                for mtg in meetings:
-                    title = mtg.get('title', 'פגישה ללא שם')
-                    rec_id = mtg.get('recording_id')
-                    date_str = mtg.get('recording_start_time', '')[:10]
-                    
-                    with st.expander(f"📅 {title} | {date_str}"):
-                        # כפתור למשיכת הסיכום בתוך הפגישה
-                        if st.button(f"חלץ סיכום AI ל-{title}", key=f"sum_{rec_id}"):
-                            with st.spinner("מושך סיכום..."):
-                                summary_data = get_fathom_summary(rec_id)
-                                if summary_data and "summary" in summary_data:
-                                    content = summary_data["summary"].get("markdown_formatted")
-                                    if content:
-                                        st.markdown("### 📝 סיכום הפגישה:")
-                                        # הסיכום מופיע כאן, בתוך מסגרת בולטת
-                                        st.info(content)
-                                    else:
-                                        st.warning("לא נמצא סיכום מוכן לפגישה זו.")
-                                else:
-                                    st.error("תקלה במשיכת הסיכום מפאטום.")
+    with st.spinner("טוען פגישות..."):
+        items, status = get_fathom_meetings()
+        if status == 200:
+            st.session_state['fathom_meetings'] = items
         else:
-            st.error(f"שגיאה {status}: {data}")
+            st.error(f"שגיאה בטעינה: {status}")
+
+# הצגת הפגישות מתוך הזיכרון (כדי שלא ייעלמו בלחיצה)
+if 'fathom_meetings' in st.session_state:
+    for mtg in st.session_state['fathom_meetings']:
+        title = mtg.get('title', 'פגישה ללא שם')
+        rec_id = mtg.get('recording_id')
+        date_str = mtg.get('recording_start_time', '')[:10]
+        
+        with st.expander(f"📅 {title} | {date_str}"):
+            # בדיקה אם כבר יש סיכום שמור לפגישה הזו בזיכרון
+            summary_key = f"sum_data_{rec_id}"
+            
+            if st.button(f"חלץ סיכום AI", key=f"btn_{rec_id}"):
+                with st.spinner("מחלץ סיכום..."):
+                    res = get_fathom_summary(rec_id)
+                    if res:
+                        st.session_state[summary_key] = res
+                    else:
+                        st.error("לא נמצא סיכום לפגישה זו.")
+            
+            # אם יש סיכום בזיכרון - נציג אותו תמיד
+            if summary_key in st.session_state:
+                st.markdown("---")
+                st.markdown("### 📝 סיכום הפגישה:")
+                st.info(st.session_state[summary_key])
