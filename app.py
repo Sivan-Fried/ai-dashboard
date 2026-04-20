@@ -356,46 +356,38 @@ import streamlit as st
 import requests
 import re
 
+# 1. פונקציית העזר (לשים בתחילת הקובץ או מעל הממשק)
 def get_fathom_summary(recording_id):
     api_key = st.secrets["FATHOM_API_KEY"]
     url = f"https://api.fathom.ai/external/v1/recordings/{recording_id}/summary"
-    
-    headers = {
-        "X-Api-Key": api_key,
-        "Accept": "application/json"
-    }
-    
+    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
     try:
         response = requests.get(url, headers=headers, timeout=15)
-        if response.status_code == 200:
-            return response.json()
-        return None
-    except Exception:
+        return response.json() if response.status_code == 200 else None
+    except:
         return None
 
-# --- בתוך הדשבורד שלך, תחת "עוזר AI אישי" ---
+# 2. האזור להחלפה בדשבורד (תחת "עוזר AI אישי")
 st.markdown("---")
-st.subheader("✨ סיכום פגישה חכם (Fathom)")
+st.subheader("✨ עוזר AI אישי - פאטום")
 
-fathom_url = st.text_input("הדביקי לינק לפגישה:", placeholder="https://fathom.video/share/...")
+fathom_url = st.text_input("הדביקי לינק לפגישה:", placeholder="https://fathom.video/...")
 
-if st.button("חלץ סיכום פגישה"):
+if st.button("חלץ סיכום פגישה", use_container_width=True):
     if fathom_url:
-        match = re.search(r'share/([^/?]+)', fathom_url)
-        if match:
-            rec_id = match.group(1)
-            with st.spinner("מנתח נתונים..."):
-                data = get_fathom_summary(rec_id)
-                
-                if data and "summary" in data:
-                    summary_content = data["summary"].get("markdown_formatted", "")
-                    if summary_content:
-                        # מציג את הסיכום המעוצב בצורה יפה
-                        st.info("הסיכום חולץ בהצלחה:")
-                        st.markdown(summary_content)
-                    else:
-                        st.warning("הפגישה נמצאה, אך הסיכום עדיין לא מוכן בפאטום.")
+        # מחלץ ID מכל סוג של לינק (share, recordings, או סתם ה-ID עצמו)
+        match = re.search(r'(?:share|recordings|recording|video)/([^/?#\s]+)', fathom_url)
+        rec_id = match.group(1) if match else fathom_url.strip()
+        
+        with st.spinner("מנתח את הפגישה..."):
+            data = get_fathom_summary(rec_id)
+            if data and "summary" in data:
+                content = data["summary"].get("markdown_formatted")
+                if content:
+                    st.markdown(content)
                 else:
-                    st.error("לא הצלחתי למשוך את הסיכום. וודאי שהמפתח תקין.")
-        else:
-            st.warning("לינק לא תקין.")
+                    st.warning("הפגישה נמצאה, אך אין לה סיכום טקסטואלי.")
+            else:
+                st.error("לא הצלחתי למשוך את הסיכום. וודאי שהלינק והמפתח תקינים.")
+    else:
+        st.info("אנא הדביקי לינק כדי להתחיל.")
