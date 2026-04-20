@@ -7,10 +7,12 @@ import time
 import urllib.parse
 from zoneinfo import ZoneInfo
 
-# --- 1. הגדרות דף ועיצוב (הגרסה המקורית והיציבה שלך) ---
+# =========================================================
+# 1. הגדרות דף ועיצוב (CSS)
+# =========================================================
 st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
-# ייבוא גופן האייקונים עבור החץ
+# ייבוא גופן האייקונים עבור החצים והסמלים
 st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
 
 def get_base64_image(path):
@@ -57,8 +59,6 @@ st.markdown("""
         border-radius: 18px !important;
         padding: 15px !important;
     }
-    
-    /* עיצוב הרשומה כקישור לחיץ */
     .project-link {
         text-decoration: none !important;
         color: inherit !important;
@@ -91,20 +91,24 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 2. לוגיקה ונתונים ---
+# =========================================================
+# 2. לוגיקה ושליפת נתונים (Azure, Excel)
+# =========================================================
+
+# --- התחלה: אזור אז'ור (Azure DevOps Logic) ---
 def get_azure_tasks():
     ORG_NAME = "amandigital"
     wiql_url = f"https://dev.azure.com/{ORG_NAME}/_apis/wit/wiql?api-version=6.0"
-    query = {"query": "SELECT [System.Id], [System.Title], [System.TeamProject] FROM WorkItems WHERE [System.AssignedTo] = @me AND [System.State] = 'New' ORDER BY [System.ChangedDate] DESC"}
+    query = {"query": "SELECT [System.Id], [System.Title], [System.TeamProject], [System.CreatedDate] FROM WorkItems WHERE [System.AssignedTo] = @me AND [System.State] = 'New' ORDER BY [System.ChangedDate] DESC"}
     try:
         auth = ('', st.secrets["AZURE_PAT"])
         res = requests.post(wiql_url, json=query, auth=auth)
-        work_items = res.json().get('workItems', [])
-        if not work_items: return []
-        ids = ",".join([str(item['id']) for item in work_items[:5]])
-        details_res = requests.get(f"https://dev.azure.com/{ORG_NAME}/_apis/wit/workitems?ids={ids}&api-version=6.0", auth=auth)
-        return details_res.json().get('value', [])
+        ids = ",".join([str(item['id']) for item in res.json().get('workItems', [])[:5]])
+        if not ids: return []
+        details = requests.get(f"https://dev.azure.com/{ORG_NAME}/_apis/wit/workitems?ids={ids}&fields=System.Title,System.TeamProject,System.CreatedDate&api-version=6.0", auth=auth)
+        return details.json().get('value', [])
     except: return []
+# --- סיום: אזור אז'ור ---
 
 def fmt_time(t):
     try: return t.strftime("%H:%M")
@@ -118,7 +122,9 @@ try:
 except:
     st.error("Missing Files"); st.stop()
 
-# --- 3. ניהול ניווט (Query Params ללחיצה על HTML) ---
+# =========================================================
+# 3. ניהול ניווט (Session State & Query Params)
+# =========================================================
 params = st.query_params
 if "proj" in params:
     st.session_state.selected_project = params["proj"]
@@ -129,8 +135,11 @@ if "ai_response" not in st.session_state: st.session_state.ai_response = ""
 if "adding_reminder" not in st.session_state: st.session_state.adding_reminder = False
 if "current_page" not in st.session_state: st.session_state.current_page = "main"
 
-# --- 4. תצוגה ---
+# =========================================================
+# 4. תצוגת דפים
+# =========================================================
 
+# --- התחלה: דף פרויקט ספציפי ---
 if st.session_state.current_page == "project":
     p_name = st.session_state.selected_project
     st.markdown(f'<h1 class="dashboard-header">{p_name}</h1>', unsafe_allow_html=True)
@@ -141,18 +150,22 @@ if st.session_state.current_page == "project":
     with st.container(border=True):
         st.markdown(f"### ℹ️ מידע כללי על {p_name}")
         st.write("כאן נוכל להוסיף את נתוני הפרויקט.")
+# --- סיום: דף פרויקט ספציפי ---
 
+# --- התחלה: דף דשבורד ראשי ---
 else:
     st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
     img_b64 = get_base64_image("profile.png")
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
     greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
 
+    # אזור פרופיל
     p1, p2, p3 = st.columns([1, 1, 2])
     with p2:
         if img_b64: st.markdown(f'<div style="display:flex; justify-content:center;"><img src="data:image/png;base64,{img_b64}" class="profile-img"></div>', unsafe_allow_html=True)
     with p3: st.markdown(f"<div><h3 style='margin-bottom:0;'>{greeting}, סיון!</h3><p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p></div>", unsafe_allow_html=True)
 
+    # אזור KPI
     st.markdown("<br>", unsafe_allow_html=True)
     k1, k2, k3, k4 = st.columns(4)
     with k1: st.markdown(f'<div class="kpi-card">בסיכון 🔴<br><b>{len(projects[projects["status"]=="אדום"])}</b></div>', unsafe_allow_html=True)
@@ -163,7 +176,9 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
     col_right, col_left = st.columns([2, 1.2])
 
+    # עמודה ימנית (פרויקטים, אז'ור, AI)
     with col_right:
+        # --- התחלה: רשימת פרויקטים לחיצה ---
         with st.container(border=True):
             st.markdown("### 📁 פרויקטים")
             with st.container(height=300, border=False):
@@ -180,17 +195,33 @@ else:
                             </div>
                         </a>
                     ''', unsafe_allow_html=True)
+        # --- סיום: רשימת פרויקטים ---
 
+        # --- התחלה: רשימת משימות אז'ור עם תאריך יצירה ---
         with st.container(border=True):
             st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
             tasks_data = get_azure_tasks()
             if tasks_data:
                 for t in tasks_data:
-                    f = t.get('fields', {}); p_task = f.get('System.TeamProject', 'General'); t_title = f.get('System.Title', 'ללא כותרת'); t_id = t.get('id')
+                    f = t.get('fields', {})
+                    t_id, t_title, p_task = t.get('id'), f.get('System.Title', ''), f.get('System.TeamProject', 'General')
+                    raw_date = f.get('System.CreatedDate', '')
+                    fmt_date = f"{raw_date[8:10]}/{raw_date[5:7]} בשעה {raw_date[11:16]}" if raw_date else ""
+                    
                     t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_task)}/_workitems/edit/{t_id}"
-                    st.markdown(f'<div class="record-row"><div style="flex-grow: 1; text-align: right;"><a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: underline; font-weight: 500;">🔗 {t_title}</a></div><span class="tag-orange" style="margin-right: 12px;">{p_task}</span></div>', unsafe_allow_html=True)
+                    st.markdown(f'''
+                        <div class="record-row">
+                            <div style="flex-grow: 1; text-align: right;">
+                                <a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: none; font-weight: 500;">🔗 {t_title}</a>
+                                <div style="color: gray; font-size: 0.8rem; margin-top: 2px;">נוצרה ב-{fmt_date}</div>
+                            </div>
+                            <span class="tag-orange" style="margin-right: 12px;">{p_task}</span>
+                        </div>
+                    ''', unsafe_allow_html=True)
             else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
+        # --- סיום: רשימת משימות אז'ור ---
 
+        # עוזר AI
         with st.container(border=True):
             st.markdown("### ✨ עוזר AI אישי")
             a1, a2 = st.columns([1, 2]); sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p"); q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
@@ -200,6 +231,7 @@ else:
                     st.session_state.ai_response = f"**ניתוח עבור {sel_p}:** הסטטוס תקין."
             if st.session_state.ai_response: st.info(st.session_state.ai_response)
 
+    # עמודה שמאלית (פגישות, תזכורות)
     with col_left:
         with st.container(border=True):
             st.markdown("### 📅 פגישות היום")
@@ -231,3 +263,4 @@ else:
                     if b_col2.button("❌"): st.session_state.adding_reminder = False; st.rerun()
             else:
                 if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
+# --- סיום: דף דשבורד ראשי ---
