@@ -10,6 +10,9 @@ from zoneinfo import ZoneInfo
 # --- 1. הגדרות דף ועיצוב (הגרסה המקורית והיציבה שלך ב-100%) ---
 st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
+# ייבוא גופן האייקונים עבור החץ בלבד
+st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
+
 def get_base64_image(path):
     try:
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
@@ -72,10 +75,24 @@ st.markdown("""
     .time-label { color: #64748b; font-size: 0.85em; font-weight: 500; font-family: monospace; }
     p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
     div[data-testid="stWidgetLabel"] { justify-content: flex-start !important; }
+
+    /* עיצוב ספציפי לכפתור השקוף של הפרויקטים בלבד */
+    .project-btn-overlay button {
+        background: transparent !important;
+        border: none !important;
+        color: transparent !important;
+        height: 45px !important;
+        margin-top: -53px !important;
+        position: relative !important;
+        z-index: 10 !important;
+    }
+    .project-btn-overlay button:hover {
+        background: rgba(79, 172, 254, 0.03) !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# --- 2. לוגיקה ונתונים (ללא שינוי מהמקור) ---
+# --- 2. לוגיקה ונתונים ---
 def get_azure_tasks():
     ORG_NAME = "amandigital"
     wiql_url = f"https://dev.azure.com/{ORG_NAME}/_apis/wit/wiql?api-version=6.0"
@@ -102,7 +119,7 @@ try:
 except:
     st.error("Missing Files"); st.stop()
 
-# --- 3. ניהול ניווט (Session State) ---
+# --- 3. ניהול ניווט ---
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders_df
 if "ai_response" not in st.session_state: st.session_state.ai_response = ""
 if "adding_reminder" not in st.session_state: st.session_state.adding_reminder = False
@@ -118,7 +135,6 @@ if st.session_state.current_page == "project":
     if st.button("⬅️ חזרה לדשבורד"):
         st.session_state.current_page = "main"; st.rerun()
     
-    # שימוש במבנה המלבנים המקורי שלך גם כאן
     with st.container(border=True):
         st.markdown(f"### ℹ️ מידע כללי על {p_name}")
         st.write("כאן נוכל להוסיף את נתוני הפרויקט.")
@@ -150,12 +166,23 @@ else:
             st.markdown("### 📁 פרויקטים")
             with st.container(height=300, border=False):
                 for _, row in projects.iterrows():
-                    # החזרתי את העיצוב המקורי. הפתרון ללחיצה: כפתור שקוף ופשוט.
-                    cols = st.columns([0.1, 0.9])
-                    if cols[0].button("🔍", key=f"btn_{row['project_name']}"):
+                    # תיקון בפינצטה: הצגת הרשומה עם חץ והפיכתה ללחיצה
+                    st.markdown(f'''
+                        <div class="record-row" style="margin-bottom: 0px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <b>📂 {row["project_name"]}</b>
+                                <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
+                            </div>
+                            <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">chevron_left</span>
+                        </div>
+                    ''', unsafe_allow_html=True)
+                    
+                    # כפתור שקוף שיושב מעל הרשומה
+                    st.markdown('<div class="project-btn-overlay">', unsafe_allow_html=True)
+                    if st.button("", key=f"btn_{row['project_name']}", use_container_width=True):
                         st.session_state.selected_project = row['project_name']
                         st.session_state.current_page = "project"; st.rerun()
-                    cols[1].markdown(f'<div class="record-row" style="margin-bottom:0;"><b>📂 {row["project_name"]}</b><span class="tag-blue">{row.get("project_type", "תחזוקה")}</span></div>', unsafe_allow_html=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
 
         with st.container(border=True):
             st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
