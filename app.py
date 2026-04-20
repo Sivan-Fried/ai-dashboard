@@ -8,7 +8,7 @@ import urllib.parse
 from zoneinfo import ZoneInfo
 
 # =========================================================
-# 1. הגדרות דף ועיצוב (CSS) - הגרסה המקורית והיציבה
+# 1. הגדרות דף ועיצוב (CSS) - גרסה יציבה ומקורית
 # =========================================================
 st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
