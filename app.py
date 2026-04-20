@@ -76,18 +76,25 @@ st.markdown("""
     p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
     div[data-testid="stWidgetLabel"] { justify-content: flex-start !important; }
 
-    /* עיצוב ספציפי לכפתור השקוף של הפרויקטים בלבד */
+    /* תיקון נקודתי למיקום הכפתור השקוף */
+    .clickable-container {
+        position: relative;
+        margin-bottom: 8px;
+    }
     .project-btn-overlay button {
         background: transparent !important;
         border: none !important;
         color: transparent !important;
-        height: 45px !important;
-        margin-top: -53px !important;
-        position: relative !important;
+        height: 52px !important;
+        width: 100% !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
         z-index: 10 !important;
+        cursor: pointer !important;
     }
     .project-btn-overlay button:hover {
-        background: rgba(79, 172, 254, 0.03) !important;
+        background: rgba(0, 0, 0, 0.02) !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -128,18 +135,15 @@ if "selected_project" not in st.session_state: st.session_state.selected_project
 
 # --- 4. תצוגה ---
 
-# --- דף פרויקט ---
 if st.session_state.current_page == "project":
     p_name = st.session_state.selected_project
     st.markdown(f'<h1 class="dashboard-header">{p_name}</h1>', unsafe_allow_html=True)
     if st.button("⬅️ חזרה לדשבורד"):
         st.session_state.current_page = "main"; st.rerun()
-    
     with st.container(border=True):
         st.markdown(f"### ℹ️ מידע כללי על {p_name}")
         st.write("כאן נוכל להוסיף את נתוני הפרויקט.")
 
-# --- דף ראשי ---
 else:
     st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
     img_b64 = get_base64_image("profile.png")
@@ -166,18 +170,20 @@ else:
             st.markdown("### 📁 פרויקטים")
             with st.container(height=300, border=False):
                 for _, row in projects.iterrows():
-                    # תיקון בפינצטה: הצגת הרשומה עם חץ והפיכתה ללחיצה
+                    # התיקון כאן: שימוש ב-clickable-container כדי להצמיד את הכפתור לרשומה
                     st.markdown(f'''
-                        <div class="record-row" style="margin-bottom: 0px;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <b>📂 {row["project_name"]}</b>
-                                <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
+                        <div class="clickable-container">
+                            <div class="record-row" style="margin-bottom: 0px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <b>📂 {row["project_name"]}</b>
+                                    <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
+                                </div>
+                                <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">chevron_left</span>
                             </div>
-                            <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">chevron_left</span>
                         </div>
                     ''', unsafe_allow_html=True)
                     
-                    # כפתור שקוף שיושב מעל הרשומה
+                    # הצפת הכפתור השקוף בדיוק מעל ה-div שלמעלה
                     st.markdown('<div class="project-btn-overlay">', unsafe_allow_html=True)
                     if st.button("", key=f"btn_{row['project_name']}", use_container_width=True):
                         st.session_state.selected_project = row['project_name']
