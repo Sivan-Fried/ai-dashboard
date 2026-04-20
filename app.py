@@ -354,41 +354,67 @@ else:
 
 import streamlit as st
 import requests
-import re
 
-def get_fathom_summary(recording_id):
+def get_fathom_meetings():
     api_key = st.secrets["FATHOM_API_KEY"]
-    url = f"https://api.fathom.ai/external/v1/recordings/{recording_id}/summary"
-    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
+    # הכתובת המדויקת מהדוקומנטציה שלך
+    url = "https://api.fathom.ai/external/v1/meetings"
+    
+    headers = {
+        "X-Api-Key": api_key,
+        "Accept": "application/json"
+    }
+    
+    # פרמטרים לפי הדוגמה ששלחת (למשל: פגישות מהחודש האחרון)
+    params = {
+        "limit": 10,
+        "include_transcript": "false" # אנחנו רוצים רק רשימה כרגע
+    }
+    
     try:
-        response = requests.get(url, headers=headers, timeout=15)
+        response = requests.get(url, headers=headers, params=params, timeout=15)
         if response.status_code == 200:
             return response.json(), 200
         return response.text, response.status_code
     except Exception as e:
         return str(e), 500
 
+def get_fathom_summary(meeting_id):
+    api_key = st.secrets["FATHOM_API_KEY"]
+    url = f"https://api.fathom.ai/external/v1/meetings/{meeting_id}/summary"
+    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
+    try:
+        response = requests.get(url, headers=headers)
+        return response.json() if response.status_code == 200 else None
+    except:
+        return None
+
 # --- האזור להחלפה בדשבורד ---
 st.markdown("---")
-st.subheader("✨ עוזר AI אישי - פאטום")
+st.subheader("✨ סיכומי פגישות Fathom")
 
-fathom_url = st.text_input("הדביקי לינק לפגישה:", placeholder="https://fathom.video/share/...")
+if st.button("טען פגישות אחרונות", use_container_width=True):
+    data, status = get_fathom_meetings()
+    
+    if status == 200 and isinstance(data, dict):
+        meetings = data.get('meetings', [])
+        if not meetings:
+            st.info("לא נמצאו פגישות שתואמות לחיפוש.")
+        else:
+            for mtg in meetings:
+                with st.expander(f"📅 {mtg.get('title', 'פגישה ללא שם')} ({mtg.get('date', '')})"):
+                    st.write(f"**מזהה פגישה:** `{mtg['id']}`")
+                    if st.button("משוך סיכום פגישה זו", key=mtg['id']):
+                        summary_data = get_fathom_summary(mtg['id'])
+                        if summary_data and "summary" in summary_data:
+                            content = summary_data["summary"].get("markdown_formatted")
+                            st.markdown(content if content else "אין סיכום טקסטואלי זמין.")
+                        else:
+                            st.error("לא הצלחתי למשוך סיכום לפגישה זו.")
+    else:
+        st.error(f"שגיאה {status}: {data}")
 
-if st.button("חלץ סיכום פגישה", use_container_width=True):
-    if fathom_url:
-        # חילוץ מזהה - לוקח את הרצף האחרון של תווים מהלינק
-        rec_id = fathom_url.strip().split('/')[-1].split('?')[0]
-        
-        with st.spinner(f"בודק את פגישה {rec_id}..."):
-            data, status = get_fathom_summary(rec_id)
-            
-            if status == 200 and isinstance(data, dict):
-                content = data.get("summary", {}).get("markdown_formatted")
-                if content:
-                    st.markdown(content)
-                else:
-                    st.warning("הפגישה נמצאה, אך אין לה סיכום מוכן.")
-            elif status == 401:
+st.info("טיפ: וודאי שהמייל שלך מעודכן ב-Fathom כדי לראות פגישות שהוקלטו על ידך.")
                 st.error("שגיאה 401: מפתח ה-API (FATHOM_API_KEY) לא תקין.")
             elif status == 404:
                 st.error(f"שגיאה 404: פאטום לא מוצא פגישה עם ה-ID: {rec_id}")
