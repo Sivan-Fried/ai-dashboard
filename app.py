@@ -357,7 +357,7 @@ if "FATHOM_API_KEY" in st.secrets:
     api_key = st.secrets["FATHOM_API_KEY"]
     
     if st.button("תבדוק אם פאטום עונה"):
-        url = "https://api.fathom.video/v1/meetings"
+        url = "https://api.fathom.video/v1/recordings"
         headers = {
             "Authorization": f"Bearer {api_key}",
             "Accept": "application/json"
