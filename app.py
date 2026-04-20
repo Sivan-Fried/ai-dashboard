@@ -189,7 +189,7 @@ else:
                         </a>
                     ''', unsafe_allow_html=True)
 
-        # --- התחלה: רשימת משימות אז'ור (שורה אחת) ---
+        # --- התחלה: רשימת משימות אז'ור (מיושר לימין, תאריך נקי) ---
         with st.container(border=True):
             st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
             tasks_data = get_azure_tasks()
@@ -202,12 +202,12 @@ else:
                     
                     t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_task)}/_workitems/edit/{t_id}"
                     st.markdown(f'''
-                        <div class="record-row" style="display: flex; align-items: center;">
-                            <div style="flex-grow: 1; display: flex; align-items: center; justify-content: flex-start; gap: 12px;">
+                        <div class="record-row" style="display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; flex-direction: column; text-align: right; gap: 2px;">
                                 <a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: none; font-weight: 500;">🔗 {t_title}</a>
-                                <span style="color: #94a3b8; font-size: 0.8rem; margin-right: auto; padding-left: 10px;">({fmt_date})</span>
+                                <span style="color: #94a3b8; font-size: 0.75rem;">הרשומה נוצרה ב {fmt_date}</span>
                             </div>
-                            <span class="tag-orange">{p_task}</span>
+                            <span class="tag-orange" style="margin-right: 12px;">{p_task}</span>
                         </div>
                     ''', unsafe_allow_html=True)
             else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
