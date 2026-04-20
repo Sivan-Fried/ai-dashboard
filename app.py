@@ -44,8 +44,9 @@ st.markdown("""
         border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
     }
     
-    /* מכולות לבנות - החזרה להגדרה היציבה */
+    /* מכולות לבנות - החזרה לצבע לבן נקי בלבד */
     div[data-testid="stVerticalBlockBorderWrapper"] {
+        background-color: white !important;
         background: white !important;
         border: 1.5px solid transparent !important;
         border-radius: 18px !important;
@@ -212,7 +213,7 @@ else:
                             <span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_task}</span>
                         </div>
                     ''', unsafe_allow_html=True)
-                st.write("") # הוספת מרווח תחתון בלתי נראה
+                st.write("") # מרווח פנימי תחתון
             else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
         # עוזר AI אישי
@@ -237,7 +238,7 @@ else:
                 for _, r in t_m.iterrows():
                     s_t = fmt_time(r.get('start_time', '')); e_t = fmt_time(r.get('end_time', ''))
                     st.markdown(f'<div class="record-row"><span style="flex-grow:1; text-align:right;">📌 {r["meeting_title"]}</span><span class="time-label">{s_t}-{e_t}</span></div>', unsafe_allow_html=True)
-                st.write("") # הוספת מרווח תחתון בלתי נראה
+                st.write("") # מרווח פנימי תחתון
 
         # תזכורות
         with st.container(border=True):
@@ -260,4 +261,4 @@ else:
                     if b_col2.button("❌"): st.session_state.adding_reminder = False; st.rerun()
             else:
                 if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
-            st.write("") # הוספת מרווח תחתון בלתי נראה
+            st.write("") # מרווח פנימי תחתון
