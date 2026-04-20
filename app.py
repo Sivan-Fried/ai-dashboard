@@ -352,55 +352,65 @@ else:
 
 #fathom check area
 
-def get_latest_fathom_summary():
-    # משיכת המפתח מה-Secrets של סטרימליט
+
+def get_fathom_summary(recording_id):
+    """
+    מושך סיכום פגישה מ-Fathom לפי ה-ID שלה.
+    נעזר במפתח המוגדר ב-Streamlit Secrets תחת FATHOM_API_KEY.
+    """
+    if "FATHOM_API_KEY" not in st.secrets:
+        st.error("חסר מפתח API ב-Secrets של סטרימליט (FATHOM_API_KEY)")
+        return None
+
     api_key = st.secrets["FATHOM_API_KEY"]
+    
+    # הכתובת המדויקת מהדוקומנטציה שמצאת
+    url = f"https://api.fathom.ai/external/v1/recordings/{recording_id}/summary"
+    
     headers = {
         "X-Api-Key": api_key,
         "Accept": "application/json"
     }
-
-    # שלב א': משיכת רשימת ההקלטות האחרונות
-    list_url = "https://api.fathom.ai/external/v1/recordings"
     
     try:
-        # נבקש רק את ההקלטה האחרונה (limit=1)
-        response = requests.get(list_url, headers=headers, params={"limit": 1})
-        
+        response = requests.get(url, headers=headers, timeout=15)
         if response.status_code == 200:
-            data = response.json()
-            recordings = data.get('recordings', [])
-            
-            if not recordings:
-                return "לא נמצאו הקלטות בחשבון הפאטום שלך."
-
-            # שלב ב': משיכת הסיכום עבור ההקלטה שמצאנו
-            recording_id = recordings[0]['id']
-            summary_url = f"https://api.fathom.ai/external/v1/recordings/{recording_id}/summary"
-            
-            summary_response = requests.get(summary_url, headers=headers)
-            
-            if summary_response.status_code == 200:
-                return summary_response.json()
-            else:
-                return f"שגיאה במשיכת הסיכום: {summary_response.status_code}"
+            return response.json()
+        elif response.status_code == 404:
+            return f"שגיאה 404: לא נמצאה הקלטה עם ה-ID שצוין ({recording_id})"
+        elif response.status_code == 401:
+            return "שגיאה 401: מפתח ה-API אינו תקין או שאין הרשאות."
         else:
-            return f"שגיאה במשיכת רשימת ההקלטות: {response.status_code}"
-            
+            return f"שגיאה {response.status_code}: {response.text}"
     except Exception as e:
-        return f"תקלה בתקשורת: {e}"
+        return f"תקלה בתקשורת מול ה-API: {e}"
 
-# --- תצוגה בדשבורד ---
-st.title("🤖 AI Dashboard: Fathom Integration")
+# --- ממשק המשתמש בדשבורד ---
+st.title("📞 סיכום פגישות Fathom")
 
-if st.button("טען סיכום פגישה אחרונה"):
-    with st.spinner("מתחבר לפאטום ומחלץ את הסיכום..."):
-        result = get_latest_fathom_summary()
-        
-        if isinstance(result, dict):
-            st.success("הסיכום נטען בהצלחה!")
-            # כאן את יכולה להציג את השדות הספציפיים (למשל 'text' או 'summary')
-            # אני מדפיס הכל כדי שתראי את המבנה בפעם הראשונה
-            st.write(result)
-        else:
-            st.error(result)
+# בשלב זה הדרך הבטוחה ביותר היא להזין את ה-ID מה-URL של פאטום
+# (מכיוון שרשימת ההקלטות דורשת Endpoint אחר שכרגע מחזיר 404)
+rec_id = st.text_input("הזיני את ה-Recording ID מה-URL של פאטום:", 
+                      help="זהו רצף האותיות והמספרים שמופיע בסוף הלינק של הפגישה")
+
+if st.button("משוך סיכום אוטומטי"):
+    if rec_id:
+        with st.spinner("מתחבר ל-Fathom ושולף נתונים..."):
+            summary_data = get_fathom_summary(rec_id.strip())
+            
+            if isinstance(summary_data, dict):
+                st.success("הסיכום נטען בהצלחה!")
+                
+                # תצוגה מעוצבת של הסיכום
+                # פאטום בדרך כלל מחזירים שדה בשם 'summary' או 'text'
+                if "summary" in summary_data:
+                    st.markdown("### סיכום ה-AI:")
+                    st.write(summary_data["summary"])
+                else:
+                    # אם המבנה שונה, נראה את כל ה-JSON כדי שנדע מה לשלוף
+                    st.write("מבנה הנתונים שהתקבל:")
+                    st.json(summary_data)
+            else:
+                st.error(summary_data)
+    else:
+        st.warning("יש להזין ID של פגישה כדי להמשיך.")
