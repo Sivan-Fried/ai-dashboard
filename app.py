@@ -351,9 +351,11 @@ else:
 
 
 # =========================================================
-# 5. ניהול סיכומי פגישות Fathom - גרסה סופית עם זיכרון קשיח
+# 5. ניהול סיכומי פגישות Fathom - גרסה סופית ומתוקנת
 # =========================================================
 import google.generativeai as genai
+
+# --- פונקציות לוגיקה ---
 
 def get_fathom_meetings():
     api_key = st.secrets["FATHOM_API_KEY"]
@@ -364,7 +366,8 @@ def get_fathom_meetings():
         if response.status_code == 200:
             return response.json().get('items', [])[:5], 200
         return response.text, response.status_code
-    except Exception as e: return str(e), 500
+    except Exception as e:
+        return str(e), 500
 
 def get_fathom_summary(recording_id):
     api_key = st.secrets["FATHOM_API_KEY"]
@@ -375,56 +378,83 @@ def get_fathom_summary(recording_id):
         if response.status_code == 200:
             return response.json().get("summary", {}).get("markdown_formatted")
         return None
-    except: return None
+    except:
+        return None
 
 def refine_with_ai(raw_text):
+    """מנגנון חסין שגיאות לבחירת מודל ועיבוד סיכום"""
     try:
         genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-        # שימוש במודל 1.5 פלאש - המהיר והחסכוני ביותר
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        prompt = f"סכם את הפגישה הבאה לעברית עסקית (נושא, תקציר, החלטות, משימות):\n\n{raw_text}"
+        
+        # בדיקה דינמית של השמות הזמינים בגרסה שלך למניעת 404
+        available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+        
+        # סדר עדיפויות לבחירת המודל
+        selected_model = None
+        for target in ['models/gemini-1.5-flash', 'models/gemini-1.5-flash-latest', 'models/gemini-pro']:
+            if target in available_models:
+                selected_model = target
+                break
+        
+        # אם אף אחד מהשמות הנפוצים לא נמצא, נשתמש בראשון שזמין
+        if not selected_model:
+            selected_model = available_models[0]
+            
+        model = genai.GenerativeModel(selected_model)
+        
+        prompt = f"""
+        סכם את הפגישה לעברית עסקית רהוטה.
+        מבנה: נושא, תקציר מנהלים, החלטות מרכזיות ומשימות להמשך.
+        
+        הטקסט לסיכום:
+        {raw_text}
+        """
         response = model.generate_content(prompt)
         return response.text
-    except Exception as e: return f"שגיאה בעיבוד: {e}"
+    except Exception as e:
+        return f"שגיאה בעיבוד ה-AI: {e}"
+
+# --- תצוגה (UI) ---
 
 st.markdown("---")
 with st.container(border=True):
     st.markdown("### ✨ סיכומי פגישות Fathom")
     
-    # כפתור טעינת רשימה
     if st.button("טען 5 פגישות אחרונות 🔄", use_container_width=True):
-        items, status = get_fathom_meetings()
-        if status == 200:
-            st.session_state['fathom_meetings'] = items
-        else:
-            st.error("שגיאה בחיבור לפאטום")
+        with st.spinner("מושך נתונים..."):
+            items, status = get_fathom_meetings()
+            if status == 200:
+                st.session_state['fathom_meetings'] = items
+            else:
+                st.error(f"שגיאה בחיבור: {status}")
 
     if 'fathom_meetings' in st.session_state:
         for mtg in st.session_state['fathom_meetings']:
             rec_id = mtg.get('recording_id')
             title = mtg.get('title', 'פגישה ללא שם')
             date_str = mtg.get('recording_start_time', '')[:10]
-            
-            # מפתח ייחודי לכל סיכום בזיכרון
-            s_key = f"saved_summary_{rec_id}"
+            # מפתח ייחודי ב-session_state כדי שהסיכום יישמר ולא ירוץ מחדש
+            s_key = f"sum_fixed_{rec_id}"
             
             with st.expander(f"📅 {title} | {date_str}"):
-                # בדיקה: האם כבר יש סיכום בזיכרון?
-                if s_key in st.session_state:
-                    # מציג מהזיכרון בלבד - לא פונה ל-API
-                    st.markdown(f'<div style="direction:rtl; text-align:right; background:#f9f9f9; padding:15px; border-radius:10px; border:1px solid #eee;">{st.session_state[s_key]}</div>', unsafe_allow_html=True)
-                    
-                    if st.button("נקה סיכום מהזיכרון 🗑️", key=f"del_{rec_id}"):
-                        del st.session_state[s_key]
-                        st.rerun()
-                else:
-                    # רק אם אין סיכום, מציע ליצור אחד
+                if s_key not in st.session_state:
                     if st.button("צור סיכום מנהלים בעברית 🪄", key=f"btn_{rec_id}", use_container_width=True):
-                        with st.spinner("יוצר סיכום (פנייה חד-פעמית ל-AI)..."):
+                        with st.spinner("Gemini מעבד נתונים..."):
                             raw_content = get_fathom_summary(rec_id)
                             if raw_content:
-                                # שמירה לזיכרון
                                 st.session_state[s_key] = refine_with_ai(raw_content)
                                 st.rerun()
                             else:
-                                st.warning("לא נמצא תוכן גולמי בפאטום.")
+                                st.warning("לא נמצא סיכום גולמי.")
+                
+                if s_key in st.session_state:
+                    # מציג את הסיכום השמור ביישור לימין נקי
+                    st.markdown(f"""
+                    <div style="direction: rtl; text-align: right; background-color: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid #eee;">
+                    {st.session_state[s_key]}
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    if st.button("נקה 🗑️", key=f"del_{rec_id}"):
+                        del st.session_state[s_key]
+                        st.rerun()
