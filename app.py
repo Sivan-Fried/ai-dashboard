@@ -66,7 +66,6 @@ st.markdown("""
         transition: all 0.2s ease;
     }
     
-    /* תיקון Hover: שימוש ב-z-index וב-box-shadow עדין */
     .project-link:hover .record-row {
         border-color: #4facfe !important;
         background-color: #f8fafc !important;
@@ -79,7 +78,7 @@ st.markdown("""
         background: #ffffff !important;
         padding: 10px 15px !important;
         border-radius: 10px !important;
-        margin-bottom: 6px !important;
+        margin-bottom: 3px !important; /* צמצום המרווח בפינצטה מ-6px ל-3px */
         border: 1px solid #edf2f7 !important;
         border-right: 5px solid #4facfe !important;
         display: flex !important;
@@ -90,7 +89,7 @@ st.markdown("""
         box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
     }
 
-    /* תיקון הפינצטה: רק הרשומה הראשונה בכל רשימה מקבלת מרווח עליון למניעת חיתוך ה-Hover */
+    /* שמירה על אוויר למעלה רק ברשומה הראשונה למניעת חיתוך Hover */
     .project-link:first-child .record-row, .record-row:first-of-type {
         margin-top: 4px !important;
     }
@@ -222,7 +221,7 @@ else:
                     ''', unsafe_allow_html=True)
             else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
-        # AI
+        # עוזר AI אישי
         with st.container(border=True):
             st.markdown("### ✨ עוזר AI אישי")
             a1, a2 = st.columns([1, 2]); sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p"); q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
