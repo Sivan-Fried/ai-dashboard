@@ -44,13 +44,12 @@ st.markdown("""
         border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
     }
     
-    /* מכולות לבנות - החזרה לצבע לבן נקי בלבד */
+    /* מכולות לבנות - הגדרה נקייה */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background-color: white !important;
-        background: white !important;
-        border: 1.5px solid transparent !important;
         border-radius: 18px !important;
         padding: 15px !important;
+        border: none !important;
     }
 
     .kpi-card {
@@ -72,7 +71,6 @@ st.markdown("""
         border-color: #4facfe !important;
         background-color: #f8fafc !important;
         transform: translateY(-1px);
-        z-index: 5;
         box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
     }
 
@@ -80,7 +78,7 @@ st.markdown("""
         background: #ffffff !important;
         padding: 10px 15px !important;
         border-radius: 10px !important;
-        margin-bottom: 3px !important;
+        margin-bottom: 4px !important;
         border: 1px solid #edf2f7 !important;
         border-right: 5px solid #4facfe !important;
         display: flex !important;
@@ -89,6 +87,11 @@ st.markdown("""
         direction: rtl !important;
         position: relative;
         box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+    }
+
+    /* תיקון הקו הכחול העליון ברשומה הראשונה */
+    .record-row:first-of-type, .project-link:first-child .record-row {
+        margin-top: 5px !important;
     }
 
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
@@ -205,10 +208,10 @@ else:
                     fmt_date = f"{raw_date[8:10]}/{raw_date[5:7]} {raw_date[11:16]}" if raw_date else ""
                     t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_task)}/_workitems/edit/{t_id}"
                     st.markdown(f'''
-                        <div class="record-row" style="white-space: nowrap;">
+                        <div class="record-row">
                             <div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis;">
                                 <a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: none; font-weight: 500;">🔗 {t_title}</a>
-                                <span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">{fmt_date}</span>
+                                <span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">נוצרה ב-{fmt_date}</span>
                             </div>
                             <span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_task}</span>
                         </div>
