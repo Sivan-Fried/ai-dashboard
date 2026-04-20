@@ -94,7 +94,6 @@ st.markdown("""
 # 2. לוגיקה ושליפת נתונים (Azure, Excel)
 # =========================================================
 
-# --- התחלה: אזור אז'ור (Azure DevOps Logic) ---
 def get_azure_tasks():
     ORG_NAME = "amandigital"
     wiql_url = f"https://dev.azure.com/{ORG_NAME}/_apis/wit/wiql?api-version=6.0"
@@ -107,7 +106,6 @@ def get_azure_tasks():
         details = requests.get(f"https://dev.azure.com/{ORG_NAME}/_apis/wit/workitems?ids={ids}&fields=System.Title,System.TeamProject,System.CreatedDate&api-version=6.0", auth=auth)
         return details.json().get('value', [])
     except: return []
-# --- סיום: אזור אז'ור ---
 
 def fmt_time(t):
     try: return t.strftime("%H:%M")
@@ -189,7 +187,7 @@ else:
                         </a>
                     ''', unsafe_allow_html=True)
 
-        # --- התחלה: רשימת משימות אז'ור (מיושר לימין, תאריך נקי) ---
+        # --- התחלה: רשימת משימות אז'ור (שורה אחת רציפה) ---
         with st.container(border=True):
             st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
             tasks_data = get_azure_tasks()
@@ -202,12 +200,12 @@ else:
                     
                     t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_task)}/_workitems/edit/{t_id}"
                     st.markdown(f'''
-                        <div class="record-row" style="display: flex; align-items: center; justify-content: space-between;">
-                            <div style="display: flex; flex-direction: column; text-align: right; gap: 2px;">
+                        <div class="record-row" style="white-space: nowrap;">
+                            <div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis;">
                                 <a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: none; font-weight: 500;">🔗 {t_title}</a>
-                                <span style="color: #94a3b8; font-size: 0.75rem;">הרשומה נוצרה ב {fmt_date}</span>
+                                <span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">הרשומה נוצרה ב {fmt_date}</span>
                             </div>
-                            <span class="tag-orange" style="margin-right: 12px;">{p_task}</span>
+                            <span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_task}</span>
                         </div>
                     ''', unsafe_allow_html=True)
             else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
