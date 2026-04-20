@@ -357,20 +357,9 @@ import requests
 
 def get_fathom_meetings():
     api_key = st.secrets["FATHOM_API_KEY"]
-    # הכתובת המדויקת מהדוקומנטציה שלך
     url = "https://api.fathom.ai/external/v1/meetings"
-    
-    headers = {
-        "X-Api-Key": api_key,
-        "Accept": "application/json"
-    }
-    
-    # פרמטרים לפי הדוגמה ששלחת (למשל: פגישות מהחודש האחרון)
-    params = {
-        "limit": 10,
-        "include_transcript": "false" # אנחנו רוצים רק רשימה כרגע
-    }
-    
+    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
+    params = {"limit": 10}
     try:
         response = requests.get(url, headers=headers, params=params, timeout=15)
         if response.status_code == 200:
@@ -389,7 +378,7 @@ def get_fathom_summary(meeting_id):
     except:
         return None
 
-# --- האזור להחלפה בדשבורד ---
+# --- האזור להחלפה בדשבורד (תחת "עוזר AI אישי") ---
 st.markdown("---")
 st.subheader("✨ סיכומי פגישות Fathom")
 
@@ -399,26 +388,18 @@ if st.button("טען פגישות אחרונות", use_container_width=True):
     if status == 200 and isinstance(data, dict):
         meetings = data.get('meetings', [])
         if not meetings:
-            st.info("לא נמצאו פגישות שתואמות לחיפוש.")
+            st.info("לא נמצאו פגישות.")
         else:
             for mtg in meetings:
-                with st.expander(f"📅 {mtg.get('title', 'פגישה ללא שם')} ({mtg.get('date', '')})"):
-                    st.write(f"**מזהה פגישה:** `{mtg['id']}`")
-                    if st.button("משוך סיכום פגישה זו", key=mtg['id']):
+                with st.expander(f"📅 {mtg.get('title', 'פגישה ללא שם')}"):
+                    if st.button("משוך סיכום", key=mtg['id']):
                         summary_data = get_fathom_summary(mtg['id'])
                         if summary_data and "summary" in summary_data:
                             content = summary_data["summary"].get("markdown_formatted")
-                            st.markdown(content if content else "אין סיכום טקסטואלי זמין.")
+                            st.markdown(content if content else "אין סיכום זמין.")
                         else:
-                            st.error("לא הצלחתי למשוך סיכום לפגישה זו.")
+                            st.error("לא הצלחתי למשוך סיכום.")
+    elif status == 401:
+        st.error("שגיאה 401: מפתח ה-API לא תקין.")
     else:
         st.error(f"שגיאה {status}: {data}")
-
-st.info("טיפ: וודאי שהמייל שלך מעודכן ב-Fathom כדי לראות פגישות שהוקלטו על ידך.")
-                st.error("שגיאה 401: מפתח ה-API (FATHOM_API_KEY) לא תקין.")
-            elif status == 404:
-                st.error(f"שגיאה 404: פאטום לא מוצא פגישה עם ה-ID: {rec_id}")
-            else:
-                st.error(f"שגיאה {status}: {data}")
-    else:
-        st.info("אנא הדביקי לינק.")
