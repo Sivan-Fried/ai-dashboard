@@ -69,29 +69,34 @@ st.markdown("""
     .project-link:hover .record-row {
         border-color: #4facfe !important;
         background-color: #f8fafc !important;
-        transform: translateY(-1px);
         z-index: 5;
         box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
+        border-radius: 10px !important; /* מחזיר עיגול פינות רק ב-hover כדי שיבלוט */
     }
 
     .record-row {
         background: #ffffff !important;
-        padding: 10px 15px !important;
-        border-radius: 10px !important;
-        margin-bottom: 3px !important; /* צמצום המרווח בפינצטה מ-6px ל-3px */
-        border: 1px solid #edf2f7 !important;
+        padding: 12px 15px !important;
+        margin-bottom: 0px !important; /* ביטול מוחלט של הרווח */
+        border: none !important;
+        border-bottom: 1px solid #edf2f7 !important; /* קו הפרדה עדין במקום רווח */
         border-right: 5px solid #4facfe !important;
         display: flex !important;
         justify-content: space-between !important;
         align-items: center !important;
         direction: rtl !important;
         position: relative;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+        transition: all 0.2s ease;
     }
 
-    /* שמירה על אוויר למעלה רק ברשומה הראשונה למניעת חיתוך Hover */
+    /* הסרת הקו מהרשומה האחרונה */
+    .project-link:last-child .record-row, .record-row:last-of-type {
+        border-bottom: none !important;
+    }
+
+    /* מרווח קטן רק למעלה בשביל ה-Hover של הראשונה */
     .project-link:first-child .record-row, .record-row:first-of-type {
-        margin-top: 4px !important;
+        margin-top: 5px !important;
     }
 
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
@@ -221,7 +226,7 @@ else:
                     ''', unsafe_allow_html=True)
             else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
-        # עוזר AI אישי
+        # AI
         with st.container(border=True):
             st.markdown("### ✨ עוזר AI אישי")
             a1, a2 = st.columns([1, 2]); sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p"); q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
