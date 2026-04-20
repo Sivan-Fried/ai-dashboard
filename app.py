@@ -57,7 +57,7 @@ st.markdown("""
         border: 1.5px solid transparent !important;
         border-radius: 18px !important;
         padding: 15px !important;
-        padding-bottom: 30px !important; /* הוספת הריווח בפינצטה בתחתית המכולה */
+        padding-bottom: 30px !important; 
     }
 
     .project-link {
@@ -147,16 +147,54 @@ if "current_page" not in st.session_state: st.session_state.current_page = "main
 # 4. תצוגת דפים
 # =========================================================
 
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# התחלת אזור חדש: ניהול פרויקט מפורט (Tabs)
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 if st.session_state.current_page == "project":
     p_name = st.session_state.selected_project
     st.markdown(f'<h1 class="dashboard-header">{p_name}</h1>', unsafe_allow_html=True)
+    
     if st.button("⬅️ חזרה לדשבורד"):
         st.query_params.clear() 
         st.session_state.current_page = "main"
         st.rerun()
+    
     with st.container(border=True):
-        st.markdown(f"### ℹ️ מידע כללי על {p_name}")
-        st.write("כאן נוכל להוסיף את נתוני הפרויקט.")
+        st.markdown(f"### ℹ️ ניהול פרויקט: {p_name}")
+        
+        # הקמת לשוניות הניהול החדשות
+        tab_work, tab_res, tab_risk, tab_meetings, tab_info = st.tabs([
+            "📅 תוכנית עבודה", 
+            "👥 משאבים", 
+            "⚠️ סיכונים", 
+            "📝 סיכומי פגישות",
+            "📊 מידע כללי"
+        ])
+
+        with tab_work:
+            st.info("כאן תוצג תוכנית העבודה וניהול הגרסאות של הפרויקט.")
+
+        with tab_res:
+            st.write("כאן ירוכזו נתוני כוח אדם, תקציב ומשאבים.")
+
+        with tab_risk:
+            st.write("כאן תנוהל מטריצת הסיכונים ותוכניות הפחתה.")
+
+        with tab_meetings:
+            st.write("כאן תופיע היסטוריית סיכומי הפגישות והחלטות.")
+
+        with tab_info:
+            proj_row = projects[projects["project_name"] == p_name]
+            if not proj_row.empty:
+                st.write(f"סטטוס הפרויקט במערכת: {proj_row.iloc[0].get('status', 'N/A')}")
+                st.dataframe(proj_row, hide_index=True)
+            else:
+                st.write("לא נמצא מידע מפורט עבור פרויקט זה.")
+
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+# סוף אזור חדש: ניהול פרויקט מפורט (Tabs)
+# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 else:
     st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
