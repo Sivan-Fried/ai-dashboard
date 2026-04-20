@@ -51,47 +51,58 @@ st.markdown("""
         box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
     }
     .kpi-card b { font-size: 1.4rem; color: #1f2a44; display: block; }
+    
     div[data-testid="stVerticalBlockBorderWrapper"], .st-emotion-cache-1ne20ew {
         background: white !important;
-        background-color: white !important;
         border: 1.5px solid transparent !important;
         border-radius: 18px !important;
         padding: 15px !important;
     }
+
     .project-link {
         text-decoration: none !important;
         color: inherit !important;
         display: block !important;
         transition: all 0.2s ease;
     }
+    
     .project-link:hover .record-row {
         border-color: #4facfe !important;
         background-color: #f8fafc !important;
         transform: translateY(-1px);
+        z-index: 5;
+        box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
     }
+
     .record-row {
         background: #ffffff !important;
         padding: 10px 15px !important;
         border-radius: 10px !important;
-        margin-bottom: 8px !important;
+        margin-bottom: 3px !important; /* צמצום המרווח בפינצטה מ-6px ל-3px */
         border: 1px solid #edf2f7 !important;
         border-right: 5px solid #4facfe !important;
         display: flex !important;
         justify-content: space-between !important;
         align-items: center !important;
         direction: rtl !important;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
+        position: relative;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
     }
+
+    /* שמירה על אוויר למעלה רק ברשומה הראשונה למניעת חיתוך Hover */
+    .project-link:first-child .record-row, .record-row:first-of-type {
+        margin-top: 4px !important;
+    }
+
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
     .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
     .time-label { color: #64748b; font-size: 0.85em; font-weight: 500; font-family: monospace; }
     p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
-    div[data-testid="stWidgetLabel"] { justify-content: flex-start !important; }
 </style>
 """, unsafe_allow_html=True)
 
 # =========================================================
-# 2. לוגיקה ושליפת נתונים (Azure, Excel)
+# 2. לוגיקה ושליפת נתונים
 # =========================================================
 
 def get_azure_tasks():
@@ -120,7 +131,7 @@ except:
     st.error("Missing Files"); st.stop()
 
 # =========================================================
-# 3. ניהול ניווט (Session State & Query Params)
+# 3. ניהול ניווט
 # =========================================================
 params = st.query_params
 if "proj" in params:
@@ -187,7 +198,7 @@ else:
                         </a>
                     ''', unsafe_allow_html=True)
 
-        # --- התחלה: רשימת משימות אז'ור (שורה אחת רציפה) ---
+        # אז'ור
         with st.container(border=True):
             st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
             tasks_data = get_azure_tasks()
@@ -203,15 +214,14 @@ else:
                         <div class="record-row" style="white-space: nowrap;">
                             <div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis;">
                                 <a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: none; font-weight: 500;">🔗 {t_title}</a>
-                                <span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">נוצרה ב {fmt_date}</span>
+                                <span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">הרשומה נוצרה ב {fmt_date}</span>
                             </div>
                             <span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_task}</span>
                         </div>
                     ''', unsafe_allow_html=True)
             else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
-        # --- סיום: רשימת משימות אז'ור ---
 
-        # עוזר AI
+        # עוזר AI אישי
         with st.container(border=True):
             st.markdown("### ✨ עוזר AI אישי")
             a1, a2 = st.columns([1, 2]); sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p"); q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
