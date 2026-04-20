@@ -7,10 +7,10 @@ import time
 import urllib.parse
 from zoneinfo import ZoneInfo
 
-# --- 1. הגדרות דף ועיצוב (הגרסה המקורית והיציבה שלך ב-100%) ---
+# --- 1. הגדרות דף ועיצוב (הגרסה המקורית והיציבה שלך) ---
 st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
-# ייבוא גופן האייקונים עבור החץ בלבד
+# ייבוא גופן האייקונים עבור החץ
 st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
 
 def get_base64_image(path):
@@ -57,6 +57,18 @@ st.markdown("""
         border-radius: 18px !important;
         padding: 15px !important;
     }
+    /* עיצוב הרשומה כקישור לחיץ */
+    .project-link {
+        text-decoration: none !important;
+        color: inherit !important;
+        display: block !important;
+        transition: all 0.2s ease;
+    }
+    .project-link:hover .record-row {
+        border-color: #4facfe !important;
+        background-color: #f8fafc !important;
+        transform: translateY(-1px);
+    }
     .record-row {
         background: #ffffff !important;
         padding: 10px 15px !important;
@@ -74,28 +86,6 @@ st.markdown("""
     .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
     .time-label { color: #64748b; font-size: 0.85em; font-weight: 500; font-family: monospace; }
     p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
-    div[data-testid="stWidgetLabel"] { justify-content: flex-start !important; }
-
-    /* תיקון נקודתי למיקום הכפתור השקוף */
-    .clickable-container {
-        position: relative;
-        margin-bottom: 8px;
-    }
-    .project-btn-overlay button {
-        background: transparent !important;
-        border: none !important;
-        color: transparent !important;
-        height: 52px !important;
-        width: 100% !important;
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        z-index: 10 !important;
-        cursor: pointer !important;
-    }
-    .project-btn-overlay button:hover {
-        background: rgba(0, 0, 0, 0.02) !important;
-    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -126,12 +116,17 @@ try:
 except:
     st.error("Missing Files"); st.stop()
 
-# --- 3. ניהול ניווט ---
+# --- 3. ניהול ניווט (Query Params ללחיצה על HTML) ---
+# בדיקה אם נבחר פרויקט דרך ה-URL
+params = st.query_params
+if "proj" in params:
+    st.session_state.selected_project = params["proj"]
+    st.session_state.current_page = "project"
+
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders_df
 if "ai_response" not in st.session_state: st.session_state.ai_response = ""
 if "adding_reminder" not in st.session_state: st.session_state.adding_reminder = False
 if "current_page" not in st.session_state: st.session_state.current_page = "main"
-if "selected_project" not in st.session_state: st.session_state.selected_project = None
 
 # --- 4. תצוגה ---
 
@@ -139,7 +134,9 @@ if st.session_state.current_page == "project":
     p_name = st.session_state.selected_project
     st.markdown(f'<h1 class="dashboard-header">{p_name}</h1>', unsafe_allow_html=True)
     if st.button("⬅️ חזרה לדשבורד"):
-        st.session_state.current_page = "main"; st.rerun()
+        st.query_params.clear() # ניקוי ה-URL
+        st.session_state.current_page = "main"
+        st.rerun()
     with st.container(border=True):
         st.markdown(f"### ℹ️ מידע כללי על {p_name}")
         st.write("כאן נוכל להוסיף את נתוני הפרויקט.")
@@ -170,25 +167,19 @@ else:
             st.markdown("### 📁 פרויקטים")
             with st.container(height=300, border=False):
                 for _, row in projects.iterrows():
-                    # התיקון כאן: שימוש ב-clickable-container כדי להצמיד את הכפתור לרשומה
+                    # התיקון בפינצטה: יצירת קישור HTML שעוטף את כל הרשומה
+                    p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
                     st.markdown(f'''
-                        <div class="clickable-container">
-                            <div class="record-row" style="margin-bottom: 0px;">
+                        <a href="{p_url}" target="_self" class="project-link">
+                            <div class="record-row">
                                 <div style="display: flex; align-items: center; gap: 10px;">
                                     <b>📂 {row["project_name"]}</b>
                                     <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
                                 </div>
                                 <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">chevron_left</span>
                             </div>
-                        </div>
+                        </a>
                     ''', unsafe_allow_html=True)
-                    
-                    # הצפת הכפתור השקוף בדיוק מעל ה-div שלמעלה
-                    st.markdown('<div class="project-btn-overlay">', unsafe_allow_html=True)
-                    if st.button("", key=f"btn_{row['project_name']}", use_container_width=True):
-                        st.session_state.selected_project = row['project_name']
-                        st.session_state.current_page = "project"; st.rerun()
-                    st.markdown('</div>', unsafe_allow_html=True)
 
         with st.container(border=True):
             st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
