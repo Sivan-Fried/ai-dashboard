@@ -348,3 +348,42 @@ else:
                     if b_col2.button("❌"): st.session_state.adding_reminder = False; st.rerun()
             else:
                 if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
+
+# כותרת לבדיקה
+st.header("🔍 בדיקת חיבור אוטומטי")
+
+# משיכת המפתח מהסודות שהגדרת בממשק
+if "FATHOM_API_KEY" in st.secrets:
+    api_key = st.secrets["FATHOM_API_KEY"]
+    
+    if st.button("תבדוק אם פאטום עונה"):
+        url = "https://api.fathom.video/v1/meetings"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Accept": "application/json"
+        }
+        
+        try:
+            # אנחנו מוסיפים timeout כדי שהאפליקציה לא תיתקע אם יש חסימה
+            response = requests.get(url, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                st.success("הצלחנו! יש תקשורת.")
+                
+                # אם יש פגישות, נראה מה השדות שיש בהן
+                if 'meetings' in data and len(data['meetings']) > 0:
+                    st.write("אלו השדות שקיבלנו (נחפש כאן את הסיכום):")
+                    st.json(list(data['meetings'][0].keys()))
+                else:
+                    st.info("החיבור הצליח אבל אין פגישות ברשימה.")
+                    
+            else:
+                st.error(f"השרת ענה עם שגיאה: {response.status_code}")
+                st.write(response.text)
+                
+        except Exception as e:
+            st.error(f"גם הסטרימליט לא מצליח להגיע לפאטום: {e}")
+else:
+    st.warning("לא מצאתי את המפתח FATHOM_API_KEY ב-Secrets.")
+    
