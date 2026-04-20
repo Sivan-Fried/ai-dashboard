@@ -355,52 +355,50 @@ else:
 import streamlit as st
 import requests
 
-def get_fathom_meetings():
+def get_fathom_summary(recording_id):
     api_key = st.secrets["FATHOM_API_KEY"]
-    url = "https://api.fathom.ai/external/v1/meetings"
+    # שימי לב: ה-ID כאן הוא ה-recording_id המספרי
+    url = f"https://api.fathom.ai/external/v1/recordings/{recording_id}/summary"
     headers = {"X-Api-Key": api_key, "Accept": "application/json"}
-    
-    # ביטלתי את כל המסננים (מיילים ותאריכים) כדי לראות אם משהו בכלל עולה
-    params = {
-        "limit": 20  # ננסה להביא עד 20 פגישות אחרונות
-    }
-    
     try:
-        response = requests.get(url, headers=headers, params=params, timeout=15)
-        if response.status_code == 200:
-            return response.json(), 200
-        return response.text, response.status_code
-    except Exception as e:
-        return str(e), 500
+        response = requests.get(url, headers=headers, timeout=15)
+        return response.json() if response.status_code == 200 else None
+    except:
+        return None
 
 # --- האזור להחלפה בדשבורד ---
 st.markdown("---")
 st.subheader("✨ סיכומי פגישות Fathom")
 
-if st.button("רענן רשימת פגישות", use_container_width=True):
-    with st.spinner("מחפש פגישות בחשבון..."):
-        data, status = get_fathom_meetings()
+if st.button("טען פגישות אחרונות", use_container_width=True):
+    api_key = st.secrets["FATHOM_API_KEY"]
+    url = "https://api.fathom.ai/external/v1/meetings"
+    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
+    
+    with st.spinner("מושך נתונים מפאטום..."):
+        response = requests.get(url, headers=headers, params={"limit": 10})
         
-        if status == 200 and isinstance(data, dict):
-            # פאטום לפעמים מחזירים את הרשימה תחת המפתח 'meetings' ולפעמים 'recordings'
-            # הקוד הזה בודק את שניהם
-            meetings = data.get('meetings', data.get('recordings', []))
+        if response.status_code == 200:
+            data = response.json()
+            # שימוש במפתח 'items' כפי שמופיע בנתונים ששלחת
+            meetings = data.get('items', [])
             
             if not meetings:
-                st.warning("החיבור הצליח, אבל פאטום לא החזיר פגישות. וודאי שיש פגישות שהוקלטו בחשבון ה-API הזה.")
-                # הדפסה זמנית לצורך אבחון - תוכלי למחוק את זה אחרי שזה יעבוד
-                st.write("תשובת השרת המלאה:", data)
+                st.info("לא נמצאו פגישות אחרונות.")
             else:
-                st.success(f"נמצאו {len(meetings)} פגישות!")
                 for mtg in meetings:
-                    with st.expander(f"📅 {mtg.get('title', 'פגישה ללא שם')}"):
-                        st.write(f"תאריך: {mtg.get('date', mtg.get('created_at', 'לא ידוע'))}")
-                        if st.button("משוך סיכום", key=mtg['id']):
-                            summary_data = get_fathom_summary(mtg['id'])
+                    title = mtg.get('title', 'פגישה ללא שם')
+                    rec_id = mtg.get('recording_id')
+                    
+                    with st.expander(f"📅 {title}"):
+                        st.write(f"תאריך: {mtg.get('recording_start_time', '')[:10]}")
+                        
+                        if st.button(f"משוך סיכום ל-{title}", key=f"btn_{rec_id}"):
+                            summary_data = get_fathom_summary(rec_id)
                             if summary_data and "summary" in summary_data:
                                 content = summary_data["summary"].get("markdown_formatted")
-                                st.markdown(content if content else "אין סיכום זמין.")
+                                st.markdown(content if content else "הסיכום עדיין לא מוכן בפאטום.")
                             else:
-                                st.error("לא הצלחתי למשוך סיכום.")
+                                st.error("לא הצלחתי למשוך סיכום לפגישה זו.")
         else:
-            st.error(f"שגיאה {status}: {data}")
+            st.error(f"שגיאה {response.status_code}: {response.text}")
