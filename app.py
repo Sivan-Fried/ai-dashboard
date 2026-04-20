@@ -134,7 +134,7 @@ with col_right:
                 st.markdown(f'<div class="record-row"><b>📂 {row["project_name"]}</b><span class="tag-blue">{row.get("project_type", "פרויקט")}</span></div>', unsafe_allow_html=True)
 
     with st.container(border=True):
-        st.markdown('<h3>📋 משימות חדשות באז\'ור (New)</h3>', unsafe_allow_html=True)
+        st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
         tasks_data = get_azure_tasks()
         if tasks_data:
             for t in tasks_data:
