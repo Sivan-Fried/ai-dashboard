@@ -22,6 +22,16 @@ def get_base64_image(path):
 st.markdown("""
 <style>
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
+    
+    /* מכולות לבנות - הגדרה אגרסיבית כדי למנוע אפור */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        border: 1px solid #edf2f7 !important;
+        border-radius: 18px !important;
+        padding: 15px !important;
+    }
+
     .dashboard-header {
         background: linear-gradient(90deg, #4facfe, #00f2fe) !important;
         -webkit-background-clip: text !important;
@@ -31,6 +41,7 @@ st.markdown("""
         font-weight: 800;
         margin-bottom: 20px;
     }
+    
     h3 {
         font-size: 1.15rem !important;
         font-weight: 700 !important;
@@ -38,20 +49,13 @@ st.markdown("""
         color: #1f2a44 !important;
         text-align: right !important;
     }
+
     .profile-img {
         width: 130px; height: 130px; border-radius: 50% !important;
         object-fit: cover !important; object-position: center 25% !important;
         border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
     }
     
-    /* מכולות לבנות - חזרה להגדרות המקוריות והבטוחות */
-    div[data-testid="stVerticalBlockBorderWrapper"] {
-        background-color: #ffffff !important;
-        border: 1px solid #edf2f7 !important;
-        border-radius: 18px !important;
-        padding: 15px !important;
-    }
-
     .kpi-card {
         background: white !important;
         padding: 15px !important;
@@ -89,7 +93,7 @@ st.markdown("""
         box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
     }
 
-    /* תיקון רווח עליון לרשומה ראשונה למניעת חיתוך הקו הכחול */
+    /* תיקון הקו הכחול ברשומה ראשונה */
     .record-row:first-of-type, .project-link:first-child .record-row {
         margin-top: 5px !important;
     }
@@ -216,7 +220,7 @@ else:
                             <span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_task}</span>
                         </div>
                     ''', unsafe_allow_html=True)
-                st.write("") # מרווח בוטום ידני ובטוח
+                st.write("") # ריווח תחתון
             else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
         # עוזר AI אישי
@@ -241,7 +245,7 @@ else:
                 for _, r in t_m.iterrows():
                     s_t = fmt_time(r.get('start_time', '')); e_t = fmt_time(r.get('end_time', ''))
                     st.markdown(f'<div class="record-row"><span style="flex-grow:1; text-align:right;">📌 {r["meeting_title"]}</span><span class="time-label">{s_t}-{e_t}</span></div>', unsafe_allow_html=True)
-                st.write("") # מרווח בוטום ידני ובטוח
+                st.write("") # ריווח תחתון
 
         # תזכורות
         with st.container(border=True):
@@ -264,4 +268,4 @@ else:
                     if b_col2.button("❌"): st.session_state.adding_reminder = False; st.rerun()
             else:
                 if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
-            st.write("") # מרווח בוטום ידני ובטוח
+            st.write("") # ריווח תחתון
