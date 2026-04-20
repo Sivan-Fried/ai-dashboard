@@ -351,7 +351,7 @@ else:
 
 
 # =========================================================
-# 5. ניהול סיכומי פגישות Fathom - גרסה סופית ונקייה באמת
+# 5. ניהול סיכומי פגישות Fathom - גרסה סופית עם זיכרון קשיח
 # =========================================================
 import google.generativeai as genai
 
@@ -380,40 +380,51 @@ def get_fathom_summary(recording_id):
 def refine_with_ai(raw_text):
     try:
         genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-        available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-        selected_model = next((m for m in ['models/gemini-1.5-flash', 'models/gemini-1.5-flash-latest', 'models/gemini-pro'] if m in available_models), available_models[0])
-        model = genai.GenerativeModel(selected_model)
-        prompt = f"סכם את הפגישה לעברית עסקית (נושא, תקציר, החלטות ומשימות):\n\n{raw_text}"
-        return model.generate_content(prompt).text
+        # שימוש במודל 1.5 פלאש - המהיר והחסכוני ביותר
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        prompt = f"סכם את הפגישה הבאה לעברית עסקית (נושא, תקציר, החלטות, משימות):\n\n{raw_text}"
+        response = model.generate_content(prompt)
+        return response.text
     except Exception as e: return f"שגיאה בעיבוד: {e}"
 
 st.markdown("---")
 with st.container(border=True):
     st.markdown("### ✨ סיכומי פגישות Fathom")
     
+    # כפתור טעינת רשימה
     if st.button("טען 5 פגישות אחרונות 🔄", use_container_width=True):
         items, status = get_fathom_meetings()
-        if status == 200: st.session_state['fathom_meetings'] = items
-        else: st.error("שגיאה בחיבור לפאטום")
+        if status == 200:
+            st.session_state['fathom_meetings'] = items
+        else:
+            st.error("שגיאה בחיבור לפאטום")
 
     if 'fathom_meetings' in st.session_state:
         for mtg in st.session_state['fathom_meetings']:
-            rec_id, title = mtg.get('recording_id'), mtg.get('title', 'פגישה ללא שם')
+            rec_id = mtg.get('recording_id')
+            title = mtg.get('title', 'פגישה ללא שם')
             date_str = mtg.get('recording_start_time', '')[:10]
-            s_key = f"sum_final_v5_{rec_id}"
+            
+            # מפתח ייחודי לכל סיכום בזיכרון
+            s_key = f"saved_summary_{rec_id}"
             
             with st.expander(f"📅 {title} | {date_str}"):
-                if s_key not in st.session_state:
-                    if st.button("צור סיכום מנהלים בעברית 🪄", key=f"btn_{rec_id}", use_container_width=True):
-                        raw_content = get_fathom_summary(rec_id)
-                        if raw_content:
-                            st.session_state[s_key] = refine_with_ai(raw_content)
-                            st.rerun()
-                
+                # בדיקה: האם כבר יש סיכום בזיכרון?
                 if s_key in st.session_state:
-                    # שימוש ביישור לימין ללא סכנת תגיות צפות
-                    st.markdown(f'<div style="direction: rtl; text-align: right; background-color: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid #eee;">{st.session_state[s_key]}</div>', unsafe_allow_html=True)
+                    # מציג מהזיכרון בלבד - לא פונה ל-API
+                    st.markdown(f'<div style="direction:rtl; text-align:right; background:#f9f9f9; padding:15px; border-radius:10px; border:1px solid #eee;">{st.session_state[s_key]}</div>', unsafe_allow_html=True)
                     
-                    if st.button("נקה 🗑️", key=f"del_{rec_id}"):
+                    if st.button("נקה סיכום מהזיכרון 🗑️", key=f"del_{rec_id}"):
                         del st.session_state[s_key]
                         st.rerun()
+                else:
+                    # רק אם אין סיכום, מציע ליצור אחד
+                    if st.button("צור סיכום מנהלים בעברית 🪄", key=f"btn_{rec_id}", use_container_width=True):
+                        with st.spinner("יוצר סיכום (פנייה חד-פעמית ל-AI)..."):
+                            raw_content = get_fathom_summary(rec_id)
+                            if raw_content:
+                                # שמירה לזיכרון
+                                st.session_state[s_key] = refine_with_ai(raw_content)
+                                st.rerun()
+                            else:
+                                st.warning("לא נמצא תוכן גולמי בפאטום.")
