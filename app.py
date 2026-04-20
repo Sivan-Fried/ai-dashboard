@@ -356,38 +356,43 @@ import streamlit as st
 import requests
 import re
 
-# 1. פונקציית העזר (לשים בתחילת הקובץ או מעל הממשק)
 def get_fathom_summary(recording_id):
     api_key = st.secrets["FATHOM_API_KEY"]
     url = f"https://api.fathom.ai/external/v1/recordings/{recording_id}/summary"
     headers = {"X-Api-Key": api_key, "Accept": "application/json"}
     try:
         response = requests.get(url, headers=headers, timeout=15)
-        return response.json() if response.status_code == 200 else None
-    except:
-        return None
+        if response.status_code == 200:
+            return response.json(), 200
+        return response.text, response.status_code
+    except Exception as e:
+        return str(e), 500
 
-# 2. האזור להחלפה בדשבורד (תחת "עוזר AI אישי")
+# --- האזור להחלפה בדשבורד ---
 st.markdown("---")
 st.subheader("✨ עוזר AI אישי - פאטום")
 
-fathom_url = st.text_input("הדביקי לינק לפגישה:", placeholder="https://fathom.video/...")
+fathom_url = st.text_input("הדביקי לינק לפגישה:", placeholder="https://fathom.video/share/...")
 
 if st.button("חלץ סיכום פגישה", use_container_width=True):
     if fathom_url:
-        # מחלץ ID מכל סוג של לינק (share, recordings, או סתם ה-ID עצמו)
-        match = re.search(r'(?:share|recordings|recording|video)/([^/?#\s]+)', fathom_url)
-        rec_id = match.group(1) if match else fathom_url.strip()
+        # חילוץ מזהה - לוקח את הרצף האחרון של תווים מהלינק
+        rec_id = fathom_url.strip().split('/')[-1].split('?')[0]
         
-        with st.spinner("מנתח את הפגישה..."):
-            data = get_fathom_summary(rec_id)
-            if data and "summary" in data:
-                content = data["summary"].get("markdown_formatted")
+        with st.spinner(f"בודק את פגישה {rec_id}..."):
+            data, status = get_fathom_summary(rec_id)
+            
+            if status == 200 and isinstance(data, dict):
+                content = data.get("summary", {}).get("markdown_formatted")
                 if content:
                     st.markdown(content)
                 else:
-                    st.warning("הפגישה נמצאה, אך אין לה סיכום טקסטואלי.")
+                    st.warning("הפגישה נמצאה, אך אין לה סיכום מוכן.")
+            elif status == 401:
+                st.error("שגיאה 401: מפתח ה-API (FATHOM_API_KEY) לא תקין.")
+            elif status == 404:
+                st.error(f"שגיאה 404: פאטום לא מוצא פגישה עם ה-ID: {rec_id}")
             else:
-                st.error("לא הצלחתי למשוך את הסיכום. וודאי שהלינק והמפתח תקינים.")
+                st.error(f"שגיאה {status}: {data}")
     else:
-        st.info("אנא הדביקי לינק כדי להתחיל.")
+        st.info("אנא הדביקי לינק.")
