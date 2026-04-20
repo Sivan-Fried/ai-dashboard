@@ -8,7 +8,7 @@ import urllib.parse
 from zoneinfo import ZoneInfo
 
 # =========================================================
-# 1. הגדרות דף ועיצוב (CSS) - גרסה יציבה ומקורית
+# 1. הגדרות דף ועיצוב (CSS)
 # =========================================================
 st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
@@ -65,6 +65,13 @@ st.markdown("""
 
     .project-link { text-decoration: none !important; color: inherit !important; display: block !important; }
     
+    .project-link:hover .record-row {
+        border-color: #4facfe !important;
+        background-color: #f8fafc !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
+    }
+
     .record-row {
         background: #ffffff !important;
         padding: 10px 15px !important;
@@ -76,6 +83,7 @@ st.markdown("""
         justify-content: space-between !important;
         align-items: center !important;
         direction: rtl !important;
+        position: relative;
         box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
     }
 
@@ -117,6 +125,11 @@ except:
 # =========================================================
 # 3. ניהול ניווט
 # =========================================================
+params = st.query_params
+if "proj" in params:
+    st.session_state.selected_project = params["proj"]
+    st.session_state.current_page = "project"
+
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders_df
 if "ai_response" not in st.session_state: st.session_state.ai_response = ""
 if "adding_reminder" not in st.session_state: st.session_state.adding_reminder = False
@@ -129,7 +142,9 @@ if st.session_state.current_page == "project":
     p_name = st.session_state.selected_project
     st.markdown(f'<h1 class="dashboard-header">{p_name}</h1>', unsafe_allow_html=True)
     if st.button("⬅️ חזרה לדשבורד"):
-        st.session_state.current_page = "main"; st.rerun()
+        st.query_params.clear() 
+        st.session_state.current_page = "main"
+        st.rerun()
     with st.container(border=True):
         st.markdown(f"### ℹ️ מידע כללי על {p_name}")
 
@@ -159,13 +174,17 @@ else:
             st.markdown("### 📁 פרויקטים")
             with st.container(height=300, border=False):
                 for _, row in projects.iterrows():
+                    p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
                     st.markdown(f'''
-                        <div class="record-row">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <b>📂 {row["project_name"]}</b>
-                                <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
+                        <a href="{p_url}" target="_self" class="project-link">
+                            <div class="record-row">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <b>📂 {row["project_name"]}</b>
+                                    <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
+                                </div>
+                                <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">chevron_left</span>
                             </div>
-                        </div>
+                        </a>
                     ''', unsafe_allow_html=True)
 
         with st.container(border=True):
@@ -174,16 +193,20 @@ else:
             if tasks_data:
                 for t in tasks_data:
                     f = t.get('fields', {})
-                    t_title, p_task = f.get('System.Title', ''), f.get('System.TeamProject', 'General')
+                    t_id, t_title, p_task = t.get('id'), f.get('System.Title', ''), f.get('System.TeamProject', 'General')
+                    raw_date = f.get('System.CreatedDate', '')
+                    fmt_date = f"{raw_date[8:10]}/{raw_date[5:7]} {raw_date[11:16]}" if raw_date else ""
+                    t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_task)}/_workitems/edit/{t_id}"
                     st.markdown(f'''
                         <div class="record-row">
-                            <div style="flex-grow: 1; text-align: right;">
-                                <span style="font-weight: 500;">🔗 {t_title}</span>
+                            <div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis;">
+                                <a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: none; font-weight: 500;">🔗 {t_title}</a>
+                                <span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">נוצרה ב-{fmt_date}</span>
                             </div>
-                            <span class="tag-orange">{p_task}</span>
+                            <span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_task}</span>
                         </div>
                     ''', unsafe_allow_html=True)
-            else: st.write("אין משימות חדשות")
+            else: st.write("אין משימות חדשות.")
 
         with st.container(border=True):
             st.markdown("### ✨ עוזר AI אישי")
@@ -192,6 +215,7 @@ else:
             q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
             if st.button("שגר שאילתה 🚀", use_container_width=True):
                 if q_in:
+                    with st.spinner("מנתח..."): time.sleep(0.5)
                     st.session_state.ai_response = f"**ניתוח עבור {sel_p}:** הסטטוס תקין."
             if st.session_state.ai_response: st.info(st.session_state.ai_response)
 
@@ -202,11 +226,12 @@ else:
             if t_m.empty: st.write("אין פגישות היום")
             else:
                 for _, r in t_m.iterrows():
-                    st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span><span class="time-label">{fmt_time(r.get("start_time"))}</span></div>', unsafe_allow_html=True)
+                    s_t = fmt_time(r.get('start_time', '')); e_t = fmt_time(r.get('end_time', ''))
+                    st.markdown(f'<div class="record-row"><span style="flex-grow:1; text-align:right;">📌 {r["meeting_title"]}</span><span class="time-label">{s_t}-{e_t}</span></div>', unsafe_allow_html=True)
 
         with st.container(border=True):
             st.markdown("### 🔔 תזכורות")
             t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
             for _, row in t_r.iterrows():
-                st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
             if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True
