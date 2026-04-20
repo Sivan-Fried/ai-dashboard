@@ -57,6 +57,7 @@ st.markdown("""
         border-radius: 18px !important;
         padding: 15px !important;
     }
+    
     /* עיצוב הרשומה כקישור לחיץ */
     .project-link {
         text-decoration: none !important;
@@ -86,6 +87,7 @@ st.markdown("""
     .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
     .time-label { color: #64748b; font-size: 0.85em; font-weight: 500; font-family: monospace; }
     p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
+    div[data-testid="stWidgetLabel"] { justify-content: flex-start !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -117,7 +119,6 @@ except:
     st.error("Missing Files"); st.stop()
 
 # --- 3. ניהול ניווט (Query Params ללחיצה על HTML) ---
-# בדיקה אם נבחר פרויקט דרך ה-URL
 params = st.query_params
 if "proj" in params:
     st.session_state.selected_project = params["proj"]
@@ -134,7 +135,7 @@ if st.session_state.current_page == "project":
     p_name = st.session_state.selected_project
     st.markdown(f'<h1 class="dashboard-header">{p_name}</h1>', unsafe_allow_html=True)
     if st.button("⬅️ חזרה לדשבורד"):
-        st.query_params.clear() # ניקוי ה-URL
+        st.query_params.clear() 
         st.session_state.current_page = "main"
         st.rerun()
     with st.container(border=True):
@@ -167,7 +168,6 @@ else:
             st.markdown("### 📁 פרויקטים")
             with st.container(height=300, border=False):
                 for _, row in projects.iterrows():
-                    # התיקון בפינצטה: יצירת קישור HTML שעוטף את כל הרשומה
                     p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
                     st.markdown(f'''
                         <a href="{p_url}" target="_self" class="project-link">
@@ -196,7 +196,7 @@ else:
             a1, a2 = st.columns([1, 2]); sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p"); q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
             if st.button("שגר שאילתה 🚀", use_container_width=True):
                 if q_in:
-                    with st.spinner("מנתח..."): time.sleep(1)
+                    with st.spinner("מנתח..."): time.sleep(0.5)
                     st.session_state.ai_response = f"**ניתוח עבור {sel_p}:** הסטטוס תקין."
             if st.session_state.ai_response: st.info(st.session_state.ai_response)
 
