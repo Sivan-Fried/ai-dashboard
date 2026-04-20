@@ -8,7 +8,7 @@ import urllib.parse
 from zoneinfo import ZoneInfo
 
 # =========================================================
-# 1. הגדרות דף ועיצוב (CSS) - חזרה לגרסה היציבה 1:1
+# 1. הגדרות דף ועיצוב (CSS) - גרסה יציבה 1:1
 # =========================================================
 st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
@@ -23,7 +23,7 @@ st.markdown("""
 <style>
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
     
-    /* מכולות לבנות - המימוש המקורי שעבד */
+    /* מלבנים לבנים - המימוש המקורי שעבד */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background-color: white !important;
         border-radius: 18px !important;
@@ -92,7 +92,7 @@ st.markdown("""
         box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
     }
 
-    /* תיקון הקו הכחול ברשומה הראשונה */
+    /* מניעת חיתוך הקו הכחול ברשומה הראשונה */
     .record-row:first-of-type, .project-link:first-child .record-row {
         margin-top: 5px !important;
     }
@@ -219,10 +219,10 @@ else:
                             <span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_task}</span>
                         </div>
                     ''', unsafe_allow_html=True)
-                st.write("") # ריווח תחתון ללא שינוי CSS
+                st.write("") # ריווח מתחת לרשימה
             else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
-        # עוזר AI אישי - חזרה למימוש המקורי
+        # עוזר AI אישי - חזרה למבנה המקורי
         with st.container(border=True):
             st.markdown("### ✨ עוזר AI אישי")
             a1, a2 = st.columns([1, 2])
@@ -244,7 +244,7 @@ else:
                 for _, r in t_m.iterrows():
                     s_t = fmt_time(r.get('start_time', '')); e_t = fmt_time(r.get('end_time', ''))
                     st.markdown(f'<div class="record-row"><span style="flex-grow:1; text-align:right;">📌 {r["meeting_title"]}</span><span class="time-label">{s_t}-{e_t}</span></div>', unsafe_allow_html=True)
-                st.write("") # ריווח תחתון ללא שינוי CSS
+                st.write("") # ריווח מתחת לרשימה
 
         # תזכורות
         with st.container(border=True):
@@ -267,4 +267,4 @@ else:
                     if b_col2.button("❌"): st.session_state.adding_reminder = False; st.rerun()
             else:
                 if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
-            st.write("") # ריווח תחתון ללא שינוי CSS
+            st.write("") # ריווח מתחת לרשימה
