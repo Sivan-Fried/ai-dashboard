@@ -8,7 +8,7 @@ import urllib.parse
 from zoneinfo import ZoneInfo
 
 # =========================================================
-# 1. הגדרות דף ועיצוב (CSS) - חזרה מלאה למקור
+# 1. הגדרות דף ועיצוב (CSS) - הגרסה המקורית והיציבה
 # =========================================================
 st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
@@ -23,7 +23,6 @@ st.markdown("""
 <style>
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
     
-    /* החזרת המלבנים הלבנים - הגדרה נקייה */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background-color: white !important;
         border-radius: 18px !important;
@@ -78,11 +77,6 @@ st.markdown("""
         align-items: center !important;
         direction: rtl !important;
         box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
-    }
-
-    /* תיקון קו כחול עליון */
-    .record-row:first-of-type, .project-link:first-child .record-row {
-        margin-top: 5px !important;
     }
 
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
@@ -181,18 +175,14 @@ else:
                 for t in tasks_data:
                     f = t.get('fields', {})
                     t_title, p_task = f.get('System.Title', ''), f.get('System.TeamProject', 'General')
-                    raw_date = f.get('System.CreatedDate', '')
-                    fmt_date = f"{raw_date[8:10]}/{raw_date[5:7]} {raw_date[11:16]}" if raw_date else ""
                     st.markdown(f'''
                         <div class="record-row">
                             <div style="flex-grow: 1; text-align: right;">
                                 <span style="font-weight: 500;">🔗 {t_title}</span>
-                                <span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">נוצרה ב-{fmt_date}</span>
                             </div>
                             <span class="tag-orange">{p_task}</span>
                         </div>
                     ''', unsafe_allow_html=True)
-                st.write("") # הריווח הקטן שביקשת
             else: st.write("אין משימות חדשות")
 
         with st.container(border=True):
@@ -213,7 +203,6 @@ else:
             else:
                 for _, r in t_m.iterrows():
                     st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span><span class="time-label">{fmt_time(r.get("start_time"))}</span></div>', unsafe_allow_html=True)
-                st.write("") # הריווח הקטן שביקשת
 
         with st.container(border=True):
             st.markdown("### 🔔 תזכורות")
@@ -221,4 +210,3 @@ else:
             for _, row in t_r.iterrows():
                 st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span></div>', unsafe_allow_html=True)
             if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True
-            st.write("") # הריווח הקטן שביקשת
