@@ -351,11 +351,12 @@ else:
 
 
 # =========================================================
-# 5. ניהול סיכומי פגישות Fathom - גרסה סופית ללא שגיאות
+# 5. ניהול סיכומי פגישות Fathom - גרסה סופית ותקינה
 # =========================================================
 import google.generativeai as genai
 
 def get_fathom_meetings():
+    """משיכת רשימת פגישות מפאטום"""
     api_key = st.secrets["FATHOM_API_KEY"]
     url = "https://api.fathom.ai/external/v1/meetings"
     headers = {"X-Api-Key": api_key, "Accept": "application/json"}
@@ -368,6 +369,7 @@ def get_fathom_meetings():
         return str(e), 500
 
 def get_fathom_summary(recording_id):
+    """משיכת הטקסט הגולמי מפאטום"""
     api_key = st.secrets["FATHOM_API_KEY"]
     url = f"https://api.fathom.ai/external/v1/recordings/{recording_id}/summary"
     headers = {"X-Api-Key": api_key, "Accept": "application/json"}
@@ -380,15 +382,29 @@ def get_fathom_summary(recording_id):
         return None
 
 def refine_with_ai(raw_text):
+    """שליחת הטקסט הגולמי ל-Gemini ועיבודו - פתרון שגיאת 404"""
     try:
         genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-        # שימוש במודל היציב ביותר למניעת 404
+        # שימוש בפורמט 'gemini-1.5-flash' ללא קידומת models/ לפתרון ה-404 ב-v1beta
         model = genai.GenerativeModel('gemini-1.5-flash')
-        prompt = f"סכם את הפגישה הבאה לעברית עסקית (נושא, תקציר, החלטות, משימות):\n\n{raw_text}"
+        
+        prompt = f"""
+        סכם את הפגישה הבאה לעברית עסקית רהוטה ומקצועית.
+        מבנה: נושא הפגישה, תקציר מנהלים, החלטות מפתח ומשימות להמשך.
+        
+        הטקסט לסיכום:
+        {raw_text}
+        """
         response = model.generate_content(prompt)
         return response.text
     except Exception as e:
-        return f"שגיאה בעיבוד ה-AI: {e}"
+        # ניסיון אחרון עם מודל ה-Pro אם ה-Flash עדיין עושה בעיות
+        try:
+            model_pro = genai.GenerativeModel('gemini-pro')
+            response = model_pro.generate_content(prompt)
+            return response.text
+        except:
+            return f"שגיאה בעיבוד ה-AI: {e}"
 
 st.markdown("---")
 with st.container(border=True):
@@ -399,28 +415,33 @@ with st.container(border=True):
         if status == 200:
             st.session_state['fathom_meetings'] = items
         else:
-            st.error(f"שגיאה בחיבור: {status}")
+            st.error(f"שגיאה בחיבור לפאטום: {status}")
 
     if 'fathom_meetings' in st.session_state:
         for mtg in st.session_state['fathom_meetings']:
             rec_id = mtg.get('recording_id')
             title = mtg.get('title', 'פגישה ללא שם')
             date_str = mtg.get('recording_start_time', '')[:10]
-            s_key = f"final_sum_{rec_id}"
+            s_key = f"f_sum_{rec_id}"
             
             with st.expander(f"📅 {title} | {date_str}"):
                 if s_key not in st.session_state:
-                    if st.button("צור סיכום מנהלים בעברית 🪄", key=f"btn_{rec_id}"):
-                        with st.spinner("מעבד..."):
+                    if st.button("צור סיכום מנהלים בעברית 🪄", key=f"btn_{rec_id}", use_container_width=True):
+                        with st.spinner("Gemini מעבד נתונים מפאטום..."):
                             raw_content = get_fathom_summary(rec_id)
                             if raw_content:
                                 st.session_state[s_key] = refine_with_ai(raw_content)
                                 st.rerun()
                             else:
-                                st.warning("אין סיכום בפאטום.")
+                                st.warning("לא נמצא סיכום גולמי בפאטום.")
                 
                 if s_key in st.session_state:
-                    st.markdown(f'<div style="direction:rtl; text-align:right; background:#f9f9f9; padding:15px; border-radius:10px;">{st.session_state[s_key]}</div>', unsafe_allow_html=True)
-                    if st.button("נקה 🗑️", key=f"del_{rec_id}"):
+                    st.markdown(f"""
+                    <div style="direction: rtl; text-align: right; background-color: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid #eee; line-height: 1.6;">
+                    {st.session_state[s_key]}
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    if st.button("נקה סיכום 🗑️", key=f"del_{rec_id}"):
                         del st.session_state[s_key]
                         st.rerun()
