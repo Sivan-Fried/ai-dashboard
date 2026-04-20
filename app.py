@@ -7,7 +7,6 @@ import time
 import urllib.parse
 from zoneinfo import ZoneInfo
 
-# --- 1. הגדרות דף ---
 st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
 def get_base64_image(path):
@@ -15,11 +14,9 @@ def get_base64_image(path):
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# --- 2. CSS מעודכן ---
 st.markdown("""
 <style>
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
-    
     .dashboard-header {
         background: linear-gradient(90deg, #4facfe, #00f2fe) !important;
         -webkit-background-clip: text !important;
@@ -29,7 +26,6 @@ st.markdown("""
         font-weight: 800;
         margin-bottom: 20px;
     }
-
     h3 {
         font-size: 1.15rem !important;
         font-weight: 700 !important;
@@ -37,13 +33,11 @@ st.markdown("""
         color: #1f2a44 !important;
         text-align: right !important;
     }
-
     .profile-img {
         width: 130px; height: 130px; border-radius: 50% !important;
         object-fit: cover !important; object-position: center 25% !important;
         border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
     }
-
     .kpi-card {
         background: white !important;
         padding: 15px !important;
@@ -52,14 +46,13 @@ st.markdown("""
         box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
     }
     .kpi-card b { font-size: 1.4rem; color: #1f2a44; display: block; }
-
-    div[data-testid="stVerticalBlockBorderWrapper"] {
+    div[data-testid="stVerticalBlockBorderWrapper"], .st-emotion-cache-1ne20ew {
         background: white !important;
+        background-color: white !important;
         border: 1.5px solid transparent !important;
         border-radius: 18px !important;
         padding: 15px !important;
     }
-
     .record-row {
         background: #ffffff !important;
         padding: 10px 15px !important;
@@ -71,18 +64,16 @@ st.markdown("""
         justify-content: space-between !important;
         align-items: center !important;
         direction: rtl !important;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
     }
-
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
     .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
     .time-label { color: #64748b; font-size: 0.85em; font-weight: 500; font-family: monospace; }
-
     p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
     div[data-testid="stWidgetLabel"] { justify-content: flex-start !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# --- 3. לוגיקת Azure DevOps ---
 def get_azure_tasks():
     ORG_NAME = "amandigital"
     wiql_url = f"https://dev.azure.com/{ORG_NAME}/_apis/wit/wiql?api-version=6.0"
@@ -97,14 +88,12 @@ def get_azure_tasks():
         return details_res.json().get('value', [])
     except: return []
 
-# --- פונקציה לפורמט שעות ---
 def fmt_time(t):
     try:
         return t.strftime("%H:%M")
     except:
         return ""
 
-# --- 4. טעינת נתונים וניהול מצב ---
 try:
     projects = pd.read_excel("my_projects.xlsx")
     meetings = pd.read_excel("meetings.xlsx")
@@ -117,7 +106,6 @@ if "rem_live" not in st.session_state: st.session_state.rem_live = reminders_df
 if "ai_response" not in st.session_state: st.session_state.ai_response = ""
 if "adding_reminder" not in st.session_state: st.session_state.adding_reminder = False
 
-# --- 5. תצוגה עליונה ---
 st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
 img_b64 = get_base64_image("profile.png")
 now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
@@ -128,7 +116,6 @@ with p2:
     if img_b64: st.markdown(f'<div style="display:flex; justify-content:center;"><img src="data:image/png;base64,{img_b64}" class="profile-img"></div>', unsafe_allow_html=True)
 with p3: st.markdown(f"<div><h3 style='margin-bottom:0;'>{greeting}, סיון!</h3><p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p></div>", unsafe_allow_html=True)
 
-# --- 6. שורת KPI ---
 st.markdown("<br>", unsafe_allow_html=True)
 k1, k2, k3, k4 = st.columns(4)
 with k1: st.markdown(f'<div class="kpi-card">בסיכון 🔴<br><b>{len(projects[projects["status"]=="אדום"])}</b></div>', unsafe_allow_html=True)
@@ -136,19 +123,16 @@ with k2: st.markdown(f'<div class="kpi-card">במעקב 🟡<br><b>{len(projects
 with k3: st.markdown(f'<div class="kpi-card">תקין 🟢<br><b>{len(projects[projects["status"]=="ירוק"])}</b></div>', unsafe_allow_html=True)
 with k4: st.markdown(f'<div class="kpi-card">סה"כ פרויקטים<br><b>{len(projects)}</b></div>', unsafe_allow_html=True)
 
-# --- 7. גוף הדשבורד ---
 st.markdown("<br>", unsafe_allow_html=True)
 col_right, col_left = st.columns([2, 1.2])
 
 with col_right:
-    # פרויקטים
     with st.container(border=True):
         st.markdown("### 📁 פרויקטים")
         with st.container(height=300, border=False):
             for _, row in projects.iterrows():
                 st.markdown(f'<div class="record-row"><b>📂 {row["project_name"]}</b><span class="tag-blue">{row.get("project_type", "פרויקט")}</span></div>', unsafe_allow_html=True)
 
-    # משימות Azure DevOps
     with st.container(border=True):
         st.markdown('<h3>📋 משימות חדשות באז\'ור (New)</h3>', unsafe_allow_html=True)
         tasks_data = get_azure_tasks()
@@ -159,7 +143,6 @@ with col_right:
                 st.markdown(f'<div class="record-row"><div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: underline; font-weight: 500; font-size: 0.95em;">🔗 {t_title}</a></div><span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_name}</span></div>', unsafe_allow_html=True)
         else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
-    # עוזר AI אישי
     with st.container(border=True):
         st.markdown("### ✨ עוזר AI אישי")
         a1, a2 = st.columns([1, 2]); sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p"); q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
@@ -170,7 +153,6 @@ with col_right:
         if st.session_state.ai_response: st.info(st.session_state.ai_response)
 
 with col_left:
-    # פגישות היום
     with st.container(border=True):
         st.markdown("### 📅 פגישות היום")
         t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
@@ -182,14 +164,13 @@ with col_left:
                 time_str = f"{s_time} - {e_time}" if s_time and e_time else ""
                 st.markdown(f'<div class="record-row"><span style="flex-grow:1; text-align:right;">📌 {r["meeting_title"]}</span><span class="time-label">{time_str}</span></div>', unsafe_allow_html=True)
 
-    # תזכורות
     with st.container(border=True):
         st.markdown("### 🔔 תזכורות")
         with st.container(border=False):
             t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
             for _, row in t_r.iterrows():
                 st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
-        
+
         if st.session_state.adding_reminder:
             with st.container(border=True):
                 r_col1, r_col2 = st.columns([1, 2])
