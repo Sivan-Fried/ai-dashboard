@@ -355,9 +355,22 @@ else:
 import streamlit as st
 import requests
 
+# 1. פונקציות עזר למשיכת נתונים מפאטום
+def get_fathom_meetings():
+    api_key = st.secrets["FATHOM_API_KEY"]
+    url = "https://api.fathom.ai/external/v1/meetings"
+    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
+    try:
+        # הגבלה ל-5 פגישות אחרונות
+        response = requests.get(url, headers=headers, params={"limit": 5}, timeout=15)
+        if response.status_code == 200:
+            return response.json(), 200
+        return response.text, response.status_code
+    except Exception as e:
+        return str(e), 500
+
 def get_fathom_summary(recording_id):
     api_key = st.secrets["FATHOM_API_KEY"]
-    # שימי לב: ה-ID כאן הוא ה-recording_id המספרי
     url = f"https://api.fathom.ai/external/v1/recordings/{recording_id}/summary"
     headers = {"X-Api-Key": api_key, "Accept": "application/json"}
     try:
@@ -366,39 +379,39 @@ def get_fathom_summary(recording_id):
     except:
         return None
 
-# --- האזור להחלפה בדשבורד ---
+# --- 2. האזור להחלפה בדשבורד (תחת "עוזר AI אישי") ---
 st.markdown("---")
 st.subheader("✨ סיכומי פגישות Fathom")
 
-if st.button("טען פגישות אחרונות", use_container_width=True):
-    api_key = st.secrets["FATHOM_API_KEY"]
-    url = "https://api.fathom.ai/external/v1/meetings"
-    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
-    
-    with st.spinner("מושך נתונים מפאטום..."):
-        response = requests.get(url, headers=headers, params={"limit": 10})
+if st.button("רענן 5 פגישות אחרונות", use_container_width=True):
+    with st.spinner("מעדכן רשימה..."):
+        data, status = get_fathom_meetings()
         
-        if response.status_code == 200:
-            data = response.json()
-            # שימוש במפתח 'items' כפי שמופיע בנתונים ששלחת
+        if status == 200 and isinstance(data, dict):
             meetings = data.get('items', [])
-            
             if not meetings:
                 st.info("לא נמצאו פגישות אחרונות.")
             else:
+                # הצגת הפגישות כרשימה נפתחת
                 for mtg in meetings:
                     title = mtg.get('title', 'פגישה ללא שם')
                     rec_id = mtg.get('recording_id')
+                    date_str = mtg.get('recording_start_time', '')[:10]
                     
-                    with st.expander(f"📅 {title}"):
-                        st.write(f"תאריך: {mtg.get('recording_start_time', '')[:10]}")
-                        
-                        if st.button(f"משוך סיכום ל-{title}", key=f"btn_{rec_id}"):
-                            summary_data = get_fathom_summary(rec_id)
-                            if summary_data and "summary" in summary_data:
-                                content = summary_data["summary"].get("markdown_formatted")
-                                st.markdown(content if content else "הסיכום עדיין לא מוכן בפאטום.")
-                            else:
-                                st.error("לא הצלחתי למשוך סיכום לפגישה זו.")
+                    with st.expander(f"📅 {title} | {date_str}"):
+                        # כפתור למשיכת הסיכום בתוך הפגישה
+                        if st.button(f"חלץ סיכום AI ל-{title}", key=f"sum_{rec_id}"):
+                            with st.spinner("מושך סיכום..."):
+                                summary_data = get_fathom_summary(rec_id)
+                                if summary_data and "summary" in summary_data:
+                                    content = summary_data["summary"].get("markdown_formatted")
+                                    if content:
+                                        st.markdown("### 📝 סיכום הפגישה:")
+                                        # הסיכום מופיע כאן, בתוך מסגרת בולטת
+                                        st.info(content)
+                                    else:
+                                        st.warning("לא נמצא סיכום מוכן לפגישה זו.")
+                                else:
+                                    st.error("תקלה במשיכת הסיכום מפאטום.")
         else:
-            st.error(f"שגיאה {response.status_code}: {response.text}")
+            st.error(f"שגיאה {status}: {data}")
