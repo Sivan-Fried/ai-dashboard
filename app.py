@@ -52,11 +52,17 @@ st.markdown("""
     }
     .kpi-card b { font-size: 1.4rem; color: #1f2a44; display: block; }
     
+    /* הגדרה כללית למכולות */
     div[data-testid="stVerticalBlockBorderWrapper"], .st-emotion-cache-1ne20ew {
         background: white !important;
         border: 1.5px solid transparent !important;
         border-radius: 18px !important;
         padding: 15px !important;
+    }
+
+    /* תיקון ספציפי למרווח התחתון במלבני המשימות והפגישות */
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        padding-bottom: 20px !important; 
     }
 
     .project-link {
@@ -78,7 +84,7 @@ st.markdown("""
         background: #ffffff !important;
         padding: 10px 15px !important;
         border-radius: 10px !important;
-        margin-bottom: 3px !important; /* צמצום המרווח בפינצטה מ-6px ל-3px */
+        margin-bottom: 3px !important;
         border: 1px solid #edf2f7 !important;
         border-right: 5px solid #4facfe !important;
         display: flex !important;
@@ -89,7 +95,6 @@ st.markdown("""
         box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
     }
 
-    /* שמירה על אוויר למעלה רק ברשומה הראשונה למניעת חיתוך Hover */
     .project-link:first-child .record-row, .record-row:first-of-type {
         margin-top: 4px !important;
     }
@@ -102,7 +107,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =========================================================
-# 2. לוגיקה ושליפת נתונים
+# 2. לוגיקה (נשארת זהה)
 # =========================================================
 
 def get_azure_tasks():
@@ -131,7 +136,7 @@ except:
     st.error("Missing Files"); st.stop()
 
 # =========================================================
-# 3. ניהול ניווט
+# 3. ניהול ניווט (נשאר זהה)
 # =========================================================
 params = st.query_params
 if "proj" in params:
