@@ -8,7 +8,7 @@ import urllib.parse
 from zoneinfo import ZoneInfo
 
 # =========================================================
-# 1. הגדרות דף ועיצוב (CSS) - כולל תיקון הפינצטה ל-Hover
+# 1. הגדרות דף ועיצוב (CSS)
 # =========================================================
 st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
@@ -52,10 +52,8 @@ st.markdown("""
     }
     .kpi-card b { font-size: 1.4rem; color: #1f2a44; display: block; }
     
-    /* מכולה ראשית - תיקון גלישה כדי למנוע חיתוך גבולות */
     div[data-testid="stVerticalBlockBorderWrapper"], .st-emotion-cache-1ne20ew {
         background: white !important;
-        background-color: white !important;
         border: 1.5px solid transparent !important;
         border-radius: 18px !important;
         padding: 15px !important;
@@ -66,23 +64,22 @@ st.markdown("""
         color: inherit !important;
         display: block !important;
         transition: all 0.2s ease;
-        padding: 2px 0; /* נותן מרווח קטן כדי שהגבול לא ייחתך */
     }
     
+    /* תיקון Hover: שימוש ב-z-index וב-box-shadow עדין */
     .project-link:hover .record-row {
         border-color: #4facfe !important;
         background-color: #f8fafc !important;
         transform: translateY(-1px);
-        z-index: 10; /* מבטיח שהרשומה תהיה מעל השאר בזמן ריחוף */
-        box-shadow: 0 4px 12px rgba(79, 172, 254, 0.1) !important;
+        z-index: 5;
+        box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
     }
 
     .record-row {
         background: #ffffff !important;
         padding: 10px 15px !important;
         border-radius: 10px !important;
-        margin-bottom: 8px !important;
-        margin-top: 2px !important; /* תיקון הפינצטה: מרווח קטן למניעת חיתוך הקו העליון */
+        margin-bottom: 6px !important;
         border: 1px solid #edf2f7 !important;
         border-right: 5px solid #4facfe !important;
         display: flex !important;
@@ -90,7 +87,12 @@ st.markdown("""
         align-items: center !important;
         direction: rtl !important;
         position: relative;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+    }
+
+    /* תיקון הפינצטה: רק הרשומה הראשונה בכל רשימה מקבלת מרווח עליון למניעת חיתוך ה-Hover */
+    .project-link:first-child .record-row, .record-row:first-of-type {
+        margin-top: 4px !important;
     }
 
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
@@ -182,9 +184,7 @@ else:
         # פרויקטים
         with st.container(border=True):
             st.markdown("### 📁 פרויקטים")
-            # הוספנו padding קטן למעלה במכולה הפנימית כדי לתת אוויר לרשומה הראשונה
             with st.container(height=300, border=False):
-                st.markdown('<div style="padding-top: 5px;"></div>', unsafe_allow_html=True)
                 for _, row in projects.iterrows():
                     p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
                     st.markdown(f'''
