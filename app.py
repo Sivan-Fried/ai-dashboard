@@ -69,32 +69,27 @@ st.markdown("""
     .project-link:hover .record-row {
         border-color: #4facfe !important;
         background-color: #f8fafc !important;
+        transform: translateY(-1px);
         z-index: 5;
         box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
-        border-radius: 10px !important; /* מחזיר עיגול פינות רק ב-hover כדי שיבלוט */
     }
 
     .record-row {
         background: #ffffff !important;
-        padding: 12px 15px !important;
-        margin-bottom: 0px !important; /* ביטול מוחלט של הרווח */
-        border: none !important;
-        border-bottom: 1px solid #edf2f7 !important; /* קו הפרדה עדין במקום רווח */
+        padding: 10px 15px !important;
+        border-radius: 10px !important;
+        margin-bottom: 0px !important; /* כאן הצמצום שביקשת */
+        border: 1px solid #edf2f7 !important;
         border-right: 5px solid #4facfe !important;
         display: flex !important;
         justify-content: space-between !important;
         align-items: center !important;
         direction: rtl !important;
         position: relative;
-        transition: all 0.2s ease;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
     }
 
-    /* הסרת הקו מהרשומה האחרונה */
-    .project-link:last-child .record-row, .record-row:last-of-type {
-        border-bottom: none !important;
-    }
-
-    /* מרווח קטן רק למעלה בשביל ה-Hover של הראשונה */
+    /* תיקון הפינצטה בשביל ה-Hover של הראשונה */
     .project-link:first-child .record-row, .record-row:first-of-type {
         margin-top: 5px !important;
     }
@@ -106,10 +101,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# =========================================================
-# 2. לוגיקה ושליפת נתונים
-# =========================================================
-
+# (שאר הלוגיקה והקוד נשארים ללא שינוי)
 def get_azure_tasks():
     ORG_NAME = "amandigital"
     wiql_url = f"https://dev.azure.com/{ORG_NAME}/_apis/wit/wiql?api-version=6.0"
@@ -135,9 +127,6 @@ try:
 except:
     st.error("Missing Files"); st.stop()
 
-# =========================================================
-# 3. ניהול ניווט
-# =========================================================
 params = st.query_params
 if "proj" in params:
     st.session_state.selected_project = params["proj"]
@@ -147,10 +136,6 @@ if "rem_live" not in st.session_state: st.session_state.rem_live = reminders_df
 if "ai_response" not in st.session_state: st.session_state.ai_response = ""
 if "adding_reminder" not in st.session_state: st.session_state.adding_reminder = False
 if "current_page" not in st.session_state: st.session_state.current_page = "main"
-
-# =========================================================
-# 4. תצוגת דפים
-# =========================================================
 
 if st.session_state.current_page == "project":
     p_name = st.session_state.selected_project
@@ -185,7 +170,6 @@ else:
     col_right, col_left = st.columns([2, 1.2])
 
     with col_right:
-        # פרויקטים
         with st.container(border=True):
             st.markdown("### 📁 פרויקטים")
             with st.container(height=300, border=False):
@@ -203,7 +187,6 @@ else:
                         </a>
                     ''', unsafe_allow_html=True)
 
-        # אז'ור
         with st.container(border=True):
             st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
             tasks_data = get_azure_tasks()
@@ -226,7 +209,6 @@ else:
                     ''', unsafe_allow_html=True)
             else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
-        # AI
         with st.container(border=True):
             st.markdown("### ✨ עוזר AI אישי")
             a1, a2 = st.columns([1, 2]); sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p"); q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
