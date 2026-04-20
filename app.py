@@ -23,13 +23,12 @@ st.markdown("""
 <style>
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
     
-    /* מכולות לבנות - הגדרה אגרסיבית כדי למנוע אפור */
+    /* מכולות לבנות - החזרה להגדרה המקורית שעבדה */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        background-color: #ffffff !important;
-        background: #ffffff !important;
-        border: 1px solid #edf2f7 !important;
+        background-color: white !important;
         border-radius: 18px !important;
         padding: 15px !important;
+        border: none !important;
     }
 
     .dashboard-header {
@@ -93,7 +92,7 @@ st.markdown("""
         box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
     }
 
-    /* תיקון הקו הכחול ברשומה ראשונה */
+    /* תיקון הקו הכחול ברשומה הראשונה */
     .record-row:first-of-type, .project-link:first-child .record-row {
         margin-top: 5px !important;
     }
@@ -182,7 +181,6 @@ else:
     col_right, col_left = st.columns([2, 1.2])
 
     with col_right:
-        # פרויקטים
         with st.container(border=True):
             st.markdown("### 📁 פרויקטים")
             with st.container(height=300, border=False):
@@ -200,7 +198,6 @@ else:
                         </a>
                     ''', unsafe_allow_html=True)
 
-        # אז'ור
         with st.container(border=True):
             st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
             tasks_data = get_azure_tasks()
@@ -220,10 +217,9 @@ else:
                             <span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_task}</span>
                         </div>
                     ''', unsafe_allow_html=True)
-                st.write("") # ריווח תחתון
+                st.write("") 
             else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
-        # עוזר AI אישי
         with st.container(border=True):
             st.markdown("### ✨ עוזר AI אישי")
             a1, a2 = st.columns([1, 2])
@@ -236,7 +232,6 @@ else:
             if st.session_state.ai_response: st.info(st.session_state.ai_response)
 
     with col_left:
-        # פגישות
         with st.container(border=True):
             st.markdown("### 📅 פגישות היום")
             t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
@@ -245,9 +240,8 @@ else:
                 for _, r in t_m.iterrows():
                     s_t = fmt_time(r.get('start_time', '')); e_t = fmt_time(r.get('end_time', ''))
                     st.markdown(f'<div class="record-row"><span style="flex-grow:1; text-align:right;">📌 {r["meeting_title"]}</span><span class="time-label">{s_t}-{e_t}</span></div>', unsafe_allow_html=True)
-                st.write("") # ריווח תחתון
+                st.write("") 
 
-        # תזכורות
         with st.container(border=True):
             st.markdown("### 🔔 תזכורות")
             t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
@@ -268,4 +262,4 @@ else:
                     if b_col2.button("❌"): st.session_state.adding_reminder = False; st.rerun()
             else:
                 if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
-            st.write("") # ריווח תחתון
+            st.write("")
