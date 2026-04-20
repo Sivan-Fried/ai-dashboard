@@ -352,65 +352,48 @@ else:
 
 #fathom check area
 
+import streamlit as st
+import requests
 
-def get_fathom_summary(recording_id):
-    """
-    מושך סיכום פגישה מ-Fathom לפי ה-ID שלה.
-    נעזר במפתח המוגדר ב-Streamlit Secrets תחת FATHOM_API_KEY.
-    """
-    if "FATHOM_API_KEY" not in st.secrets:
-        st.error("חסר מפתח API ב-Secrets של סטרימליט (FATHOM_API_KEY)")
-        return None
-
+def list_all_recordings():
     api_key = st.secrets["FATHOM_API_KEY"]
-    
-    # הכתובת המדויקת מהדוקומנטציה שמצאת
-    url = f"https://api.fathom.ai/external/v1/recordings/{recording_id}/summary"
-    
     headers = {
         "X-Api-Key": api_key,
         "Accept": "application/json"
     }
     
+    # הכתובת לרשימה המלאה
+    url = "https://api.fathom.ai/external/v1/recordings"
+    
     try:
-        response = requests.get(url, headers=headers, timeout=15)
+        response = requests.get(url, headers=headers)
         if response.status_code == 200:
             return response.json()
-        elif response.status_code == 404:
-            return f"שגיאה 404: לא נמצאה הקלטה עם ה-ID שצוין ({recording_id})"
-        elif response.status_code == 401:
-            return "שגיאה 401: מפתח ה-API אינו תקין או שאין הרשאות."
         else:
             return f"שגיאה {response.status_code}: {response.text}"
     except Exception as e:
-        return f"תקלה בתקשורת מול ה-API: {e}"
+        return f"תקלה: {e}"
 
-# --- ממשק המשתמש בדשבורד ---
-st.title("📞 סיכום פגישות Fathom")
+st.title("🔎 חוקר פגישות Fathom")
 
-# בשלב זה הדרך הבטוחה ביותר היא להזין את ה-ID מה-URL של פאטום
-# (מכיוון שרשימת ההקלטות דורשת Endpoint אחר שכרגע מחזיר 404)
-rec_id = st.text_input("הזיני את ה-Recording ID מה-URL של פאטום:", 
-                      help="זהו רצף האותיות והמספרים שמופיע בסוף הלינק של הפגישה")
-
-if st.button("משוך סיכום אוטומטי"):
-    if rec_id:
-        with st.spinner("מתחבר ל-Fathom ושולף נתונים..."):
-            summary_data = get_fathom_summary(rec_id.strip())
-            
-            if isinstance(summary_data, dict):
-                st.success("הסיכום נטען בהצלחה!")
-                
-                # תצוגה מעוצבת של הסיכום
-                # פאטום בדרך כלל מחזירים שדה בשם 'summary' או 'text'
-                if "summary" in summary_data:
-                    st.markdown("### סיכום ה-AI:")
-                    st.write(summary_data["summary"])
-                else:
-                    # אם המבנה שונה, נראה את כל ה-JSON כדי שנדע מה לשלוף
-                    st.write("מבנה הנתונים שהתקבל:")
-                    st.json(summary_data)
-            else:
-                st.error(summary_data)
+if st.button("תראה לי מה יש בחשבון"):
+    data = list_all_recordings()
+    
+    if isinstance(data, dict):
+        recordings = data.get('recordings', [])
+        if not recordings:
+            st.warning("החיבור הצליח, אבל נראה שאין הקלטות בחשבון הזה.")
+        else:
+            st.success(f"מצאתי {len(recordings)} פגישות!")
+            for rec in recordings:
+                with st.expander(f"פגישה: {rec.get('title', 'ללא שם')}"):
+                    st.write(f"**ID אמיתי ל-API:** `{rec['id']}`")
+                    st.write(f"תאריך: {rec.get('created_at')}")
+                    
+                    # כפתור למשיכת סיכום ספציפי
+                    if st.button(f"משוך סיכום ל-{rec['id'][:5]}...", key=rec['id']):
+                        summary_url = f"https://api.fathom.ai/external/v1/recordings/{rec['id']}/summary"
+                        res = requests.get(summary_url, headers={"X-Api-Key": st.secrets["FATHOM_API_KEY"]})
+                        st.json(res.json())
     else:
-        st.warning("יש להזין ID של פגישה כדי להמשיך.")
+        st.error(data)
