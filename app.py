@@ -7,7 +7,7 @@ import time
 import urllib.parse
 from zoneinfo import ZoneInfo
 
-# --- 1. הגדרות דף ועיצוב (זהה לחלוטין למקור שלך) ---
+# --- 1. הגדרות דף ועיצוב (ה-CSS המקורי שלך + תיקוני לחיצה) ---
 st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
 def get_base64_image(path):
@@ -15,7 +15,6 @@ def get_base64_image(path):
         with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
     except: return ""
 
-# הוספתי הגדרה קטנה ל-.project-link כדי שנוכל להקליק על פרויקטים
 st.markdown("""
 <style>
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
@@ -67,16 +66,34 @@ st.markdown("""
         align-items: center !important;
         direction: rtl !important;
         box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
+        position: relative;
     }
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
     .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
     .time-label { color: #64748b; font-size: 0.85em; font-weight: 500; font-family: monospace; }
     p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
-    div[data-testid="stWidgetLabel"] { justify-content: flex-start !important; }
+    
+    /* הגדרות לכפתור השקוף שמאפשר לחיצה על כל הרשומה */
+    .project-btn-container { position: relative; }
+    .stButton > button[kind="secondary"] {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 45px;
+        background-color: transparent !important;
+        border: none !important;
+        color: transparent !important;
+        z-index: 10;
+        cursor: pointer;
+    }
+    .stButton > button[kind="secondary"]:hover {
+        background-color: rgba(79, 172, 254, 0.05) !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# --- 2. פונקציות עזר ונתונים (נשאר ללא שינוי) ---
+# --- 2. פונקציות ונתונים ---
 def get_azure_tasks():
     ORG_NAME = "amandigital"
     wiql_url = f"https://dev.azure.com/{ORG_NAME}/_apis/wit/wiql?api-version=6.0"
@@ -103,45 +120,43 @@ try:
 except:
     st.error("Missing Files"); st.stop()
 
-# --- 3. ניהול מצב (Session State) ---
+# --- 3. ניהול ניווט ומצב ---
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders_df
 if "ai_response" not in st.session_state: st.session_state.ai_response = ""
 if "adding_reminder" not in st.session_state: st.session_state.adding_reminder = False
 if "current_page" not in st.session_state: st.session_state.current_page = "main"
-if "selected_project_name" not in st.session_state: st.session_state.selected_project_name = None
+if "selected_project" not in st.session_state: st.session_state.selected_project = None
 
-# --- 4. לוגיקת דפים ---
-
-# פונקציה למעבר לדף פרויקט
 def open_project(name):
-    st.session_state.selected_project_name = name
+    st.session_state.selected_project = name
     st.session_state.current_page = "project"
     st.rerun()
 
-# פונקציה לחזרה לדף הראשי
 def close_project():
     st.session_state.current_page = "main"
-    st.session_state.selected_project_name = None
+    st.session_state.selected_project = None
     st.rerun()
+
+# --- 4. תצוגת דפים ---
 
 # --- דף פרויקט ספציפי ---
 if st.session_state.current_page == "project":
-    p_name = st.session_state.selected_project_name
+    p_name = st.session_state.selected_project
     st.markdown(f'<h1 class="dashboard-header">{p_name}</h1>', unsafe_allow_html=True)
     
-    if st.button("⬅️ חזרה לדשבורד", use_container_width=False):
+    if st.button("⬅️ חזרה לדשבורד"):
         close_project()
-        
-    col_info, col_extra = st.columns([2, 1])
-    with col_info:
+    
+    col_main, col_side = st.columns([2, 1])
+    with col_main:
         with st.container(border=True):
-            st.markdown(f"### 📁 פרטי פרויקט: {p_name}")
-            st.write("כאן יופיע המידע הכללי על הפרויקט כפי שביקשת.")
-            st.info("זהו דף הפרויקט החדש. העיצוב נשמר והיישור לימין מוגדר.")
-    with col_extra:
-         with st.container(border=True):
-            st.markdown("### 📊 סטטוס")
-            st.write("סטטוס פרויקט: פעיל")
+            st.markdown(f"### ℹ️ מידע כללי: {p_name}")
+            st.write("כאן יופיע פירוט הפרויקט כפי שביקשת. העיצוב נשמר והמלבנים הלבנים תוחמים את האזורים.")
+            st.info("מוכן להמשך הגדרת האזורים הנוספים.")
+    with col_side:
+        with st.container(border=True):
+            st.markdown("### 📊 סטטוס נוכחי")
+            st.write("פרויקט פעיל")
 
 # --- דף ראשי ---
 else:
@@ -168,57 +183,28 @@ else:
     with col_right:
         with st.container(border=True):
             st.markdown("### 📁 פרויקטים")
-            
-            # CSS ייעודי להפיכת הכפתור לשקוף ומתיחתו על כל הרשומה
-            st.markdown("""
-                <style>
-                .invisible-btn-container {
-                    position: relative;
-                    margin-bottom: 8px;
-                }
-                .stButton > button[kind="secondary"] {
-                    position: absolute;
-                    top: 0;
-                    right: 0;
-                    width: 100%;
-                    height: 50px; /* גובה תואם לרשומה */
-                    background-color: transparent !important;
-                    border: none !important;
-                    color: transparent !important;
-                    z-index: 10;
-                    cursor: pointer;
-                }
-                .stButton > button[kind="secondary"]:hover {
-                    background-color: rgba(79, 172, 254, 0.05) !important; /* אפקט הובר עדין */
-                }
-                </style>
-            """, unsafe_allow_html=True)
-
             with st.container(height=300, border=False):
                 for _, row in projects.iterrows():
-                    # יצירת מכלול לכל רשומה
+                    # העיצוב המקורי + כפתור שקוף מעליו
                     with st.container():
-                        # 1. העיצוב המקורי שלך (נמצא "מתחת" לכפתור השקוף)
                         st.markdown(f'''
                             <div class="record-row" style="margin-bottom: 0;">
                                 <b>📂 {row["project_name"]}</b>
                                 <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
                             </div>
                         ''', unsafe_allow_html=True)
-                        
-                        # 2. הכפתור השקוף שנמתח מעל הכל
                         if st.button("", key=f"p_{row['project_name']}", use_container_width=True):
                             open_project(row['project_name'])
-            else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
         with st.container(border=True):
-            st.markdown("### ✨ עוזר AI אישי")
-            a1, a2 = st.columns([1, 2]); sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p"); q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
-            if st.button("שגר שאילתה 🚀", use_container_width=True):
-                if q_in:
-                    with st.spinner("מנתח..."): time.sleep(1)
-                    st.session_state.ai_response = f"**ניתוח עבור {sel_p}:** הסטטוס תקין."
-            if st.session_state.ai_response: st.info(st.session_state.ai_response)
+            st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
+            tasks_data = get_azure_tasks()
+            if tasks_data:
+                for t in tasks_data:
+                    f = t.get('fields', {}); p_name_task = f.get('System.TeamProject', 'General'); t_title = f.get('System.Title', 'ללא כותרת'); t_id = t.get('id')
+                    t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_name_task)}/_workitems/edit/{t_id}"
+                    st.markdown(f'<div class="record-row"><div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: underline; font-weight: 500; font-size: 0.95em;">🔗 {t_title}</a></div><span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_name_task}</span></div>', unsafe_allow_html=True)
+            else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
     with col_left:
         with st.container(border=True):
@@ -244,7 +230,7 @@ else:
                     r_col1, r_col2 = st.columns([1, 2])
                     new_proj = r_col1.selectbox("בחר פרויקט", projects["project_name"].tolist() + ["כללי"], label_visibility="collapsed")
                     new_text = r_col2.text_input("תיאור התזכורת", placeholder="מה להזכיר?", label_visibility="collapsed")
-                    b_col1, b_col2, b_col3 = st.columns([1, 1, 4])
+                    b_col1, b_col2 = st.columns([1, 1])
                     if b_col1.button("✅", key="confirm_new"):
                         if new_text:
                             new_data = pd.DataFrame([{"date": today, "reminder_text": new_text, "project_name": new_proj}])
