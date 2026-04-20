@@ -168,31 +168,47 @@ else:
     with col_right:
         with st.container(border=True):
             st.markdown("### 📁 פרויקטים")
+            
+            # CSS ייעודי להפיכת הכפתור לשקוף ומתיחתו על כל הרשומה
+            st.markdown("""
+                <style>
+                .invisible-btn-container {
+                    position: relative;
+                    margin-bottom: 8px;
+                }
+                .stButton > button[kind="secondary"] {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    width: 100%;
+                    height: 50px; /* גובה תואם לרשומה */
+                    background-color: transparent !important;
+                    border: none !important;
+                    color: transparent !important;
+                    z-index: 10;
+                    cursor: pointer;
+                }
+                .stButton > button[kind="secondary"]:hover {
+                    background-color: rgba(79, 172, 254, 0.05) !important; /* אפקט הובר עדין */
+                }
+                </style>
+            """, unsafe_allow_html=True)
+
             with st.container(height=300, border=False):
                 for _, row in projects.iterrows():
-                    # יצירת מכולה לכל פרויקט
+                    # יצירת מכלול לכל רשומה
                     with st.container():
-                        # הצגת העיצוב המקורי שלך בדיוק כפי שהיה
+                        # 1. העיצוב המקורי שלך (נמצא "מתחת" לכפתור השקוף)
                         st.markdown(f'''
-                            <div class="record-row">
+                            <div class="record-row" style="margin-bottom: 0;">
                                 <b>📂 {row["project_name"]}</b>
-                                <span class="tag-blue">{row.get("project_type", "פרויקט")}</span>
+                                <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
                             </div>
                         ''', unsafe_allow_html=True)
                         
-                        # הוספת כפתור "שקוף" מתחת לעיצוב כדי לאפשר לחיצה
-                        # השתמשתי ב-label ריק כדי לא להרוס את הוויזואליה
-                        if st.button("צפייה בפרטים ←", key=f"p_{row['project_name']}", use_container_width=True):
+                        # 2. הכפתור השקוף שנמתח מעל הכל
+                        if st.button("", key=f"p_{row['project_name']}", use_container_width=True):
                             open_project(row['project_name'])
-
-        with st.container(border=True):
-            st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
-            tasks_data = get_azure_tasks()
-            if tasks_data:
-                for t in tasks_data:
-                    f = t.get('fields', {}); p_name_task = f.get('System.TeamProject', 'General'); t_title = f.get('System.Title', 'ללא כותרת'); t_id = t.get('id')
-                    t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_name_task)}/_workitems/edit/{t_id}"
-                    st.markdown(f'<div class="record-row"><div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: underline; font-weight: 500; font-size: 0.95em;">🔗 {t_title}</a></div><span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_name_task}</span></div>', unsafe_allow_html=True)
             else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
         with st.container(border=True):
