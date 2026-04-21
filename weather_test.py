@@ -8,34 +8,10 @@ def get_weather(lat, lon):
     url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric&lang=he"
     try:
         return requests.get(url).json()
-    except:
-        return None
+    except: return None
 
-st.set_page_config(page_title="מזג אוויר", page_icon="☀️", layout="centered")
-
-# --- הזרקת CSS לביטול מוחלט של הפס הלבן ---
-st.markdown("""
-    <style>
-    /* ביטול ה-Header, ה-Toolbar והקישוטים של סטרימליט */
-    [data-testid="stHeader"], [data-testid="stDecoration"], #tabs-bui3-tabpanel-0 > div:nth-child(1) {
-        display: none !important;
-    }
-    
-    /* איפוס המרווחים של כל דף האפליקציה */
-    .stApp {
-        margin-top: -60px !important; /* דוחף את הכל למעלה מעבר לפס הלבן */
-    }
-    
-    .main .block-container {
-        padding-top: 0rem !important;
-        padding-bottom: 0rem !important;
-    }
-
-    /* הסתרת כפתור התפריט (המבורגר) */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    </style>
-""", unsafe_allow_html=True)
+# הגדרת layout רחב כדי למנוע מרווחים מהצדדים
+st.set_page_config(page_title="מזג אוויר", page_icon="☀️", layout="wide")
 
 loc = get_geolocation()
 
@@ -47,29 +23,47 @@ if loc:
     if data and data.get('main'):
         temp = round(data['main']['temp'])
         city = data.get('name', 'פתח תקווה')
-        if city.lower() in ['petah tikva', 'petah tiqwa']:
-            city = "פתח תקווה"
-            
+        if city.lower() in ['petah tikva', 'petah tiqwa']: city = "פתח תקווה"
         desc = data['weather'][0]['description']
         icon_code = data['weather'][0]['icon']
         is_night = "n" in icon_code
-        
         bg = "linear-gradient(180deg, #1a2a6c, #2c5364)" if is_night else "linear-gradient(180deg, #4facfe, #00f2fe)"
 
+        # CSS שמשתלט על כל המסך באמת
         st.markdown(f"""
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
             <style>
-            .stApp {{ background: {bg} !important; }}
-            .iphone-card {{ 
-                color: white; 
-                text-align: center; 
-                font-family: -apple-system, system-ui, sans-serif;
-                padding-top: 10vh; /* רווח פנימי מלמעלה כדי שהטקסט לא ייצמד לתקרה */
+            /* העלמה מוחלטת של כל המסגרת של סטרימליט */
+            [data-testid="stHeader"], [data-testid="stDecoration"], footer {{
+                display: none !important;
             }}
-            .city-name {{ font-size: 40px; font-weight: 500; }}
-            .temp-display {{ font-size: 110px; font-weight: 100; margin: -10px 0; }}
-            .weather-desc {{ font-size: 24px; font-weight: 500; opacity: 0.9; }}
-            .bi {{ font-size: 100px; margin-top: 30px; display: block; }}
+            
+            /* קיבוע הרקע והתוכן לכל שטח המסך */
+            .stApp {{
+                background: {bg} !important;
+                position: fixed;
+                width: 100vw;
+                height: 100vh;
+                top: 0;
+                left: 0;
+                overflow: hidden;
+            }}
+
+            .iphone-card {{
+                color: white;
+                text-align: center;
+                font-family: -apple-system, system-ui, sans-serif;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                height: 100vh; /* ממרכז את הכל בדיוק לאמצע המסך */
+            }}
+
+            .city-name {{ font-size: 45px; font-weight: 500; margin-top: -10vh; }}
+            .temp-display {{ font-size: 130px; font-weight: 100; margin: -10px 0; }}
+            .weather-desc {{ font-size: 26px; font-weight: 500; opacity: 0.9; }}
+            .bi {{ font-size: 110px; margin-top: 40px; }}
             </style>
             
             <div class="iphone-card">
@@ -81,4 +75,6 @@ if loc:
             </div>
         """, unsafe_allow_html=True)
 else:
-    st.markdown("<h3 style='color: white; text-align: center; padding-top: 100px;'>מחפש מיקום...</h3>", unsafe_allow_html=True)
+    # רקע זמני בזמן טעינה כדי שלא יהיה לבן בעיניים
+    st.markdown("""<style>.stApp { background: #4facfe !important; }</style>""", unsafe_allow_html=True)
+    st.markdown("<h2 style='color: white; text-align: center; margin-top: 45vh;'>מזהה מיקום...</h2>", unsafe_allow_html=True)
