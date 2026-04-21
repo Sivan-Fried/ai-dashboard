@@ -298,11 +298,11 @@ else:
 
         # --- אזור Fathom המעודכן ---
 # --- אזור Fathom: גרסה סופית ומקצועית ---
-# --- אזור Fathom: פתרון סופי ויציב (תואם ניהול פרויקטים) ---
+# --- אזור Fathom: פתרון כיסוי (Overlap) מושלם ---
         with st.container(border=True):
             st.markdown("### ✨ סיכומי פגישות Fathom")
             
-            # 1. מנגנון משיכת נתונים - מוודא שהחלק לא ייעלם
+            # 1. משיכת נתונים
             if 'fathom_meetings' not in st.session_state:
                 with st.spinner("טוען פגישות..."):
                     try:
@@ -314,15 +314,11 @@ else:
                     except Exception:
                         st.session_state['fathom_meetings'] = []
 
-            # 2. CSS אחיד ומקצועי (זהה לניהול פרויקטים)
+            # 2. CSS - משיכת הכפתור מעל ה-HTML בדיוק מושלם
             st.markdown("""
                 <style>
-                .fathom-item {
-                    position: relative;
-                    margin-bottom: 8px;
-                    width: 100%;
-                }
-                .fathom-row-card {
+                /* השכבה הוויזואלית התחתונה - גובה קבוע של 52 פיקסלים */
+                .fathom-visual-layer {
                     display: grid;
                     grid-template-columns: auto 1fr auto;
                     align-items: center;
@@ -330,17 +326,13 @@ else:
                     border: 1px solid #edf2f7;
                     border-right: 5px solid #4facfe;
                     border-radius: 8px;
-                    padding: 10px 16px;
+                    padding: 0 16px;
+                    height: 52px; /* גובה קריטי להתאמה מושלמת */
                     direction: rtl;
-                    transition: all 0.2s ease;
                 }
-                .fathom-item:hover .fathom-row-card {
-                    border-color: #4facfe;
-                    background-color: #f8fafc;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-                }
-                /* תגית תאריך (Pill) זהה לשאר המערכת */
-                .fathom-pill {
+                
+                /* עיצוב התגית (Pill) */
+                .fathom-pill-tag {
                     background-color: #f1f5f9;
                     color: #475569;
                     padding: 2px 10px;
@@ -350,21 +342,45 @@ else:
                     margin-right: 12px;
                     font-family: inherit;
                 }
-                /* כפתור שקוף לחלוטין מעל הרשומה למניעת TypeError */
-                .fathom-overlay div[data-testid="stButton"] button {
-                    position: absolute;
-                    top: 0; left: 0; width: 100%; height: 100%;
-                    background: transparent !important;
-                    border: none !important;
-                    color: transparent !important;
+
+                /* ביטול הרווח התחתון מהקונטיינר של ה-HTML */
+                div.element-container:has(.fathom-visual-layer) {
+                    margin-bottom: 0px !important;
+                }
+
+                /* משיכת הקונטיינר של הכפתור למעלה בדיוק בגובה השורה (52px) */
+                div.element-container:has(.fathom-visual-layer) + div.element-container {
+                    margin-top: -52px !important;
+                    margin-bottom: 6px !important; /* מרווח בין רשומות */
                     z-index: 10;
-                    margin: 0 !important;
+                    position: relative;
+                }
+
+                /* הפיכת הכפתור של סטרימליט לרוח רפאים בגודל זהה לחלוטין */
+                div.element-container:has(.fathom-visual-layer) + div.element-container div[data-testid="stButton"] button {
+                    background: transparent !important;
+                    border: 1px solid transparent !important;
+                    border-right: 5px solid transparent !important;
+                    color: transparent !important;
+                    width: 100% !important;
+                    height: 52px !important;
+                    min-height: 52px !important;
                     padding: 0 !important;
+                    box-shadow: none !important;
+                    border-radius: 8px !important;
+                    transition: all 0.2s ease;
+                }
+                
+                /* אפקט הריחוף - מוחל ישירות על כפתור הרפאים כדי לייצר תחושת לחיצה מציאותית */
+                div.element-container:has(.fathom-visual-layer) + div.element-container div[data-testid="stButton"] button:hover {
+                    background-color: rgba(79, 172, 254, 0.05) !important;
+                    border-color: #4facfe !important;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
                 }
                 </style>
             """, unsafe_allow_html=True)
 
-            # 3. רינדור הרשומות
+            # 3. רינדור רשומות
             meetings = st.session_state.get('fathom_meetings', [])
             
             if meetings:
@@ -375,31 +391,27 @@ else:
                     
                     open_key = f"open_{rec_id}"
                     is_open = st.session_state.get(open_key, False)
-                    # שימוש באייקון המדויק מניהול הפרויקטים
                     arrow = "expand_more" if is_open else "chevron_left"
 
-                    # תצוגה ויזואלית (Markdown)
+                    # רינדור השכבה הויזואלית (HTML קבוע למטה)
                     st.markdown(f'''
-                        <div class="fathom-item">
-                            <div class="fathom-row-card">
-                                <div style="display: flex; align-items: center;">
-                                    <span style="font-size: 1.2rem; margin-left: 10px;">📅</span>
-                                    <span style="font-weight: 600; color: #1e293b; font-size: 0.9rem;">{title}</span>
-                                    <span class="fathom-pill">{date_str}</span>
-                                </div>
-                                <div></div>
-                                <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">{arrow}</span>
+                        <div class="fathom-visual-layer">
+                            <div style="display: flex; align-items: center;">
+                                <span style="font-size: 1.2rem; margin-left: 10px;">📅</span>
+                                <span style="font-weight: 600; color: #1e293b; font-size: 0.9rem;">{title}</span>
+                                <span class="fathom-pill-tag">{date_str}</span>
                             </div>
+                            <div></div>
+                            <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">{arrow}</span>
+                        </div>
                     ''', unsafe_allow_html=True)
                     
-                    # שכבת הלחיצה
-                    st.markdown('<div class="fathom-overlay">', unsafe_allow_html=True)
-                    if st.button("", key=f"f_trig_{rec_id}"):
+                    # שכבת הכפתור הרשמית של סטרימליט שתמשך למעלה ותכסה את ה-HTML
+                    if st.button(" ", key=f"f_btn_trig_{rec_id}", use_container_width=True):
                         st.session_state[open_key] = not is_open
                         st.rerun()
-                    st.markdown('</div></div>', unsafe_allow_html=True)
 
-                    # הצגת התוכן (סיכום)
+                    # אזור התוכן הנפתח - חובה שיהיה מחוץ לחפיפה העליונה
                     if is_open:
                         s_key = f"sum_v4_{rec_id}"
                         with st.container(border=False):
@@ -413,7 +425,7 @@ else:
                             else:
                                 st.markdown(f'''
                                     <div style="direction: rtl; text-align: right; background: #f8fafc; 
-                                    padding: 15px; border: 1px solid #edf2f7; border-radius: 8px; margin: -5px 0 10px 0;">
+                                    padding: 15px; border: 1px solid #edf2f7; border-radius: 8px; margin: -2px 0 12px 0;">
                                         {st.session_state[s_key]}
                                     </div>
                                 ''', unsafe_allow_html=True)
