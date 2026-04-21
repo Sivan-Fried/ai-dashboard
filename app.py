@@ -297,48 +297,48 @@ else:
                 if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
 
         # --- אזור Fathom המעודכן ---
-# --- אזור Fathom: פתרון סופי ללא שגיאות ועם עיצוב מושלם ---
+# --- אזור Fathom: פתרון סופי, יציב וללא TypeError ---
         with st.container(border=True):
             st.markdown("### ✨ סיכומי פגישות Fathom")
             
-            # CSS שיוצר את השכבות: רשומה מעוצבת ומעליה כפתור שקוף
+            # CSS שדואג לעיצוב השורה ואפקט ה-Hover
             st.markdown("""
                 <style>
-                .fathom-wrapper {
-                    position: relative;
-                    margin-bottom: 8px;
-                    height: 55px; /* גובה קבוע לרשומה */
-                }
-                .fathom-bg {
-                    position: absolute;
-                    top: 0; left: 0; right: 0; bottom: 0;
+                /* עיצוב המכולה של כל רשומה */
+                .fathom-row-container {
                     background: white;
-                    padding: 10px 15px;
-                    border-radius: 10px;
                     border: 1px solid #edf2f7;
                     border-right: 5px solid #4facfe;
+                    border-radius: 10px;
+                    padding: 10px 15px;
+                    margin-bottom: 8px;
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
                     transition: all 0.2s ease;
-                    z-index: 1;
+                    position: relative;
                 }
-                /* אפקט Hover על הרקע כשהעכבר מעל המכולה */
-                .fathom-wrapper:hover .fathom-bg {
+                
+                /* אפקט Hover - זהה לפרויקטים */
+                .fathom-row-container:hover {
                     border-color: #4facfe;
                     background-color: #f8fafc;
-                    box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15);
                     transform: translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15);
                 }
-                /* הכפתור השקוף של סטרימליט שיושב מעל הכל */
-                .fathom-overlay div[data-testid="stButton"] button {
+
+                /* הפיכת הכפתור של סטרימליט לשקוף שפורס את עצמו על כל השורה */
+                .fathom-clicker div[data-testid="stButton"] button {
                     position: absolute;
-                    top: 0; left: 0; width: 100%; height: 55px;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
                     background: transparent !important;
                     border: none !important;
                     color: transparent !important;
-                    z-index: 2;
-                    box-shadow: none !important;
+                    z-index: 10;
+                    margin: 0 !important;
                 }
                 </style>
             """, unsafe_allow_html=True)
@@ -358,31 +358,30 @@ else:
                     is_open = st.session_state.get(open_key, False)
                     arrow = "expand_more" if is_open else "chevron_left"
 
-                    # בניית המבנה
+                    # יצירת המבנה הויזואלי
                     st.markdown(f'''
-                        <div class="fathom-wrapper">
-                            <div class="fathom-bg">
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <b>📅 {title}</b>
-                                    <span style="color: #94a3b8; font-size: 0.85rem;">{date_str}</span>
-                                </div>
-                                <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">{arrow}</span>
+                        <div class="fathom-row-container">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <b>📅 {title}</b>
+                                <span style="color: #94a3b8; font-size: 0.85rem;">{date_str}</span>
                             </div>
+                            <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">{arrow}</span>
+                            <div class="fathom-clicker">
                     ''', unsafe_allow_html=True)
                     
-                    # הוספת הכפתור השקוף כ-Overlay
-                    st.markdown('<div class="fathom-overlay">', unsafe_allow_html=True)
-                    if st.button("", key=f"ov_{rec_id}"):
+                    # הכפתור השקוף שמשמש כטריגר
+                    if st.button("", key=f"f_btn_final_{rec_id}"):
                         st.session_state[open_key] = not is_open
                         st.rerun()
+                    
                     st.markdown('</div></div>', unsafe_allow_html=True)
 
-                    # הצגת התוכן (סיכום) במידה ופתוח
+                    # הצגת התוכן במידה ופתוח
                     if is_open:
                         with st.container(border=False):
                             if s_key not in st.session_state:
                                 if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}", use_container_width=True):
-                                    with st.spinner("מנתח..."):
+                                    with st.spinner("מנתח פגישה..."):
                                         raw = get_fathom_summary(rec_id)
                                         if raw:
                                             st.session_state[s_key] = refine_with_ai(raw)
