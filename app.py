@@ -297,33 +297,40 @@ else:
                 if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
 
         # --- אזור Fathom המעודכן ---
-# --- אזור Fathom: גרסת ה-Chat Message ליציבות מקסימלית ---
+# --- אזור Fathom: גרסת ה-UI היציבה והנקייה ביותר ---
         with st.container(border=True):
             st.markdown("### ✨ סיכומי פגישות Fathom")
             
-            # CSS מינימלי לתיקון כיווניות ואפקט Hover קל
+            # CSS שדואג ליישור ימני, פונטים ואפקט Hover
             st.markdown("""
                 <style>
-                /* עיצוב המכולה של הודעת הצ'אט כדי שתיראה כמו רשומה */
-                [data-testid="stChatMessage"] {
-                    background-color: white !important;
+                /* עיצוב הכפתור שייראה כמו רשומה בניהול פרויקטים */
+                .stButton > button[key^="f_btn_v5_"] {
                     border: 1px solid #edf2f7 !important;
                     border-right: 5px solid #4facfe !important;
+                    background-color: white !important;
                     border-radius: 10px !important;
-                    transition: all 0.2s ease;
-                    padding: 5px 10px !important;
+                    padding: 15px 20px !important;
+                    width: 100% !important;
+                    transition: all 0.2s ease !important;
                     margin-bottom: 8px !important;
+                    display: block !important;
                 }
-                [data-testid="stChatMessage"]:hover {
+                
+                .stButton > button[key^="f_btn_v5_"]:hover {
                     border-color: #4facfe !important;
                     background-color: #f8fafc !important;
                     box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
+                    transform: translateY(-1px);
                 }
-                /* יישור הכפתור בתוך השורה */
-                .fathom-btn-col {
+
+                /* סידור הטקסט בתוך הכפתור (RTL) */
+                .btn-content {
                     display: flex;
+                    justify-content: space-between;
                     align-items: center;
-                    justify-content: center;
+                    direction: rtl;
+                    width: 100%;
                 }
                 </style>
             """, unsafe_allow_html=True)
@@ -335,7 +342,7 @@ else:
             if 'fathom_meetings' in st.session_state and st.session_state['fathom_meetings']:
                 for idx, mtg in enumerate(st.session_state['fathom_meetings']):
                     rec_id = mtg.get('recording_id') or f"idx_{idx}"
-                    title = mtg.get('title') or "פגישה"
+                    title = mtg.get('title') or "פגישה ללא שם"
                     date_str = mtg.get('recording_start_time', '')[:10]
                     
                     s_key = f"sum_v4_{rec_id}"
@@ -343,28 +350,17 @@ else:
                     is_open = st.session_state.get(open_key, False)
                     arrow = "▼" if is_open else "◀"
 
-                    # שימוש ב-st.chat_message יוצר מכולה יציבה שלא נשברת
-                    with st.chat_message("fathom", avatar="📅"):
-                        col_info, col_btn = st.columns([0.85, 0.15])
-                        
-                        with col_info:
-                            st.markdown(f"""
-                                <div style="text-align: right; direction: rtl; padding-top: 5px;">
-                                    <span style="font-weight: bold; font-size: 1.05rem;">{title}</span>
-                                    <br>
-                                    <span style="color: #94a3b8; font-size: 0.85rem;">{date_str}</span>
-                                </div>
-                            """, unsafe_allow_html=True)
-                        
-                        with col_btn:
-                            # כפתור פשוט וקטן שלא דוחק את השורה
-                            if st.button(arrow, key=f"f_btn_v3_{rec_id}", use_container_width=True):
-                                st.session_state[open_key] = not is_open
-                                st.rerun()
+                    # יצירת התוכן של הכפתור כמחרוזת פשוטה למניעת TypeError
+                    # אנחנו משתמשים ב-Markdown בתוך הכפתור בזהירות
+                    label_content = f"📅 {title} | {date_str} {arrow}"
+                    
+                    if st.button(label_content, key=f"f_btn_v5_{rec_id}"):
+                        st.session_state[open_key] = not is_open
+                        st.rerun()
 
-                        # הצגת הסיכום בתוך אותה הודעה (כשהיא פתוחה)
-                        if is_open:
-                            st.divider()
+                    # הצגת התוכן (סיכום) במידה ופתוח
+                    if is_open:
+                        with st.container(border=True):
                             if s_key not in st.session_state:
                                 if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}", use_container_width=True):
                                     with st.spinner("מנתח..."):
@@ -373,9 +369,7 @@ else:
                                             st.session_state[s_key] = refine_with_ai(raw)
                                             st.rerun()
                             else:
-                                st.info(st.session_state[s_key])
+                                st.markdown(f'<div style="direction: rtl; text-align: right; padding: 10px;">{st.session_state[s_key]}</div>', unsafe_allow_html=True)
                                 if st.button("נקה סיכום 🗑️", key=f"clr_{rec_id}"):
                                     del st.session_state[s_key]
                                     st.rerun()
-            else:
-                st.info("לא נמצאו פגישות להצגה.")
