@@ -298,17 +298,21 @@ else:
 
         # --- אזור Fathom המעודכן ---
 # --- אזור Fathom: עיצוב מהודק וביצועים ---
-# ✅ טעינה אוטומטית פעם ראשונה (מחוץ ל-container כדי למנוע קפיצות)
+
+# טעינה אוטומטית פעם ראשונה
 if 'fathom_meetings' not in st.session_state:
     try:
         items, status = get_fathom_meetings()
         if status == 200:
             st.session_state['fathom_meetings'] = items
     except:
-        pass
+        st.session_state['fathom_meetings'] = []
+
+# ❗ לא מציירים כלום עד שיש נתונים (מונע קפיצה)
+if 'fathom_meetings' not in st.session_state:
+    st.stop()
 
 
-# --- אזור Fathom: עיצוב מהודק וביצועים ---
 with st.container(border=True):
     col_title, col_refresh = st.columns([0.9, 0.1])
     with col_title:
@@ -320,9 +324,9 @@ with st.container(border=True):
                 if status == 200:
                     st.session_state['fathom_meetings'] = items
                     st.rerun()
-            except: pass
+            except:
+                pass
 
-    # CSS להידוק רווחים ואפקט Hover מלא
     st.markdown("""
         <style>
         .fathom-row-ui {
