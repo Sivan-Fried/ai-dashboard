@@ -10,9 +10,9 @@ def get_weather(lat, lon):
         return requests.get(url).json()
     except: return None
 
-# הגדרת layout רחב כדי למנוע מרווחים מהצדדים
 st.set_page_config(page_title="מזג אוויר", page_icon="☀️", layout="wide")
 
+# זיהוי מיקום
 loc = get_geolocation()
 
 if loc:
@@ -29,41 +29,45 @@ if loc:
         is_night = "n" in icon_code
         bg = "linear-gradient(180deg, #1a2a6c, #2c5364)" if is_night else "linear-gradient(180deg, #4facfe, #00f2fe)"
 
-        # CSS שמשתלט על כל המסך באמת
+        # הזרקת ה-CSS - ודאי שכל זה נכנס תחת st.markdown אחד
         st.markdown(f"""
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
             <style>
-            /* העלמה מוחלטת של כל המסגרת של סטרימליט */
-            [data-testid="stHeader"], [data-testid="stDecoration"], footer {{
-                display: none !important;
-            }}
-            
-            /* קיבוע הרקע והתוכן לכל שטח המסך */
-            .stApp {{
-                background: {bg} !important;
-                position: fixed;
-                width: 100vw;
-                height: 100vh;
-                top: 0;
-                left: 0;
-                overflow: hidden;
-            }}
+                /* מחיקת שאריות קוד מהמסך וביטול אלמנטים של סטרימליט */
+                [data-testid="stHeader"], [data-testid="stDecoration"], footer {{
+                    display: none !important;
+                }}
 
-            .iphone-card {{
-                color: white;
-                text-align: center;
-                font-family: -apple-system, system-ui, sans-serif;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                height: 100vh; /* ממרכז את הכל בדיוק לאמצע המסך */
-            }}
+                .stAppViewContainer {{
+                    padding: 0 !important;
+                }}
 
-            .city-name {{ font-size: 45px; font-weight: 500; margin-top: -10vh; }}
-            .temp-display {{ font-size: 130px; font-weight: 100; margin: -10px 0; }}
-            .weather-desc {{ font-size: 26px; font-weight: 500; opacity: 0.9; }}
-            .bi {{ font-size: 110px; margin-top: 40px; }}
+                .stApp {{
+                    background: {bg} !important;
+                    position: fixed;
+                    width: 100vw;
+                    height: 100vh;
+                    top: 0;
+                    left: 0;
+                    overflow: hidden;
+                }}
+
+                .iphone-card {{
+                    color: white;
+                    text-align: center;
+                    font-family: -apple-system, system-ui, sans-serif;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    width: 100vw;
+                }}
+
+                .city-name {{ font-size: 45px; font-weight: 500; margin-top: -5vh; }} 
+                .temp-display {{ font-size: 130px; font-weight: 100; margin: -10px 0; line-height: 1; }} 
+                .weather-desc {{ font-size: 26px; font-weight: 500; opacity: 0.9; }} 
+                .bi {{ font-size: 110px; margin-top: 30px; }}
             </style>
             
             <div class="iphone-card">
@@ -75,6 +79,10 @@ if loc:
             </div>
         """, unsafe_allow_html=True)
 else:
-    # רקע זמני בזמן טעינה כדי שלא יהיה לבן בעיניים
-    st.markdown("""<style>.stApp { background: #4facfe !important; }</style>""", unsafe_allow_html=True)
-    st.markdown("<h2 style='color: white; text-align: center; margin-top: 45vh;'>מזהה מיקום...</h2>", unsafe_allow_html=True)
+    st.markdown("""
+        <style>
+            .stApp { background: #4facfe !important; }
+            .loading { color: white; text-align: center; margin-top: 45vh; font-family: sans-serif; }
+        </style>
+        <div class="loading"><h1>מזהה מיקום...</h1></div>
+    """, unsafe_allow_html=True)
