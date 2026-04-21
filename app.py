@@ -297,15 +297,13 @@ else:
                 if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
 
         # --- אזור Fathom המעודכן ---
-# --- אזור Fathom: גרסה סופית ומקצועית ---
 # --- אזור Fathom: עיצוב מהודק וביצועים ---
 with st.container(border=True):
-    # טעינה אוטומטית שקטה בתוך המיקום הקיים
+    # טעינה אוטומטית רק אם session_state ריק - לא משנה מיקום ויזואלי
     if 'fathom_meetings' not in st.session_state:
         try:
             items, status = get_fathom_meetings()
-            if status == 200:
-                st.session_state['fathom_meetings'] = items[:5]
+            if status == 200: st.session_state['fathom_meetings'] = items[:5]
         except: pass
 
     col_title, col_refresh = st.columns([0.9, 0.1])
