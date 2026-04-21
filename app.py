@@ -1,6 +1,5 @@
 import streamlit as st
 import requests
-import pd
 import pandas as pd
 import base64
 import datetime
@@ -14,6 +13,7 @@ import google.generativeai as genai
 # =========================================================
 st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
+# טעינת אייקונים של גוגל
 st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
 
 def get_base64_image(path):
@@ -139,6 +139,7 @@ if st.session_state.current_page == "main":
     img_b64 = get_base64_image("profile.png")
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
     
+    # תצוגת פרופיל
     h1, h2, h3_col = st.columns([1, 1, 2])
     with h2:
         if img_b64: st.markdown(f'<div style="text-align:center;"><img src="data:image/png;base64,{img_b64}" class="profile-img"></div>', unsafe_allow_html=True)
@@ -149,7 +150,7 @@ if st.session_state.current_page == "main":
     col_right, col_left = st.columns([1, 1])
 
     with col_right:
-        # פרויקטים
+        # פרויקטים (שוחזר 1:1)
         with st.container(border=True):
             st.markdown("### 📁 פרויקטים")
             for _, row in projects.iterrows():
@@ -160,9 +161,11 @@ if st.session_state.current_page == "main":
         with st.container(border=True):
             st.markdown('### 📋 משימות Azure')
             tasks = get_azure_tasks()
-            for t in tasks:
-                f = t.get('fields', {})
-                st.markdown(f'<div class="record-row"><span>🔗 {f.get("System.Title", "")[:40]}...</span></div>', unsafe_allow_html=True)
+            if tasks:
+                for t in tasks:
+                    f = t.get('fields', {})
+                    st.markdown(f'<div class="record-row"><span>🔗 {f.get("System.Title", "")[:40]}...</span></div>', unsafe_allow_html=True)
+            else: st.write("אין משימות פתוחות")
 
         # AI
         with st.container(border=True):
@@ -177,10 +180,12 @@ if st.session_state.current_page == "main":
         with st.container(border=True):
             st.markdown("### 📅 פגישות היום")
             t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-            for _, r in t_m.iterrows():
-                st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span><span class="time-label">{r.get("start_time","")}</span></div>', unsafe_allow_html=True)
+            if not t_m.empty:
+                for _, r in t_m.iterrows():
+                    st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span><span class="time-label">{r.get("start_time","")}</span></div>', unsafe_allow_html=True)
+            else: st.write("אין פגישות להיום")
 
-        # תזכורות
+        # תזכורות (תיקון ה-Inline)
         with st.container(border=True):
             st.markdown("### 🔔 תזכורות")
             t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
@@ -188,7 +193,7 @@ if st.session_state.current_page == "main":
                 st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span></div>', unsafe_allow_html=True)
             
             if st.session_state.adding_reminder:
-                # התיקון: הכל בשורה אחת
+                # כפתורי ✅ ו-❌ באותה שורה
                 r1, r2, r3, r4 = st.columns([1.2, 2.5, 0.4, 0.4])
                 with r1: st.selectbox("בחר", ["כללי"] + projects["project_name"].tolist(), label_visibility="collapsed", key="np")
                 with r2: st.text_input("תיאור", label_visibility="collapsed", key="nt")
@@ -204,10 +209,10 @@ if st.session_state.current_page == "main":
                 if st.button("➕ הוסף תזכורת", use_container_width=True):
                     st.session_state.adding_reminder = True; st.rerun()
 
-        # Fathom
+        # Fathom (תיקון החץ לשמאל)
         with st.container(border=True):
             st.markdown("### ✨ סיכומי Fathom")
             if 'f_data' not in st.session_state: st.session_state.f_data = get_fathom_meetings()
             for mtg in st.session_state.f_data:
                 with st.expander(f"📅 {mtg.get('title', 'פגישה')} | {mtg.get('recording_start_time', '')[:10]}"):
-                    st.write("כאן יופיע הסיכום...")
+                    st.write("כאן יופיע תוכן סיכום הפגישה...")
