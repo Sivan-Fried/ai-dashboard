@@ -100,8 +100,12 @@ st.markdown("""
         box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
     }
 
-    .project-link:first-child .record-row, .record-row:first-of-type {
-        margin-top: 4px !important;
+    /* תיקון לנראות כותרת ה-Expander של פאטום */
+    .stExpander summary {
+        display: flex !important;
+        flex-direction: row-reverse !important;
+        justify-content: space-between !important;
+        align-items: center !important;
     }
 
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
@@ -226,7 +230,8 @@ else:
     with k4: st.markdown(f'<div class="kpi-card">סה"כ פרויקטים<br><b>{len(projects)}</b></div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    col_right, col_left = st.columns([2, 1.2])
+    # שינוי ל-50/50 בחלוקת הטורים
+    col_right, col_left = st.columns([1, 1])
 
     with col_right:
         with st.container(border=True):
@@ -234,7 +239,6 @@ else:
             with st.container(height=300, border=False):
                 for _, row in projects.iterrows():
                     p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
-                    # החזרתי את ה-HTML המקורי של הרשומות הלחיצות כפי שביקשת
                     st.markdown(f'''
                         <a href="{p_url}" target="_self" class="project-link">
                             <div class="record-row">
@@ -296,7 +300,7 @@ else:
             else:
                 if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
 
-        # --- אזור Fathom: מתחת לתזכורות עם טעינה אוטומטית ---
+        # --- אזור Fathom: תיקון יישור חץ ואייקון ---
         with st.container(border=True):
             st.markdown("### ✨ סיכומי פגישות Fathom")
             if 'fathom_meetings' not in st.session_state:
@@ -307,8 +311,16 @@ else:
                 for mtg in st.session_state['fathom_meetings']:
                     rec_id, title = mtg.get('recording_id'), mtg.get('title', 'פגישה')
                     date_str = mtg.get('recording_start_time', '')[:10]
-                    s_key = f"sum_v4_{rec_id}"
-                    with st.expander(f"📅 {title} | {date_str}"):
+                    s_key = f"sum_v5_{rec_id}"
+                    
+                    # הכותרת נבנית כ-Flexbox כדי שהחץ יהיה בשמאל והטקסט בימין
+                    header_content = f'''
+                    <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; direction: rtl;">
+                        <span>📅 {title} | {date_str}</span>
+                        <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">chevron_left</span>
+                    </div>
+                    '''
+                    with st.expander(header_content):
                         if s_key not in st.session_state:
                             if st.button("צור סיכום 🪄", key=f"btn_{rec_id}", use_container_width=True):
                                 raw = get_fathom_summary(rec_id)
