@@ -298,85 +298,83 @@ else:
 
         # --- אזור Fathom המעודכן ---
 # --- אזור Fathom: גרסת ה-UI היציבה והנקייה ביותר ---
-# --- אזור Fathom: פתרון סופי, יציב ומקצועי ---
-        with st.container(border=True):
-            st.markdown("### ✨ סיכומי פגישות Fathom")
-            
-            # CSS נקי שמעצב את הכפתור כרשומה מלאה
-            st.markdown("""
-                <style>
-                /* עיצוב הכפתור ככרטיס לחיץ */
-                div.stButton > button[key^="f_row_"] {
-                    background-color: white !important;
-                    border: 1px solid #edf2f7 !important;
-                    border-right: 5px solid #4facfe !important; /* הפס הכחול המזוהה */
-                    border-radius: 10px !important;
-                    padding: 14px 20px !important;
-                    width: 100% !important;
-                    transition: all 0.2s ease !important;
-                    margin-bottom: 8px !important;
-                    display: flex !important;
-                    justify-content: space-between !important;
-                    align-items: center !important;
-                    box-shadow: none !important;
-                }
-                
-                /* אפקט Hover מקצועי */
-                div.stButton > button[key^="f_row_"]:hover {
-                    border-color: #4facfe !important;
-                    background-color: #f8fafc !important;
-                    box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
-                    transform: translateY(-1px);
-                }
+import streamlit.components.v1 as components
 
-                /* סידור הטקסט בתוך הכפתור (RTL) */
-                div.stButton > button[key^="f_row_"] p {
-                    width: 100%;
-                    text-align: right;
-                    direction: rtl;
-                    font-size: 1rem;
-                    color: #1e293b;
-                    margin: 0;
-                }
-                </style>
-            """, unsafe_allow_html=True)
-            
-            if 'fathom_meetings' not in st.session_state:
-                items, status = get_fathom_meetings()
-                if status == 200: st.session_state['fathom_meetings'] = items
+# --- פונקציית עזר להזרקת השורה הלחיצה ---
+def clickable_fathom_row(title, date_str, rec_id, is_open):
+    arrow = "▼" if is_open else "◀"
+    # בניית ה-HTML של השורה כאלמנט לחיץ בודד
+    html_code = f"""
+    <div id="row-{rec_id}" style="
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        background: white; 
+        border: 1px solid #edf2f7; 
+        border-right: 5px solid #4facfe; 
+        border-radius: 10px; 
+        padding: 12px 18px; 
+        cursor: pointer; 
+        transition: all 0.2s ease;
+        direction: rtl;
+        font-family: sans-serif;
+    " onclick="window.parent.postMessage({{type: 'streamlit:setComponentValue', value: '{rec_id}'}}, '*')">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 1.2rem;">📅</span>
+            <div style="display: flex; flex-direction: column;">
+                <b style="font-size: 0.95rem; color: #1e293b;">{title}</b>
+                <span style="color: #94a3b8; font-size: 0.8rem;">{date_str}</span>
+            </div>
+        </div>
+        <span style="color: #94a3b8; font-size: 18px; font-weight: bold;">{arrow}</span>
+    </div>
+    <script>
+        const row = document.getElementById('row-{rec_id}');
+        row.onmouseover = () => {{
+            row.style.borderColor = '#4facfe';
+            row.style.backgroundColor = '#f8fafc';
+            row.style.boxShadow = '0 4px 12px rgba(79, 172, 254, 0.15)';
+            row.style.transform = 'translateY(-1px)';
+        }};
+        row.onmouseout = () => {{
+            row.style.borderColor = '#edf2f7';
+            row.style.backgroundColor = 'white';
+            row.style.boxShadow = 'none';
+            row.style.transform = 'none';
+        }};
+    </script>
+    """
+    # גובה הרכיב צריך להיות טיפה יותר מהשורה עצמה כדי שלא יחתך הצל
+    return components.html(html_code, height=70)
 
-            if 'fathom_meetings' in st.session_state and st.session_state['fathom_meetings']:
-                for idx, mtg in enumerate(st.session_state['fathom_meetings']):
-                    rec_id = mtg.get('recording_id') or f"idx_{idx}"
-                    title = mtg.get('title') or "פגישה ללא שם"
-                    date_str = mtg.get('recording_start_time', '')[:10]
-                    
+# --- בתוך הלולאה של Fathom ---
+with st.container(border=True):
+    st.markdown("### ✨ סיכומי פגישות Fathom")
+    
+    if 'fathom_meetings' in st.session_state and st.session_state['fathom_meetings']:
+        for idx, mtg in enumerate(st.session_state['fathom_meetings']):
+            rec_id = mtg.get('recording_id') or f"idx_{idx}"
+            title = mtg.get('title') or "פגישה"
+            date_str = mtg.get('recording_start_time', '')[:10]
+            
+            open_key = f"open_{rec_id}"
+            is_open = st.session_state.get(open_key, False)
+
+            # הצגת השורה כקומפוננטה. אם יש לחיצה, הערך יחזור ל-clicked
+            clicked = clickable_fathom_row(title, date_str, rec_id, is_open)
+            
+            # אם הקומפוננטה החזירה ערך (כלומר נלחצה)
+            if clicked == rec_id:
+                st.session_state[open_key] = not is_open
+                st.rerun()
+
+            # הצגת תוכן הסיכום (זה כבר רץ ב-Python רגיל מתחת לקומפוננטה)
+            if is_open:
+                with st.container(border=True):
                     s_key = f"sum_v4_{rec_id}"
-                    open_key = f"open_{rec_id}"
-                    is_open = st.session_state.get(open_key, False)
-                    
-                    # שימוש באייקונים פשוטים בתוך הטקסט למניעת TypeError
-                    arrow = "▼" if is_open else "◀"
-                    # המבנה של השורה: אייקון ימני -> תאריך -> כותרת -> חץ שמאלי
-                    button_text = f"📅 {title}  |  {date_str} {arrow}"
-                    
-                    # הכפתור הוא השורה כולה
-                    if st.button(button_text, key=f"f_row_{rec_id}"):
-                        st.session_state[open_key] = not is_open
-                        st.rerun()
-
-                    # הצגת התוכן (סיכום) במידה ופתוח
-                    if is_open:
-                        with st.container(border=True):
-                            if s_key not in st.session_state:
-                                if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}", use_container_width=True):
-                                    with st.spinner("מנתח פגישה..."):
-                                        raw = get_fathom_summary(rec_id)
-                                        if raw:
-                                            st.session_state[s_key] = refine_with_ai(raw)
-                                            st.rerun()
-                            else:
-                                st.markdown(f'<div style="direction: rtl; text-align: right; padding: 10px; color: #334155;">{st.session_state[s_key]}</div>', unsafe_allow_html=True)
-                                if st.button("נקה סיכום 🗑️", key=f"clr_{rec_id}"):
-                                    del st.session_state[s_key]
-                                    st.rerun()
+                    if s_key not in st.session_state:
+                        if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}", use_container_width=True):
+                            # ... לוגיקת יצירת סיכום ...
+                            pass
+                    else:
+                        st.info(st.session_state[s_key])
