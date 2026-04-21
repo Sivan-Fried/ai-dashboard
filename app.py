@@ -305,37 +305,71 @@ else:
                 if status == 200: st.session_state['fathom_meetings'] = items
 
             if 'fathom_meetings' in st.session_state:
+                # CSS רק על expanders בתוך div.fathom-zone
                 st.markdown("""
                 <style>
-                    details[data-testid="stExpander"] > summary {
+                    /* עטיפה שמסמנת את אזור הפאטום */
+                    .fathom-zone + div details[data-testid="stExpander"],
+                    .fathom-zone ~ div details[data-testid="stExpander"] {
+                        border: none !important;
+                        background: transparent !important;
+                    }
+                    /* summary – עיצוב record-row מלא */
+                    .fathom-zone ~ div details[data-testid="stExpander"] > summary,
+                    .fathom-expander details[data-testid="stExpander"] > summary {
                         background: #ffffff !important;
                         padding: 10px 15px !important;
                         border-radius: 10px !important;
                         margin-bottom: 3px !important;
                         border: 1px solid #edf2f7 !important;
                         border-right: 5px solid #4facfe !important;
+                        border-left: none !important;
                         box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
                         transition: all 0.2s ease !important;
                         direction: rtl !important;
+                        display: flex !important;
+                        flex-direction: row-reverse !important;
+                        align-items: center !important;
+                        justify-content: space-between !important;
+                        list-style: none !important;
                     }
-                    details[data-testid="stExpander"] > summary:hover {
+                    .fathom-expander details[data-testid="stExpander"] > summary:hover {
                         border-color: #4facfe !important;
                         background-color: #f8fafc !important;
                         transform: translateY(-1px) !important;
                         box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
                     }
-                    details[data-testid="stExpander"] > summary p {
+                    /* טקסט הכותרת */
+                    .fathom-expander details[data-testid="stExpander"] > summary p {
                         font-weight: 700 !important;
                         color: #1f2a44 !important;
+                        margin: 0 !important;
+                        flex-grow: 1 !important;
+                        text-align: right !important;
+                    }
+                    /* החץ – ישאר בצד שמאל (flex-direction: row-reverse מטפל בזה) */
+                    .fathom-expander details[data-testid="stExpander"] > summary svg {
+                        flex-shrink: 0 !important;
+                        color: #94a3b8 !important;
+                    }
+                    /* border של ה-expander עצמו */
+                    .fathom-expander details[data-testid="stExpander"] {
+                        border: none !important;
+                        background: transparent !important;
+                        box-shadow: none !important;
                     }
                 </style>
+                <div class="fathom-zone"></div>
                 """, unsafe_allow_html=True)
 
                 for mtg in st.session_state['fathom_meetings']:
                     rec_id, title = mtg.get('recording_id'), mtg.get('title', 'פגישה')
                     date_str = mtg.get('recording_start_time', '')[:10]
                     s_key = f"sum_v4_{rec_id}"
-                    with st.expander(f"📅 {title} | {date_str}"):
+                    # תגית עם date כ-tag-blue בתוך הכותרת
+                    expander_label = f"📅 {title}  |  {date_str}"
+                    st.markdown('<div class="fathom-expander">', unsafe_allow_html=True)
+                    with st.expander(expander_label):
                         if s_key not in st.session_state:
                             if st.button("צור סיכום 🪄", key=f"btn_{rec_id}", use_container_width=True):
                                 raw = get_fathom_summary(rec_id)
@@ -346,6 +380,7 @@ else:
                             st.markdown(f'<div style="direction:rtl; text-align:right; background:#f9f9f9; padding:12px; border-radius:10px; border:1px solid #eee;">{st.session_state[s_key]}</div>', unsafe_allow_html=True)
                             if st.button("נקה 🗑️", key=f"del_{rec_id}"):
                                 del st.session_state[s_key]; st.rerun()
+                    st.markdown('</div>', unsafe_allow_html=True)
             
             if st.button("רענן פגישות 🔄", use_container_width=True):
                 items, status = get_fathom_meetings()
