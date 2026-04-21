@@ -299,7 +299,7 @@ else:
         # --- אזור Fathom המעודכן ---
 # --- אזור Fathom: עיצוב מהודק וביצועים ---
 with st.container(border=True):
-    # כאן הוספתי את הלוגיקה שתרוץ אוטומטית אם ה-session_state ריק
+    # לוגיקה אוטומטית - בדיוק מה שקורה בלחיצה על הכפתור
     if 'fathom_meetings' not in st.session_state:
         try:
             items, status = get_fathom_meetings()
