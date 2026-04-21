@@ -298,39 +298,49 @@ else:
 
         # --- אזור Fathom המעודכן ---
 # --- אזור Fathom: גרסת ה-UI היציבה והנקייה ביותר ---
+# --- אזור Fathom: פתרון סופי לישור ומראה מושלם ---
         with st.container(border=True):
             st.markdown("### ✨ סיכומי פגישות Fathom")
             
-            # CSS שדואג ליישור ימני, פונטים ואפקט Hover
+            # CSS שמיישר הכל ומטפל ב-Hover בלי לשבור את המבנה
             st.markdown("""
                 <style>
-                /* עיצוב הכפתור שייראה כמו רשומה בניהול פרויקטים */
-                .stButton > button[key^="f_btn_v5_"] {
-                    border: 1px solid #edf2f7 !important;
-                    border-right: 5px solid #4facfe !important;
-                    background-color: white !important;
-                    border-radius: 10px !important;
-                    padding: 15px 20px !important;
-                    width: 100% !important;
-                    transition: all 0.2s ease !important;
-                    margin-bottom: 8px !important;
-                    display: block !important;
+                .fathom-item-relative {
+                    position: relative;
+                    margin-bottom: 10px;
+                    width: 100%;
                 }
-                
-                .stButton > button[key^="f_btn_v5_"]:hover {
-                    border-color: #4facfe !important;
-                    background-color: #f8fafc !important;
-                    box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
-                    transform: translateY(-1px);
-                }
-
-                /* סידור הטקסט בתוך הכפתור (RTL) */
-                .btn-content {
+                .fathom-visual-row {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    direction: rtl;
+                    background: white;
+                    border: 1px solid #edf2f7;
+                    border-right: 5px solid #4facfe;
+                    border-radius: 10px;
+                    padding: 12px 18px;
+                    transition: all 0.2s ease;
+                    direction: rtl; /* יישור לימין */
+                }
+                /* אפקט Hover על השורה הויזואלית */
+                .fathom-item-relative:hover .fathom-visual-row {
+                    border-color: #4facfe;
+                    background-color: #f8fafc;
+                    box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15);
+                }
+                /* הפיכת הכפתור של סטרימליט לבלתי נראה ושקוף מעל הכל */
+                .fathom-overlay-btn div[data-testid="stButton"] button {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
                     width: 100%;
+                    height: 100%;
+                    background: transparent !important;
+                    border: none !important;
+                    color: transparent !important;
+                    z-index: 10;
+                    padding: 0 !important;
+                    margin: 0 !important;
                 }
                 </style>
             """, unsafe_allow_html=True)
@@ -342,25 +352,41 @@ else:
             if 'fathom_meetings' in st.session_state and st.session_state['fathom_meetings']:
                 for idx, mtg in enumerate(st.session_state['fathom_meetings']):
                     rec_id = mtg.get('recording_id') or f"idx_{idx}"
-                    title = mtg.get('title') or "פגישה ללא שם"
+                    title = mtg.get('title') or "פגישה"
                     date_str = mtg.get('recording_start_time', '')[:10]
                     
                     s_key = f"sum_v4_{rec_id}"
                     open_key = f"open_{rec_id}"
                     is_open = st.session_state.get(open_key, False)
-                    arrow = "▼" if is_open else "◀"
+                    arrow = "expand_more" if is_open else "chevron_left"
 
-                    # יצירת התוכן של הכפתור כמחרוזת פשוטה למניעת TypeError
-                    # אנחנו משתמשים ב-Markdown בתוך הכפתור בזהירות
-                    label_content = f"📅 {title} | {date_str} {arrow}"
+                    # המכולה הראשית
+                    st.markdown(f'<div class="fathom-item-relative">', unsafe_allow_html=True)
                     
-                    if st.button(label_content, key=f"f_btn_v5_{rec_id}"):
+                    # 1. השכבה הויזואלית (מה שהמשתמש רואה)
+                    st.markdown(f'''
+                        <div class="fathom-visual-row">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="font-size: 1.2rem;">📅</span>
+                                <div style="display: flex; flex-direction: column;">
+                                    <b style="font-size: 1rem; color: #1e293b;">{title}</b>
+                                    <span style="color: #94a3b8; font-size: 0.8rem; font-family: monospace;">{date_str}</span>
+                                </div>
+                            </div>
+                            <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 22px;">{arrow}</span>
+                        </div>
+                    ''', unsafe_allow_html=True)
+                    
+                    # 2. שכבת הכפתור (מה שהמשתמש לוחץ עליו)
+                    st.markdown('<div class="fathom-overlay-btn">', unsafe_allow_html=True)
+                    if st.button("", key=f"overlay_final_{rec_id}"):
                         st.session_state[open_key] = not is_open
                         st.rerun()
+                    st.markdown('</div></div>', unsafe_allow_html=True)
 
-                    # הצגת התוכן (סיכום) במידה ופתוח
+                    # הצגת התוכן במידה ופתוח
                     if is_open:
-                        with st.container(border=True):
+                        with st.container(border=False):
                             if s_key not in st.session_state:
                                 if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}", use_container_width=True):
                                     with st.spinner("מנתח..."):
@@ -369,7 +395,7 @@ else:
                                             st.session_state[s_key] = refine_with_ai(raw)
                                             st.rerun()
                             else:
-                                st.markdown(f'<div style="direction: rtl; text-align: right; padding: 10px;">{st.session_state[s_key]}</div>', unsafe_allow_html=True)
+                                st.info(st.session_state[s_key])
                                 if st.button("נקה סיכום 🗑️", key=f"clr_{rec_id}"):
                                     del st.session_state[s_key]
                                     st.rerun()
