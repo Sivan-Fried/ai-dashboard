@@ -226,7 +226,9 @@ else:
     with k4: st.markdown(f'<div class="kpi-card">סה"כ פרויקטים<br><b>{len(projects)}</b></div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    col_right, col_left = st.columns([2, 1.2])
+
+    # *** שינוי 1: עמודות שוות [1, 1] במקום [2, 1.2] ***
+    col_right, col_left = st.columns([1, 1])
 
     with col_right:
         with st.container(border=True):
@@ -234,7 +236,6 @@ else:
             with st.container(height=300, border=False):
                 for _, row in projects.iterrows():
                     p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
-                    # החזרתי את ה-HTML המקורי של הרשומות הלחיצות כפי שביקשת
                     st.markdown(f'''
                         <a href="{p_url}" target="_self" class="project-link">
                             <div class="record-row">
@@ -296,7 +297,7 @@ else:
             else:
                 if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
 
-        # --- אזור Fathom: מתחת לתזכורות עם טעינה אוטומטית ---
+        # --- אזור Fathom ---
         with st.container(border=True):
             st.markdown("### ✨ סיכומי פגישות Fathom")
             if 'fathom_meetings' not in st.session_state:
@@ -308,17 +309,38 @@ else:
                     rec_id, title = mtg.get('recording_id'), mtg.get('title', 'פגישה')
                     date_str = mtg.get('recording_start_time', '')[:10]
                     s_key = f"sum_v4_{rec_id}"
-                    with st.expander(f"📅 {title} | {date_str}"):
-                        if s_key not in st.session_state:
-                            if st.button("צור סיכום 🪄", key=f"btn_{rec_id}", use_container_width=True):
-                                raw = get_fathom_summary(rec_id)
-                                if raw:
-                                    st.session_state[s_key] = refine_with_ai(raw)
-                                    st.rerun()
-                        else:
-                            st.markdown(f'<div style="direction:rtl; text-align:right; background:#f9f9f9; padding:12px; border-radius:10px; border:1px solid #eee;">{st.session_state[s_key]}</div>', unsafe_allow_html=True)
-                            if st.button("נקה 🗑️", key=f"del_{rec_id}"):
-                                del st.session_state[s_key]; st.rerun()
+
+                    # *** שינוי 2: רשומה לחיצה בסגנון project-link, חץ פעם אחת בלבד ***
+                    if s_key not in st.session_state:
+                        # רשומה סגורה – לחיצה עליה תייצר סיכום
+                        st.markdown(f'''
+                            <div class="record-row" style="cursor:pointer;" onclick="document.getElementById('fathom_btn_{rec_id}').click()">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <b>📅 {title}</b>
+                                    <span class="tag-blue">{date_str}</span>
+                                </div>
+                                <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">chevron_left</span>
+                            </div>
+                        ''', unsafe_allow_html=True)
+                        # כפתור נסתר שמופעל בלחיצה על הרשומה
+                        if st.button("צור סיכום", key=f"fathom_btn_{rec_id}", help="צור סיכום", type="tertiary"):
+                            raw = get_fathom_summary(rec_id)
+                            if raw:
+                                st.session_state[s_key] = refine_with_ai(raw)
+                                st.rerun()
+                    else:
+                        # רשומה פתוחה – מציגה את הסיכום
+                        st.markdown(f'''
+                            <div class="record-row">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <b>📅 {title}</b>
+                                    <span class="tag-blue">{date_str}</span>
+                                </div>
+                            </div>
+                        ''', unsafe_allow_html=True)
+                        st.markdown(f'<div style="direction:rtl; text-align:right; background:#f9f9f9; padding:12px; border-radius:10px; border:1px solid #eee; margin-bottom:8px;">{st.session_state[s_key]}</div>', unsafe_allow_html=True)
+                        if st.button("נקה 🗑️", key=f"del_{rec_id}"):
+                            del st.session_state[s_key]; st.rerun()
             
             if st.button("רענן פגישות 🔄", use_container_width=True):
                 items, status = get_fathom_meetings()
