@@ -298,7 +298,9 @@ else:
 
         # --- אזור Fathom המעודכן ---
 # --- אזור Fathom: גרסה סופית ומקצועית ---
-# --- לוגיקת טעינה אוטומטית (5 פגישות אחרונות) ---
+# --- אזור Fathom: עיצוב מהודק וביצועים ---
+
+# 1. טעינה אוטומטית (שקטה, לא מזיזה כלום ב-UI)
 if 'fathom_meetings' not in st.session_state:
     try:
         items, status = get_fathom_meetings()
@@ -307,7 +309,7 @@ if 'fathom_meetings' not in st.session_state:
     except:
         st.session_state['fathom_meetings'] = []
 
-# --- אזור Fathom: עיצוב מהודק וביצועים ---
+# 2. הבלוק הויזואלי המקורי שלך
 with st.container(border=True):
     col_title, col_refresh = st.columns([0.9, 0.1])
     with col_title:
