@@ -298,26 +298,28 @@ else:
 
         # --- אזור Fathom המעודכן ---
 # --- אזור Fathom: גרסה סופית ומקצועית ---
-# --- אזור Fathom: פתרון כיסוי (Overlap) מושלם ---
+# --- אזור Fathom: ביצועים אופטימליים ועיצוב מהודק ---
         with st.container(border=True):
-            st.markdown("### ✨ סיכומי פגישות Fathom")
-            
-            # 1. משיכת נתונים
-            if 'fathom_meetings' not in st.session_state:
-                with st.spinner("טוען פגישות..."):
+            # שורת כותרת עם כפתור רענון
+            col_title, col_refresh = st.columns([0.9, 0.1])
+            with col_title:
+                st.markdown("### ✨ סיכומי פגישות Fathom")
+            with col_refresh:
+                if st.button("🔄", key="refresh_fathom", help="רענן רשימת פגישות"):
                     try:
                         items, status = get_fathom_meetings()
                         if status == 200:
                             st.session_state['fathom_meetings'] = items
-                        else:
-                            st.session_state['fathom_meetings'] = []
-                    except Exception:
-                        st.session_state['fathom_meetings'] = []
+                            st.rerun()
+                    except: pass
 
-            # 2. CSS - משיכת הכפתור מעל ה-HTML בדיוק מושלם
+            # 1. בדיקה ראשונית של נתונים (רק אם הסשן ריק)
+            if 'fathom_meetings' not in st.session_state:
+                st.session_state['fathom_meetings'] = [] # אתחול ריק כדי למנוע כבדות בטעינה
+
+            # 2. CSS מעודכן - ריווחים מינימליים (4px) וביצועים
             st.markdown("""
                 <style>
-                /* השכבה הוויזואלית התחתונה - גובה קבוע של 52 פיקסלים */
                 .fathom-visual-layer {
                     display: grid;
                     grid-template-columns: auto 1fr auto;
@@ -327,65 +329,37 @@ else:
                     border-right: 5px solid #4facfe;
                     border-radius: 8px;
                     padding: 0 16px;
-                    height: 52px; /* גובה קריטי להתאמה מושלמת */
+                    height: 48px; /* קצת יותר דק */
                     direction: rtl;
                 }
-                
-                /* עיצוב התגית (Pill) */
                 .fathom-pill-tag {
                     background-color: #f1f5f9;
                     color: #475569;
-                    padding: 2px 10px;
-                    border-radius: 12px;
-                    font-size: 0.75rem;
-                    font-weight: 500;
-                    margin-right: 12px;
-                    font-family: inherit;
+                    padding: 1px 8px;
+                    border-radius: 10px;
+                    font-size: 0.7rem;
+                    margin-right: 10px;
                 }
-
-                /* ביטול הרווח התחתון מהקונטיינר של ה-HTML */
-                div.element-container:has(.fathom-visual-layer) {
-                    margin-bottom: 0px !important;
-                }
-
-                /* משיכת הקונטיינר של הכפתור למעלה בדיוק בגובה השורה (52px) */
+                /* צמצום רווחים בין רשומות */
                 div.element-container:has(.fathom-visual-layer) + div.element-container {
-                    margin-top: -52px !important;
-                    margin-bottom: 6px !important; /* מרווח בין רשומות */
-                    z-index: 10;
-                    position: relative;
+                    margin-top: -48px !important;
+                    margin-bottom: 4px !important; /* רווח מינימלי בין שורות */
                 }
-
-                /* הפיכת הכפתור של סטרימליט לרוח רפאים בגודל זהה לחלוטין */
                 div.element-container:has(.fathom-visual-layer) + div.element-container div[data-testid="stButton"] button {
                     background: transparent !important;
-                    border: 1px solid transparent !important;
-                    border-right: 5px solid transparent !important;
-                    color: transparent !important;
+                    border: none !important;
                     width: 100% !important;
-                    height: 52px !important;
-                    min-height: 52px !important;
-                    padding: 0 !important;
-                    box-shadow: none !important;
-                    border-radius: 8px !important;
-                    transition: all 0.2s ease;
-                }
-                
-                /* אפקט הריחוף - מוחל ישירות על כפתור הרפאים כדי לייצר תחושת לחיצה מציאותית */
-                div.element-container:has(.fathom-visual-layer) + div.element-container div[data-testid="stButton"] button:hover {
-                    background-color: rgba(79, 172, 254, 0.05) !important;
-                    border-color: #4facfe !important;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+                    height: 48px !important;
+                    color: transparent !important;
                 }
                 </style>
             """, unsafe_allow_html=True)
 
-            # 3. רינדור רשומות
             meetings = st.session_state.get('fathom_meetings', [])
             
             if meetings:
                 for idx, mtg in enumerate(meetings):
-                    rec_id = mtg.get('recording_id') or f"idx_{idx}"
+                    rec_id = mtg.get('recording_id')
                     title = mtg.get('title') or "פגישה"
                     date_str = mtg.get('recording_start_time', '')[:10]
                     
@@ -393,44 +367,39 @@ else:
                     is_open = st.session_state.get(open_key, False)
                     arrow = "expand_more" if is_open else "chevron_left"
 
-                    # רינדור השכבה הויזואלית (HTML קבוע למטה)
+                    # תצוגה
                     st.markdown(f'''
                         <div class="fathom-visual-layer">
                             <div style="display: flex; align-items: center;">
-                                <span style="font-size: 1.2rem; margin-left: 10px;">📅</span>
-                                <span style="font-weight: 600; color: #1e293b; font-size: 0.9rem;">{title}</span>
+                                <span style="font-size: 1.1rem; margin-left: 8px;">📅</span>
+                                <span style="font-weight: 600; color: #1e293b; font-size: 0.85rem;">{title}</span>
                                 <span class="fathom-pill-tag">{date_str}</span>
                             </div>
                             <div></div>
-                            <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">{arrow}</span>
+                            <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 18px;">{arrow}</span>
                         </div>
                     ''', unsafe_allow_html=True)
                     
-                    # שכבת הכפתור הרשמית של סטרימליט שתמשך למעלה ותכסה את ה-HTML
-                    if st.button(" ", key=f"f_btn_trig_{rec_id}", use_container_width=True):
+                    # כפתור שקוף (ללא הטענה של נתונים חיצוניים בלחיצה)
+                    if st.button("", key=f"f_trig_{rec_id}_{idx}", use_container_width=True):
                         st.session_state[open_key] = not is_open
                         st.rerun()
 
-                    # אזור התוכן הנפתח - חובה שיהיה מחוץ לחפיפה העליונה
                     if is_open:
                         s_key = f"sum_v4_{rec_id}"
-                        with st.container(border=False):
+                        with st.container():
                             if s_key not in st.session_state:
+                                # כאן הפעולה קורית רק בלחיצה מפורשת
                                 if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}", use_container_width=True):
-                                    with st.spinner("מנתח פגישה..."):
+                                    with st.spinner("מנתח..."):
                                         raw = get_fathom_summary(rec_id)
                                         if raw:
                                             st.session_state[s_key] = refine_with_ai(raw)
                                             st.rerun()
                             else:
-                                st.markdown(f'''
-                                    <div style="direction: rtl; text-align: right; background: #f8fafc; 
-                                    padding: 15px; border: 1px solid #edf2f7; border-radius: 8px; margin: -2px 0 12px 0;">
-                                        {st.session_state[s_key]}
-                                    </div>
-                                ''', unsafe_allow_html=True)
-                                if st.button("נקה סיכום 🗑️", key=f"clr_{rec_id}"):
+                                st.info(st.session_state[s_key])
+                                if st.button("נקה 🗑️", key=f"clr_{rec_id}"):
                                     del st.session_state[s_key]
                                     st.rerun()
             else:
-                st.info("לא נמצאו פגישות להצגה.")
+                st.write("לחץ על 🔄 כדי לטעון פגישות.")
