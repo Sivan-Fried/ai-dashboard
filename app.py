@@ -298,18 +298,18 @@ else:
 
         # --- אזור Fathom המעודכן ---
 # --- אזור Fathom: עיצוב מהודק וביצועים ---
+# ✅ טעינה אוטומטית פעם ראשונה (מחוץ ל-container כדי למנוע קפיצות)
+if 'fathom_meetings' not in st.session_state:
+    try:
+        items, status = get_fathom_meetings()
+        if status == 200:
+            st.session_state['fathom_meetings'] = items
+    except:
+        pass
+
+
 # --- אזור Fathom: עיצוב מהודק וביצועים ---
 with st.container(border=True):
-
-    # ✅ טעינה אוטומטית פעם ראשונה בלבד (בלי rerun כדי למנוע קפיצה)
-    if 'fathom_meetings' not in st.session_state:
-        try:
-            items, status = get_fathom_meetings()
-            if status == 200:
-                st.session_state['fathom_meetings'] = items
-        except:
-            pass
-
     col_title, col_refresh = st.columns([0.9, 0.1])
     with col_title:
         st.markdown("### ✨ סיכומי פגישות Fathom")
@@ -319,7 +319,7 @@ with st.container(border=True):
                 items, status = get_fathom_meetings()
                 if status == 200:
                     st.session_state['fathom_meetings'] = items
-                    st.rerun()  # נשאר רק כאן
+                    st.rerun()
             except: pass
 
     # CSS להידוק רווחים ואפקט Hover מלא
