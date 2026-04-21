@@ -25,7 +25,6 @@ st.markdown("""
 <style>
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
     
-    /* ריווח ועיצוב הלשוניות (Tabs) */
     button[data-baseweb="tab"] {
         gap: 20px !important;
         margin-left: 15px !important;
@@ -113,7 +112,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =========================================================
-# 2. לוגיקה ושליפת נתונים
+# 2. פונקציות ונתונים
 # =========================================================
 
 def get_azure_tasks():
@@ -138,8 +137,7 @@ def get_fathom_meetings():
         if response.status_code == 200:
             return response.json().get('items', [])[:5], 200
         return response.text, response.status_code
-    except Exception as e:
-        return str(e), 500
+    except Exception as e: return str(e), 500
 
 def get_fathom_summary(recording_id):
     api_key = st.secrets["FATHOM_API_KEY"]
@@ -158,7 +156,7 @@ def refine_with_ai(raw_text):
         available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
         selected_model = next((t for t in ['models/gemini-1.5-flash', 'models/gemini-1.5-flash-latest', 'models/gemini-pro'] if t in available_models), available_models[0])
         model = genai.GenerativeModel(selected_model)
-        prompt = f"סכם את הפגישה לעברית עסקית רהוטה. מבנה: נושא, תקציר מנהלים, החלטות מרכזיו ומשימות:\n\n{raw_text}"
+        prompt = f"סכם את הפגישה לעברית עסקית רהוטה. מבנה: נושא, תקציר מנהלים, החלטות מרכזיות ומשימות:\n\n{raw_text}"
         return model.generate_content(prompt).text
     except Exception as e: return f"שגיאה: {e}"
 
@@ -194,7 +192,6 @@ if "current_page" not in st.session_state: st.session_state.current_page = "main
 if st.session_state.current_page == "project":
     p_name = st.session_state.selected_project
     st.markdown(f'<h1 class="dashboard-header">{p_name}</h1>', unsafe_allow_html=True)
-    
     if st.button("⬅️ חזרה לדשבורד"):
         st.query_params.clear() 
         st.session_state.current_page = "main"
@@ -203,22 +200,14 @@ if st.session_state.current_page == "project":
     with st.container(border=True):
         st.markdown(f"### ℹ️ ניהול פרויקט: {p_name}")
         tab_work, tab_res, tab_risk, tab_meetings, tab_info = st.tabs(["📅 תוכנית עבודה", "👥 משאבים", "⚠️ סיכונים", "📝 סיכומי פגישות", "📊 מידע כללי"])
-
         with tab_work:
             if "אלטשולר" in p_name:
                 roadmap_html = """<!DOCTYPE html><html dir="rtl" lang="he"><head><meta charset="utf-8"><link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap" rel="stylesheet"><style>body { font-family: 'Assistant', sans-serif; background-color: white; margin: 0; padding: 0; overflow: hidden; }.timeline-wrapper { position: relative; width: 1000px; margin: 50px auto; height: 200px; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 50px; }.main-line { position: absolute; bottom: 6px; left: 0; right: 0; height: 1px; background: #cbd5e1; z-index: 1; }.today-indicator { position: absolute; bottom: -15px; right: 525px; display: flex; flex-direction: column; align-items: center; z-index: 5; }.today-line { width: 2px; height: 60px; border-left: 2px dashed #bfdbfe; }.today-text { color: #3b82f6; font-size: 11px; font-weight: 700; margin-bottom: 4px; }.item { display: flex; flex-direction: column; align-items: center; width: 90px; z-index: 3; position: relative; }.card { background: white; padding: 4px 6px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; text-align: center; width: 100%; margin-bottom: 8px; }.connector { width: 1px; height: 15px; background: #e2e8f0; }.dot { width: 12px; height: 12px; background: #475569; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 1px #475569; z-index: 4; }.tag { font-size: 8px; font-weight: 700; padding: 1px 4px; border-radius: 2px; display: inline-block; margin-bottom: 2px; }.amit { background: #eff6ff; color: #1e40af; }.measy { background: #f5f3ff; color: #5b21b6; }.soch { background: #ecfdf5; color: #065f46; }.date { font-size: 13px; font-weight: 600; color: #1e293b; margin: 0; }.status { font-size: 8px; font-weight: 700; margin-top: 2px; }.live { color: #10b981; } .wip { color: #f59e0b; }</style></head><body><div class="timeline-wrapper"><div class="main-line"></div><div class="today-indicator"><span class="today-text">היום 20.04</span><div class="today-line"></div></div><div class="item"><div class="card"><span class="tag amit">עמיתים</span><div class="date">08.03</div><span class="status live">LIVE</span></div><div class="connector"></div><div class="dot"></div></div><div class="item"><div class="card"><span class="tag measy">מעסיקים</span><div class="date">08.03</div><span class="status live">LIVE</span></div><div class="connector"></div><div class="dot"></div></div><div class="item"><div class="card"><span class="tag soch">סוכנים</span><div class="date">24.03</div><span class="status live">LIVE</span></div><div class="connector"></div><div class="dot"></div></div><div class="item"><div class="card"><span class="tag amit">עמיתים</span><div class="date">10.04</div><span class="status live">LIVE</span></div><div class="connector"></div><div class="dot"></div></div><div class="item"><div class="card"><span class="tag amit">עמיתים</span><div class="date">יולי</div><span class="status wip">WIP</span></div><div class="connector"></div><div class="dot"></div></div><div class="item"><div class="card"><span class="tag measy">מעסיקים</span><div class="date">TBD</div><span class="status" style="color:#94a3b8">HOLD</span></div><div class="connector"></div><div class="dot"></div></div></div></body></html>"""
                 components.html(roadmap_html, height=300, scrolling=False)
-            else:
-                st.info(f"תוכנית עבודה עבור {p_name} תעודכן בהמשך.")
-
-        with tab_res: st.write("נתוני כוח אדם ומשאבים.")
-        with tab_risk: st.write("ניהול סיכונים.")
-        with tab_meetings: st.write("היסטוריית סיכומים.")
-        with tab_info:
-            proj_row = projects[projects["project_name"] == p_name]
-            if not proj_row.empty: st.dataframe(proj_row, hide_index=True)
+            else: st.info(f"תוכנית עבודה עבור {p_name} תעודכן בהמשך.")
 
 else:
+    # --- דשבורד ראשי ---
     st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
     img_b64 = get_base64_image("profile.png")
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
@@ -245,7 +234,18 @@ else:
             with st.container(height=300, border=False):
                 for _, row in projects.iterrows():
                     p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
-                    st.markdown(f'<a href="{p_url}" target="_self" class="project-link"><div class="record-row"><div style="display: flex; align-items: center; gap: 10px;"><b>📂 {row["project_name"]}</b><span class="tag-blue">{row.get("project_type", "תחזוקה")}</span></div><span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">chevron_left</span></div></a>', unsafe_allow_html=True)
+                    # החזרתי את ה-HTML המקורי של הרשומות הלחיצות כפי שביקשת
+                    st.markdown(f'''
+                        <a href="{p_url}" target="_self" class="project-link">
+                            <div class="record-row">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <b>📂 {row["project_name"]}</b>
+                                    <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
+                                </div>
+                                <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">chevron_left</span>
+                            </div>
+                        </a>
+                    ''', unsafe_allow_html=True)
 
         with st.container(border=True):
             st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
@@ -296,11 +296,9 @@ else:
             else:
                 if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
 
-        # --- התיקון בפינצטה: פאטום בתוך הטור השמאלי, טעינה אוטומטית ---
+        # --- אזור Fathom: מתחת לתזכורות עם טעינה אוטומטית ---
         with st.container(border=True):
             st.markdown("### ✨ סיכומי פגישות Fathom")
-            
-            # טעינה אוטומטית (5 פגישות) אם לא נטענו עדיין
             if 'fathom_meetings' not in st.session_state:
                 items, status = get_fathom_meetings()
                 if status == 200: st.session_state['fathom_meetings'] = items
@@ -309,8 +307,7 @@ else:
                 for mtg in st.session_state['fathom_meetings']:
                     rec_id, title = mtg.get('recording_id'), mtg.get('title', 'פגישה')
                     date_str = mtg.get('recording_start_time', '')[:10]
-                    s_key = f"v3_sum_{rec_id}"
-                    
+                    s_key = f"sum_v4_{rec_id}"
                     with st.expander(f"📅 {title} | {date_str}"):
                         if s_key not in st.session_state:
                             if st.button("צור סיכום 🪄", key=f"btn_{rec_id}", use_container_width=True):
@@ -323,6 +320,6 @@ else:
                             if st.button("נקה 🗑️", key=f"del_{rec_id}"):
                                 del st.session_state[s_key]; st.rerun()
             
-            if st.button("רענן רשימה 🔄", use_container_width=True):
+            if st.button("רענן פגישות 🔄", use_container_width=True):
                 items, status = get_fathom_meetings()
                 if status == 200: st.session_state['fathom_meetings'] = items; st.rerun()
