@@ -21,8 +21,14 @@ if loc:
     
     if data and data.get('main'):
         temp = round(data['main']['temp'])
-        city = data.get('name', 'פתח תקווה')
-        if city.lower() in ['petah tikva', 'petah tiqwa']: city = "פתח תקווה"
+        
+        # זיהוי שם העיר מה-API
+        city_from_api = data.get('name', '')
+        if not city_from_api or city_from_api.lower() in ['petah tikva', 'petah tiqwa']:
+            city = "פתח תקווה"
+        else:
+            city = city_from_api
+            
         desc = data['weather'][0]['description']
         icon_code = data['weather'][0]['icon']
         is_night = "n" in icon_code
@@ -33,58 +39,48 @@ if loc:
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
             
             <style>
-                [data-testid="stHeader"], [data-testid="stDecoration"], footer {{
-                    display: none !important;
+                [data-testid="stHeader"], [data-testid="stDecoration"], footer {{ display: none !important; }}
+
+                .stApp {{
+                    background: {bg} !important;
+                    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
                 }}
 
                 .stAppViewContainer, .stAppViewMain, .main, .block-container {{
-                    padding: 0 !important;
-                    margin: 0 !important;
-                    height: 0 !important;
+                    padding: 0 !important; margin: 0 !important; height: 0 !important;
                 }}
 
                 .ios-background {{
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100vw;
-                    height: 100vh;
-                    background: {bg} !important;
-                    z-index: 999999;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    padding-top: 10vh;
-                    color: white;
-                    /* שימוש בפונט Inter שיובא למעלה */
-                    font-family: 'Inter', sans-serif !important;
-                    text-align: center;
-                    overflow: hidden;
+                    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+                    z-index: 999999; display: flex; flex-direction: column;
+                    align-items: center; padding-top: 10vh; color: white;
+                    font-family: 'Inter', sans-serif !important; text-align: center;
                 }}
 
                 .city-label {{ 
-                    font-size: 38px; 
-                    font-weight: 300; /* משקל קל לשם העיר */
-                    margin-bottom: 0;
-                    letter-spacing: 0.5px;
+                    font-size: 36px; font-weight: 300; margin-bottom: 0; 
                 }}
                 
-                .temp-label {{ 
-                    font-size: 130px; 
-                    font-weight: 100; /* משקל דק מאוד לטמפרטורה */
-                    margin: -20px 0; 
-                    letter-spacing: -5px;
+                .temp-container {{
+                    display: flex; align-items: flex-start; justify-content: center;
+                    margin: -10px 0;
+                }}
+
+                .temp-num {{ 
+                    font-size: 115px; font-weight: 100; letter-spacing: -5px; 
+                }}
+                
+                /* הקטנת סימן המעלות */
+                .degree-symbol {{ 
+                    font-size: 45px; font-weight: 200; margin-top: 25px; margin-left: 2px;
                 }}
                 
                 .desc-label {{ 
-                    font-size: 24px; 
-                    font-weight: 400; 
-                    opacity: 0.9;
+                    font-size: 24px; font-weight: 400; opacity: 0.9; margin-top: -10px;
                 }}
                 
                 .glow-icon {{
-                    font-size: 100px;
-                    margin-top: 40px;
+                    font-size: 100px; margin-top: 40px;
                     color: {"#E0E0E0" if is_night else "#FFD700"};
                     filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.5));
                 }}
@@ -92,10 +88,13 @@ if loc:
             
             <div class="ios-background">
                 <div class="city-label">{city}</div>
-                <div class="temp-label">{temp}°</div>
-                <div class="weather-desc">{desc.capitalize()}</div>
+                <div class="temp-container">
+                    <span class="temp-num">{temp}</span>
+                    <span class="degree-symbol">°</span>
+                </div>
+                <div class="desc-label">{desc.capitalize()}</div>
                 <i class="bi {"bi-moon-stars-fill" if is_night else "bi-sun-fill"} glow-icon"></i>
             </div>
         """, unsafe_allow_html=True)
 else:
-    st.markdown("<h2 style='text-align: center; margin-top: 45vh; color: #4facfe;'>מתחבר...</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center; margin-top: 45vh; color: white;'>מזהה מיקום...</h2>", unsafe_allow_html=True)
