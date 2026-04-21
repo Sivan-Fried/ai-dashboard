@@ -297,8 +297,23 @@ else:
                 if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
 
         # --- אזור Fathom המעודכן ---
+       # --- אזור Fathom המעודכן עם רשומות לחיצות ---
         with st.container(border=True):
             st.markdown("### ✨ סיכומי פגישות Fathom")
+            
+            # CSS ייעודי להעלמת עיצוב הכפתור והפיכתו לרשומה לחיצה
+            st.markdown("""
+                <style>
+                .fathom-btn div[data-testid="stButton"] button {
+                    border: none !important;
+                    background: transparent !important;
+                    padding: 0 !important;
+                    width: 100% !important;
+                    box-shadow: none !important;
+                    color: inherit !important;
+                }
+                </style>
+            """, unsafe_allow_html=True)
             
             if 'fathom_meetings' not in st.session_state:
                 items, status = get_fathom_meetings()
@@ -306,29 +321,33 @@ else:
 
             if 'fathom_meetings' in st.session_state:
                 for mtg in st.session_state['fathom_meetings']:
-                    rec_id, title = mtg.get('recording_id'), mtg.get('title', 'פגישה')
+                    rec_id = mtg.get('recording_id')
+                    title = mtg.get('title', 'פגישה')
                     date_str = mtg.get('recording_start_time', '')[:10]
                     s_key = f"sum_v4_{rec_id}"
                     open_key = f"open_{rec_id}"
                     is_open = st.session_state.get(open_key, False)
                     arrow = "expand_more" if is_open else "chevron_left"
 
-                    # תצוגת רשומה מעוצבת
-                    st.markdown(f"""
-                        <div class="record-row" style="margin-bottom: 5px;">
+                    # בניית ה-HTML של הרשומה (זהה לפרויקטים)
+                    fathom_html = f'''
+                        <div class="record-row">
                             <div style="display: flex; align-items: center; gap: 10px; flex-grow: 1;">
                                 <b>📅 {title}</b>
                                 <span style="color: #94a3b8; font-size: 0.85rem;">{date_str}</span>
                             </div>
                             <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">{arrow}</span>
                         </div>
-                    """, unsafe_allow_html=True)
+                    '''
                     
-                    # כפתור שקוף להפעלה
-                    if st.button("לחץ להרחבה", key=f"btn_trig_{rec_id}", use_container_width=True, help=title):
+                    # שימוש במעטפת fathom-btn כדי להחיל את ה-CSS השקוף
+                    st.markdown('<div class="fathom-btn">', unsafe_allow_html=True)
+                    if st.button(fathom_html, key=f"f_btn_{rec_id}", unsafe_allow_html=True):
                         st.session_state[open_key] = not is_open
                         st.rerun()
+                    st.markdown('</div>', unsafe_allow_html=True)
 
+                    # הצגת התוכן במידה ופתוח
                     if is_open:
                         with st.container(border=False):
                             if s_key not in st.session_state:
