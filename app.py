@@ -359,7 +359,7 @@ with st.container(border=True):
         </style>
     """, unsafe_allow_html=True)
 
-    # טעינה אוטומטית שקטה - לא משנה מיקום
+    # טעינה אוטומטית שקטה - מתבצעת רק אם אין נתונים
     if 'fathom_meetings' not in st.session_state:
         try:
             items, status = get_fathom_meetings()
@@ -378,6 +378,7 @@ with st.container(border=True):
             is_open = st.session_state.get(open_key, False)
             arrow = "expand_more" if is_open else "chevron_left"
 
+            # 1. השכבה הויזואלית
             st.markdown(f'''
                 <div class="fathom-row-ui">
                     <div style="display: flex; align-items: center;">
@@ -390,10 +391,12 @@ with st.container(border=True):
                 </div>
             ''', unsafe_allow_html=True)
             
+            # 2. כפתור השקיפות
             if st.button("", key=f"f_trig_{rec_id}_{idx}", use_container_width=True):
                 st.session_state[open_key] = not is_open
                 st.rerun()
 
+            # 3. תוכן
             if is_open:
                 with st.container():
                     s_key = f"sum_v4_{rec_id}"
