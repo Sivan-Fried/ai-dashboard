@@ -32,19 +32,19 @@ if loc:
         st.markdown(f"""
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
             <style>
-                /* 1. ביטול מוחלט של כל מה שזז בסטרימליט */
+                /* הסרת אלמנטים של המערכת */
                 [data-testid="stHeader"], [data-testid="stDecoration"], footer, #MainMenu {{
                     display: none !important;
                 }}
 
-                /* 2. איפוס מכולות - השלב הקריטי */
+                /* איפוס מכולות */
                 .stAppViewContainer, .stAppViewMain, .main, .block-container {{
                     padding: 0 !important;
                     margin: 0 !important;
-                    height: 0 !important; /* מבטל את הגובה של המכולות המקוריות */
+                    height: 0 !important;
                 }}
 
-                /* 3. יצירת השכבה שלנו - דבוקה למעלה (Top: 0) */
+                /* שכבת התוכן המרכזית */
                 .ios-background {{
                     position: fixed;
                     top: 0;
@@ -56,25 +56,40 @@ if loc:
                     display: flex;
                     flex-direction: column;
                     align-items: center;
-                    padding-top: 12vh;
+                    padding-top: 10vh;
                     color: white;
-                    /* פונט דק ויוקרתי */
-                    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+                    /* הפונט המדויק מהגרסה שאהבת */
+                    font-family: "Source Sans Pro", sans-serif, "Helvetica Neue", Helvetica, Arial;
                     text-align: center;
                     overflow: hidden;
                 }}
 
-                .city-label {{ font-size: 36px; font-weight: 400; margin: 0; }}
-                .temp-label {{ font-size: 110px; font-weight: 100; margin: -10px 0; letter-spacing: -3px; }}
-                .desc-label {{ font-size: 24px; font-weight: 500; opacity: 0.9; }}
+                .city-label {{ 
+                    font-size: 42px; 
+                    font-weight: 300; 
+                    margin-bottom: 5px;
+                }}
                 
-                /* 4. החזרת הזוהר (Glow) */
+                .temp-label {{ 
+                    font-size: 120px; 
+                    font-weight: 200; 
+                    margin: -15px 0; 
+                    letter-spacing: -2px;
+                }}
+                
+                .desc-label {{ 
+                    font-size: 26px; 
+                    font-weight: 300; 
+                    opacity: 0.95;
+                    margin-top: 5px;
+                }}
+                
+                /* הזוהר המבוקש */
                 .glow-icon {{
                     font-size: 100px;
-                    margin-top: 30px;
+                    margin-top: 40px;
                     color: {"#E0E0E0" if is_night else "#FFD700"};
-                    /* הילה רכה ורחבה */
-                    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+                    filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.5));
                 }}
             </style>
             
@@ -86,4 +101,4 @@ if loc:
             </div>
         """, unsafe_allow_html=True)
 else:
-    st.markdown("<h2 style='text-align: center; margin-top: 45vh; font-family: sans-serif; color: #4facfe;'>מזהה מיקום...</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center; margin-top: 45vh; color: #4facfe;'>מתחבר ללוויין...</h2>", unsafe_allow_html=True)
