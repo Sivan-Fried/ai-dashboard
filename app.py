@@ -299,7 +299,7 @@ else:
         # --- אזור Fathom המעודכן ---
 # --- אזור Fathom: עיצוב מהודק וביצועים ---
 with st.container(border=True):
-    # לוגיקה אוטומטית - בדיוק מה שקורה בלחיצה על הכפתור
+    # הפעלת טעינה אוטומטית אם אין נתונים - בדיוק כמו הכפתור
     if 'fathom_meetings' not in st.session_state:
         try:
             items, status = get_fathom_meetings()
@@ -323,7 +323,6 @@ with st.container(border=True):
     # CSS להידוק רווחים ואפקט Hover מלא
     st.markdown("""
         <style>
-        /* השכבה הויזואלית */
         .fathom-row-ui {
             display: grid;
             grid-template-columns: auto 1fr auto;
@@ -333,23 +332,17 @@ with st.container(border=True):
             border-right: 5px solid #4facfe;
             border-radius: 8px;
             padding: 0 16px;
-            height: 45px; /* צפוף יותר */
+            height: 45px;
             direction: rtl;
             transition: all 0.2s ease;
         }
-
-        /* צמצום רווחים קיצוני בין אלמנטים של Streamlit */
         div[data-testid="stVerticalBlock"] > div:has(.fathom-row-ui) {
             gap: 0rem !important;
         }
-
-        /* מיקום הכפתור בדיוק על השורה */
         div.element-container:has(.fathom-row-ui) + div.element-container {
             margin-top: -45px !important;
-            margin-bottom: 2px !important; /* רווח קטן מאוד בין שורות */
+            margin-bottom: 2px !important;
         }
-
-        /* אפקט ה-Hover שביקשת - מופעל דרך הכפתור השקוף שמשפיע על השורה שמתחתיו */
         div.element-container:has(.fathom-row-ui) + div.element-container div[data-testid="stButton"] button {
             background: transparent !important;
             border: 1px solid transparent !important;
@@ -359,14 +352,11 @@ with st.container(border=True):
             color: transparent !important;
             z-index: 20;
         }
-
-        /* הדמיית Hover על השורה הויזואלית כשנוגעים בכפתור */
         div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-testid="stButton"] button:hover) .fathom-row-ui {
             border-color: #4facfe;
             background-color: #f8fafc;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
-        
         .fathom-pill-v2 {
             background-color: #f1f5f9;
             color: #475569;
@@ -389,7 +379,6 @@ with st.container(border=True):
             is_open = st.session_state.get(open_key, False)
             arrow = "expand_more" if is_open else "chevron_left"
 
-            # 1. השכבה הויזואלית
             st.markdown(f'''
                 <div class="fathom-row-ui">
                     <div style="display: flex; align-items: center;">
@@ -402,12 +391,10 @@ with st.container(border=True):
                 </div>
             ''', unsafe_allow_html=True)
             
-            # 2. כפתור השקיפות (שיושב בול מעל)
             if st.button("", key=f"f_trig_{rec_id}_{idx}", use_container_width=True):
                 st.session_state[open_key] = not is_open
                 st.rerun()
 
-            # 3. תוכן (רק אם פתוח)
             if is_open:
                 with st.container():
                     s_key = f"sum_v4_{rec_id}"
