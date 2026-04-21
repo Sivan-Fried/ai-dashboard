@@ -300,65 +300,77 @@ else:
         # --- אזור Fathom: מתחת לתזכורות עם טעינה אוטומטית ---
         with st.container(border=True):
             st.markdown("### ✨ סיכומי פגישות Fathom")
+            st.markdown("""
+            <style>
+                /* כפתור שורת פאטום – מוסתר וחופף על ה-record-row */
+                div[data-testid="stBaseButton-secondary"].fathom-row-btn > button,
+                .fathom-row-btn button {
+                    position: absolute !important;
+                    top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+                    width: 100% !important; height: 100% !important;
+                    opacity: 0 !important;
+                    cursor: pointer !important;
+                    z-index: 10 !important;
+                }
+                .fathom-row-wrapper {
+                    position: relative !important;
+                    margin-bottom: 3px !important;
+                }
+                .fathom-record-row {
+                    background: #ffffff;
+                    padding: 10px 15px;
+                    border-radius: 10px;
+                    border: 1px solid #edf2f7;
+                    border-right: 5px solid #4facfe;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    direction: rtl;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+                    transition: all 0.2s ease;
+                    cursor: pointer;
+                }
+                .fathom-row-wrapper:hover .fathom-record-row {
+                    border-color: #4facfe;
+                    background-color: #f8fafc;
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(79,172,254,0.15);
+                }
+            </style>
+            """, unsafe_allow_html=True)
+
             if 'fathom_meetings' not in st.session_state:
                 items, status = get_fathom_meetings()
                 if status == 200: st.session_state['fathom_meetings'] = items
 
             if 'fathom_meetings' in st.session_state:
-                st.markdown("""
-                <style>
-                    details[data-testid="stExpander"] {
-                        border: none !important;
-                        background: transparent !important;
-                        box-shadow: none !important;
-                    }
-                    details[data-testid="stExpander"] > summary {
-                        background: #ffffff !important;
-                        padding: 10px 15px !important;
-                        border-radius: 10px !important;
-                        margin-bottom: 3px !important;
-                        border: 1px solid #edf2f7 !important;
-                        border-right: 5px solid #4facfe !important;
-                        box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
-                        transition: all 0.2s ease !important;
-                        direction: rtl !important;
-                        display: flex !important;
-                        flex-direction: row-reverse !important;
-                        align-items: center !important;
-                        list-style: none !important;
-                    }
-                    details[data-testid="stExpander"] > summary::-webkit-details-marker {
-                        display: none !important;
-                    }
-                    details[data-testid="stExpander"] > summary:hover {
-                        border-color: #4facfe !important;
-                        background-color: #f8fafc !important;
-                        transform: translateY(-1px) !important;
-                        box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
-                    }
-                    details[data-testid="stExpander"] > summary p {
-                        font-weight: 700 !important;
-                        color: #1f2a44 !important;
-                        margin: 0 !important;
-                        flex-grow: 1 !important;
-                        text-align: right !important;
-                        direction: rtl !important;
-                    }
-                    details[data-testid="stExpander"] > summary svg {
-                        flex-shrink: 0 !important;
-                        color: #94a3b8 !important;
-                        margin-right: 0 !important;
-                        margin-left: 0 !important;
-                        order: -1 !important;
-                    }
-                </style>
-                """, unsafe_allow_html=True)
-
                 for mtg in st.session_state['fathom_meetings']:
                     rec_id, title = mtg.get('recording_id'), mtg.get('title', 'פגישה')
                     date_str = mtg.get('recording_start_time', '')[:10]
                     s_key = f"sum_v4_{rec_id}"
-                    with st.expander(f"📅 {title} | {date_str}"):
+                    open_key = f"open_{rec_id}"
+                    is_open = st.session_state.get(open_key, False)
+
+                    # עטיפה עם record-row ו-overlay button
+                    st.markdown(f"""
+                    <div class="fathom-row-wrapper">
+                        <div class="fathom-record-row">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <b>📅 {title}</b>
+                                <span class="tag-blue">{date_str}</span>
+                            </div>
+                            <span class="material-symbols-rounded" style="color:#94a3b8; font-size:20px;">{"expand_more" if is_open else "chevron_left"}</span>
+                        </div>
+                    """, unsafe_allow_html=True)
+
+                    if st.button("פתח", key=f"row_{rec_id}", use_container_width=True):
+                        st.session_state[open_key] = not is_open
+                        st.rerun()
+
+                    st.markdown("</div>", unsafe_allow_html=True)
+
+                    # תוכן שנפתח
+                    if is_open:
                         if s_key not in st.session_state:
                             if st.button("צור סיכום 🪄", key=f"btn_{rec_id}", use_container_width=True):
                                 raw = get_fathom_summary(rec_id)
@@ -366,10 +378,12 @@ else:
                                     st.session_state[s_key] = refine_with_ai(raw)
                                     st.rerun()
                         else:
-                            st.markdown(f'<div style="direction:rtl; text-align:right; background:#f9f9f9; padding:12px; border-radius:10px; border:1px solid #eee;">{st.session_state[s_key]}</div>', unsafe_allow_html=True)
+                            st.markdown(f'<div style="direction:rtl; text-align:right; background:#f9f9f9; padding:12px; border-radius:10px; border:1px solid #eee; margin-bottom:6px;">{st.session_state[s_key]}</div>', unsafe_allow_html=True)
                             if st.button("נקה 🗑️", key=f"del_{rec_id}"):
-                                del st.session_state[s_key]; st.rerun()
-            
+                                del st.session_state[s_key]
+                                st.session_state[open_key] = False
+                                st.rerun()
+
             if st.button("רענן פגישות 🔄", use_container_width=True):
                 items, status = get_fathom_meetings()
                 if status == 200: st.session_state['fathom_meetings'] = items; st.rerun()
