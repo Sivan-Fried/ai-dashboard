@@ -298,21 +298,29 @@ else:
 
         # --- אזור Fathom המעודכן ---
        # --- אזור Fathom המעודכן עם רשומות לחיצות ---
-  # --- אזור Fathom מתוקן ובטוח ---
+ # --- אזור Fathom - גרסה יציבה ללא שגיאות TypeError ---
         with st.container(border=True):
             st.markdown("### ✨ סיכומי פגישות Fathom")
             
-            # CSS להפיכת הכפתור לשקוף ורחב
+            # CSS מעודכן: הופך את הכפתור לשקוף לחלוטין ומושיב אותו מעל הרשומה
             st.markdown("""
                 <style>
-                .fathom-btn div[data-testid="stButton"] button {
-                    border: none !important;
+                .fathom-container {
+                    position: relative;
+                    margin-bottom: 5px;
+                }
+                .clickable-overlay {
+                    position: absolute;
+                    top: 0; left: 0; width: 100%; height: 100%;
+                    z-index: 10;
+                }
+                /* הפיכת הכפתור של סטרימליט לשקוף לגמרי */
+                .clickable-overlay div[data-testid="stButton"] button {
                     background: transparent !important;
-                    padding: 0 !important;
+                    border: none !important;
+                    color: transparent !important;
                     width: 100% !important;
-                    box-shadow: none !important;
-                    color: inherit !important;
-                    text-align: right !important;
+                    height: 45px !important; /* גובה מותאם לרשומה */
                 }
                 </style>
             """, unsafe_allow_html=True)
@@ -323,18 +331,20 @@ else:
 
             if 'fathom_meetings' in st.session_state and st.session_state['fathom_meetings']:
                 for idx, mtg in enumerate(st.session_state['fathom_meetings']):
-                    # הגנה: אם אין ID, נשתמש באינדקס של הלולאה כדי למנוע קריסה
-                    rec_id = mtg.get('recording_id') or f"temp_id_{idx}"
+                    rec_id = mtg.get('recording_id') or f"idx_{idx}"
                     title = mtg.get('title') or "פגישה ללא שם"
-                    date_str = mtg.get('recording_start_time', '')[:10] if mtg.get('recording_start_time') else ""
+                    date_str = mtg.get('recording_start_time', '')[:10]
                     
                     s_key = f"sum_v4_{rec_id}"
                     open_key = f"open_{rec_id}"
                     is_open = st.session_state.get(open_key, False)
                     arrow = "expand_more" if is_open else "chevron_left"
 
-                    # בניית ה-HTML
-                    fathom_html = f'''
+                    # 1. יצירת המכולה של הרשומה
+                    st.markdown(f'<div class="fathom-container">', unsafe_allow_html=True)
+                    
+                    # 2. הצגת ה-HTML המעוצב (ללא כפתור פנימי)
+                    st.markdown(f'''
                         <div class="record-row">
                             <div style="display: flex; align-items: center; gap: 10px; flex-grow: 1;">
                                 <b>📅 {title}</b>
@@ -342,35 +352,27 @@ else:
                             </div>
                             <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">{arrow}</span>
                         </div>
-                    '''
+                    ''', unsafe_allow_html=True)
                     
-                    # כפתור שקוף שעוטף את ה-HTML
-                    st.markdown('<div class="fathom-btn">', unsafe_allow_html=True)
-                    # הוספת הגנה למקרה ש-rec_id הוא לא מחרוזת
-                    if st.button(fathom_html, key=f"f_btn_{str(rec_id)}", unsafe_allow_html=True):
+                    # 3. "שכבה לחיצה" מעל הכל - כפתור שקוף עם Label ריק כדי למנוע TypeError
+                    st.markdown('<div class="clickable-overlay">', unsafe_allow_html=True)
+                    if st.button("", key=f"overlay_{rec_id}", use_container_width=True):
                         st.session_state[open_key] = not is_open
                         st.rerun()
-                    st.markdown('</div>', unsafe_allow_html=True)
+                    st.markdown('</div></div>', unsafe_allow_html=True)
 
+                    # הצגת התוכן (סיכום AI)
                     if is_open:
                         with st.container(border=False):
                             if s_key not in st.session_state:
-                                if st.button("צור סיכום עם AI 🪄", key=f"gen_{str(rec_id)}", use_container_width=True):
-                                    with st.spinner("מנתח פגישה..."):
+                                if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}", use_container_width=True):
+                                    with st.spinner("מנתח..."):
                                         raw = get_fathom_summary(rec_id)
                                         if raw:
                                             st.session_state[s_key] = refine_with_ai(raw)
                                             st.rerun()
                             else:
                                 st.info(st.session_state[s_key])
-                                if st.button("נקה סיכום 🗑️", key=f"clr_{str(rec_id)}"):
+                                if st.button("נקה סיכום 🗑️", key=f"clr_{rec_id}"):
                                     del st.session_state[s_key]
                                     st.rerun()
-            else:
-                st.write("לא נמצאו פגישות.")
-
-            if st.button("רענן רשימה 🔄", key="refresh_fathom_list", use_container_width=True):
-                items, status = get_fathom_meetings()
-                if status == 200: 
-                    st.session_state['fathom_meetings'] = items
-                    st.rerun()
