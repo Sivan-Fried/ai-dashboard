@@ -10,9 +10,8 @@ import streamlit.components.v1 as components
 import google.generativeai as genai
 
 # =========================================================
-# 1. פונקציות עזר ולוגיקה
+# 1. פונקציות עזר (בדיוק כפי שהיו)
 # =========================================================
-
 def get_base64_image(image_path):
     try:
         with open(image_path, "rb") as img_file:
@@ -45,17 +44,11 @@ def refine_with_ai(raw_text):
     try:
         genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
         available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-        selected_model = None
-        for target in ['models/gemini-1.5-flash', 'models/gemini-1.5-flash-latest', 'models/gemini-pro']:
-            if target in available_models:
-                selected_model = target
-                break
-        if not selected_model: selected_model = available_models[0]
+        selected_model = next((m for m in ['models/gemini-1.5-flash', 'models/gemini-1.5-flash-latest', 'models/gemini-pro'] if m in available_models), available_models[0])
         model = genai.GenerativeModel(selected_model)
         prompt = f"סכם את הפגישה לעברית עסקית רהוטה. מבנה: נושא, תקציר מנהלים, החלטות מרכזיות ומשימות:\n\n{raw_text}"
-        response = model.generate_content(prompt)
-        return response.text
-    except Exception as e: return f"שגיאה בעיבוד ה-AI: {e}"
+        return model.generate_content(prompt).text
+    except Exception as e: return f"שגיאה: {e}"
 
 def get_azure_tasks():
     ORG_NAME = "amandigital"
@@ -75,11 +68,11 @@ def fmt_time(t):
     except: return ""
 
 # =========================================================
-# 2. טעינת נתונים ו-CSS
+# 2. טעינת נתונים ו-CSS (המקור שלך)
 # =========================================================
 try:
     projects = pd.read_excel("my_projects.xlsx")
-    meetings = pd.read_excel("meetings.xlsx")
+    meetings_df = pd.read_excel("meetings.xlsx")
     reminders_df = pd.read_excel("reminders.xlsx")
     today = pd.Timestamp.today().date()
 except:
@@ -94,12 +87,11 @@ st.markdown("""
     .project-link { text-decoration: none; color: inherit; }
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
     .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
-    .time-label { color: #64748b; font-size: 0.85em; font-weight: 500; font-family: monospace; }
     p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# ניהול ניווט ו-State
+# State
 params = st.query_params
 if "proj" in params:
     st.session_state.selected_project = params["proj"]
@@ -121,9 +113,17 @@ if st.session_state.current_page == "project":
         st.query_params.clear() 
         st.session_state.current_page = "main"
         st.rerun()
-    st.info(f"דף ניהול עבור {p_name}")
+    
+    with st.container(border=True):
+        tab_work, tab_res, tab_risk, tab_meetings, tab_info = st.tabs(["📅 תוכנית עבודה", "👥 משאבים", "⚠️ סיכונים", "📝 סיכומי פגישות", "📊 מידע כללי"])
+        with tab_work:
+            if "אלטשולר" in p_name:
+                roadmap_html = """<html dir="rtl"><body style="margin:0;"><div style="width:1000px; height:200px; background:#f8fafc; border-radius:10px; display:flex; align-items:center; justify-content:center;">תרשים לוח זמנים אלטשולר</div></body></html>"""
+                components.html(roadmap_html, height=300)
+            else: st.info("תוכנית עבודה תעודכן בהמשך.")
 
 else:
+    # דשבורד ראשי
     st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
     img_b64 = get_base64_image("profile.png")
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
@@ -147,13 +147,12 @@ else:
     with col_right:
         with st.container(border=True):
             st.markdown("### 📁 פרויקטים")
-            with st.container(height=300, border=False):
-                for _, row in projects.iterrows():
-                    p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
-                    st.markdown(f'<a href="{p_url}" target="_self" class="project-link"><div class="record-row"><b>📂 {row["project_name"]}</b><span class="tag-blue">{row.get("project_type", "תחזוקה")}</span></div></a>', unsafe_allow_html=True)
+            for _, row in projects.iterrows():
+                p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
+                st.markdown(f'<a href="{p_url}" target="_self" class="project-link"><div class="record-row"><b>📂 {row["project_name"]}</b><span class="tag-blue">{row.get("project_type", "תחזוקה")}</span></div></a>', unsafe_allow_html=True)
 
         with st.container(border=True):
-            st.markdown('### 📋 משימות Azure')
+            st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
             tasks_data = get_azure_tasks()
             if tasks_data:
                 for t in tasks_data:
@@ -169,7 +168,7 @@ else:
     with col_left:
         with st.container(border=True):
             st.markdown("### 📅 פגישות היום")
-            t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
+            t_m = meetings_df[pd.to_datetime(meetings_df["date"]).dt.date == today]
             if t_m.empty: st.write("אין פגישות היום")
             else:
                 for _, r in t_m.iterrows():
@@ -183,7 +182,7 @@ else:
             if st.button("➕", use_container_width=True):
                 st.session_state.adding_reminder = True; st.rerun()
 
-        # --- התיקון: סיכומי פאטום מתחת לתזכורות עם טעינה אוטומטית ---
+        # --- התיקון שביקשת: פאטום כאן, מתחת לתזכורות, טוען לבד ---
         with st.container(border=True):
             st.markdown("### ✨ סיכומי פגישות Fathom")
             if 'fathom_meetings' not in st.session_state:
@@ -202,6 +201,6 @@ else:
                                     st.session_state[s_key] = refine_with_ai(raw)
                                     st.rerun()
                         else:
-                            st.markdown(f'<div style="direction:rtl; text-align:right; background:#f9f9f9; padding:10px; border-radius:10px; border:1px solid #eee;">{st.session_state[s_key]}</div>', unsafe_allow_html=True)
+                            st.markdown(f'<div style="direction:rtl; text-align:right; background:#f9f9f9; padding:15px; border-radius:10px; border:1px solid #eee;">{st.session_state[s_key]}</div>', unsafe_allow_html=True)
                             if st.button("נקה 🗑️", key=f"del_{rec_id}"):
                                 del st.session_state[s_key]; st.rerun()
