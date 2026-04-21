@@ -305,33 +305,67 @@ else:
                 if status == 200: st.session_state['fathom_meetings'] = items
 
             if 'fathom_meetings' in st.session_state:
+                st.markdown("""
+                <style>
+                    .fathom-record-row {
+                        background: #ffffff !important;
+                        padding: 10px 15px !important;
+                        border-radius: 10px !important;
+                        margin-bottom: 3px !important;
+                        border: 1px solid #edf2f7 !important;
+                        border-right: 5px solid #4facfe !important;
+                        display: flex !important;
+                        justify-content: space-between !important;
+                        align-items: center !important;
+                        direction: rtl !important;
+                        position: relative;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                    }
+                    .fathom-record-row:hover {
+                        border-color: #4facfe !important;
+                        background-color: #f8fafc !important;
+                        transform: translateY(-1px);
+                        box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
+                    }
+                    div[data-testid="stVerticalBlock"]:has(button[data-testid="baseButton-secondary"].fathom-hidden) > div {
+                        display: none !important;
+                    }
+                </style>
+                """, unsafe_allow_html=True)
+
                 for mtg in st.session_state['fathom_meetings']:
                     rec_id, title = mtg.get('recording_id'), mtg.get('title', 'פגישה')
                     date_str = mtg.get('recording_start_time', '')[:10]
                     s_key = f"sum_v4_{rec_id}"
 
-                    # *** שינוי 2: רשומה לחיצה בסגנון project-link, חץ פעם אחת בלבד ***
                     if s_key not in st.session_state:
-                        # רשומה סגורה – לחיצה עליה תייצר סיכום
-                        st.markdown(f'''
-                            <div class="record-row" style="cursor:pointer;" onclick="document.getElementById('fathom_btn_{rec_id}').click()">
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <b>📅 {title}</b>
-                                    <span class="tag-blue">{date_str}</span>
-                                </div>
-                                <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">chevron_left</span>
+                        # CSS להסתרת הכפתור הספציפי הזה לפי key ייחודי
+                        st.markdown(f"""
+                        <style>
+                            [data-testid="stBaseButton-secondary"][aria-label="fathom_{rec_id}"],
+                            div:has(> [aria-label="fathom_{rec_id}"]) {{ display: none !important; height: 0 !important; overflow: hidden !important; margin: 0 !important; padding: 0 !important; }}
+                        </style>
+                        <div class="fathom-record-row" onclick="
+                            var btns = window.parent.document.querySelectorAll('button');
+                            btns.forEach(function(b){{ if(b.innerText.trim()==='fathom_{rec_id}') b.click(); }});
+                        ">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <b>📅 {title}</b>
+                                <span class="tag-blue">{date_str}</span>
                             </div>
-                        ''', unsafe_allow_html=True)
-                        # כפתור נסתר שמופעל בלחיצה על הרשומה
-                        if st.button("צור סיכום", key=f"fathom_btn_{rec_id}", help="צור סיכום", type="tertiary"):
+                            <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">chevron_left</span>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        if st.button(f"fathom_{rec_id}", key=f"fathom_trigger_{rec_id}"):
                             raw = get_fathom_summary(rec_id)
                             if raw:
                                 st.session_state[s_key] = refine_with_ai(raw)
                                 st.rerun()
                     else:
-                        # רשומה פתוחה – מציגה את הסיכום
                         st.markdown(f'''
-                            <div class="record-row">
+                            <div class="fathom-record-row" style="cursor:default; transition:none;">
                                 <div style="display: flex; align-items: center; gap: 10px;">
                                     <b>📅 {title}</b>
                                     <span class="tag-blue">{date_str}</span>
