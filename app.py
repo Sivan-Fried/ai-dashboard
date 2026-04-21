@@ -299,14 +299,16 @@ else:
         # --- אזור Fathom המעודכן ---
 # --- אזור Fathom: עיצוב מהודק וביצועים ---
 with st.container(border=True):
-    # לוגיקת טעינה אוטומטית - בדיוק מה שהכפתור עושה, רק בלי ללחוץ
+
+    # טעינה אוטומטית בפעם הראשונה בלבד
     if 'fathom_meetings' not in st.session_state:
         try:
             items, status = get_fathom_meetings()
             if status == 200:
                 st.session_state['fathom_meetings'] = items
                 st.rerun()
-        except: pass
+        except:
+            pass
 
     col_title, col_refresh = st.columns([0.9, 0.1])
     with col_title:
@@ -336,13 +338,16 @@ with st.container(border=True):
             direction: rtl;
             transition: all 0.2s ease;
         }
+
         div[data-testid="stVerticalBlock"] > div:has(.fathom-row-ui) {
             gap: 0rem !important;
         }
+
         div.element-container:has(.fathom-row-ui) + div.element-container {
             margin-top: -45px !important;
             margin-bottom: 2px !important;
         }
+
         div.element-container:has(.fathom-row-ui) + div.element-container div[data-testid="stButton"] button {
             background: transparent !important;
             border: 1px solid transparent !important;
@@ -352,11 +357,13 @@ with st.container(border=True):
             color: transparent !important;
             z-index: 20;
         }
+
         div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-testid="stButton"] button:hover) .fathom-row-ui {
             border-color: #4facfe;
             background-color: #f8fafc;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
+        
         .fathom-pill-v2 {
             background-color: #f1f5f9;
             color: #475569;
@@ -368,7 +375,9 @@ with st.container(border=True):
         </style>
     """, unsafe_allow_html=True)
 
-    meetings = st.session_state.get('fathom_meetings', [])
+    # 👇 שינוי קטן כאן – רק 5 פגישות
+    meetings = st.session_state.get('fathom_meetings', [])[:5]
+
     if meetings:
         for idx, mtg in enumerate(meetings):
             rec_id = mtg.get('recording_id')
