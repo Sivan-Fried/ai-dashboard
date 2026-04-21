@@ -302,41 +302,30 @@ else:
             st.markdown("### ✨ סיכומי פגישות Fathom")
             st.markdown("""
             <style>
-                .fathom-record-row {
-                    background: #ffffff;
-                    padding: 10px 15px;
-                    border-radius: 10px;
-                    border: 1px solid #edf2f7;
-                    border-right: 5px solid #4facfe;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    direction: rtl;
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-                    transition: all 0.2s ease;
-                    cursor: pointer;
-                    margin-bottom: 3px;
-                    position: relative;
-                    z-index: 1;
+                /* הכפתורים של שורות פאטום נראים כמו record-row */
+                .fathom-row-area button[kind="secondary"] {
+                    background: #ffffff !important;
+                    border: 1px solid #edf2f7 !important;
+                    border-right: 5px solid #4facfe !important;
+                    border-radius: 10px !important;
+                    padding: 10px 15px !important;
+                    text-align: right !important;
+                    direction: rtl !important;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+                    transition: all 0.2s ease !important;
+                    color: #1f2a44 !important;
+                    font-weight: 700 !important;
+                    font-size: 0.95rem !important;
+                    justify-content: flex-end !important;
+                    height: auto !important;
+                    min-height: 44px !important;
                 }
-                .fathom-record-row:hover {
-                    border-color: #4facfe;
-                    background-color: #f8fafc;
-                    transform: translateY(-1px);
-                    box-shadow: 0 4px 12px rgba(79,172,254,0.15);
-                }
-                /* הכפתור הנסתר – negative margin שמכסה את הרשומה מעליו */
-                .fathom-overlay-btn > div,
-                .fathom-overlay-btn button {
-                    opacity: 0 !important;
-                    height: 44px !important;
-                    margin-top: -47px !important;
-                    position: relative !important;
-                    z-index: 2 !important;
-                    cursor: pointer !important;
-                    background: transparent !important;
-                    border: none !important;
-                    width: 100% !important;
+                .fathom-row-area button[kind="secondary"]:hover {
+                    border-color: #4facfe !important;
+                    background-color: #f8fafc !important;
+                    transform: translateY(-1px) !important;
+                    box-shadow: 0 4px 12px rgba(79,172,254,0.15) !important;
+                    color: #1f2a44 !important;
                 }
             </style>
             """, unsafe_allow_html=True)
@@ -346,32 +335,19 @@ else:
                 if status == 200: st.session_state['fathom_meetings'] = items
 
             if 'fathom_meetings' in st.session_state:
+                st.markdown('<div class="fathom-row-area">', unsafe_allow_html=True)
                 for mtg in st.session_state['fathom_meetings']:
                     rec_id, title = mtg.get('recording_id'), mtg.get('title', 'פגישה')
                     date_str = mtg.get('recording_start_time', '')[:10]
                     s_key = f"sum_v4_{rec_id}"
                     open_key = f"open_{rec_id}"
                     is_open = st.session_state.get(open_key, False)
+                    arrow = "▾" if is_open else "‹"
 
-                    # 1. קודם הרשומה (HTML)
-                    st.markdown(f"""
-                        <div class="fathom-record-row">
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <b>📅 {title}</b>
-                                <span class="tag-blue">{date_str}</span>
-                            </div>
-                            <span class="material-symbols-rounded" style="color:#94a3b8; font-size:20px;">{"expand_more" if is_open else "chevron_left"}</span>
-                        </div>
-                    """, unsafe_allow_html=True)
-
-                    # 2. כפתור שקוף שמוצמד מעל הרשומה עם negative margin
-                    st.markdown('<div class="fathom-overlay-btn">', unsafe_allow_html=True)
-                    if st.button(" ", key=f"row_{rec_id}", use_container_width=True):
+                    if st.button(f"📅 {title}   {date_str}   {arrow}", key=f"row_{rec_id}", use_container_width=True):
                         st.session_state[open_key] = not is_open
                         st.rerun()
-                    st.markdown('</div>', unsafe_allow_html=True)
 
-                    # 3. תוכן שנפתח
                     if is_open:
                         if s_key not in st.session_state:
                             if st.button("צור סיכום 🪄", key=f"btn_{rec_id}", use_container_width=True):
@@ -385,6 +361,7 @@ else:
                                 del st.session_state[s_key]
                                 st.session_state[open_key] = False
                                 st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
 
             if st.button("רענן פגישות 🔄", use_container_width=True):
                 items, status = get_fathom_meetings()
