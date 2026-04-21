@@ -77,10 +77,11 @@ st.markdown("""
         box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
     }
 
-    /* עיצוב ה-Expander של פאטום שייראה כמו רשומה */
+    /* עיצוב ה-Expander של פאטום שייראה כמו רשומה לחיצה */
     .stExpander {
         border: none !important;
-        margin-bottom: 5px !important; /* ריווח זהה לפרויקטים */
+        background: transparent !important;
+        margin-bottom: 5px !important;
     }
     
     .stExpander summary {
@@ -89,22 +90,25 @@ st.markdown("""
         border-radius: 10px !important;
         border: 1px solid #edf2f7 !important;
         border-right: 5px solid #4facfe !important;
+        display: flex !important;
         flex-direction: row-reverse !important; 
-        list-style: none !important;
+        align-items: center !important;
+        list-style: none !important; /* מבטל את המשולש המקורי */
     }
+    
+    .stExpander summary:hover { border-color: #4facfe !important; background-color: #f8fafc !important; }
 
-    .stExpander summary:hover { border-color: #4facfe !important; }
-
-    /* הסרת החץ המקורי והוספת החץ לשמאל */
+    /* הסרת החץ המקורי של Streamlit */
     .stExpander summary svg { display: none !important; }
     
+    /* הוספת החץ מצד שמאל בדיוק כמו בפרויקטים */
     .stExpander summary::after {
         content: 'chevron_left';
         font-family: 'Material Symbols Rounded';
         color: #94a3b8;
         font-size: 20px;
+        margin-right: auto; /* דוחף לשמאל */
         margin-left: 0;
-        margin-right: auto;
     }
 
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
@@ -115,7 +119,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =========================================================
-# 2. פונקציות API
+# 2. פונקציות API ועזר
 # =========================================================
 
 def get_azure_tasks():
@@ -162,7 +166,7 @@ def refine_with_ai(raw_text):
     except: return "שגיאה בניתוח ה-AI"
 
 # =========================================================
-# 3. טעינת נתונים
+# 3. ניהול נתונים ו-State
 # =========================================================
 try:
     projects = pd.read_excel("my_projects.xlsx")
@@ -173,11 +177,12 @@ except:
     st.error("Missing Data Files"); st.stop()
 
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders_df
-if "current_page" not in st.session_state: st.session_state.current_page = "main"
+if "adding_reminder" not in st.session_state: st.session_state.adding_reminder = False
 if "ai_response" not in st.session_state: st.session_state.ai_response = ""
+if "current_page" not in st.session_state: st.session_state.current_page = "main"
 
 # =========================================================
-# 4. תצוגה
+# 4. תצוגת דף ראשי
 # =========================================================
 
 if st.session_state.current_page == "main":
@@ -234,7 +239,7 @@ if st.session_state.current_page == "main":
                     st.markdown(f'<div class="record-row"><span>🔗 {f.get("System.Title", "")[:40]}...</span><span class="tag-orange">{f.get("System.TeamProject", "")}</span></div>', unsafe_allow_html=True)
             else: st.write("אין משימות חדשות")
 
-        # ✨ עוזר AI אישי (הוחזר למקומו)
+        # ✨ עוזר AI אישי
         with st.container(border=True):
             st.markdown("### ✨ עוזר AI אישי")
             a1, a2 = st.columns([1, 2])
@@ -258,14 +263,29 @@ if st.session_state.current_page == "main":
                 for _, r in t_m.iterrows():
                     st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span><span class="time-label">{r.get("start_time","")}</span></div>', unsafe_allow_html=True)
 
-        # 🔔 תזכורות
+        # 🔔 תזכורות (החזרת הוספה 1:1)
         with st.container(border=True):
             st.markdown("### 🔔 תזכורות")
             t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
             for _, row in t_r.iterrows():
-                st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
+            
+            if st.session_state.adding_reminder:
+                with st.container(border=True):
+                    r_col1, r_col2 = st.columns([1, 2])
+                    new_proj = r_col1.selectbox("בחר פרויקט", projects["project_name"].tolist() + ["כללי"], label_visibility="collapsed")
+                    new_text = r_col2.text_input("תיאור התזכורת", placeholder="מה להזכיר?", label_visibility="collapsed")
+                    if st.button("✅"):
+                        if new_text:
+                            new_row = pd.DataFrame([{"date": today, "reminder_text": new_text, "project_name": new_proj}])
+                            st.session_state.rem_live = pd.concat([st.session_state.rem_live, new_row], ignore_index=True)
+                            st.session_state.adding_reminder = False; st.rerun()
+                    if st.button("❌"): st.session_state.adding_reminder = False; st.rerun()
+            else:
+                if st.button("➕ הוסף תזכורת", use_container_width=True):
+                    st.session_state.adding_reminder = True; st.rerun()
 
-        # ✨ סיכומי Fathom
+        # ✨ סיכומי Fathom (מתוקן עם חץ אחד בצד שמאל)
         with st.container(border=True):
             st.markdown("### ✨ סיכומי Fathom")
             if 'fathom_data' not in st.session_state:
