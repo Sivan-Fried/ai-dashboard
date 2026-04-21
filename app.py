@@ -108,6 +108,39 @@ st.markdown("""
     .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
     .time-label { color: #64748b; font-size: 0.85em; font-weight: 500; font-family: monospace; }
     p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
+
+    /* --- תיקון ייעודי לאזור הפאטום --- */
+    .fathom-row-area button[kind="secondary"] {
+        background: #ffffff !important;
+        border: 1px solid #edf2f7 !important;
+        border-right: 5px solid #4facfe !important;
+        border-radius: 10px !important;
+        padding: 10px 15px !important;
+        width: 100% !important;
+        transition: all 0.2s ease !important;
+        height: auto !important;
+        min-height: 46px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .fathom-row-area button[kind="secondary"]:hover {
+        border-color: #4facfe !important;
+        background-color: #f8fafc !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
+    }
+
+    /* סידור הטקסט בתוך הכפתור: טקסט לימין, חץ לשמאל */
+    .fathom-row-area button[kind="secondary"] div[data-testid="stMarkdownContainer"] p {
+        display: flex !important;
+        justify-content: space-between !important;
+        flex-direction: row-reverse !important; /* הופך סדר ב-RTL כדי שהחץ יהיה בשמאל */
+        align-items: center !important;
+        width: 100% !important;
+        margin: 0 !important;
+        color: #1f2a44 !important;
+        font-weight: 700 !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -227,7 +260,6 @@ else:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # *** שינוי 1: עמודות שוות [1, 1] במקום [2, 1.2] ***
     col_right, col_left = st.columns([1, 1])
 
     with col_right:
@@ -297,38 +329,9 @@ else:
             else:
                 if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
 
-        # --- אזור Fathom: מתחת לתזכורות עם טעינה אוטומטית ---
+        # --- אזור Fathom עם העיצוב המתוקן ---
         with st.container(border=True):
             st.markdown("### ✨ סיכומי פגישות Fathom")
-            st.markdown("""
-            <style>
-                /* הכפתורים של שורות פאטום נראים כמו record-row */
-                .fathom-row-area button[kind="secondary"] {
-                    background: #ffffff !important;
-                    border: 1px solid #edf2f7 !important;
-                    border-right: 5px solid #4facfe !important;
-                    border-radius: 10px !important;
-                    padding: 10px 15px !important;
-                    text-align: right !important;
-                    direction: rtl !important;
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
-                    transition: all 0.2s ease !important;
-                    color: #1f2a44 !important;
-                    font-weight: 700 !important;
-                    font-size: 0.95rem !important;
-                    justify-content: flex-end !important;
-                    height: auto !important;
-                    min-height: 44px !important;
-                }
-                .fathom-row-area button[kind="secondary"]:hover {
-                    border-color: #4facfe !important;
-                    background-color: #f8fafc !important;
-                    transform: translateY(-1px) !important;
-                    box-shadow: 0 4px 12px rgba(79,172,254,0.15) !important;
-                    color: #1f2a44 !important;
-                }
-            </style>
-            """, unsafe_allow_html=True)
 
             if 'fathom_meetings' not in st.session_state:
                 items, status = get_fathom_meetings()
@@ -342,9 +345,12 @@ else:
                     s_key = f"sum_v4_{rec_id}"
                     open_key = f"open_{rec_id}"
                     is_open = st.session_state.get(open_key, False)
-                    arrow = "▾" if is_open else "‹"
-
-                    if st.button(f"📅 {title}   {date_str}   {arrow}", key=f"row_{rec_id}", use_container_width=True):
+                    
+                    # התיקון: חץ בצד שמאל וטקסט בימין בתוך הכפתור
+                    arrow_icon = "expand_more" if is_open else "chevron_left"
+                    btn_label = f" <span class='material-symbols-rounded' style='font-size:20px; color:#94a3b8;'>{arrow_icon}</span> <div style='display:flex; gap:10px;'><span>📅 {title}</span> <span style='color:gray; font-weight:400;'>{date_str}</span></div> "
+                    
+                    if st.button(btn_label, key=f"row_{rec_id}", use_container_width=True):
                         st.session_state[open_key] = not is_open
                         st.rerun()
 
