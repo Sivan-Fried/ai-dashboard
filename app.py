@@ -298,8 +298,16 @@ else:
 
         # --- אזור Fathom המעודכן ---
 # --- אזור Fathom: גרסה סופית ומקצועית ---
+# --- לוגיקת טעינה אוטומטית (פעם אחת בהרצה) ---
+        if 'fathom_meetings' not in st.session_state:
+            try:
+                items, status = get_fathom_meetings()
+                if status == 200:
+                    st.session_state['fathom_meetings'] = items[:5]
+            except:
+                st.session_state['fathom_meetings'] = []
 
-# --- אזור Fathom: עיצוב מהודק וביצועים ---
+        # --- אזור Fathom: עיצוב מהודק וביצועים ---
         with st.container(border=True):
             col_title, col_refresh = st.columns([0.9, 0.1])
             with col_title:
@@ -309,14 +317,18 @@ else:
                     try:
                         items, status = get_fathom_meetings()
                         if status == 200:
-                            st.session_state['fathom_meetings'] = items
+                            st.session_state['fathom_meetings'] = items[:5]
                             st.rerun()
                     except: pass
 
-            # CSS להידוק רווחים ואפקט Hover מלא
+            # CSS להידוק רווחים מקסימלי
             st.markdown("""
                 <style>
-                /* השכבה הויזואלית */
+                /* צמצום רווחים קיצוני בין אלמנטים */
+                div[data-testid="stVerticalBlock"] > div:has(.fathom-row-ui) {
+                    gap: 0rem !important;
+                }
+
                 .fathom-row-ui {
                     display: grid;
                     grid-template-columns: auto 1fr auto;
@@ -326,38 +338,30 @@ else:
                     border-right: 5px solid #4facfe;
                     border-radius: 8px;
                     padding: 0 16px;
-                    height: 45px; /* צפוף יותר */
+                    height: 40px; /* צפוף יותר */
                     direction: rtl;
                     transition: all 0.2s ease;
                 }
 
-                /* צמצום רווחים קיצוני בין אלמנטים של Streamlit */
-                div[data-testid="stVerticalBlock"] > div:has(.fathom-row-ui) {
-                    gap: 0rem !important;
-                }
-
-                /* מיקום הכפתור בדיוק על השורה */
+                /* הצמדת הכפתור השקוף בדיוק מעל השורה */
                 div.element-container:has(.fathom-row-ui) + div.element-container {
-                    margin-top: -45px !important;
-                    margin-bottom: 2px !important; /* רווח קטן מאוד בין שורות */
+                    margin-top: -40px !important;
+                    margin-bottom: 2px !important; /* רווח מזערי בין רשומות */
                 }
 
-                /* אפקט ה-Hover שביקשת - מופעל דרך הכפתור השקוף שמשפיע על השורה שמתחתיו */
                 div.element-container:has(.fathom-row-ui) + div.element-container div[data-testid="stButton"] button {
                     background: transparent !important;
-                    border: 1px solid transparent !important;
-                    border-right: 5px solid transparent !important;
+                    border: none !important;
                     width: 100% !important;
-                    height: 45px !important;
+                    height: 40px !important;
                     color: transparent !important;
-                    z-index: 20;
+                    box-shadow: none !important;
                 }
 
-                /* הדמיית Hover על השורה הויזואלית כשנוגעים בכפתור */
+                /* אפקט Hover */
                 div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-testid="stButton"] button:hover) .fathom-row-ui {
                     border-color: #4facfe;
                     background-color: #f8fafc;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
                 }
                 
                 .fathom-pill-v2 {
@@ -365,7 +369,7 @@ else:
                     color: #475569;
                     padding: 1px 8px;
                     border-radius: 10px;
-                    font-size: 0.75rem;
+                    font-size: 0.7rem;
                     margin-right: 12px;
                 }
                 </style>
@@ -386,26 +390,29 @@ else:
                     st.markdown(f'''
                         <div class="fathom-row-ui">
                             <div style="display: flex; align-items: center;">
-                                <span style="font-size: 1.1rem; margin-left: 10px;">📅</span>
-                                <span style="font-weight: 600; color: #1e293b; font-size: 0.85rem;">{title}</span>
+                                <span style="font-size: 1rem; margin-left: 10px;">📅</span>
+                                <span style="font-weight: 600; color: #1e293b; font-size: 0.8rem;">{title}</span>
                                 <span class="fathom-pill-v2">{date_str}</span>
                             </div>
                             <div></div>
-                            <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">{arrow}</span>
+                            <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 18px;">{arrow}</span>
                         </div>
                     ''', unsafe_allow_html=True)
                     
-                    # 2. כפתור השקיפות (שיושב בול מעל)
+                    # 2. כפתור השקיפות (מהיר - ללא קריאות API)
                     if st.button("", key=f"f_trig_{rec_id}_{idx}", use_container_width=True):
                         st.session_state[open_key] = not is_open
                         st.rerun()
 
                     # 3. תוכן (רק אם פתוח)
                     if is_open:
-                        with st.container():
-                            s_key = f"sum_v4_{rec_id}"
+                        s_key = f"sum_v4_{rec_id}"
+                        # שימוש ב-container פשוט למניעת "קפיצות" במסך
+                        container_inner = st.container()
+                        with container_inner:
                             if s_key not in st.session_state:
-                                if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}"):
+                                # רק כאן מופעל התהליך הכבד
+                                if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}", use_container_width=True):
                                     with st.spinner("מנתח..."):
                                         raw = get_fathom_summary(rec_id)
                                         if raw:
