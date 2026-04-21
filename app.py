@@ -297,19 +297,21 @@ else:
                 if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
 
         # --- אזור Fathom המעודכן ---
-# לוגיקת טעינה אוטומטית - שורה אחת בלבד
-if 'fathom_meetings' not in st.session_state:
-    try:
-        items, status = get_fathom_meetings()
-        if status == 200: st.session_state['fathom_meetings'] = items[:5]
-    except: pass
-
 # --- אזור Fathom: עיצוב מהודק וביצועים ---
 with st.container(border=True):
     col_title, col_refresh = st.columns([0.9, 0.1])
     with col_title:
         st.markdown("### ✨ סיכומי פגישות Fathom")
     with col_refresh:
+        # לוגיקה אוטומטית: אם אין פגישות בסטייט, הוא טוען אותן לבד איך שהדף נפתח
+        if 'fathom_meetings' not in st.session_state:
+            try:
+                items, status = get_fathom_meetings()
+                if status == 200:
+                    st.session_state['fathom_meetings'] = items
+                    st.rerun()
+            except: pass
+
         if st.button("🔄", key="refresh_fathom"):
             try:
                 items, status = get_fathom_meetings()
