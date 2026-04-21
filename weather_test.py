@@ -3,7 +3,6 @@ import requests
 import os
 from streamlit_js_eval import get_geolocation
 
-# חובה בשורה הראשונה
 st.set_page_config(page_title="Weather", layout="wide")
 
 def get_weather(lat, lon):
@@ -32,64 +31,59 @@ if loc:
         st.markdown(f"""
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
             <style>
-                /* הסרה מוחלטת של אלמנטים של המערכת */
+                /* העלמת אלמנטים של המערכת */
                 [data-testid="stHeader"], [data-testid="stDecoration"], footer {{
                     display: none !important;
                 }}
 
-                /* ביטול הפס הלבן ואיפוס המרחב */
+                /* איפוס המכולה של סטרימליט וביטול הפס הלבן בכוח */
                 .stApp {{
                     background: {bg} !important;
                     position: fixed;
-                    top: 0;
-                    left: 0;
                     width: 100vw;
                     height: 100vh;
+                    top: 0;
+                    left: 0;
                 }}
 
+                /* ה-CSS שאחראי על ביטול הרווח העליון */
                 .main .block-container {{
                     padding: 0 !important;
-                    margin: 0 !important;
+                    margin-top: -100px !important; /* דוחף את כל התוכן למעלה מעבר לפס הלבן */
                 }}
 
-                /* יצירת שכבת המגן שתחסום את הפס */
-                .ios-container {{
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100vw;
-                    height: 100vh;
-                    z-index: 99999;
+                .ios-screen {{
                     display: flex;
                     flex-direction: column;
                     align-items: center;
-                    padding-top: 10vh;
+                    justify-content: center;
+                    height: 100vh;
+                    width: 100vw;
                     color: white;
-                    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
                     text-align: center;
                 }}
 
-                .city {{ font-size: 38px; font-weight: 500; margin-bottom: 0; }}
-                .temp {{ font-size: 115px; font-weight: 100; margin: -10px 0; letter-spacing: -4px; }}
-                .desc {{ font-size: 24px; font-weight: 400; opacity: 0.9; }}
-
-                /* האפקט הזוהר המבוקש */
+                .city-name {{ font-size: 36px; font-weight: 500; margin-bottom: 0; }}
+                .temp-val {{ font-size: 110px; font-weight: 100; margin: -10px 0; letter-spacing: -3px; }}
+                .weather-desc {{ font-size: 22px; font-weight: 500; opacity: 0.9; }}
+                
+                /* החזרת הזוהר המבוקש */
                 .glow-icon {{
                     font-size: 100px;
-                    margin-top: 35px;
+                    margin-top: 30px;
                     color: {"#E0E0E0" if is_night else "#FFD700"};
-                    /* הילה רכה ורחבה */
-                    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
-                    -webkit-filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+                    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
                 }}
             </style>
             
-            <div class="ios-container">
-                <div class="city">{city}</div>
-                <div class="temp">{temp}°</div>
-                <div class="desc">{desc.capitalize()}</div>
+            <div class="ios-screen">
+                <div class="city-name">{city}</div>
+                <div class="temp-val">{temp}°</div>
+                <div class="weather-desc">{desc.capitalize()}</div>
                 <i class="bi {"bi-moon-stars-fill" if is_night else "bi-sun-fill"} glow-icon"></i>
             </div>
         """, unsafe_allow_html=True)
 else:
     st.markdown("<style>.stApp {background: #4facfe !important;}</style>", unsafe_allow_html=True)
+    st.write("מזהה מיקום...")
