@@ -299,12 +299,11 @@ else:
         # --- אזור Fathom המעודכן ---
 # --- אזור Fathom: עיצוב מהודק וביצועים ---
 with st.container(border=True):
-    # טעינה אוטומטית שקטה של 5 פגישות אחרונות אם ה-State ריק
+    # לוגיקת טעינה אוטומטית (שקטה)
     if 'fathom_meetings' not in st.session_state:
         try:
             items, status = get_fathom_meetings()
-            if status == 200:
-                st.session_state['fathom_meetings'] = items[:5]
+            if status == 200: st.session_state['fathom_meetings'] = items[:5]
         except: pass
 
     col_title, col_refresh = st.columns([0.9, 0.1])
@@ -331,7 +330,7 @@ with st.container(border=True):
             border: 1px solid #edf2f7;
             border-right: 5px solid #4facfe;
             border-radius: 8px;
-            padding: 0 166px;
+            padding: 0 16px;
             height: 45px; /* צפוף יותר */
             direction: rtl;
             transition: all 0.2s ease;
