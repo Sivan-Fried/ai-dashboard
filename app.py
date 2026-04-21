@@ -297,30 +297,31 @@ else:
                 if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
 
         # --- אזור Fathom המעודכן ---
-       # --- אזור Fathom המעודכן עם רשומות לחיצות ---
- # --- אזור Fathom - גרסה יציבה ללא שגיאות TypeError ---
+# --- אזור Fathom מתוקן: עיצוב זהה לפרויקטים ללא שבירת מבנה ---
         with st.container(border=True):
             st.markdown("### ✨ סיכומי פגישות Fathom")
             
-            # CSS מעודכן: הופך את הכפתור לשקוף לחלוטין ומושיב אותו מעל הרשומה
+            # CSS ממוקד שגורם לכפתור להתנהג בדיוק כמו רשומת פרויקט
             st.markdown("""
                 <style>
-                .fathom-container {
-                    position: relative;
-                    margin-bottom: 5px;
-                }
-                .clickable-overlay {
-                    position: absolute;
-                    top: 0; left: 0; width: 100%; height: 100%;
-                    z-index: 10;
-                }
-                /* הפיכת הכפתור של סטרימליט לשקוף לגמרי */
-                .clickable-overlay div[data-testid="stButton"] button {
-                    background: transparent !important;
+                /* הסרת עיצוב הכפתור של סטרימליט בתוך אזור פאת'ום */
+                .fathom-row-wrapper div[data-testid="stButton"] button {
                     border: none !important;
-                    color: transparent !important;
+                    background: transparent !important;
+                    padding: 0 !important;
                     width: 100% !important;
-                    height: 45px !important; /* גובה מותאם לרשומה */
+                    box-shadow: none !important;
+                    color: inherit !important;
+                    display: block !important;
+                    transition: all 0.2s ease;
+                }
+                
+                /* החלת אפקט Hover זהה לפרויקטים */
+                .fathom-row-wrapper div[data-testid="stButton"] button:hover .record-row {
+                    border-color: #4facfe !important;
+                    background-color: #f8fafc !important;
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
                 }
                 </style>
             """, unsafe_allow_html=True)
@@ -340,11 +341,8 @@ else:
                     is_open = st.session_state.get(open_key, False)
                     arrow = "expand_more" if is_open else "chevron_left"
 
-                    # 1. יצירת המכולה של הרשומה
-                    st.markdown(f'<div class="fathom-container">', unsafe_allow_html=True)
-                    
-                    # 2. הצגת ה-HTML המעוצב (ללא כפתור פנימי)
-                    st.markdown(f'''
+                    # בניית ה-HTML של הרשומה
+                    fathom_html = f'''
                         <div class="record-row">
                             <div style="display: flex; align-items: center; gap: 10px; flex-grow: 1;">
                                 <b>📅 {title}</b>
@@ -352,16 +350,16 @@ else:
                             </div>
                             <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">{arrow}</span>
                         </div>
-                    ''', unsafe_allow_html=True)
+                    '''
                     
-                    # 3. "שכבה לחיצה" מעל הכל - כפתור שקוף עם Label ריק כדי למנוע TypeError
-                    st.markdown('<div class="clickable-overlay">', unsafe_allow_html=True)
-                    if st.button("", key=f"overlay_{rec_id}", use_container_width=True):
+                    # הצגת הכפתור בתוך ה-Wrapper שמאפשר Hover
+                    st.markdown('<div class="fathom-row-wrapper">', unsafe_allow_html=True)
+                    if st.button(fathom_html, key=f"f_btn_{rec_id}", unsafe_allow_html=True):
                         st.session_state[open_key] = not is_open
                         st.rerun()
-                    st.markdown('</div></div>', unsafe_allow_html=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
 
-                    # הצגת התוכן (סיכום AI)
+                    # הצגת התוכן במידה ופתוח
                     if is_open:
                         with st.container(border=False):
                             if s_key not in st.session_state:
