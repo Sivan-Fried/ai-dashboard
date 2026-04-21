@@ -297,48 +297,38 @@ else:
                 if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
 
         # --- אזור Fathom המעודכן ---
-# --- אזור Fathom: פתרון סופי, יציב וללא TypeError ---
+# --- אזור Fathom: פתרון סופי ליציבות ויזואלית ---
         with st.container(border=True):
             st.markdown("### ✨ סיכומי פגישות Fathom")
             
-            # CSS שדואג לעיצוב השורה ואפקט ה-Hover
+            # CSS שדואג ליישור מושלם ואפקט Hover
             st.markdown("""
                 <style>
-                /* עיצוב המכולה של כל רשומה */
-                .fathom-row-container {
+                .fathom-row-box {
                     background: white;
                     border: 1px solid #edf2f7;
                     border-right: 5px solid #4facfe;
                     border-radius: 10px;
-                    padding: 10px 15px;
-                    margin-bottom: 8px;
+                    padding: 8px 12px;
+                    margin-bottom: 5px;
+                    transition: all 0.2s ease;
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    transition: all 0.2s ease;
-                    position: relative;
+                    min-height: 50px;
                 }
-                
-                /* אפקט Hover - זהה לפרויקטים */
-                .fathom-row-container:hover {
+                .fathom-row-box:hover {
                     border-color: #4facfe;
                     background-color: #f8fafc;
-                    transform: translateY(-1px);
                     box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15);
                 }
-
-                /* הפיכת הכפתור של סטרימליט לשקוף שפורס את עצמו על כל השורה */
-                .fathom-clicker div[data-testid="stButton"] button {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: transparent !important;
+                /* עיצוב כפתור החץ שייראה נקי */
+                div[data-testid="column"] button[key^="f_btn_"] {
                     border: none !important;
-                    color: transparent !important;
-                    z-index: 10;
-                    margin: 0 !important;
+                    background: transparent !important;
+                    padding: 0 !important;
+                    color: #94a3b8 !important;
+                    box-shadow: none !important;
                 }
                 </style>
             """, unsafe_allow_html=True)
@@ -356,29 +346,34 @@ else:
                     s_key = f"sum_v4_{rec_id}"
                     open_key = f"open_{rec_id}"
                     is_open = st.session_state.get(open_key, False)
-                    arrow = "expand_more" if is_open else "chevron_left"
+                    # שימוש באייקון טקסטואלי פשוט כדי למנוע בעיות רינדור בכפתור
+                    arrow_icon = "▼" if is_open else "◀"
 
-                    # יצירת המבנה הויזואלי
-                    st.markdown(f'''
-                        <div class="fathom-row-container">
-                            <div style="display: flex; align-items: center; gap: 10px;">
+                    # יצירת השורה
+                    # אנחנו עוטפים ב-markdown כדי לייצר את המסגרת וה-Hover
+                    st.markdown(f'<div class="fathom-row-box">', unsafe_allow_html=True)
+                    
+                    col_txt, col_btn = st.columns([0.9, 0.1])
+                    
+                    with col_txt:
+                        st.markdown(f'''
+                            <div style="display: flex; align-items: center; gap: 10px; direction: rtl; text-align: right;">
                                 <b>📅 {title}</b>
-                                <span style="color: #94a3b8; font-size: 0.85rem;">{date_str}</span>
+                                <span style="color: #94a3b8; font-size: 0.85rem; font-family: monospace;">{date_str}</span>
                             </div>
-                            <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">{arrow}</span>
-                            <div class="fathom-clicker">
-                    ''', unsafe_allow_html=True)
+                        ''', unsafe_allow_html=True)
                     
-                    # הכפתור השקוף שמשמש כטריגר
-                    if st.button("", key=f"f_btn_final_{rec_id}"):
-                        st.session_state[open_key] = not is_open
-                        st.rerun()
+                    with col_btn:
+                        # הכפתור כאן הוא רק החץ, בלי HTML מורכב כדי למנוע TypeError
+                        if st.button(arrow_icon, key=f"f_btn_{rec_id}", use_container_width=True):
+                            st.session_state[open_key] = not is_open
+                            st.rerun()
                     
-                    st.markdown('</div></div>', unsafe_allow_html=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
 
                     # הצגת התוכן במידה ופתוח
                     if is_open:
-                        with st.container(border=False):
+                        with st.container(border=True):
                             if s_key not in st.session_state:
                                 if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}", use_container_width=True):
                                     with st.spinner("מנתח פגישה..."):
@@ -387,7 +382,7 @@ else:
                                             st.session_state[s_key] = refine_with_ai(raw)
                                             st.rerun()
                             else:
-                                st.info(st.session_state[s_key])
+                                st.markdown(f'<div style="direction: rtl; text-align: right; padding: 10px;">{st.session_state[s_key]}</div>', unsafe_allow_html=True)
                                 if st.button("נקה סיכום 🗑️", key=f"clr_{rec_id}"):
                                     del st.session_state[s_key]
                                     st.rerun()
