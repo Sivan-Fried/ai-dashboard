@@ -108,39 +108,6 @@ st.markdown("""
     .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
     .time-label { color: #64748b; font-size: 0.85em; font-weight: 500; font-family: monospace; }
     p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
-
-    /* --- תיקון ייעודי לאזור הפאטום --- */
-    .fathom-row-area button[kind="secondary"] {
-        background: #ffffff !important;
-        border: 1px solid #edf2f7 !important;
-        border-right: 5px solid #4facfe !important;
-        border-radius: 10px !important;
-        padding: 10px 15px !important;
-        width: 100% !important;
-        transition: all 0.2s ease !important;
-        height: auto !important;
-        min-height: 46px !important;
-        margin-bottom: 4px !important;
-    }
-
-    .fathom-row-area button[kind="secondary"]:hover {
-        border-color: #4facfe !important;
-        background-color: #f8fafc !important;
-        transform: translateY(-1px) !important;
-        box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
-    }
-
-    /* סידור הטקסט בתוך הכפתור: טקסט לימין, חץ לשמאל */
-    .fathom-row-area button[kind="secondary"] div[data-testid="stMarkdownContainer"] p {
-        display: flex !important;
-        justify-content: space-between !important;
-        flex-direction: row-reverse !important; /* הופך סדר ב-RTL כדי שהחץ יהיה בשמאל */
-        align-items: center !important;
-        width: 100% !important;
-        margin: 0 !important;
-        color: #1f2a44 !important;
-        font-weight: 700 !important;
-    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -329,46 +296,56 @@ else:
             else:
                 if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
 
-        # --- אזור Fathom עם העיצוב המתוקן ---
+        # --- אזור Fathom המעודכן ---
         with st.container(border=True):
             st.markdown("### ✨ סיכומי פגישות Fathom")
-
+            
             if 'fathom_meetings' not in st.session_state:
                 items, status = get_fathom_meetings()
                 if status == 200: st.session_state['fathom_meetings'] = items
 
             if 'fathom_meetings' in st.session_state:
-                st.markdown('<div class="fathom-row-area">', unsafe_allow_html=True)
                 for mtg in st.session_state['fathom_meetings']:
                     rec_id, title = mtg.get('recording_id'), mtg.get('title', 'פגישה')
                     date_str = mtg.get('recording_start_time', '')[:10]
                     s_key = f"sum_v4_{rec_id}"
                     open_key = f"open_{rec_id}"
                     is_open = st.session_state.get(open_key, False)
+                    arrow = "expand_more" if is_open else "chevron_left"
+
+                    # תצוגת רשומה מעוצבת
+                    st.markdown(f"""
+                        <div class="record-row" style="margin-bottom: 5px;">
+                            <div style="display: flex; align-items: center; gap: 10px; flex-grow: 1;">
+                                <b>📅 {title}</b>
+                                <span style="color: #94a3b8; font-size: 0.85rem;">{date_str}</span>
+                            </div>
+                            <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">{arrow}</span>
+                        </div>
+                    """, unsafe_allow_html=True)
                     
-                    # התיקון: חץ בצד שמאל וטקסט בימין בתוך הכפתור
-                    arrow_icon = "expand_more" if is_open else "chevron_left"
-                    btn_label = f" <span class='material-symbols-rounded' style='font-size:20px; color:#94a3b8;'>{arrow_icon}</span> <div style='display:flex; gap:10px;'><span>📅 {title}</span> <span style='color:gray; font-weight:400;'>{date_str}</span></div> "
-                    
-                    if st.button(btn_label, key=f"row_{rec_id}", use_container_width=True):
+                    # כפתור שקוף להפעלה
+                    if st.button("לחץ להרחבה", key=f"btn_trig_{rec_id}", use_container_width=True, help=title):
                         st.session_state[open_key] = not is_open
                         st.rerun()
 
                     if is_open:
-                        if s_key not in st.session_state:
-                            if st.button("צור סיכום 🪄", key=f"btn_{rec_id}", use_container_width=True):
-                                raw = get_fathom_summary(rec_id)
-                                if raw:
-                                    st.session_state[s_key] = refine_with_ai(raw)
+                        with st.container(border=False):
+                            if s_key not in st.session_state:
+                                if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}", use_container_width=True):
+                                    with st.spinner("מנתח פגישה..."):
+                                        raw = get_fathom_summary(rec_id)
+                                        if raw:
+                                            st.session_state[s_key] = refine_with_ai(raw)
+                                            st.rerun()
+                            else:
+                                st.info(st.session_state[s_key])
+                                if st.button("נקה סיכום 🗑️", key=f"clr_{rec_id}"):
+                                    del st.session_state[s_key]
                                     st.rerun()
-                        else:
-                            st.markdown(f'<div style="direction:rtl; text-align:right; background:#f9f9f9; padding:12px; border-radius:10px; border:1px solid #eee; margin-bottom:6px;">{st.session_state[s_key]}</div>', unsafe_allow_html=True)
-                            if st.button("נקה 🗑️", key=f"del_{rec_id}"):
-                                del st.session_state[s_key]
-                                st.session_state[open_key] = False
-                                st.rerun()
-                st.markdown('</div>', unsafe_allow_html=True)
 
-            if st.button("רענן פגישות 🔄", use_container_width=True):
+            if st.button("רענן רשימה 🔄", use_container_width=True):
                 items, status = get_fathom_meetings()
-                if status == 200: st.session_state['fathom_meetings'] = items; st.rerun()
+                if status == 200: 
+                    st.session_state['fathom_meetings'] = items
+                    st.rerun()
