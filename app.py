@@ -299,7 +299,9 @@ else:
         # --- אזור Fathom המעודכן ---
 # --- אזור Fathom: עיצוב מהודק וביצועים ---
 
-# טעינה אוטומטית פעם ראשונה
+placeholder = st.empty()  # 👈 זה הסוד
+
+# טעינה ראשונית
 if 'fathom_meetings' not in st.session_state:
     try:
         items, status = get_fathom_meetings()
@@ -308,12 +310,7 @@ if 'fathom_meetings' not in st.session_state:
     except:
         st.session_state['fathom_meetings'] = []
 
-# ❗ לא מציירים כלום עד שיש נתונים (מונע קפיצה)
-if 'fathom_meetings' not in st.session_state:
-    st.stop()
-
-
-with st.container(border=True):
+with placeholder.container():  # 👈 מציירים רק פעם אחת
     col_title, col_refresh = st.columns([0.9, 0.1])
     with col_title:
         st.markdown("### ✨ סיכומי פגישות Fathom")
@@ -324,8 +321,7 @@ with st.container(border=True):
                 if status == 200:
                     st.session_state['fathom_meetings'] = items
                     st.rerun()
-            except:
-                pass
+            except: pass
 
     st.markdown("""
         <style>
@@ -380,6 +376,7 @@ with st.container(border=True):
     """, unsafe_allow_html=True)
 
     meetings = st.session_state.get('fathom_meetings', [])
+
     if meetings:
         for idx, mtg in enumerate(meetings):
             rec_id = mtg.get('recording_id')
