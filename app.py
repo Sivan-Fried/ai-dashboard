@@ -302,20 +302,6 @@ else:
             st.markdown("### ✨ סיכומי פגישות Fathom")
             st.markdown("""
             <style>
-                /* כפתור שורת פאטום – מוסתר וחופף על ה-record-row */
-                div[data-testid="stBaseButton-secondary"].fathom-row-btn > button,
-                .fathom-row-btn button {
-                    position: absolute !important;
-                    top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
-                    width: 100% !important; height: 100% !important;
-                    opacity: 0 !important;
-                    cursor: pointer !important;
-                    z-index: 10 !important;
-                }
-                .fathom-row-wrapper {
-                    position: relative !important;
-                    margin-bottom: 3px !important;
-                }
                 .fathom-record-row {
                     background: #ffffff;
                     padding: 10px 15px;
@@ -329,12 +315,28 @@ else:
                     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
                     transition: all 0.2s ease;
                     cursor: pointer;
+                    margin-bottom: 3px;
+                    position: relative;
+                    z-index: 1;
                 }
-                .fathom-row-wrapper:hover .fathom-record-row {
+                .fathom-record-row:hover {
                     border-color: #4facfe;
                     background-color: #f8fafc;
                     transform: translateY(-1px);
                     box-shadow: 0 4px 12px rgba(79,172,254,0.15);
+                }
+                /* הכפתור הנסתר – negative margin שמכסה את הרשומה מעליו */
+                .fathom-overlay-btn > div,
+                .fathom-overlay-btn button {
+                    opacity: 0 !important;
+                    height: 44px !important;
+                    margin-top: -47px !important;
+                    position: relative !important;
+                    z-index: 2 !important;
+                    cursor: pointer !important;
+                    background: transparent !important;
+                    border: none !important;
+                    width: 100% !important;
                 }
             </style>
             """, unsafe_allow_html=True)
@@ -351,9 +353,8 @@ else:
                     open_key = f"open_{rec_id}"
                     is_open = st.session_state.get(open_key, False)
 
-                    # עטיפה עם record-row ו-overlay button
+                    # 1. קודם הרשומה (HTML)
                     st.markdown(f"""
-                    <div class="fathom-row-wrapper">
                         <div class="fathom-record-row">
                             <div style="display:flex; align-items:center; gap:10px;">
                                 <b>📅 {title}</b>
@@ -363,13 +364,14 @@ else:
                         </div>
                     """, unsafe_allow_html=True)
 
-                    if st.button("פתח", key=f"row_{rec_id}", use_container_width=True):
+                    # 2. כפתור שקוף שמוצמד מעל הרשומה עם negative margin
+                    st.markdown('<div class="fathom-overlay-btn">', unsafe_allow_html=True)
+                    if st.button(" ", key=f"row_{rec_id}", use_container_width=True):
                         st.session_state[open_key] = not is_open
                         st.rerun()
+                    st.markdown('</div>', unsafe_allow_html=True)
 
-                    st.markdown("</div>", unsafe_allow_html=True)
-
-                    # תוכן שנפתח
+                    # 3. תוכן שנפתח
                     if is_open:
                         if s_key not in st.session_state:
                             if st.button("צור סיכום 🪄", key=f"btn_{rec_id}", use_container_width=True):
