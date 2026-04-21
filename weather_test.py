@@ -3,7 +3,7 @@ import requests
 import os
 from streamlit_js_eval import get_geolocation
 
-# הגדרה ראשונה - חייבת להיותwide
+# חובה בשורה הראשונה
 st.set_page_config(page_title="Weather", layout="wide")
 
 def get_weather(lat, lon):
@@ -13,7 +13,6 @@ def get_weather(lat, lon):
         return requests.get(url).json()
     except: return None
 
-# שליפת מיקום
 loc = get_geolocation()
 
 if loc:
@@ -30,81 +29,67 @@ if loc:
         is_night = "n" in icon_code
         bg = "linear-gradient(180deg, #1a2a6c, #2c5364)" if is_night else "linear-gradient(180deg, #4facfe, #00f2fe)"
 
-        # CSS שדורס כל פיקסל של סטרימליט
         st.markdown(f"""
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
             <style>
-                /* העלמה אגרסיבית של כל מה שקשור לסטרימליט */
-                iframe {{
-                    border: none !important;
-                    display: none;
-                }}
-                
-                header, [data-testid="stHeader"], [data-testid="stDecoration"], footer {{
+                /* הסרה מוחלטת של אלמנטים של המערכת */
+                [data-testid="stHeader"], [data-testid="stDecoration"], footer {{
                     display: none !important;
-                    height: 0 !important;
                 }}
-                
-                body {{
-                    overflow: hidden !important;
-                }}
-                
-                /* מתיחת הרקע על הכל */
+
+                /* ביטול הפס הלבן ואיפוס המרחב */
                 .stApp {{
                     background: {bg} !important;
-                    height: 100vh;
-                    width: 100vw;
                     position: fixed;
                     top: 0;
                     left: 0;
-                    z-index: 1;
+                    width: 100vw;
+                    height: 100vh;
                 }}
 
-                /* עיצוב הכרטיסייה */
-                .iphone-screen {{
-                    height: 100vh;
+                .main .block-container {{
+                    padding: 0 !important;
+                    margin: 0 !important;
+                }}
+
+                /* יצירת שכבת המגן שתחסום את הפס */
+                .ios-container {{
+                    position: fixed;
+                    top: 0;
+                    left: 0;
                     width: 100vw;
+                    height: 100vh;
+                    z-index: 99999;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
-                    justify-content: flex-start;
                     padding-top: 10vh;
                     color: white;
-                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
                     text-align: center;
-                    z-index: 2;
                 }}
 
-                .city-name {{ font-size: 38px; font-weight: 400; margin: 0; }}
-                .temp-num {{ font-size: 110px; font-weight: 100; margin: -10px 0; }}
-                .weather-text {{ font-size: 24px; font-weight: 500; opacity: 0.9; }}
-                
-                /* קונטיינר מיוחד לסמל עם אפקט זוהר */
-                .weather-icon-container {{
-                    margin-top: 30px;
-                    width: 150px; /* גודל המכולה משפיע על גבולות ההילה */
-                    height: 150px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }}
+                .city {{ font-size: 38px; font-weight: 500; margin-bottom: 0; }}
+                .temp {{ font-size: 115px; font-weight: 100; margin: -10px 0; letter-spacing: -4px; }}
+                .desc {{ font-size: 24px; font-weight: 400; opacity: 0.9; }}
 
-                .weather-icon-glowing {{
+                /* האפקט הזוהר המבוקש */
+                .glow-icon {{
                     font-size: 100px;
-                    color: {"#E0E0E0" if is_night else "#FFD700"} !important;
-                    /* שימוש ב-filter: drop-shadow כדי ליצור אפקט זוהר סביב הסמל */
-                    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6)) !important;
+                    margin-top: 35px;
+                    color: {"#E0E0E0" if is_night else "#FFD700"};
+                    /* הילה רכה ורחבה */
+                    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+                    -webkit-filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
                 }}
             </style>
             
-            <div class="iphone-screen">
-                <div class="city-name">{city}</div>
-                <div class="temp-num">{temp}°</div>
-                <div class="weather-text">{desc.capitalize()}</div>
-                <div class="weather-icon-container">
-                    <i class="bi {"bi-moon-stars-fill" if is_night else "bi-sun-fill"} weather-icon-glowing"></i>
-                </div>
+            <div class="ios-container">
+                <div class="city">{city}</div>
+                <div class="temp">{temp}°</div>
+                <div class="desc">{desc.capitalize()}</div>
+                <i class="bi {"bi-moon-stars-fill" if is_night else "bi-sun-fill"} glow-icon"></i>
             </div>
         """, unsafe_allow_html=True)
 else:
-    st.markdown("<h2 style='color: white; text-align: center; padding-top: 100px;'>מזהה מיקום...</h2>", unsafe_allow_html=True)
+    st.markdown("<style>.stApp {background: #4facfe !important;}</style>", unsafe_allow_html=True)
