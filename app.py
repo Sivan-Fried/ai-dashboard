@@ -298,40 +298,45 @@ else:
 
         # --- אזור Fathom המעודכן ---
 # --- אזור Fathom: גרסת ה-UI היציבה והנקייה ביותר ---
-# --- אזור Fathom: גרסה מקצועית ומיושרת (Fix Final) ---
+# --- אזור Fathom: פתרון סופי, יציב ומקצועי ---
         with st.container(border=True):
             st.markdown("### ✨ סיכומי פגישות Fathom")
             
-            # CSS מינימלי ומדויק ליישור ו-Hover
+            # CSS נקי שמעצב את הכפתור כרשומה מלאה
             st.markdown("""
                 <style>
-                /* עיצוב הכפתור שייראה כמו שורה נקייה */
-                .stButton > button[key^="f_btn_final_"] {
+                /* עיצוב הכפתור ככרטיס לחיץ */
+                div.stButton > button[key^="f_row_"] {
                     background-color: white !important;
                     border: 1px solid #edf2f7 !important;
-                    border-right: 5px solid #4facfe !important;
+                    border-right: 5px solid #4facfe !important; /* הפס הכחול המזוהה */
                     border-radius: 10px !important;
-                    padding: 12px 20px !important;
+                    padding: 14px 20px !important;
                     width: 100% !important;
-                    text-align: right !important; /* יישור טקסט לימין */
                     transition: all 0.2s ease !important;
                     margin-bottom: 8px !important;
+                    display: flex !important;
+                    justify-content: space-between !important;
+                    align-items: center !important;
+                    box-shadow: none !important;
                 }
                 
-                .stButton > button[key^="f_btn_final_"]:hover {
+                /* אפקט Hover מקצועי */
+                div.stButton > button[key^="f_row_"]:hover {
                     border-color: #4facfe !important;
                     background-color: #f8fafc !important;
                     box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
+                    transform: translateY(-1px);
                 }
 
-                /* סידור האייקון והטקסט בתוך הכפתור */
-                .stButton > button[key^="f_btn_final_"] div p {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    flex-direction: row-reverse; /* שומר על סדר: אייקון ימני, חץ שמאלי */
+                /* סידור הטקסט בתוך הכפתור (RTL) */
+                div.stButton > button[key^="f_row_"] p {
                     width: 100%;
-                    gap: 15px;
+                    text-align: right;
+                    direction: rtl;
+                    font-size: 1rem;
+                    color: #1e293b;
+                    margin: 0;
                 }
                 </style>
             """, unsafe_allow_html=True)
@@ -343,24 +348,24 @@ else:
             if 'fathom_meetings' in st.session_state and st.session_state['fathom_meetings']:
                 for idx, mtg in enumerate(st.session_state['fathom_meetings']):
                     rec_id = mtg.get('recording_id') or f"idx_{idx}"
-                    title = mtg.get('title') or "פגישה"
+                    title = mtg.get('title') or "פגישה ללא שם"
                     date_str = mtg.get('recording_start_time', '')[:10]
                     
                     s_key = f"sum_v4_{rec_id}"
                     open_key = f"open_{rec_id}"
                     is_open = st.session_state.get(open_key, False)
                     
-                    # חץ פשוט וטקסט נקי כדי למנוע TypeError
-                    # המבנה: [חץ] [תאריך] [כותרת] [אייקון]
+                    # שימוש באייקונים פשוטים בתוך הטקסט למניעת TypeError
                     arrow = "▼" if is_open else "◀"
-                    btn_label = f"📅  {title}  |  {date_str}  {arrow}"
+                    # המבנה של השורה: אייקון ימני -> תאריך -> כותרת -> חץ שמאלי
+                    button_text = f"📅 {title}  |  {date_str} {arrow}"
                     
-                    # לחיצה על כל השורה פותחת את הסיכום
-                    if st.button(btn_label, key=f"f_btn_final_{rec_id}"):
+                    # הכפתור הוא השורה כולה
+                    if st.button(button_text, key=f"f_row_{rec_id}"):
                         st.session_state[open_key] = not is_open
                         st.rerun()
 
-                    # הצגת התוכן (סיכום)
+                    # הצגת התוכן (סיכום) במידה ופתוח
                     if is_open:
                         with st.container(border=True):
                             if s_key not in st.session_state:
@@ -371,7 +376,7 @@ else:
                                             st.session_state[s_key] = refine_with_ai(raw)
                                             st.rerun()
                             else:
-                                st.markdown(f'<div style="direction: rtl; text-align: right; padding: 10px;">{st.session_state[s_key]}</div>', unsafe_allow_html=True)
+                                st.markdown(f'<div style="direction: rtl; text-align: right; padding: 10px; color: #334155;">{st.session_state[s_key]}</div>', unsafe_allow_html=True)
                                 if st.button("נקה סיכום 🗑️", key=f"clr_{rec_id}"):
                                     del st.session_state[s_key]
                                     st.rerun()
