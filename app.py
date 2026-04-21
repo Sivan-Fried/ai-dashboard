@@ -297,31 +297,34 @@ else:
                 if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
 
         # --- אזור Fathom המעודכן ---
-# --- אזור Fathom מתוקן: עיצוב זהה לפרויקטים ללא שבירת מבנה ---
+# --- אזור Fathom - גרסה יציבה ואסתטית (ללא TypeError) ---
         with st.container(border=True):
             st.markdown("### ✨ סיכומי פגישות Fathom")
             
-            # CSS ממוקד שגורם לכפתור להתנהג בדיוק כמו רשומת פרויקט
+            # CSS שדואג למראה אחיד ואפקט Hover
             st.markdown("""
                 <style>
-                /* הסרת עיצוב הכפתור של סטרימליט בתוך אזור פאת'ום */
-                .fathom-row-wrapper div[data-testid="stButton"] button {
-                    border: none !important;
-                    background: transparent !important;
-                    padding: 0 !important;
-                    width: 100% !important;
-                    box-shadow: none !important;
-                    color: inherit !important;
-                    display: block !important;
+                .fathom-row {
+                    background: #ffffff;
+                    padding: 10px 15px;
+                    border-radius: 10px;
+                    margin-bottom: 5px;
+                    border: 1px solid #edf2f7;
+                    border-right: 5px solid #4facfe;
                     transition: all 0.2s ease;
+                    cursor: pointer;
                 }
-                
-                /* החלת אפקט Hover זהה לפרויקטים */
-                .fathom-row-wrapper div[data-testid="stButton"] button:hover .record-row {
-                    border-color: #4facfe !important;
-                    background-color: #f8fafc !important;
-                    transform: translateY(-1px);
-                    box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
+                .fathom-row:hover {
+                    border-color: #4facfe;
+                    background-color: #f8fafc;
+                    box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15);
+                }
+                /* עיצוב הכפתור השקוף בצד */
+                .stButton > button[key^="f_btn_"] {
+                    background: transparent !important;
+                    border: none !important;
+                    color: #94a3b8 !important;
+                    padding: 0 !important;
                 }
                 </style>
             """, unsafe_allow_html=True)
@@ -333,7 +336,7 @@ else:
             if 'fathom_meetings' in st.session_state and st.session_state['fathom_meetings']:
                 for idx, mtg in enumerate(st.session_state['fathom_meetings']):
                     rec_id = mtg.get('recording_id') or f"idx_{idx}"
-                    title = mtg.get('title') or "פגישה ללא שם"
+                    title = mtg.get('title') or "פגישה"
                     date_str = mtg.get('recording_start_time', '')[:10]
                     
                     s_key = f"sum_v4_{rec_id}"
@@ -341,30 +344,34 @@ else:
                     is_open = st.session_state.get(open_key, False)
                     arrow = "expand_more" if is_open else "chevron_left"
 
-                    # בניית ה-HTML של הרשומה
-                    fathom_html = f'''
-                        <div class="record-row">
-                            <div style="display: flex; align-items: center; gap: 10px; flex-grow: 1;">
-                                <b>📅 {title}</b>
-                                <span style="color: #94a3b8; font-size: 0.85rem;">{date_str}</span>
-                            </div>
-                            <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">{arrow}</span>
-                        </div>
-                    '''
-                    
-                    # הצגת הכפתור בתוך ה-Wrapper שמאפשר Hover
-                    st.markdown('<div class="fathom-row-wrapper">', unsafe_allow_html=True)
-                    if st.button(fathom_html, key=f"f_btn_{rec_id}", unsafe_allow_html=True):
-                        st.session_state[open_key] = not is_open
-                        st.rerun()
-                    st.markdown('</div>', unsafe_allow_html=True)
+                    # יצירת השורה כקומפוננטה אחת
+                    with st.container():
+                        # שימוש ב-columns כדי להפריד בין התוכן לכפתור הלחיצה
+                        c1, c2 = st.columns([0.9, 0.1])
+                        
+                        # בעמודה הראשונה - התוכן המעוצב
+                        with c1:
+                            st.markdown(f'''
+                                <div class="fathom-row">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <b>📅 {title}</b>
+                                        <span style="color: #94a3b8; font-size: 0.85rem;">{date_str}</span>
+                                    </div>
+                                </div>
+                            ''', unsafe_allow_html=True)
+                        
+                        # בעמודה השנייה - כפתור החץ שמתפקד כטריגר לפתיחה
+                        with c2:
+                            if st.button(f"\\{arrow}", key=f"f_btn_{rec_id}"):
+                                st.session_state[open_key] = not is_open
+                                st.rerun()
 
                     # הצגת התוכן במידה ופתוח
                     if is_open:
                         with st.container(border=False):
                             if s_key not in st.session_state:
                                 if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}", use_container_width=True):
-                                    with st.spinner("מנתח..."):
+                                    with st.spinner("מנתח פגישה..."):
                                         raw = get_fathom_summary(rec_id)
                                         if raw:
                                             st.session_state[s_key] = refine_with_ai(raw)
