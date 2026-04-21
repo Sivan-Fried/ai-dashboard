@@ -298,47 +298,60 @@ else:
 
         # --- אזור Fathom המעודכן ---
 # --- אזור Fathom: גרסה סופית ומקצועית ---
-# --- אזור Fathom: פתרון סופי, יציב וזהה לשאר המערכת ---
+# --- אזור Fathom: פתרון סופי ויציב (תואם ניהול פרויקטים) ---
         with st.container(border=True):
             st.markdown("### ✨ סיכומי פגישות Fathom")
             
-            # CSS ששומר על עיצוב ה-Pill והחץ בדיוק כמו בניהול פרויקטים
+            # 1. מנגנון משיכת נתונים - מוודא שהחלק לא ייעלם
+            if 'fathom_meetings' not in st.session_state:
+                with st.spinner("טוען פגישות..."):
+                    try:
+                        items, status = get_fathom_meetings()
+                        if status == 200:
+                            st.session_state['fathom_meetings'] = items
+                        else:
+                            st.session_state['fathom_meetings'] = []
+                    except Exception:
+                        st.session_state['fathom_meetings'] = []
+
+            # 2. CSS אחיד ומקצועי (זהה לניהול פרויקטים)
             st.markdown("""
                 <style>
-                .fathom-row-wrapper {
+                .fathom-item {
                     position: relative;
                     margin-bottom: 8px;
                     width: 100%;
                 }
-                .fathom-row-ui {
+                .fathom-row-card {
                     display: grid;
-                    grid-template-columns: auto 1fr auto; /* חץ | רווח | תוכן */
+                    grid-template-columns: auto 1fr auto;
                     align-items: center;
                     background: white;
                     border: 1px solid #edf2f7;
                     border-right: 5px solid #4facfe;
                     border-radius: 8px;
-                    padding: 10px 15px;
+                    padding: 10px 16px;
                     direction: rtl;
-                    transition: all 0.2s;
+                    transition: all 0.2s ease;
                 }
-                .fathom-row-wrapper:hover .fathom-row-ui {
+                .fathom-item:hover .fathom-row-card {
                     border-color: #4facfe;
                     background-color: #f8fafc;
-                    box-shadow: 0 4px 12px rgba(79, 172, 254, 0.1);
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
                 }
-                /* עיצוב ה-Pill לתאריך */
-                .fathom-date-tag {
+                /* תגית תאריך (Pill) זהה לשאר המערכת */
+                .fathom-pill {
                     background-color: #f1f5f9;
                     color: #475569;
                     padding: 2px 10px;
                     border-radius: 12px;
-                    font-size: 0.8rem;
-                    font-family: monospace;
+                    font-size: 0.75rem;
+                    font-weight: 500;
                     margin-right: 12px;
+                    font-family: inherit;
                 }
-                /* הפיכת הכפתור לשקוף לחלוטין מעל כל השורה */
-                .fathom-overlay-btn div[data-testid="stButton"] button {
+                /* כפתור שקוף לחלוטין מעל הרשומה למניעת TypeError */
+                .fathom-overlay div[data-testid="stButton"] button {
                     position: absolute;
                     top: 0; left: 0; width: 100%; height: 100%;
                     background: transparent !important;
@@ -346,49 +359,53 @@ else:
                     color: transparent !important;
                     z-index: 10;
                     margin: 0 !important;
+                    padding: 0 !important;
                 }
                 </style>
             """, unsafe_allow_html=True)
 
-            if 'fathom_meetings' in st.session_state and st.session_state['fathom_meetings']:
-                for idx, mtg in enumerate(st.session_state['fathom_meetings']):
+            # 3. רינדור הרשומות
+            meetings = st.session_state.get('fathom_meetings', [])
+            
+            if meetings:
+                for idx, mtg in enumerate(meetings):
                     rec_id = mtg.get('recording_id') or f"idx_{idx}"
-                    title = mtg.get('title') or "פגישה ללא שם"
+                    title = mtg.get('title') or "פגישה"
                     date_str = mtg.get('recording_start_time', '')[:10]
                     
                     open_key = f"open_{rec_id}"
                     is_open = st.session_state.get(open_key, False)
-                    # החץ המדויק מאזור ניהול פרויקטים
-                    arrow_icon = "expand_more" if is_open else "chevron_left"
+                    # שימוש באייקון המדויק מניהול הפרויקטים
+                    arrow = "expand_more" if is_open else "chevron_left"
 
-                    # 1. שכבת הויזואליה (HTML)
+                    # תצוגה ויזואלית (Markdown)
                     st.markdown(f'''
-                        <div class="fathom-row-wrapper">
-                            <div class="fathom-row-ui">
+                        <div class="fathom-item">
+                            <div class="fathom-row-card">
                                 <div style="display: flex; align-items: center;">
-                                    <span style="font-size: 1.1rem; margin-left: 10px;">📅</span>
+                                    <span style="font-size: 1.2rem; margin-left: 10px;">📅</span>
                                     <span style="font-weight: 600; color: #1e293b; font-size: 0.9rem;">{title}</span>
-                                    <span class="fathom-date-tag">{date_str}</span>
+                                    <span class="fathom-pill">{date_str}</span>
                                 </div>
                                 <div></div>
-                                <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">{arrow_icon}</span>
+                                <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">{arrow}</span>
                             </div>
                     ''', unsafe_allow_html=True)
                     
-                    # 2. שכבת הלחיצה (כפתור שקוף - מונע TypeError כי הלייבל ריק)
-                    st.markdown('<div class="fathom-overlay-btn">', unsafe_allow_html=True)
-                    if st.button("", key=f"f_trigger_{rec_id}"):
+                    # שכבת הלחיצה
+                    st.markdown('<div class="fathom-overlay">', unsafe_allow_html=True)
+                    if st.button("", key=f"f_trig_{rec_id}"):
                         st.session_state[open_key] = not is_open
                         st.rerun()
                     st.markdown('</div></div>', unsafe_allow_html=True)
 
-                    # 3. הצגת תוכן הסיכום
+                    # הצגת התוכן (סיכום)
                     if is_open:
                         s_key = f"sum_v4_{rec_id}"
                         with st.container(border=False):
                             if s_key not in st.session_state:
                                 if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}", use_container_width=True):
-                                    with st.spinner("מנתח..."):
+                                    with st.spinner("מנתח פגישה..."):
                                         raw = get_fathom_summary(rec_id)
                                         if raw:
                                             st.session_state[s_key] = refine_with_ai(raw)
@@ -403,3 +420,5 @@ else:
                                 if st.button("נקה סיכום 🗑️", key=f"clr_{rec_id}"):
                                     del st.session_state[s_key]
                                     st.rerun()
+            else:
+                st.info("לא נמצאו פגישות להצגה.")
