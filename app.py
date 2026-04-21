@@ -364,6 +364,5 @@ else:
                 st.markdown('</div>', unsafe_allow_html=True)
 
             if st.button("רענן פגישות 🔄", use_container_width=True):
-                
                 items, status = get_fathom_meetings()
                 if status == 200: st.session_state['fathom_meetings'] = items; st.rerun()
