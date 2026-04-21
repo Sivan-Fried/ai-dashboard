@@ -298,7 +298,7 @@ else:
 
         # --- אזור Fathom המעודכן ---
 # --- אזור Fathom: גרסה סופית ומקצועית ---
-# --- לוגיקת טעינה אוטומטית ---
+# 1. טעינה אוטומטית שקטה (לא מזיזה כלום)
 if 'fathom_meetings' not in st.session_state:
     try:
         items, status = get_fathom_meetings()
@@ -306,56 +306,53 @@ if 'fathom_meetings' not in st.session_state:
     except:
         st.session_state['fathom_meetings'] = []
 
-# --- אזור Fathom המעודכן ---
+# 2. הבלוק המרכזי
 with st.container(border=True):
-    col_t, col_r = st.columns([0.9, 0.1])
-    col_t.markdown("### ✨ סיכומי פגישות Fathom")
-    if col_r.button("🔄", key="ref_fathom_final"):
-        st.session_state.pop('fathom_meetings', None)
-        st.rerun()
-
-    # CSS להידוק ועיצוב כפתור בתוך שורה
+    # כותרת פשוטה
+    st.markdown("### ✨ סיכומי פגישות Fathom")
+    
+    # CSS להידוק סופי - מונע רווחים בין השורות ושומר על המיקום
     st.markdown("""
         <style>
-        [data-testid="stVerticalBlock"] > div:has(.fathom-row-integrated) {
-            gap: 0px !important;
-        }
-
-        .fathom-row-integrated {
-            display: grid;
-            grid-template-columns: 1fr auto; /* שם פגישה וכפתור */
-            align-items: center;
+        .fathom-row-final {
+            position: relative;
             background: white;
             border: 1px solid #edf2f7;
             border-right: 5px solid #4facfe;
             border-radius: 8px;
-            padding: 0 12px;
-            height: 48px;
-            margin-bottom: 4px;
-            direction: rtl;
-        }
-
-        .f-title-area {
+            padding: 10px 15px;
+            margin-bottom: 5px;
+            height: 50px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            overflow: hidden;
+            direction: rtl;
         }
-
-        .f-name-text {
+        .f-text {
             font-weight: 600;
             font-size: 0.85rem;
+            color: #1e293b;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-left: 10px;
         }
-
-        /* עיצוב הכפתור של סטרימליט בתוך השורה */
-        div.element-container:has(button[key^="ai_btn_"]) {
-            margin-top: -44px !important;
-            margin-right: calc(100% - 120px) !important; /* דוחף את הכפתור שמאלה */
-            width: 110px !important;
-            z-index: 10;
+        .f-date-tag {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-size: 0.75rem;
+        }
+        /* הזזת הכפתור של סטרימליט לתוך השורה בלי להזיז אותה */
+        div.element-container:has(button[key^="ai_"]) {
+            position: absolute !important;
+            left: 15px !important;
+            top: 5px !important;
+            width: 100px !important;
+            z-index: 100;
+        }
+        div[data-testid="stVerticalBlock"] > div:has(.fathom-row-final) {
+            gap: 0px !important;
         }
         </style>
     """, unsafe_allow_html=True)
@@ -365,34 +362,26 @@ with st.container(border=True):
         r_id = mtg.get('recording_id')
         name = mtg.get('title') or "פגישה"
         date = mtg.get('recording_start_time', '')[:10]
-        sum_key = f"sum_val_{r_id}"
+        sum_key = f"sum_{r_id}"
 
-        # 1. השורה הויזואלית
+        # הצגת השורה הויזואלית
         st.markdown(f'''
-            <div class="fathom-row-integrated">
-                <div class="f-title-area">
-                    <span>📅</span>
-                    <span class="f-name-text">{name}</span>
-                    <span style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-size:0.7rem;">{date}</span>
-                </div>
-                <div style="width: 110px;"></div> </div>
+            <div class="fathom-row-final">
+                <span style="margin-left:8px;">📅</span>
+                <span class="f-text">{name}</span>
+                <span class="f-date-tag">{date}</span>
+            </div>
         ''', unsafe_allow_html=True)
 
-        # 2. כפתור הפעולה (מושתל פיזית בתוך השורה מעל השטח המת)
-        col1, col2 = st.columns([0.7, 0.3]) # עמודות עזר למיקום הכפתור
-        with col2:
-            if sum_key not in st.session_state:
-                if st.button("סיכום AI ✨", key=f"ai_btn_{r_id}_{idx}"):
-                    with st.spinner(""):
-                        raw = get_fathom_summary(r_id)
-                        if raw:
-                            st.session_state[sum_key] = refine_with_ai(raw)
-                            st.rerun()
-            else:
-                if st.button("הצג סיכום ✅", key=f"show_btn_{r_id}"):
-                    st.toast(f"פותח סיכום עבור {name}")
-                    # כאן אפשר להציג במודאל או ב-expander זמני
-        
-        # הצגת הסיכום רק אם הוא קיים ונלחץ (אופציונלי - לפי העדפה)
-        if sum_key in st.session_state and st.session_state.get(f"show_sum_{r_id}", False):
-             st.info(st.session_state[sum_key])
+        # הכפתור "צף" מעל הצד השמאלי של השורה
+        if sum_key not in st.session_state:
+            if st.button("סיכום ✨", key=f"ai_{r_id}", use_container_width=False):
+                with st.spinner(""):
+                    raw = get_fathom_summary(r_id)
+                    if raw:
+                        st.session_state[sum_key] = refine_with_ai(raw)
+                        st.rerun()
+        else:
+            # אם יש סיכום, נציג אותו במודאל (Dialog) כדי לא לדחוף את כל הדף למטה
+            if st.button("צפה ✅", key=f"ai_{r_id}", use_container_width=False):
+                st.info(st.session_state[sum_key])
