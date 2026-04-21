@@ -299,18 +299,15 @@ else:
         # --- אזור Fathom המעודכן ---
 # --- אזור Fathom: גרסה סופית ומקצועית ---
 # --- אזור Fathom: עיצוב מהודק וביצועים ---
-
-# 1. טעינה אוטומטית (שקטה, לא מזיזה כלום ב-UI)
-if 'fathom_meetings' not in st.session_state:
-    try:
-        items, status = get_fathom_meetings()
-        if status == 200:
-            st.session_state['fathom_meetings'] = items[:5]
-    except:
-        st.session_state['fathom_meetings'] = []
-
-# 2. הבלוק הויזואלי המקורי שלך
 with st.container(border=True):
+    # טעינה אוטומטית שקטה בתוך המיקום הקיים
+    if 'fathom_meetings' not in st.session_state:
+        try:
+            items, status = get_fathom_meetings()
+            if status == 200:
+                st.session_state['fathom_meetings'] = items[:5]
+        except: pass
+
     col_title, col_refresh = st.columns([0.9, 0.1])
     with col_title:
         st.markdown("### ✨ סיכומי פגישות Fathom")
