@@ -13,6 +13,7 @@ def get_weather(lat, lon):
         return requests.get(url).json()
     except: return None
 
+# שליפת מיקום
 loc = get_geolocation()
 
 if loc:
@@ -29,53 +30,81 @@ if loc:
         is_night = "n" in icon_code
         bg = "linear-gradient(180deg, #1a2a6c, #2c5364)" if is_night else "linear-gradient(180deg, #4facfe, #00f2fe)"
 
+        # CSS שדורס כל פיקסל של סטרימליט
         st.markdown(f"""
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
             <style>
-                /* השמדת כל זכר לממשק של סטרימליט */
-                iframe {{ display: none; }}
-                header, footer, [data-testid="stHeader"], [data-testid="stDecoration"] {{
+                /* העלמה אגרסיבית של כל מה שקשור לסטרימליט */
+                iframe {{
+                    border: none !important;
+                    display: none;
+                }}
+                
+                header, [data-testid="stHeader"], [data-testid="stDecoration"], footer {{
                     display: none !important;
                     height: 0 !important;
                 }}
-
-                /* יצירת שכבה עליונה שדורסת את הפס הלבן */
-                .full-screen-overlay {{
+                
+                body {{
+                    overflow: hidden !important;
+                }}
+                
+                /* מתיחת הרקע על הכל */
+                .stApp {{
+                    background: {bg} !important;
+                    height: 100vh;
+                    width: 100vw;
                     position: fixed;
                     top: 0;
                     left: 0;
-                    width: 100vw;
+                    z-index: 1;
+                }}
+
+                /* עיצוב הכרטיסייה */
+                .iphone-screen {{
                     height: 100vh;
-                    background: {bg};
-                    z-index: 999999;
+                    width: 100vw;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
                     justify-content: flex-start;
-                    padding-top: 12vh;
+                    padding-top: 10vh;
                     color: white;
                     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
                     text-align: center;
+                    z-index: 2;
                 }}
 
-                .city-text {{ font-size: 36px; font-weight: 400; margin: 0; letter-spacing: 0.5px; }}
-                .temp-text {{ font-size: 115px; font-weight: 100; margin: -15px 0; letter-spacing: -4px; }}
-                .desc-text {{ font-size: 24px; font-weight: 500; opacity: 0.9; }}
-                .weather-icon {{ font-size: 100px; margin-top: 30px; }}
+                .city-name {{ font-size: 38px; font-weight: 400; margin: 0; }}
+                .temp-num {{ font-size: 110px; font-weight: 100; margin: -10px 0; }}
+                .weather-text {{ font-size: 24px; font-weight: 500; opacity: 0.9; }}
+                
+                /* קונטיינר מיוחד לסמל עם אפקט זוהר */
+                .weather-icon-container {{
+                    margin-top: 30px;
+                    width: 150px; /* גודל המכולה משפיע על גבולות ההילה */
+                    height: 150px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }}
 
-                /* איפוס ה-body של הדף למניעת גלילה */
-                body {{ overflow: hidden; }}
+                .weather-icon-glowing {{
+                    font-size: 100px;
+                    color: {"#E0E0E0" if is_night else "#FFD700"} !important;
+                    /* שימוש ב-filter: drop-shadow כדי ליצור אפקט זוהר סביב הסמל */
+                    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6)) !important;
+                }}
             </style>
             
-            <div class="full-screen-overlay">
-                <div class="city-text">{city}</div>
-                <div class="temp-text">{temp}°</div>
-                <div class="desc-text">{desc.capitalize()}</div>
-                <div class="weather-icon">
-                    <i class="bi {"bi-moon-stars-fill" if is_night else "bi-sun-fill"}" 
-                       style="color: {"#E0E0E0" if is_night else "#FFD700"}"></i>
+            <div class="iphone-screen">
+                <div class="city-name">{city}</div>
+                <div class="temp-num">{temp}°</div>
+                <div class="weather-text">{desc.capitalize()}</div>
+                <div class="weather-icon-container">
+                    <i class="bi {"bi-moon-stars-fill" if is_night else "bi-sun-fill"} weather-icon-glowing"></i>
                 </div>
             </div>
         """, unsafe_allow_html=True)
 else:
-    st.markdown("<h2 style='text-align: center; margin-top: 45vh; font-family: sans-serif;'>מזהה מיקום...</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='color: white; text-align: center; padding-top: 100px;'>מזהה מיקום...</h2>", unsafe_allow_html=True)
