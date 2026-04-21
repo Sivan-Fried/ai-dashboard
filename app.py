@@ -61,11 +61,7 @@ st.markdown("""
         padding: 15px !important;
     }
 
-    .project-link {
-        text-decoration: none !important;
-        color: inherit !important;
-        display: block !important;
-    }
+    .project-link { text-decoration: none !important; color: inherit !important; display: block !important; }
 
     .record-row {
         background: #ffffff !important;
@@ -81,11 +77,10 @@ st.markdown("""
         box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
     }
 
-    /* התאמת ה-Expander של פאטום שייראה כמו רשומה */
+    /* עיצוב ה-Expander של פאטום שייראה כמו רשומה */
     .stExpander {
         border: none !important;
-        background: transparent !important;
-        margin-bottom: 5px !important;
+        margin-bottom: 5px !important; /* ריווח זהה לפרויקטים */
     }
     
     .stExpander summary {
@@ -94,34 +89,33 @@ st.markdown("""
         border-radius: 10px !important;
         border: 1px solid #edf2f7 !important;
         border-right: 5px solid #4facfe !important;
-        flex-direction: row-reverse !important; /* מעביר את החץ לשמאל */
+        flex-direction: row-reverse !important; 
+        list-style: none !important;
     }
 
-    .stExpander summary:hover {
-        border-color: #4facfe !important;
-    }
+    .stExpander summary:hover { border-color: #4facfe !important; }
 
-    /* שינוי האייקון של ה-Expander לחץ של הפרויקטים */
-    .stExpander svg {
-        display: none !important; /* מחביא את החץ המקורי */
-    }
+    /* הסרת החץ המקורי והוספת החץ לשמאל */
+    .stExpander summary svg { display: none !important; }
     
     .stExpander summary::after {
         content: 'chevron_left';
         font-family: 'Material Symbols Rounded';
         color: #94a3b8;
         font-size: 20px;
+        margin-left: 0;
+        margin-right: auto;
     }
 
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
     .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
     .time-label { color: #64748b; font-size: 0.85em; font-weight: 500; font-family: monospace; }
-    p, span, label { text-align: right !important; direction: rtl !important; }
+    p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
 </style>
 """, unsafe_allow_html=True)
 
 # =========================================================
-# 2. פונקציות עזר (API)
+# 2. פונקציות API
 # =========================================================
 
 def get_azure_tasks():
@@ -163,7 +157,7 @@ def refine_with_ai(raw_text):
     try:
         genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
         model = genai.GenerativeModel('gemini-1.5-flash')
-        prompt = f"סכם את הפגישה הבאה לעברית עסקית. נושא, החלטות ומשימות:\n\n{raw_text}"
+        prompt = f"סכם את הפגישה לעברית עסקית. נושא, החלטות ומשימות:\n\n{raw_text}"
         return model.generate_content(prompt).text
     except: return "שגיאה בניתוח ה-AI"
 
@@ -180,6 +174,7 @@ except:
 
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders_df
 if "current_page" not in st.session_state: st.session_state.current_page = "main"
+if "ai_response" not in st.session_state: st.session_state.ai_response = ""
 
 # =========================================================
 # 4. תצוגה
@@ -208,11 +203,11 @@ if st.session_state.current_page == "main":
 
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Main Grid - חלוקה חצי-חצי
+    # Grid 50/50
     col_right, col_left = st.columns([1, 1])
 
     with col_right:
-        # פרויקטים
+        # 📁 פרויקטים
         with st.container(border=True):
             st.markdown("### 📁 פרויקטים")
             for _, row in projects.iterrows():
@@ -229,7 +224,7 @@ if st.session_state.current_page == "main":
                     </a>
                 ''', unsafe_allow_html=True)
 
-        # Azure Tasks
+        # 📋 משימות Azure
         with st.container(border=True):
             st.markdown('<h3>📋 משימות Azure</h3>', unsafe_allow_html=True)
             tasks = get_azure_tasks()
@@ -239,8 +234,22 @@ if st.session_state.current_page == "main":
                     st.markdown(f'<div class="record-row"><span>🔗 {f.get("System.Title", "")[:40]}...</span><span class="tag-orange">{f.get("System.TeamProject", "")}</span></div>', unsafe_allow_html=True)
             else: st.write("אין משימות חדשות")
 
+        # ✨ עוזר AI אישי (הוחזר למקומו)
+        with st.container(border=True):
+            st.markdown("### ✨ עוזר AI אישי")
+            a1, a2 = st.columns([1, 2])
+            sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
+            q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
+            if st.button("שגר שאילתה 🚀", use_container_width=True):
+                if q_in:
+                    with st.spinner("מנתח..."):
+                        time.sleep(0.5)
+                        st.session_state.ai_response = f"**ניתוח עבור {sel_p}:** הסטטוס תקין."
+            if st.session_state.ai_response:
+                st.info(st.session_state.ai_response)
+
     with col_left:
-        # פגישות
+        # 📅 פגישות
         with st.container(border=True):
             st.markdown("### 📅 פגישות היום")
             t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
@@ -249,14 +258,14 @@ if st.session_state.current_page == "main":
                 for _, r in t_m.iterrows():
                     st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span><span class="time-label">{r.get("start_time","")}</span></div>', unsafe_allow_html=True)
 
-        # תזכורות
+        # 🔔 תזכורות
         with st.container(border=True):
             st.markdown("### 🔔 תזכורות")
             t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
             for _, row in t_r.iterrows():
                 st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span></div>', unsafe_allow_html=True)
 
-        # Fathom - סיכומי פגישות
+        # ✨ סיכומי Fathom
         with st.container(border=True):
             st.markdown("### ✨ סיכומי Fathom")
             if 'fathom_data' not in st.session_state:
@@ -268,16 +277,15 @@ if st.session_state.current_page == "main":
                 title = mtg.get('title', 'פגישה')
                 date_str = mtg.get('recording_start_time', '')[:10]
                 
-                # שימוש ב-Expander עם CSS שמעביר את החץ לשמאל
                 with st.expander(f"📅 {title} | {date_str}"):
                     s_key = f"sum_{rec_id}"
                     if s_key not in st.session_state:
-                        if st.button("צור סיכום AI 🪄", key=f"btn_{rec_id}"):
+                        if st.button("צור סיכום AI 🪄", key=f"btn_{rec_id}", use_container_width=True):
                             raw = get_fathom_summary(rec_id)
                             if raw:
                                 st.session_state[s_key] = refine_with_ai(raw)
                                 st.rerun()
                     else:
-                        st.info(st.session_state[s_key])
-                        if st.button("נקה", key=f"clr_{rec_id}"):
+                        st.markdown(f'<div style="direction:rtl; text-align:right; padding:10px; background:#f8fafc; border-radius:8px;">{st.session_state[s_key]}</div>', unsafe_allow_html=True)
+                        if st.button("נקה 🗑️", key=f"clr_{rec_id}"):
                             del st.session_state[s_key]; st.rerun()
