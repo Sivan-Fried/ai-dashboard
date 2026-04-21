@@ -3,7 +3,6 @@ import requests
 import os
 from streamlit_js_eval import get_geolocation
 
-# הגדרה ראשונה - חובה
 st.set_page_config(page_title="Weather", layout="wide")
 
 def get_weather(lat, lon):
@@ -30,21 +29,20 @@ if loc:
         bg = "linear-gradient(180deg, #1a2a6c, #2c5364)" if is_night else "linear-gradient(180deg, #4facfe, #00f2fe)"
 
         st.markdown(f"""
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400&display=swap" rel="stylesheet">
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+            
             <style>
-                /* הסרת אלמנטים של המערכת */
-                [data-testid="stHeader"], [data-testid="stDecoration"], footer, #MainMenu {{
+                [data-testid="stHeader"], [data-testid="stDecoration"], footer {{
                     display: none !important;
                 }}
 
-                /* איפוס מכולות */
                 .stAppViewContainer, .stAppViewMain, .main, .block-container {{
                     padding: 0 !important;
                     margin: 0 !important;
                     height: 0 !important;
                 }}
 
-                /* שכבת התוכן המרכזית */
                 .ios-background {{
                     position: fixed;
                     top: 0;
@@ -58,33 +56,32 @@ if loc:
                     align-items: center;
                     padding-top: 10vh;
                     color: white;
-                    /* הפונט המדויק מהגרסה שאהבת */
-                    font-family: "Source Sans Pro", sans-serif, "Helvetica Neue", Helvetica, Arial;
+                    /* שימוש בפונט Inter שיובא למעלה */
+                    font-family: 'Inter', sans-serif !important;
                     text-align: center;
                     overflow: hidden;
                 }}
 
                 .city-label {{ 
-                    font-size: 42px; 
-                    font-weight: 300; 
-                    margin-bottom: 5px;
+                    font-size: 38px; 
+                    font-weight: 300; /* משקל קל לשם העיר */
+                    margin-bottom: 0;
+                    letter-spacing: 0.5px;
                 }}
                 
                 .temp-label {{ 
-                    font-size: 120px; 
-                    font-weight: 200; 
-                    margin: -15px 0; 
-                    letter-spacing: -2px;
+                    font-size: 130px; 
+                    font-weight: 100; /* משקל דק מאוד לטמפרטורה */
+                    margin: -20px 0; 
+                    letter-spacing: -5px;
                 }}
                 
                 .desc-label {{ 
-                    font-size: 26px; 
-                    font-weight: 300; 
-                    opacity: 0.95;
-                    margin-top: 5px;
+                    font-size: 24px; 
+                    font-weight: 400; 
+                    opacity: 0.9;
                 }}
                 
-                /* הזוהר המבוקש */
                 .glow-icon {{
                     font-size: 100px;
                     margin-top: 40px;
@@ -96,9 +93,9 @@ if loc:
             <div class="ios-background">
                 <div class="city-label">{city}</div>
                 <div class="temp-label">{temp}°</div>
-                <div class="desc-label">{desc.capitalize()}</div>
+                <div class="weather-desc">{desc.capitalize()}</div>
                 <i class="bi {"bi-moon-stars-fill" if is_night else "bi-sun-fill"} glow-icon"></i>
             </div>
         """, unsafe_allow_html=True)
 else:
-    st.markdown("<h2 style='text-align: center; margin-top: 45vh; color: #4facfe;'>מתחבר ללוויין...</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center; margin-top: 45vh; color: #4facfe;'>מתחבר...</h2>", unsafe_allow_html=True)
