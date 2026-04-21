@@ -9,95 +9,88 @@ from zoneinfo import ZoneInfo
 import streamlit.components.v1 as components
 
 # =========================================================
-# 1. הגדרות דף ועיצוב (CSS)
+# 5. ניהול סיכומי פגישות Fathom - תצוגה בדשבורד הראשי
 # =========================================================
-st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
+import google.generativeai as genai
+import requests
 
-st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
-
-def get_base64_image(path):
+# פונקציות לוגיקה עם Cache כדי למנוע טעינה איטית
+@st.cache_data(ttl=3600)  # מתרענן פעם בשעה
+def get_fathom_meetings_auto():
+    api_key = st.secrets["FATHOM_API_KEY"]
+    url = "https://api.fathom.ai/external/v1/meetings"
+    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
     try:
-        with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
-    except: return ""
+        response = requests.get(url, headers=headers, timeout=15)
+        if response.status_code == 200:
+            return response.json().get('items', [])[:5]
+        return []
+    except:
+        return []
 
-st.markdown("""
-<style>
-    .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
-    
-    /* ריווח ועיצוב הלשוניות (Tabs) */
-    button[data-baseweb="tab"] {
-        gap: 20px !important;
-        margin-left: 15px !important;
-        padding-right: 20px !important;
-        padding-left: 20px !important;
-    }
-    
-    .dashboard-header {
-        background: linear-gradient(90deg, #4facfe, #00f2fe) !important;
-        -webkit-background-clip: text !important;
-        -webkit-text-fill-color: transparent !important;
-        text-align: center !important;
-        font-size: 2.2rem !important;
-        font-weight: 800;
-        margin-bottom: 20px;
-    }
-    h3 {
-        font-size: 1.15rem !important;
-        font-weight: 700 !important;
-        margin-bottom: 12px !important;
-        color: #1f2a44 !important;
-        text-align: right !important;
-    }
-    .profile-img {
-        width: 130px; height: 130px; border-radius: 50% !important;
-        object-fit: cover !important; object-position: center 25% !important;
-        border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-    }
-    .kpi-card {
-        background: white !important;
-        padding: 15px !important;
-        border-radius: 12px !important;
-        text-align: center !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
-    }
-    .kpi-card b { font-size: 1.4rem; color: #1f2a44; display: block; }
-    
-    div[data-testid="stVerticalBlockBorderWrapper"], .st-emotion-cache-1ne20ew {
-        background: white !important;
-        border: 1.5px solid transparent !important;
-        border-radius: 18px !important;
-        padding: 15px !important;
-        padding-bottom: 30px !important; 
-    }
+def get_fathom_summary_raw(recording_id):
+    api_key = st.secrets["FATHOM_API_KEY"]
+    url = f"https://api.fathom.ai/external/v1/recordings/{recording_id}/summary"
+    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
+    try:
+        response = requests.get(url, headers=headers, timeout=15)
+        if response.status_code == 200:
+            return response.json().get("summary", {}).get("markdown_formatted")
+        return None
+    except: return None
 
-    .project-link {
-        text-decoration: none !important;
-        color: inherit !important;
-        display: block !important;
-        transition: all 0.2s ease;
-    }
-    
-    .project-link:hover .record-row {
-        border-color: #4facfe !important;
-        background-color: #f8fafc !important;
-        transform: translateY(-1px);
-        z-index: 5;
-        box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
-    }
+def refine_summary_logic(raw_text):
+    try:
+        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+        # המנגנון החכם לבחירת מודל שמצאנו אתמול
+        available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+        selected_model = next((m for m in ['models/gemini-1.5-flash', 'models/gemini-1.5-flash-latest', 'models/gemini-pro'] if m in available_models), available_models[0])
+        
+        model = genai.GenerativeModel(selected_model)
+        prompt = f"סכם את הפגישה לעברית עסקית (נושא, תקציר, החלטות ומשימות):\n\n{raw_text}"
+        return model.generate_content(prompt).text
+    except Exception as e:
+        return f"שגיאה בעיבוד ה-AI: {e}"
 
-    .record-row {
-        background: #ffffff !important;
-        padding: 10px 15px !important;
-        border-radius: 10px !important;
-        margin-bottom: 3px !important;
-        border: 1px solid #edf2f7 !important;
-        border-right: 5px solid #4facfe !important;
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-        direction: rtl !important;
-        position: relative;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+# --- תצוגה בדשבורד (יש למקם מתחת לקוד של התזכורות) ---
+
+st.markdown("---")
+with st.container(border=True):
+    st.markdown("### ✨ פגישות אחרונות מ-Fathom")
+    
+    # טעינה אוטומטית של הפגישות
+    meetings = get_fathom_meetings_auto()
+    
+    if not meetings:
+        st.info("לא נמצאו פגישות אחרונות.")
+    else:
+        for mtg in meetings:
+            rec_id = mtg.get('recording_id')
+            title = mtg.get('title', 'פגישה ללא שם')
+            date_str = mtg.get('recording_start_time', '')[:10]
+            s_key = f"persist_sum_{rec_id}"
+            
+            with st.expander(f"📅 {title} | {date_str}"):
+                if s_key not in st.session_state:
+                    if st.button("צור סיכום מנהלים בעברית 🪄", key=f"btn_{rec_id}", use_container_width=True):
+                        with st.spinner("מנתח פגישה..."):
+                            raw_content = get_fathom_summary_raw(rec_id)
+                            if raw_content:
+                                st.session_state[s_key] = refine_summary_logic(raw_content)
+                                st.rerun()
+                            else:
+                                st.warning("לא נמצא תוכן גולמי בפאטום.")
+                
+                if s_key in st.session_state:
+                    st.markdown(f"""
+                    <div style="direction: rtl; text-align: right; background-color: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid #eee;">
+                    {st.session_state[s_key]}
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    if st.button("נקה סיכום 🗑️", key=f"del_{rec_id}"):
+                        del st.session_state[s_key]
+                        st.rerun()
     }
 
     .project-link:first-child .record-row, .record-row:first-of-type {
