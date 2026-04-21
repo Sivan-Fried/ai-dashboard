@@ -299,7 +299,7 @@ else:
         # --- אזור Fathom המעודכן ---
 # --- אזור Fathom: עיצוב מהודק וביצועים ---
 with st.container(border=True):
-    # הפעלת טעינה אוטומטית אם אין נתונים - בדיוק כמו הכפתור
+    # לוגיקת טעינה אוטומטית - בדיוק מה שהכפתור עושה, רק בלי ללחוץ
     if 'fathom_meetings' not in st.session_state:
         try:
             items, status = get_fathom_meetings()
