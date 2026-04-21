@@ -299,10 +299,10 @@ else:
         # --- אזור Fathom המעודכן ---
 # --- אזור Fathom: גרסה סופית ומקצועית ---
 # --- אזור Fathom: עיצוב מהודק וביצועים ---
-with st.container(border=True):
-    # שימוש ב-fragment הופך את הפעולות בתוך הבלוק הזה למהירות בלי להטעין את כל הדף מחדש
-    @st.fragment
-    def fathom_section():
+# --- אזור Fathom: עיצוב מהודק וביצועים ---
+@st.fragment # <--- זה מה שהופך את הלחיצה לקלילה ומיידית בלי להזיז כלום
+def display_fathom_section():
+    with st.container(border=True):
         col_title, col_refresh = st.columns([0.9, 0.1])
         with col_title:
             st.markdown("### ✨ סיכומי פגישות Fathom")
@@ -312,7 +312,7 @@ with st.container(border=True):
                     items, status = get_fathom_meetings()
                     if status == 200:
                         st.session_state['fathom_meetings'] = items
-                        st.rerun(scope="fragment")
+                        st.rerun()
                 except: pass
 
         # CSS להידוק רווחים ואפקט Hover מלא
@@ -328,12 +328,12 @@ with st.container(border=True):
                 border-right: 5px solid #4facfe;
                 border-radius: 8px;
                 padding: 0 16px;
-                height: 45px;
+                height: 45px; 
                 direction: rtl;
                 transition: all 0.2s ease;
             }
 
-            /* צמצום רווחים קיצוני בין אלמנטים */
+            /* צמצום רווחים קיצוני בין אלמנטים של Streamlit */
             div[data-testid="stVerticalBlock"] > div:has(.fathom-row-ui) {
                 gap: 0rem !important;
             }
@@ -344,10 +344,11 @@ with st.container(border=True):
                 margin-bottom: 2px !important;
             }
 
-            /* אפקט ה-Hover דרך הכפתור השקוף */
+            /* אפקט ה-Hover שביקשת */
             div.element-container:has(.fathom-row-ui) + div.element-container div[data-testid="stButton"] button {
                 background: transparent !important;
                 border: 1px solid transparent !important;
+                border-right: 5px solid transparent !important;
                 width: 100% !important;
                 height: 45px !important;
                 color: transparent !important;
@@ -395,12 +396,12 @@ with st.container(border=True):
                     </div>
                 ''', unsafe_allow_html=True)
                 
-                # 2. כפתור השקיפות (מהיר יותר בזכות ה-fragment)
+                # 2. כפתור השקיפות
                 if st.button("", key=f"f_trig_{rec_id}_{idx}", use_container_width=True):
                     st.session_state[open_key] = not is_open
-                    st.rerun(scope="fragment")
+                    st.rerun()
 
-                # 3. תוכן
+                # 3. תוכן (רק אם פתוח)
                 if is_open:
                     with st.container():
                         s_key = f"sum_v4_{rec_id}"
@@ -410,11 +411,11 @@ with st.container(border=True):
                                     raw = get_fathom_summary(rec_id)
                                     if raw:
                                         st.session_state[s_key] = refine_with_ai(raw)
-                                        st.rerun(scope="fragment")
+                                        st.rerun()
                         else:
                             st.info(st.session_state[s_key])
         else:
             st.write("אין פגישות זמינות.")
 
-    # הפעלת האזור
-    fathom_section()
+# הפעלה של האזור
+display_fathom_section()
