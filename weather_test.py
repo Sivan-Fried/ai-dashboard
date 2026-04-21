@@ -67,3 +67,4 @@ if data:
     """, unsafe_allow_html=True)
 else:
     st.write("משהו השתבש בטעינה...")
+
