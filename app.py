@@ -7,15 +7,19 @@ import time
 import urllib.parse
 from zoneinfo import ZoneInfo
 import streamlit.components.v1 as components
-
-# =========================================================
-# 5. ניהול סיכומי פגישות Fathom - תצוגה בדשבורד הראשי
-# =========================================================
 import google.generativeai as genai
-import requests
 
-# פונקציות לוגיקה עם Cache כדי למנוע טעינה איטית
-@st.cache_data(ttl=3600)  # מתרענן פעם בשעה
+# =========================================================
+# 1. פונקציות לוגיקה (המנוע של האפליקציה)
+# =========================================================
+
+def get_base64_image(image_path):
+    try:
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    except: return None
+
+@st.cache_data(ttl=3600)
 def get_fathom_meetings_auto():
     api_key = st.secrets["FATHOM_API_KEY"]
     url = "https://api.fathom.ai/external/v1/meetings"
@@ -25,8 +29,7 @@ def get_fathom_meetings_auto():
         if response.status_code == 200:
             return response.json().get('items', [])[:5]
         return []
-    except:
-        return []
+    except: return []
 
 def get_fathom_summary_raw(recording_id):
     api_key = st.secrets["FATHOM_API_KEY"]
@@ -42,71 +45,12 @@ def get_fathom_summary_raw(recording_id):
 def refine_summary_logic(raw_text):
     try:
         genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-        # המנגנון החכם לבחירת מודל שמצאנו אתמול
         available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
         selected_model = next((m for m in ['models/gemini-1.5-flash', 'models/gemini-1.5-flash-latest', 'models/gemini-pro'] if m in available_models), available_models[0])
-        
         model = genai.GenerativeModel(selected_model)
         prompt = f"סכם את הפגישה לעברית עסקית (נושא, תקציר, החלטות ומשימות):\n\n{raw_text}"
         return model.generate_content(prompt).text
-    except Exception as e:
-        return f"שגיאה בעיבוד ה-AI: {e}"
-
-# --- תצוגה בדשבורד (יש למקם מתחת לקוד של התזכורות) ---
-
-st.markdown("---")
-with st.container(border=True):
-    st.markdown("### ✨ פגישות אחרונות מ-Fathom")
-    
-    # טעינה אוטומטית של הפגישות
-    meetings = get_fathom_meetings_auto()
-    
-    if not meetings:
-        st.info("לא נמצאו פגישות אחרונות.")
-    else:
-        for mtg in meetings:
-            rec_id = mtg.get('recording_id')
-            title = mtg.get('title', 'פגישה ללא שם')
-            date_str = mtg.get('recording_start_time', '')[:10]
-            s_key = f"persist_sum_{rec_id}"
-            
-            with st.expander(f"📅 {title} | {date_str}"):
-                if s_key not in st.session_state:
-                    if st.button("צור סיכום מנהלים בעברית 🪄", key=f"btn_{rec_id}", use_container_width=True):
-                        with st.spinner("מנתח פגישה..."):
-                            raw_content = get_fathom_summary_raw(rec_id)
-                            if raw_content:
-                                st.session_state[s_key] = refine_summary_logic(raw_content)
-                                st.rerun()
-                            else:
-                                st.warning("לא נמצא תוכן גולמי בפאטום.")
-                
-                if s_key in st.session_state:
-                    st.markdown(f"""
-                    <div style="direction: rtl; text-align: right; background-color: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid #eee;">
-                    {st.session_state[s_key]}
-                    </div>
-                    """, unsafe_allow_html=True)
-                    
-                    if st.button("נקה סיכום 🗑️", key=f"del_{rec_id}"):
-                        del st.session_state[s_key]
-                        st.rerun()
-    }
-
-    .project-link:first-child .record-row, .record-row:first-of-type {
-        margin-top: 4px !important;
-    }
-
-    .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
-    .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
-    .time-label { color: #64748b; font-size: 0.85em; font-weight: 500; font-family: monospace; }
-    p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
-</style>
-""", unsafe_allow_html=True)
-
-# =========================================================
-# 2. לוגיקה ושליפת נתונים
-# =========================================================
+    except Exception as e: return f"שגיאה בעיבוד: {e}"
 
 def get_azure_tasks():
     ORG_NAME = "amandigital"
@@ -125,17 +69,28 @@ def fmt_time(t):
     try: return t.strftime("%H:%M")
     except: return ""
 
+# =========================================================
+# 2. טעינת נתונים והגדרות דף
+# =========================================================
 try:
     projects = pd.read_excel("my_projects.xlsx")
-    meetings = pd.read_excel("meetings.xlsx")
+    meetings_df = pd.read_excel("meetings.xlsx")
     reminders_df = pd.read_excel("reminders.xlsx")
     today = pd.Timestamp.today().date()
 except:
     st.error("Missing Files"); st.stop()
 
-# =========================================================
-# 3. ניהול ניווט
-# =========================================================
+st.markdown("""
+<style>
+    .record-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #f1f5f9; transition: background 0.2s; direction: rtl; }
+    .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
+    .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
+    .time-label { color: #64748b; font-size: 0.85em; font-weight: 500; font-family: monospace; }
+    p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
+</style>
+""", unsafe_allow_html=True)
+
+# ניהול State
 params = st.query_params
 if "proj" in params:
     st.session_state.selected_project = params["proj"]
@@ -147,307 +102,81 @@ if "adding_reminder" not in st.session_state: st.session_state.adding_reminder =
 if "current_page" not in st.session_state: st.session_state.current_page = "main"
 
 # =========================================================
-# 4. תצוגת דפים
+# 3. תצוגת דפים
 # =========================================================
 
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-# התחלת אזור חדש: ניהול פרויקט מפורט (לוגיקה מותנית לתרשים)
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
 if st.session_state.current_page == "project":
+    # --- דף פרויקט פנימי (ללא Fathom כפי שביקשת) ---
     p_name = st.session_state.selected_project
-    st.markdown(f'<h1 class="dashboard-header">{p_name}</h1>', unsafe_allow_html=True)
-    
+    st.markdown(f'<h1>{p_name}</h1>', unsafe_allow_html=True)
     if st.button("⬅️ חזרה לדשבורד"):
         st.query_params.clear() 
         st.session_state.current_page = "main"
         st.rerun()
-    
-    with st.container(border=True):
-        st.markdown(f"### ℹ️ ניהול פרויקט: {p_name}")
-        
-        tab_work, tab_res, tab_risk, tab_meetings, tab_info = st.tabs([
-            "📅 תוכנית עבודה", 
-            "👥 משאבים", 
-            "⚠️ סיכונים", 
-            "📝 סיכומי פגישות",
-            "📊 מידע כללי"
-        ])
-
-        with tab_work:
-            # הצגת התרשים רק עבור אלטשולר שחם
-            if "אלטשולר" in p_name:
-                roadmap_html = """
-                <!DOCTYPE html>
-                <html dir="rtl" lang="he">
-                <head>
-                    <meta charset="utf-8">
-                    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap" rel="stylesheet">
-                    <style>
-                        body { font-family: 'Assistant', sans-serif; background-color: white; margin: 0; padding: 0; overflow: hidden; }
-                        .timeline-wrapper { position: relative; width: 1000px; margin: 50px auto; height: 200px; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 50px; }
-                        .main-line { position: absolute; bottom: 6px; left: 0; right: 0; height: 1px; background: #cbd5e1; z-index: 1; }
-                        .today-indicator { position: absolute; bottom: -15px; right: 525px; display: flex; flex-direction: column; align-items: center; z-index: 5; }
-                        .today-line { width: 2px; height: 60px; border-left: 2px dashed #bfdbfe; }
-                        .today-text { color: #3b82f6; font-size: 11px; font-weight: 700; margin-bottom: 4px; }
-                        .item { display: flex; flex-direction: column; align-items: center; width: 90px; z-index: 3; position: relative; }
-                        .card { background: white; padding: 4px 6px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; text-align: center; width: 100%; margin-bottom: 8px; }
-                        .connector { width: 1px; height: 15px; background: #e2e8f0; }
-                        .dot { width: 12px; height: 12px; background: #475569; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 1px #475569; z-index: 4; }
-                        .tag { font-size: 8px; font-weight: 700; padding: 1px 4px; border-radius: 2px; display: inline-block; margin-bottom: 2px; }
-                        .amit { background: #eff6ff; color: #1e40af; }
-                        .measy { background: #f5f3ff; color: #5b21b6; }
-                        .soch { background: #ecfdf5; color: #065f46; }
-                        .date { font-size: 13px; font-weight: 600; color: #1e293b; margin: 0; }
-                        .status { font-size: 8px; font-weight: 700; margin-top: 2px; }
-                        .live { color: #10b981; } .wip { color: #f59e0b; }
-                    </style>
-                </head>
-                <body>
-                    <div class="timeline-wrapper">
-                        <div class="main-line"></div>
-                        <div class="today-indicator"><span class="today-text">היום 20.04</span><div class="today-line"></div></div>
-                        <div class="item"><div class="card"><span class="tag amit">עמיתים</span><div class="date">08.03</div><span class="status live">LIVE</span></div><div class="connector"></div><div class="dot"></div></div>
-                        <div class="item"><div class="card"><span class="tag measy">מעסיקים</span><div class="date">08.03</div><span class="status live">LIVE</span></div><div class="connector"></div><div class="dot"></div></div>
-                        <div class="item"><div class="card"><span class="tag soch">סוכנים</span><div class="date">24.03</div><span class="status live">LIVE</span></div><div class="connector"></div><div class="dot"></div></div>
-                        <div class="item"><div class="card"><span class="tag amit">עמיתים</span><div class="date">10.04</div><span class="status live">LIVE</span></div><div class="connector"></div><div class="dot"></div></div>
-                        <div class="item"><div class="card"><span class="tag amit">עמיתים</span><div class="date">יולי</div><span class="status wip">WIP</span></div><div class="connector"></div><div class="dot"></div></div>
-                        <div class="item"><div class="card"><span class="tag measy">מעסיקים</span><div class="date">TBD</div><span class="status" style="color:#94a3b8">HOLD</span></div><div class="connector"></div><div class="dot"></div></div>
-                    </div>
-                </body>
-                </html>
-                """
-                components.html(roadmap_html, height=300, scrolling=False)
-            else:
-                st.info(f"תוכנית עבודה עבור {p_name} תעודכן בהמשך.")
-
-        with tab_res:
-            st.write("כאן ירוכזו נתוני כוח אדם, תקציב ומשאבים.")
-
-        with tab_risk:
-            st.write("כאן תנוהל מטריצת הסיכונים ותוכניות הפחתה.")
-
-        with tab_meetings:
-            st.write("כאן תופיע היסטוריית סיכומי הפגישות והחלטות.")
-
-        with tab_info:
-            proj_row = projects[projects["project_name"] == p_name]
-            if not proj_row.empty:
-                st.write(f"סטטוס הפרויקט במערכת: {proj_row.iloc[0].get('status', 'N/A')}")
-                st.dataframe(proj_row, hide_index=True)
-
-# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-# סוף אזור חדש: ניהול פרויקט מפורט (לוגיקה מותנית לתרשים)
-# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    st.info(f"ניהול פרויקט מפורט עבור {p_name}")
 
 else:
-    st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
-    img_b64 = get_base64_image("profile.png")
+    # --- דף דשבורד ראשי ---
+    st.markdown('<h1 style="text-align:right;">Dashboard AI</h1>', unsafe_allow_html=True)
+    
+    # אזור כותרת ו-KPIs
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
     greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
+    st.write(f"### {greeting}, סיון! | {now.strftime('%d/%m/%Y')}")
 
-    p1, p2, p3 = st.columns([1, 1, 2])
-    with p2:
-        if img_b64: st.markdown(f'<div style="display:flex; justify-content:center;"><img src="data:image/png;base64,{img_b64}" class="profile-img"></div>', unsafe_allow_html=True)
-    with p3: st.markdown(f"<div><h3 style='margin-bottom:0;'>{greeting}, סיון!</h3><p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p></div>", unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    k1, k2, k3, k4 = st.columns(4)
-    with k1: st.markdown(f'<div class="kpi-card">בסיכון 🔴<br><b>{len(projects[projects["status"]=="אדום"])}</b></div>', unsafe_allow_html=True)
-    with k2: st.markdown(f'<div class="kpi-card">במעקב 🟡<br><b>{len(projects[projects["status"]=="צהוב"])}</b></div>', unsafe_allow_html=True)
-    with k3: st.markdown(f'<div class="kpi-card">תקין 🟢<br><b>{len(projects[projects["status"]=="ירוק"])}</b></div>', unsafe_allow_html=True)
-    with k4: st.markdown(f'<div class="kpi-card">סה"כ פרויקטים<br><b>{len(projects)}</b></div>', unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
     col_right, col_left = st.columns([2, 1.2])
 
     with col_right:
+        # פרויקטים
         with st.container(border=True):
             st.markdown("### 📁 פרויקטים")
-            with st.container(height=300, border=False):
-                for _, row in projects.iterrows():
-                    p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
-                    st.markdown(f'''
-                        <a href="{p_url}" target="_self" class="project-link">
-                            <div class="record-row">
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <b>📂 {row["project_name"]}</b>
-                                    <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
-                                </div>
-                                <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">chevron_left</span>
-                            </div>
-                        </a>
-                    ''', unsafe_allow_html=True)
+            for _, row in projects.iterrows():
+                p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
+                st.markdown(f'<div class="record-row"><a href="{p_url}" target="_self">📂 {row["project_name"]}</a><span class="tag-blue">{row.get("project_type", "תחזוקה")}</span></div>', unsafe_allow_html=True)
 
+        # אז'ור
         with st.container(border=True):
-            st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
-            tasks_data = get_azure_tasks()
-            if tasks_data:
-                for t in tasks_data:
-                    f = t.get('fields', {})
-                    t_id, t_title, p_task = t.get('id'), f.get('System.Title', ''), f.get('System.TeamProject', 'General')
-                    raw_date = f.get('System.CreatedDate', '')
-                    fmt_date = f"{raw_date[8:10]}/{raw_date[5:7]} {raw_date[11:16]}" if raw_date else ""
-                    
-                    t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_task)}/_workitems/edit/{t_id}"
-                    st.markdown(f'''
-                        <div class="record-row" style="white-space: nowrap;">
-                            <div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis;">
-                                <a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: none; font-weight: 500;">🔗 {t_title}</a>
-                                <span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">נוצר ב {fmt_date}</span>
-                            </div>
-                            <span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_task}</span>
-                        </div>
-                    ''', unsafe_allow_html=True)
-            else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
-
-        with st.container(border=True):
-            st.markdown("### ✨ עוזר AI אישי")
-            a1, a2 = st.columns([1, 2]); sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p"); q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
-            if st.button("שגר שאילתה 🚀", use_container_width=True):
-                if q_in:
-                    with st.spinner("מנתח..."): time.sleep(0.5)
-                    st.session_state.ai_response = f"**ניתוח עבור {sel_p}:** הסטטוס תקין."
-            if st.session_state.ai_response: st.info(st.session_state.ai_response)
+            st.markdown("### 📋 משימות Azure")
+            tasks = get_azure_tasks()
+            for t in tasks:
+                st.write(f"🔗 {t['fields']['System.Title']}")
 
     with col_left:
+        # פגישות היום
         with st.container(border=True):
             st.markdown("### 📅 פגישות היום")
-            t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-            if t_m.empty: st.write("אין פגישות היום")
-            else:
-                for _, r in t_m.iterrows():
-                    s_t = fmt_time(r.get('start_time', '')); e_t = fmt_time(r.get('end_time', ''))
-                    st.markdown(f'<div class="record-row"><span style="flex-grow:1; text-align:right;">📌 {r["meeting_title"]}</span><span class="time-label">{s_t}-{e_t}</span></div>', unsafe_allow_html=True)
+            t_m = meetings_df[pd.to_datetime(meetings_df["date"]).dt.date == today]
+            for _, r in t_m.iterrows():
+                st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span></div>', unsafe_allow_html=True)
 
+        # תזכורות
         with st.container(border=True):
             st.markdown("### 🔔 תזכורות")
-            with st.container(border=False):
-                t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
-                for _, row in t_r.iterrows():
-                    st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
-            
-            if st.session_state.adding_reminder:
-                with st.container(border=True):
-                    r_col1, r_col2 = st.columns([1, 2])
-                    new_proj = r_col1.selectbox("בחר פרויקט", projects["project_name"].tolist() + ["כללי"], label_visibility="collapsed")
-                    new_text = r_col2.text_input("תיאור התזכורת", placeholder="מה להזכיר?", label_visibility="collapsed")
-                    b_col1, b_col2 = st.columns([1, 1])
-                    if b_col1.button("✅"):
-                        if new_text:
-                            new_data = pd.DataFrame([{"date": today, "reminder_text": new_text, "project_name": new_proj}])
-                            st.session_state.rem_live = pd.concat([st.session_state.rem_live, new_data], ignore_index=True)
-                            st.session_state.adding_reminder = False; st.rerun()
-                    if b_col2.button("❌"): st.session_state.adding_reminder = False; st.rerun()
+            t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
+            for _, row in t_r.iterrows():
+                st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span></div>', unsafe_allow_html=True)
+            if st.button("➕ תזכורת חדשה", use_container_width=True):
+                st.session_state.adding_reminder = True
+
+        # --- מיקום חדש: סיכומי Fathom (מתחת לתזכורות) ---
+        with st.container(border=True):
+            st.markdown("### ✨ סיכומי פגישות Fathom")
+            f_meetings = get_fathom_meetings_auto()
+            if not f_meetings:
+                st.write("אין פגישות אחרונות.")
             else:
-                if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
-
-
-# =========================================================
-# 5. ניהול סיכומי פגישות Fathom - גרסה סופית ומתוקנת
-# =========================================================
-import google.generativeai as genai
-
-# --- פונקציות לוגיקה ---
-
-def get_fathom_meetings():
-    api_key = st.secrets["FATHOM_API_KEY"]
-    url = "https://api.fathom.ai/external/v1/meetings"
-    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
-    try:
-        response = requests.get(url, headers=headers, timeout=15)
-        if response.status_code == 200:
-            return response.json().get('items', [])[:5], 200
-        return response.text, response.status_code
-    except Exception as e:
-        return str(e), 500
-
-def get_fathom_summary(recording_id):
-    api_key = st.secrets["FATHOM_API_KEY"]
-    url = f"https://api.fathom.ai/external/v1/recordings/{recording_id}/summary"
-    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
-    try:
-        response = requests.get(url, headers=headers, timeout=15)
-        if response.status_code == 200:
-            return response.json().get("summary", {}).get("markdown_formatted")
-        return None
-    except:
-        return None
-
-def refine_with_ai(raw_text):
-    """מנגנון חסין שגיאות לבחירת מודל ועיבוד סיכום"""
-    try:
-        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-        
-        # בדיקה דינמית של השמות הזמינים בגרסה שלך למניעת 404
-        available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-        
-        # סדר עדיפויות לבחירת המודל
-        selected_model = None
-        for target in ['models/gemini-1.5-flash', 'models/gemini-1.5-flash-latest', 'models/gemini-pro']:
-            if target in available_models:
-                selected_model = target
-                break
-        
-        # אם אף אחד מהשמות הנפוצים לא נמצא, נשתמש בראשון שזמין
-        if not selected_model:
-            selected_model = available_models[0]
-            
-        model = genai.GenerativeModel(selected_model)
-        
-        prompt = f"""
-        סכם את הפגישה לעברית עסקית רהוטה.
-        מבנה: נושא, תקציר מנהלים, החלטות מרכזיות ומשימות להמשך.
-        
-        הטקסט לסיכום:
-        {raw_text}
-        """
-        response = model.generate_content(prompt)
-        return response.text
-    except Exception as e:
-        return f"שגיאה בעיבוד ה-AI: {e}"
-
-# --- תצוגה (UI) ---
-
-st.markdown("---")
-with st.container(border=True):
-    st.markdown("### ✨ סיכומי פגישות Fathom")
-    
-    if st.button("טען 5 פגישות אחרונות 🔄", use_container_width=True):
-        with st.spinner("מושך נתונים..."):
-            items, status = get_fathom_meetings()
-            if status == 200:
-                st.session_state['fathom_meetings'] = items
-            else:
-                st.error(f"שגיאה בחיבור: {status}")
-
-    if 'fathom_meetings' in st.session_state:
-        for mtg in st.session_state['fathom_meetings']:
-            rec_id = mtg.get('recording_id')
-            title = mtg.get('title', 'פגישה ללא שם')
-            date_str = mtg.get('recording_start_time', '')[:10]
-            # מפתח ייחודי ב-session_state כדי שהסיכום יישמר ולא ירוץ מחדש
-            s_key = f"sum_fixed_{rec_id}"
-            
-            with st.expander(f"📅 {title} | {date_str}"):
-                if s_key not in st.session_state:
-                    if st.button("צור סיכום מנהלים בעברית 🪄", key=f"btn_{rec_id}", use_container_width=True):
-                        with st.spinner("Gemini מעבד נתונים..."):
-                            raw_content = get_fathom_summary(rec_id)
-                            if raw_content:
-                                st.session_state[s_key] = refine_with_ai(raw_content)
+                for mtg in f_meetings:
+                    r_id, r_title = mtg.get('recording_id'), mtg.get('title', 'פגישה')
+                    s_key = f"sum_auto_{r_id}"
+                    with st.expander(f"📅 {r_title}"):
+                        if s_key not in st.session_state:
+                            if st.button("צור סיכום 🪄", key=f"btn_{r_id}"):
+                                raw = get_fathom_summary_raw(r_id)
+                                if raw:
+                                    st.session_state[s_key] = refine_summary_logic(raw)
+                                    st.rerun()
+                        else:
+                            st.markdown(f'<div style="direction:rtl; text-align:right; background:#f9f9f9; padding:10px; border-radius:5px;">{st.session_state[s_key]}</div>', unsafe_allow_html=True)
+                            if st.button("נקה 🗑️", key=f"del_{r_id}"):
+                                del st.session_state[s_key]
                                 st.rerun()
-                            else:
-                                st.warning("לא נמצא סיכום גולמי.")
-                
-                if s_key in st.session_state:
-                    # מציג את הסיכום השמור ביישור לימין נקי
-                    st.markdown(f"""
-                    <div style="direction: rtl; text-align: right; background-color: #f9f9f9; padding: 15px; border-radius: 10px; border: 1px solid #eee;">
-                    {st.session_state[s_key]}
-                    </div>
-                    """, unsafe_allow_html=True)
-                    
-                    if st.button("נקה 🗑️", key=f"del_{rec_id}"):
-                        del st.session_state[s_key]
-                        st.rerun()
