@@ -3,7 +3,7 @@ import requests
 import os
 from streamlit_js_eval import get_geolocation
 
-# פונקציה שמביאה נתונים לפי קואורדינטות מדויקות
+# פונקציה להבאת נתונים לפי קואורדינטות
 def get_weather(lat, lon):
     api_key = st.secrets.get("OPENWEATHER_API_KEY") or os.getenv("OPENWEATHER_API_KEY")
     url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric&lang=he"
@@ -12,9 +12,32 @@ def get_weather(lat, lon):
     except:
         return None
 
-st.set_page_config(page_title="Weather", page_icon="☀️")
+# הגדרות דף בסיסיות
+st.set_page_config(page_title="מזג אוויר", page_icon="☀️", layout="centered")
 
-# השלב החכם: בקשת מיקום מהדפדפן (Browser Geolocation)
+# ביטול הקו הלבן והכותרת של סטרימליט
+st.markdown("""
+    <style>
+    /* מחיקה מוחלטת של ה-Header של סטרימליט */
+    header[data-testid="stHeader"], div[data-testid="stDecoration"], section[data-testid="stSidebar"] {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+    }
+    
+    /* מחיקת ה-padding העליון כדי שהעיצוב יתחיל מלמעלה */
+    .main .block-container {
+        padding-top: 2rem !important;
+    }
+    
+    /* מניעת פדינג נוסף כשמעבירים layout ל-centered */
+    div[data-testid="stVerticalBlock"] > div:first-child {
+        padding-top: 0 !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# בקשת מיקום מהדפדפן
 loc = get_geolocation()
 
 if loc:
@@ -24,22 +47,30 @@ if loc:
     
     if data and data.get('main'):
         temp = round(data['main']['temp'])
-        city = data.get('name', 'מיקום נוכחי')
+        
+        # תרגום ידני לפתח תקווה אם השם חזר באנגלית
+        city = data.get('name', 'פתח תקווה')
+        if city.lower() in ['petah tikva', 'petah tiqwa']:
+            city = "פתח תקווה"
+            
         desc = data['weather'][0]['description']
         icon_code = data['weather'][0]['icon']
         is_night = "n" in icon_code
+        
+        # רקע דינמי
         bg = "linear-gradient(180deg, #1a2a6c, #2c5364)" if is_night else "linear-gradient(180deg, #4facfe, #00f2fe)"
 
         st.markdown(f"""
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
             <style>
             .stApp {{ background: {bg} !important; }}
-            header {{visibility: hidden;}}
-            .iphone-card {{ color: white; text-align: center; font-family: -apple-system, sans-serif; margin-top: 50px; }}
+            .iphone-card {{ color: white; text-align: center; font-family: -apple-system, sans-serif; }}
             .city-name {{ font-size: 40px; font-weight: 500; }}
             .temp-display {{ font-size: 110px; font-weight: 100; margin: -20px 0; }}
-            .bi {{ font-size: 80px; margin-top: 20px; display: block; }}
+            .weather-desc {{ font-size: 24px; font-weight: 500; opacity: 0.9; }}
+            .bi {{ font-size: 100px; margin-top: 30px; display: block; }}
             </style>
+            
             <div class="iphone-card">
                 <div class="city-name">{city}</div>
                 <div class="temp-display">{temp}°</div>
