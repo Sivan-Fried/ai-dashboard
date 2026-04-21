@@ -298,131 +298,115 @@ else:
 
         # --- אזור Fathom המעודכן ---
 # --- אזור Fathom: גרסה סופית ומקצועית ---
-import streamlit as st
+# --- אזור Fathom: מהיר, צפוף וממוקם מחדש ---
 
-# הגדרת הבלוק כ-Fragment לביצועים מקסימליים
-@st.fragment
-def render_fathom_section():
-    # 1. טעינה אוטומטית ראשונית (רק אם הסשן לא קיים)
-    if 'fathom_meetings' not in st.session_state:
-        try:
-            items, status = get_fathom_meetings()
-            if status == 200:
-                # לוקחים רק את 5 האחרונות
-                st.session_state['fathom_meetings'] = items[:5]
-            else:
-                st.session_state['fathom_meetings'] = []
-        except:
-            st.session_state['fathom_meetings'] = []
+# 1. טעינה אוטומטית ראשונית (שקטה, ללא השפעה על המהירות)
+if 'fathom_meetings' not in st.session_state:
+    try:
+        items, status = get_fathom_meetings()
+        st.session_state['fathom_meetings'] = items[:5] if status == 200 else []
+    except:
+        st.session_state['fathom_meetings'] = []
 
-    with st.container(border=True):
-        col_title, col_refresh = st.columns([0.9, 0.1])
-        with col_title:
-            st.markdown("### ✨ סיכומי פגישות Fathom")
-        with col_refresh:
-            if st.button("🔄", key="refresh_fathom_btn"):
-                items, status = get_fathom_meetings()
-                if status == 200:
-                    st.session_state['fathom_meetings'] = items[:5]
-                    st.rerun()
+with st.container(border=True):
+    # שורת כותרת ורענון
+    col_t, col_r = st.columns([0.9, 0.1])
+    col_t.markdown("### ✨ סיכומי פגישות Fathom")
+    if col_r.button("🔄", key="fathom_refresh_final"):
+        st.session_state.pop('fathom_meetings', None)
+        st.rerun()
 
-        # CSS מהודק עם Hover
-        st.markdown("""
-            <style>
-            .fathom-row-ui {
-                display: grid;
-                grid-template-columns: auto 1fr auto;
-                align-items: center;
-                background: white;
-                border: 1px solid #edf2f7;
-                border-right: 5px solid #4facfe;
-                border-radius: 8px;
-                padding: 0 16px;
-                height: 40px; /* צפוף עוד יותר */
-                direction: rtl;
-                transition: all 0.15s ease-in-out;
-            }
-            /* ביטול רווחים של Streamlit */
-            [data-testid="stVerticalBlock"] > div:has(.fathom-row-ui) { gap: 0 !important; }
-            
-            /* מיקום הכפתור */
-            div.element-container:has(.fathom-row-ui) + div.element-container {
-                margin-top: -40px !important;
-                margin-bottom: 2px !important;
-            }
-            
-            /* כפתור שקוף לחלוטין */
-            div.element-container:has(.fathom-row-ui) + div.element-container button {
-                background: transparent !important;
-                border: none !important;
-                height: 40px !important;
-                color: transparent !important;
-                box-shadow: none !important;
-            }
+    # CSS להידוק קיצוני ואפקט Hover
+    st.markdown("""
+        <style>
+        /* הגדרת גובה שורה נמוך במיוחד */
+        .fathom-row {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            background: white;
+            border: 1px solid #edf2f7;
+            border-right: 5px solid #4facfe;
+            border-radius: 6px;
+            padding: 0 12px;
+            height: 38px;
+            direction: rtl;
+            transition: background 0.2s;
+        }
+        /* צמצום רווחים בין אלמנטים של Streamlit */
+        [data-testid="stVerticalBlock"] > div:has(.fathom-row) {
+            gap: 0px !important;
+        }
+        /* הזזת הכפתור בדיוק מעל השורה */
+        div.element-container:has(.fathom-row) + div.element-container {
+            margin-top: -38px !important;
+            margin-bottom: 2px !important; /* רווח מזערי בין שורות */
+        }
+        /* הפיכת הכפתור לשקוף */
+        div.element-container:has(.fathom-row) + div.element-container button {
+            background: transparent !important;
+            border: none !important;
+            height: 38px !important;
+            color: transparent !important;
+            box-shadow: none !important;
+        }
+        /* Hover חוזר */
+        div.element-container:has(.fathom-row):hover .fathom-row {
+            background-color: #f8fafc;
+            border-color: #4facfe;
+        }
+        .f-pill {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 0px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            margin-right: 8px;
+        }
+        </style>
+    """, unsafe_allow_html=True)
 
-            /* אפקט ה-Hover */
-            div.element-container:has(.fathom-row-ui):hover .fathom-row-ui {
-                border-color: #4facfe;
-                background-color: #f8fafc;
-            }
-            
-            .fathom-pill-v3 {
-                background-color: #f1f5f9;
-                color: #475569;
-                padding: 0px 8px;
-                border-radius: 8px;
-                font-size: 0.7rem;
-                margin-right: 10px;
-            }
-            </style>
-        """, unsafe_allow_html=True)
-
-        meetings = st.session_state.get('fathom_meetings', [])
+    # הצגת הרשומות
+    for idx, mtg in enumerate(st.session_state.get('fathom_meetings', [])):
+        r_id = mtg.get('recording_id')
+        name = mtg.get('title') or "פגישה"
+        date = mtg.get('recording_start_time', '')[:10]
         
-        for idx, mtg in enumerate(meetings):
-            rec_id = mtg.get('recording_id')
-            title = mtg.get('title') or "פגישה ללא שם"
-            date_str = mtg.get('recording_start_time', '')[:10]
-            
-            open_key = f"open_{rec_id}"
-            is_open = st.session_state.get(open_key, False)
-            arrow = "expand_more" if is_open else "chevron_left"
-
-            # תצוגה ויזואלית
-            st.markdown(f'''
-                <div class="fathom-row-ui">
-                    <div style="display: flex; align-items: center;">
-                        <span style="font-size: 1rem; margin-left: 8px;">📅</span>
-                        <span style="font-weight: 600; color: #1e293b; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{title}</span>
-                        <span class="fathom-pill-v3">{date_str}</span>
-                    </div>
-                    <div></div>
-                    <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 18px;">{arrow}</span>
+        open_key = f"f_open_{r_id}"
+        is_open = st.session_state.get(open_key, False)
+        
+        # UI ויזואלי
+        st.markdown(f'''
+            <div class="fathom-row">
+                <div style="display: flex; align-items: center; overflow: hidden;">
+                    <span style="margin-left: 8px;">📅</span>
+                    <span style="font-weight: 600; font-size: 0.8rem; white-space: nowrap;">{name}</span>
+                    <span class="f-pill">{date}</span>
                 </div>
-            ''', unsafe_allow_html=True)
-            
-            # כפתור הלחיצה
-            if st.button("", key=f"f_btn_{rec_id}_{idx}", use_container_width=True):
-                st.session_state[open_key] = not is_open
-                st.rerun()
+                <div></div>
+                <span style="color: #94a3b8; font-size: 14px;">{"▼" if is_open else "◀"}</span>
+            </div>
+        ''', unsafe_allow_html=True)
+        
+        # כפתור לחיצה - לא מריץ כלום מלבד שינוי מצב פתיחה
+        if st.button("", key=f"btn_{r_id}_{idx}", use_container_width=True):
+            st.session_state[open_key] = not is_open
+            st.rerun()
 
-            # הצגת כפתור הסיכום במידה ופתוח
-            if is_open:
-                s_key = f"sum_v4_{rec_id}"
-                with st.container():
-                    st.write("") # מרווח קטן
-                    if s_key not in st.session_state:
-                        if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}", use_container_width=True):
-                            with st.spinner("מנתח..."):
-                                raw = get_fathom_summary(rec_id)
-                                if raw:
-                                    st.session_state[s_key] = refine_with_ai(raw)
-                                    st.rerun()
-                    else:
-                        st.info(st.session_state[s_key])
-                        if st.button("נקה סיכום 🗑️", key=f"clr_{rec_id}"):
-                            del st.session_state[s_key]
-                            st.rerun()
-
-# קריאה לפונקציה בדף הראשי
-render_fathom_section()
+        # הצגת הכפתור הפנימי רק אם פתוח
+        if is_open:
+            sum_key = f"sum_val_{r_id}"
+            with st.container():
+                if sum_key not in st.session_state:
+                    # רק כאן מתבצע התהליך הכבד
+                    if st.button("צור סיכום עם AI 🪄", key=f"ai_{r_id}"):
+                        with st.spinner("מעבד..."):
+                            raw = get_fathom_summary(r_id)
+                            if raw:
+                                st.session_state[sum_key] = refine_with_ai(raw)
+                                st.rerun()
+                else:
+                    st.info(st.session_state[sum_key])
+                    if st.button("נקה 🗑️", key=f"clear_{r_id}"):
+                        del st.session_state[sum_key]
+                        st.rerun()
