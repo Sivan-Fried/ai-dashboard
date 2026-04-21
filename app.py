@@ -298,19 +298,19 @@ else:
 
         # --- אזור Fathom המעודכן ---
 # --- אזור Fathom: גרסת ה-UI היציבה והנקייה ביותר ---
-# --- אזור Fathom: פתרון סופי לישור ומראה מושלם ---
+# --- אזור Fathom: פתרון ה-Overlay האולטימטיבי ליישור מושלם ---
         with st.container(border=True):
             st.markdown("### ✨ סיכומי פגישות Fathom")
             
-            # CSS שמיישר הכל ומטפל ב-Hover בלי לשבור את המבנה
+            # CSS שמבטיח אפס תזוזה ויזואלית
             st.markdown("""
                 <style>
-                .fathom-item-relative {
+                .fathom-card {
                     position: relative;
-                    margin-bottom: 10px;
                     width: 100%;
+                    margin-bottom: 12px;
                 }
-                .fathom-visual-row {
+                .fathom-row-design {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
@@ -320,27 +320,31 @@ else:
                     border-radius: 10px;
                     padding: 12px 18px;
                     transition: all 0.2s ease;
-                    direction: rtl; /* יישור לימין */
+                    direction: rtl;
                 }
-                /* אפקט Hover על השורה הויזואלית */
-                .fathom-item-relative:hover .fathom-visual-row {
+                /* אפקט Hover על העיצוב */
+                .fathom-card:hover .fathom-row-design {
                     border-color: #4facfe;
                     background-color: #f8fafc;
                     box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15);
                 }
-                /* הפיכת הכפתור של סטרימליט לבלתי נראה ושקוף מעל הכל */
-                .fathom-overlay-btn div[data-testid="stButton"] button {
+                /* הפיכת הכפתור של סטרימליט לשקוף שיושב בול מעל ה-Card */
+                .fathom-overlay-trigger div[data-testid="stButton"] button {
                     position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
+                    top: 0; left: 0; width: 100%; height: 100%;
                     background: transparent !important;
                     border: none !important;
                     color: transparent !important;
                     z-index: 10;
-                    padding: 0 !important;
+                    cursor: pointer;
                     margin: 0 !important;
+                    padding: 0 !important;
+                }
+                /* ביטול אפקטים של הכפתור המקורי */
+                .fathom-overlay-trigger div[data-testid="stButton"] button:hover, 
+                .fathom-overlay-trigger div[data-testid="stButton"] button:active {
+                    background: transparent !important;
+                    box-shadow: none !important;
                 }
                 </style>
             """, unsafe_allow_html=True)
@@ -360,31 +364,29 @@ else:
                     is_open = st.session_state.get(open_key, False)
                     arrow = "expand_more" if is_open else "chevron_left"
 
-                    # המכולה הראשית
-                    st.markdown(f'<div class="fathom-item-relative">', unsafe_allow_html=True)
-                    
-                    # 1. השכבה הויזואלית (מה שהמשתמש רואה)
+                    # המבנה הויזואלי
                     st.markdown(f'''
-                        <div class="fathom-visual-row">
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <span style="font-size: 1.2rem;">📅</span>
-                                <div style="display: flex; flex-direction: column;">
-                                    <b style="font-size: 1rem; color: #1e293b;">{title}</b>
-                                    <span style="color: #94a3b8; font-size: 0.8rem; font-family: monospace;">{date_str}</span>
+                        <div class="fathom-card">
+                            <div class="fathom-row-design">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <span style="font-size: 1.2rem;">📅</span>
+                                    <div style="display: flex; flex-direction: column;">
+                                        <b style="font-size: 0.95rem; color: #1e293b;">{title}</b>
+                                        <span style="color: #94a3b8; font-size: 0.8rem; font-family: monospace;">{date_str}</span>
+                                    </div>
                                 </div>
+                                <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">{arrow}</span>
                             </div>
-                            <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 22px;">{arrow}</span>
-                        </div>
                     ''', unsafe_allow_html=True)
                     
-                    # 2. שכבת הכפתור (מה שהמשתמש לוחץ עליו)
-                    st.markdown('<div class="fathom-overlay-btn">', unsafe_allow_html=True)
-                    if st.button("", key=f"overlay_final_{rec_id}"):
+                    # שכבת הכפתור הבלתי נראה
+                    st.markdown('<div class="fathom-overlay-trigger">', unsafe_allow_html=True)
+                    if st.button("", key=f"ov_final_{rec_id}"):
                         st.session_state[open_key] = not is_open
                         st.rerun()
                     st.markdown('</div></div>', unsafe_allow_html=True)
 
-                    # הצגת התוכן במידה ופתוח
+                    # הצגת התוכן (סיכום) - יוצא מחוץ ל-Overlay כדי להיות לחיץ
                     if is_open:
                         with st.container(border=False):
                             if s_key not in st.session_state:
