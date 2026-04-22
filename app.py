@@ -34,9 +34,7 @@ def save_summary_to_file(rec_id, summary_text):
         df = pd.concat([df, new_row], ignore_index=True)
         df.to_excel("fathom_summaries.xlsx", index=False)
 
-# שליפת מיקום ומזג אוויר בראש הדף
-loc = get_geolocation()
-
+# שליפת מיקום ומזג אוויר
 def get_weather_data(lat=32.084, lon=34.887): # ברירת מחדל פתח תקווה
     api_key = st.secrets.get("OPENWEATHER_API_KEY")
     url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric&lang=he"
@@ -48,8 +46,9 @@ def get_weather_data(lat=32.084, lon=34.887): # ברירת מחדל פתח תק�
             desc = data['weather'][0]['description']
             return f"{temp}°C | {desc}"
     except: pass
-    return "פתח תקווה | 24°C" # Fallback ויזואלי
+    return "פתח תקווה | 24°C"
 
+loc = get_geolocation()
 if loc and 'coords' in loc:
     weather_info = get_weather_data(loc['coords']['latitude'], loc['coords']['longitude'])
 else:
@@ -64,7 +63,6 @@ st.markdown("""
 <style>
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
     
-    /* יישור לימין לסיכומי AI */
     .stInfo, [data-testid="stNotification"], .stMarkdown div {
         text-align: right !important;
         direction: rtl !important;
@@ -106,7 +104,6 @@ st.markdown("""
     }
 
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
-    .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
     h3 { text-align: right !important; color: #1f2a44 !important; }
 </style>
 """, unsafe_allow_html=True)
@@ -114,19 +111,6 @@ st.markdown("""
 # =========================================================
 # 3. פונקציות API
 # =========================================================
-
-def get_azure_tasks():
-    ORG_NAME = "amandigital"
-    wiql_url = f"https://dev.azure.com/{ORG_NAME}/_apis/wit/wiql?api-version=6.0"
-    query = {"query": "SELECT [System.Id], [System.Title] FROM WorkItems WHERE [System.AssignedTo] = @me AND [System.State] = 'New'"}
-    try:
-        auth = ('', st.secrets["AZURE_PAT"])
-        res = requests.post(wiql_url, json=query, auth=auth)
-        ids = ",".join([str(item['id']) for item in res.json().get('workItems', [])[:5]])
-        if not ids: return []
-        details = requests.get(f"https://dev.azure.com/{ORG_NAME}/_apis/wit/workitems?ids={ids}&fields=System.Title,System.TeamProject,System.CreatedDate&api-version=6.0", auth=auth)
-        return details.json().get('value', [])
-    except: return []
 
 def get_fathom_meetings():
     url = "https://api.fathom.ai/external/v1/meetings"
@@ -157,9 +141,7 @@ def refine_with_ai(raw_text):
 # =========================================================
 try:
     projects = pd.read_excel("my_projects.xlsx")
-    meetings = pd.read_excel("meetings.xlsx")
-    reminders_df = pd.read_excel("reminders.xlsx")
-    today = pd.Timestamp.today().date()
+    # הסרתי קבצים שלא בשימוש בקוד שהצגת כדי למנוע שגיאות טעינה
 except:
     st.error("Missing Data Files"); st.stop()
 
@@ -183,14 +165,14 @@ if st.session_state.current_page == "project" or "proj" in st.query_params:
 else:
     st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
     
-    # אזור ברכה עליון
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
     greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
     
     col_img, col_greet = st.columns([1, 3])
     with col_img:
-        img_b64 = "" # הוספי פונקציית טעינת תמונה במידה ויש
-        st.markdown(f'<div style="text-align:left;"><img src="data:image/png;base64,{img_b64}" class="profile-img"></div>', unsafe_allow_html=True)
+        # כאן תוכלי להוסיף את ה-Base64 של התמונה שלך
+        st.markdown(f'<div style="text-align:left;"><img src="https://via.placeholder.com/130" class="profile-img"></div>', unsafe_allow_html=True)
+    
     with col_greet:
         st.markdown(f"""
             <div style="text-align: right; margin-top: 20px;">
@@ -204,11 +186,9 @@ else:
             </div>
         """, unsafe_allow_html=True)
 
-    # פריסת דשבורד
     col_r, col_l = st.columns(2)
     
     with col_r:
-        # פרויקטים
         with st.container(border=True):
             st.markdown("### 📁 פרויקטים פעילים")
             for _, row in projects.iterrows():
@@ -216,7 +196,6 @@ else:
                 st.markdown(f'<a href="{p_url}" target="_self" style="text-decoration:none;"><div class="record-row"><b>{row["project_name"]}</b><span class="tag-blue">פעיל</span></div></a>', unsafe_allow_html=True)
 
     with col_l:
-        # פגישות Fathom עם ארכיון
         with st.container(border=True):
             st.markdown("### ✨ סיכומי Fathom (שמורים)")
             
@@ -227,10 +206,8 @@ else:
                 for mtg in f_items:
                     rid = str(mtg.get('recording_id'))
                     title = mtg.get('title', 'פגישה ללא שם')
-                    
                     st.markdown(f"**📅 {title}**")
                     
-                    # בדיקה אם קיים באקסל
                     match = saved_summaries[saved_summaries['recording_id'].astype(str) == rid]
                     
                     if not match.empty:
