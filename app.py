@@ -11,7 +11,7 @@ import google.generativeai as genai
 from streamlit_js_eval import get_geolocation
 
 # =========================================================
-# 1. הגדרות דף ועיצוב (CSS)
+# 1. הגדרות דף ועיצוב (CSS) - המקור המלא שלך
 # =========================================================
 st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
@@ -56,7 +56,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =========================================================
-# 2. לוגיקה ופונקציות
+# 2. לוגיקה ופונקציות - המקור המלא שלך
 # =========================================================
 
 def get_weather_realtime(location):
@@ -119,11 +119,6 @@ if "rem_live" not in st.session_state: st.session_state.rem_live = reminders_df
 # הפעלת בקשת מיקום
 loc = get_geolocation()
 
-# התיקון שמונע את קריסת הדשבורד (הפסקה עד שיש מיקום)
-if not loc:
-    st.info("מזהה מיקום... אנא אשרי גישה בדפדפן במידה והתבקשת.")
-    st.stop()
-
 if st.session_state.current_page == "project":
     p_name = st.session_state.get("selected_project", "פרויקט")
     st.markdown(f'<h1 class="dashboard-header">{p_name}</h1>', unsafe_allow_html=True)
@@ -131,8 +126,12 @@ if st.session_state.current_page == "project":
     t1, t2, t3 = st.tabs(["📅 תוכנית", "👥 משאבים", "📝 סיכומים"])
     with t1: st.info("בבנייה...")
 else:
-    # הצגת מיקום ומזג אוויר
-    w_text, w_city = get_weather_realtime(loc)
+    # הצגת מיקום ומזג אוויר - תיקון ללא st.stop()
+    if loc:
+        w_text, w_city = get_weather_realtime(loc)
+    else:
+        w_text, w_city = "☀️ --°C", "טוען מיקום..."
+        
     st.markdown(f'<div class="weather-float"><div style="font-size:0.7rem; color:#4facfe;">{w_city}</div><div style="font-size:1.1rem; color:#1f2a44; font-weight:800;">{w_text}</div></div>', unsafe_allow_html=True)
 
     st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
