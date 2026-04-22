@@ -284,7 +284,7 @@ else:
                     s_t = fmt_time(r.get('start_time', '')); e_t = fmt_time(r.get('end_time', ''))
                     st.markdown(f'<div class="record-row"><span style="flex-grow:1; text-align:right;">📌 {r["meeting_title"]}</span><span class="time-label">{s_t}-{e_t}</span></div>', unsafe_allow_html=True)
 
-                with st.container(border=True):
+        with st.container(border=True):
             st.markdown("### 🔔 תזכורות")
             with st.container(border=False):
                 t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
