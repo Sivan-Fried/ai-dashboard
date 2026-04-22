@@ -11,7 +11,7 @@ import google.generativeai as genai
 from streamlit_js_eval import get_geolocation
 
 # =========================================================
-# 1. הגדרות דף ועיצוב (CSS)
+# 1. הגדרות דף ועיצוב (CSS) - מוחזר אחד לאחד
 # =========================================================
 st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
@@ -36,8 +36,7 @@ st.markdown("""
     
     .dashboard-header {
         background: linear-gradient(90deg, #4facfe, #00f2fe) !important;
-        -webkit-background-clip: text !important;
-        -webkit-text-fill-color: transparent !important;
+        -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important;
         text-align: center !important; font-size: 2.2rem !important; font-weight: 800; margin-bottom: 20px;
     }
     h3 { font-size: 1.15rem !important; font-weight: 700 !important; margin-bottom: 12px !important; color: #1f2a44 !important; text-align: right !important; }
@@ -53,12 +52,13 @@ st.markdown("""
     }
     .kpi-card b { font-size: 1.4rem; color: #1f2a44; display: block; }
     
-    div[data-testid="stVerticalBlockBorderWrapper"] {
+    div[data-testid="stVerticalBlockBorderWrapper"], .st-emotion-cache-1ne20ew {
         background: white !important; border-radius: 18px !important; padding: 15px !important; padding-bottom: 30px !important; 
     }
 
-    .project-link { text-decoration: none !important; color: inherit !important; display: block !important; }
-    
+    .project-link { text-decoration: none !important; color: inherit !important; display: block !important; transition: all 0.2s ease; }
+    .project-link:hover .record-row { border-color: #4facfe !important; background-color: #f8fafc !important; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important; }
+
     .record-row {
         background: #ffffff !important; padding: 10px 15px !important; border-radius: 10px !important; margin-bottom: 3px !important;
         border: 1px solid #edf2f7 !important; border-right: 5px solid #4facfe !important;
@@ -68,11 +68,19 @@ st.markdown("""
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
     .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
     .time-label { color: #64748b; font-size: 0.85em; font-weight: 500; font-family: monospace; }
+
+    /* Fathom Grid UI */
+    .fathom-row-ui {
+        display: grid; grid-template-columns: auto 1fr auto; align-items: center;
+        background: white; border: 1px solid #edf2f7; border-right: 5px solid #4facfe;
+        border-radius: 8px; padding: 0 16px; height: 45px; direction: rtl; transition: all 0.2s ease;
+    }
+    .fathom-pill-v2 { background-color: #f1f5f9; color: #475569; padding: 1px 8px; border-radius: 10px; font-size: 0.75rem; margin-right: 12px; }
 </style>
 """, unsafe_allow_html=True)
 
 # =========================================================
-# 2. פונקציות ונתונים
+# 2. פונקציות ונתונים - מוחזר אחד לאחד
 # =========================================================
 
 def get_weather_realtime(location):
@@ -88,30 +96,35 @@ def get_weather_realtime(location):
     return "☀️ --°C", "ישראל"
 
 def get_azure_tasks():
+    ORG_NAME = "amandigital"
     try:
         auth = ('', st.secrets["AZURE_PAT"])
-        res = requests.post("https://dev.azure.com/amandigital/_apis/wit/wiql?api-version=6.0", json={"query": "SELECT [System.Id], [System.Title] FROM WorkItems WHERE [System.AssignedTo] = @me AND [System.State] = 'New'"}, auth=auth)
-        ids = ",".join([str(i['id']) for i in res.json().get('workItems', [])[:5]])
+        query = {"query": "SELECT [System.Id], [System.Title] FROM WorkItems WHERE [System.AssignedTo] = @me AND [System.State] = 'New'"}
+        res = requests.post(f"https://dev.azure.com/{ORG_NAME}/_apis/wit/wiql?api-version=6.0", json=query, auth=auth)
+        ids = ",".join([str(item['id']) for item in res.json().get('workItems', [])[:5]])
         if not ids: return []
-        return requests.get(f"https://dev.azure.com/amandigital/_apis/wit/workitems?ids={ids}&fields=System.Title,System.TeamProject,System.CreatedDate&api-version=6.0", auth=auth).json().get('value', [])
+        details = requests.get(f"https://dev.azure.com/{ORG_NAME}/_apis/wit/workitems?ids={ids}&fields=System.Title,System.TeamProject,System.CreatedDate&api-version=6.0", auth=auth)
+        return details.json().get('value', [])
     except: return []
 
 def get_fathom_meetings():
     try:
         res = requests.get("https://api.fathom.ai/external/v1/meetings", headers={"X-Api-Key": st.secrets["FATHOM_API_KEY"]}, timeout=15)
-        return res.json().get('items', [])[:5], res.status_code
+        if res.status_code == 200: return res.json().get('items', [])[:5], 200
+        return [], res.status_code
     except: return [], 500
 
-def get_fathom_summary(rid):
+def get_fathom_summary(recording_id):
     try:
-        res = requests.get(f"https://api.fathom.ai/external/v1/recordings/{rid}/summary", headers={"X-Api-Key": st.secrets["FATHOM_API_KEY"]})
+        res = requests.get(f"https://api.fathom.ai/external/v1/recordings/{recording_id}/summary", headers={"X-Api-Key": st.secrets["FATHOM_API_KEY"]})
         return res.json().get("summary", {}).get("markdown_formatted") if res.status_code == 200 else None
     except: return None
 
-def refine_with_ai(txt):
+def refine_with_ai(raw_text):
     try:
         genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-        return genai.GenerativeModel('gemini-1.5-flash').generate_content(f"סכם לעברית עסקית:\n\n{txt}").text
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        return model.generate_content(f"סכם לעברית עסקית:\n\n{raw_text}").text
     except: return "שגיאה בסיכום"
 
 def fmt_time(t):
@@ -126,7 +139,7 @@ try:
 except: st.error("Missing Files"); st.stop()
 
 # =========================================================
-# 3. ניהול ניווט
+# 3. ניהול ניווט ו-Session State
 # =========================================================
 if "current_page" not in st.session_state: st.session_state.current_page = "main"
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders_df
@@ -141,30 +154,33 @@ if "proj" in params:
 # 4. תצוגה
 # =========================================================
 
+# הפעלת בקשת מיקום (קריטי להרצה)
 loc = get_geolocation()
 
 if st.session_state.current_page == "project":
     p_name = st.session_state.get("selected_project", "פרויקט")
     st.markdown(f'<h1 class="dashboard-header">{p_name}</h1>', unsafe_allow_html=True)
-    if st.button("⬅️ חזרה"): 
+    if st.button("⬅️ חזרה לדשבורד"):
         st.query_params.clear()
         st.session_state.current_page = "main"
         st.rerun()
-    t1, t2, t3 = st.tabs(["📅 תוכנית", "👥 משאבים", "📝 סיכומים"])
-    with t1: st.info("בבנייה...")
+    
+    with st.container(border=True):
+        tab_work, tab_res, tab_risk, tab_meetings = st.tabs(["📅 תוכנית עבודה", "👥 משאבים", "⚠️ סיכונים", "📝 סיכומים"])
+        with tab_work: st.info("בבנייה...")
 
 else:
-    # טיפול במזג אוויר ומיקום
+    # --- מזג אוויר צף (מתוקן ללא NameError) ---
     if loc:
         w_text, w_city = get_weather_realtime(loc)
     else:
         w_text, w_city = "☀️ --°C", "מזהה מיקום..."
     
-    st.markdown(f'<div class="weather-float"><div style="font-size:0.7rem; color:#4facfe;">{w_city}</div><div style="font-size:1.1rem; color:#1f2a44; font-weight:800;">{w_text}</div></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="weather-float"><div style="font-size:0.7rem; color:#4facfe; font-weight:700;">{w_city}</div><div style="font-size:1.1rem; color:#1f2a44; font-weight:800;">{w_text}</div></div>', unsafe_allow_html=True)
 
     st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
 
-    # פרופיל וברכה
+    # פרופיל
     img_b64 = get_base64_image("profile.png")
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
     greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
@@ -190,18 +206,29 @@ else:
     with col_right:
         with st.container(border=True):
             st.markdown("### 📁 פרויקטים")
-            for _, row in projects.iterrows():
-                p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
-                st.markdown(f'<a href="{p_url}" target="_self" class="project-link"><div class="record-row"><b>📂 {row["project_name"]}</b><span class="tag-blue">{row.get("project_type", "תחזוקה")}</span></div></a>', unsafe_allow_html=True)
+            with st.container(height=300, border=False):
+                for _, row in projects.iterrows():
+                    p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
+                    st.markdown(f'<a href="{p_url}" target="_self" class="project-link"><div class="record-row"><b>📂 {row["project_name"]}</b><span class="tag-blue">{row.get("project_type", "תחזוקה")}</span><span class="material-symbols-rounded" style="color:#94a3b8; font-size:20px;">chevron_left</span></div></a>', unsafe_allow_html=True)
 
         with st.container(border=True):
             st.markdown("### 📋 Azure Tasks")
-            tasks = get_azure_tasks()
-            if tasks:
-                for t in tasks:
-                    f = t.get('fields', {})
-                    st.markdown(f'<div class="record-row"><span>🔗 {f.get("System.Title", "N/A")}</span><span class="tag-orange">{f.get("System.TeamProject", "N/A")}</span></div>', unsafe_allow_html=True)
+            tasks_data = get_azure_tasks()
+            if tasks_data:
+                for t in tasks_data:
+                    f = t.get('fields', {}); t_id = t.get('id')
+                    raw_date = f.get('System.CreatedDate', ''); fmt_date = f"{raw_date[8:10]}/{raw_date[5:7]}" if raw_date else ""
+                    st.markdown(f'<div class="record-row"><span>🔗 {f.get("System.Title","")}</span><span class="tag-orange">{f.get("System.TeamProject","")}</span></div>', unsafe_allow_html=True)
             else: st.write("אין משימות חדשות")
+
+        with st.container(border=True):
+            st.markdown("### ✨ עוזר AI אישי")
+            a1, a2 = st.columns([1, 2])
+            sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed")
+            q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed")
+            if st.button("שגר שאילתה 🚀", use_container_width=True):
+                st.session_state.ai_response = f"ניתוח עבור {sel_p}..."
+            if st.session_state.ai_response: st.info(st.session_state.ai_response)
 
     with col_left:
         with st.container(border=True):
@@ -209,17 +236,29 @@ else:
             t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
             if not t_m.empty:
                 for _, r in t_m.iterrows():
-                    st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span><span class="time-label">{r.get("start_time", "")}</span></div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span><span class="time-label">{r.get("start_time","")}</span></div>', unsafe_allow_html=True)
             else: st.write("אין פגישות היום")
 
         with st.container(border=True):
-            st.markdown("### ✨ Fathom AI")
-            f_mtgs, status = get_fathom_meetings()
-            if status == 200 and f_mtgs:
-                for m in f_mtgs:
-                    with st.expander(f"📅 {m.get('title', 'פגישה')}"):
-                        if st.button("סכם פגישה", key=f"f_{m['recording_id']}"):
-                            with st.spinner("מנתח..."):
-                                summary = get_fathom_summary(m['recording_id'])
-                                st.write(refine_with_ai(summary) if summary else "אין סיכום זמין")
+            st.markdown("### 🔔 תזכורות")
+            t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
+            for _, row in t_r.iterrows():
+                st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
+            if st.button("➕", use_container_width=True): pass
+
+        with st.container(border=True):
+            st.markdown("### ✨ סיכומי פגישות Fathom")
+            f_meetings, status = get_fathom_meetings()
+            if status == 200 and f_meetings:
+                for idx, mtg in enumerate(f_meetings):
+                    rec_id = mtg.get('recording_id')
+                    title = mtg.get('title') or "פגישה"
+                    date_str = mtg.get('recording_start_time', '')[:10]
+                    
+                    st.markdown(f'<div class="fathom-row-ui"><div>📅 <span style="font-weight:600;">{title}</span><span class="fathom-pill-v2">{date_str}</span></div><div></div><span class="material-symbols-rounded" style="color:#94a3b8;">expand_more</span></div>', unsafe_allow_html=True)
+                    
+                    if st.button("סכם", key=f"btn_{rec_id}_{idx}", use_container_width=True):
+                        with st.spinner("מנתח..."):
+                            summary = get_fathom_summary(rec_id)
+                            st.info(refine_with_ai(summary) if summary else "אין סיכום")
             else: st.write("אין פגישות זמינות")
