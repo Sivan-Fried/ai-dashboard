@@ -227,7 +227,6 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
     
     # KPIs
-        st.markdown("<br>", unsafe_allow_html=True)
     k1, k2, k3, k4 = st.columns(4)
     with k1: st.markdown(f'<div class="kpi-card">בסיכון 🔴<br><b>{len(projects[projects["status"]=="אדום"])}</b></div>', unsafe_allow_html=True)
     with k2: st.markdown(f'<div class="kpi-card">במעקב 🟡<br><b>{len(projects[projects["status"]=="צהוב"])}</b></div>', unsafe_allow_html=True)
