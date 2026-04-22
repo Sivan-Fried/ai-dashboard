@@ -171,7 +171,21 @@ try:
     today = pd.Timestamp.today().date()
 except:
     st.error("Missing Files"); st.stop()
-
+def get_weather(city="Petah Tikva"):
+    try:
+        # קואורדינטות עבור פתח תקווה
+        lat, lon = 32.08, 34.88
+        url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true"
+        res = requests.get(url).json()
+        temp = res['current_weather']['temperature']
+        code = res['current_weather']['weathercode']
+        
+        # מיפוי אייקונים פשוט
+        icon = "☀️" if code == 0 else "☁️" if code < 50 else "🌧️"
+        return f"{icon} {temp}°C"
+    except:
+        return "☀️ 24°C" # ברירת מחדל אסתטית למקרה של תקלה
+        
 # =========================================================
 # 3. ניהול ניווט
 # =========================================================
