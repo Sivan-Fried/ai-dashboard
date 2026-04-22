@@ -147,7 +147,7 @@ def get_weather_realtime(location):
             
             # בדיקה האם עכשיו יום או לילה לפי השעה המקומית
             hour = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).hour
-            icon = "nightlight" if (hour >= 19 or hour < 6) else "light_mode"
+            icon = "🌙" if (hour >= 19 or hour < 6) else "☀️"
             
             return f"{icon} {temp}°C", city
         except: pass
