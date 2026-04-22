@@ -233,6 +233,27 @@ else:
         </div>
     """, unsafe_allow_html=True)
 
+    #הוספה
+    # הפעלת בקשת מיקום
+loc = get_geolocation()
+
+if st.session_state.current_page == "project":
+    p_name = st.session_state.get("selected_project", "פרויקט")
+    st.markdown(f'<h1 class="dashboard-header">{p_name}</h1>', unsafe_allow_html=True)
+    if st.button("⬅️ חזרה"): st.session_state.current_page = "main"; st.rerun()
+    t1, t2, t3 = st.tabs(["📅 תוכנית", "👥 משאבים", "📝 סיכומים"])
+    with t1: st.info("בבנייה...")
+else:
+    # הצגת מיקום ומזג אוויר - תיקון ללא st.stop()
+    if loc:
+        w_text, w_city = get_weather_realtime(loc)
+    else:
+        w_text, w_city = "☀️ --°C", "טוען מיקום..."
+        
+    st.markdown(f'<div class="weather-float"><div style="font-size:0.7rem; color:#4facfe;">{w_city}</div><div style="font-size:1.1rem; color:#1f2a44; font-weight:800;">{w_text}</div></div>', unsafe_allow_html=True)
+
+    st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
+
     # --- דשבורד ראשי ---
     st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
     img_b64 = get_base64_image("profile.png")
