@@ -8,9 +8,10 @@ import urllib.parse
 from zoneinfo import ZoneInfo
 import streamlit.components.v1 as components
 import google.generativeai as genai
+from streamlit_js_eval import get_geolocation # הוספת רכיב המיקום האמיתי
 
 # =========================================================
-# 1. הגדרות דף ועיצוב (CSS)
+# 1. הגדרות דף ועיצוב (CSS) - המקור המדויק שלך
 # =========================================================
 st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
@@ -125,20 +126,28 @@ st.markdown("""
 # 2. פונקציות ונתונים
 # =========================================================
 
-def get_weather_data():
+def get_real_weather(loc_data):
     try:
-        geo = requests.get('https://ipapi.co/json/', timeout=3).json()
-        city_en = geo.get('city', 'Israel')
-        translate = {"Holon": "חולון", "Tel Aviv": "תל אביב", "Petah Tikva": "פתח תקווה", "Jerusalem": "ירושלים", "Rishon LeZiyyon": "ראשון לציון", "Haifa": "חיפה"}
-        city_he = translate.get(city_en, city_en)
-        lat, lon = geo.get('latitude', 32.08), geo.get('longitude', 34.88)
+        # חילוץ קואורדינטות אמיתיות מהדפדפן
+        lat = loc_data['coords']['latitude']
+        lon = loc_data['coords']['longitude']
+        
+        # תרגום קואורדינטות לשם עיר
+        geo_url = f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}"
+        geo_res = requests.get(geo_url, headers={'User-Agent': 'SivanDashboard/1.0'}, timeout=3).json()
+        city = geo_res.get('address', {}).get('city') or geo_res.get('address', {}).get('town') or "ישראל"
+        
+        # משיכת מזג אוויר
         w_res = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true", timeout=3).json()
         temp = round(w_res['current_weather']['temperature'])
         code = w_res['current_weather']['weathercode']
         icon = "☀️" if code == 0 else "☁️" if code < 50 else "🌧️"
-        return f"{icon} {temp}°C", city_he
-    except: return "☀️ 22°C", "ישראל"
+        
+        return f"{icon} {temp}°C", city
+    except:
+        return "☀️ 22°C", "ישראל"
 
+# ... (שאר הפונקציות Azure, Fathom, וכו' נשארו ללא שינוי מהקוד שלך)
 def get_azure_tasks():
     ORG_NAME = "amandigital"
     wiql_url = f"https://dev.azure.com/{ORG_NAME}/_apis/wit/wiql?api-version=6.0"
@@ -158,8 +167,7 @@ def get_fathom_meetings():
     headers = {"X-Api-Key": api_key, "Accept": "application/json"}
     try:
         response = requests.get(url, headers=headers, timeout=15)
-        if response.status_code == 200:
-            return response.json().get('items', [])[:5], 200
+        if response.status_code == 200: return response.json().get('items', [])[:5], 200
         return response.text, response.status_code
     except Exception as e: return str(e), 500
 
@@ -169,8 +177,7 @@ def get_fathom_summary(recording_id):
     headers = {"X-Api-Key": api_key, "Accept": "application/json"}
     try:
         response = requests.get(url, headers=headers, timeout=15)
-        if response.status_code == 200:
-            return response.json().get("summary", {}).get("markdown_formatted")
+        if response.status_code == 200: return response.json().get("summary", {}).get("markdown_formatted")
         return None
     except: return None
 
@@ -225,8 +232,15 @@ if st.session_state.current_page == "project":
         with tab_work:
              st.info(f"תוכנית עבודה עבור {p_name} תעודכן בהמשך.")
 else:
-    # --- הזרקת מזג אוויר צף מעל הכל ---
-    w_text, w_city = get_weather_data()
+    # --- הפעלת בקשת מיקום אמיתי מהדפדפן ---
+    loc = get_geolocation()
+    
+    if loc:
+        w_text, w_city = get_real_weather(loc)
+    else:
+        # ברירת מחדל עד שהמשתמש מאשר מיקום
+        w_text, w_city = "☀️ --°C", "מזהה מיקום..."
+
     st.markdown(f"""
         <div class="weather-float">
             <div style="font-size: 0.7rem; color: #4facfe; font-weight: 700;">{w_city}</div>
@@ -274,6 +288,7 @@ else:
                         </a>
                     ''', unsafe_allow_html=True)
 
+        # ... (שאר הקוד Azure, AI Assistant, Meetings, Reminders, Fathom - כולם נשארו בדיוק כמו במקור שלך)
         with st.container(border=True):
             st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
             tasks_data = get_azure_tasks()
@@ -310,7 +325,6 @@ else:
                 st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
             if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
 
-            # --- אזור Fathom המעודכן ---
         with st.container(border=True):
             col_title, col_refresh = st.columns([0.9, 0.1])
             with col_title:
