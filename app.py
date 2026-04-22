@@ -10,9 +10,7 @@ import streamlit.components.v1 as components
 import google.generativeai as genai
 from streamlit_js_eval import get_geolocation
 
-# =========================================================
-# 1. הגדרות דף ועיצוב (CSS)
-# =========================================================
+
 # =========================================================
 # 1. הגדרות דף ועיצוב (CSS)
 # =========================================================
@@ -318,19 +316,35 @@ else:
                 t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
                 for _, row in t_r.iterrows():
                     st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
-            if st.session_state.adding_reminder:
+         if st.session_state.adding_reminder:
                 with st.container(border=True):
-                    r_col1, r_col2 = st.columns([1, 2])
-                    new_proj = r_col1.selectbox("בחר פרויקט", projects["project_name"].tolist() + ["כללי"], label_visibility="collapsed")
-                    new_text = r_col2.text_input("תיאור התזכורת", placeholder="מה להזכיר?", label_visibility="collapsed")
-                    if st.button("✅"):
-                        if new_text:
-                            new_data = pd.DataFrame([{"date": today, "reminder_text": new_text, "project_name": new_proj}])
-                            st.session_state.rem_live = pd.concat([st.session_state.rem_live, new_data], ignore_index=True)
-                            st.session_state.adding_reminder = False; st.rerun()
-                    if st.button("❌"): st.session_state.adding_reminder = False; st.rerun()
+                    # חלוקה ל-4 עמודות: פרויקט, טקסט, ושני כפתורים קטנים בסוף
+                    r_col1, r_col2, r_col3, r_col4 = st.columns([1.2, 2.5, 0.5, 0.5])
+                    
+                    with r_col1:
+                        new_proj = st.selectbox("פרויקט", projects["project_name"].tolist() + ["כללי"], label_visibility="collapsed")
+                    
+                    with r_col2:
+                        new_text = st.text_input("תיאור", placeholder="מה להזכיר?", label_visibility="collapsed")
+                    
+                    with r_col3:
+                        # כפתור אישור
+                        if st.button("✅", key="save_rem"):
+                            if new_text:
+                                new_data = pd.DataFrame([{"date": today, "reminder_text": new_text, "project_name": new_proj}])
+                                st.session_state.rem_live = pd.concat([st.session_state.rem_live, new_data], ignore_index=True)
+                                st.session_state.adding_reminder = False
+                                st.rerun()
+                    
+                    with r_col4:
+                        # כפתור ביטול
+                        if st.button("❌", key="cancel_rem"):
+                            st.session_state.adding_reminder = False
+                            st.rerun()
             else:
-                if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
+                if st.button("➕", use_container_width=True): 
+                    st.session_state.adding_reminder = True
+                    st.rerun()
         
         # --- אזור Fathom המעודכן ---
         with st.container(border=True):
