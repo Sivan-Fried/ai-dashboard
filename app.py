@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 import google.generativeai as genai
 
 # =========================================================
-# 1. הגדרות דף ועיצוב (CSS)
+# 1. הגדרות דף ועיצוב (CSS משופר ויציב)
 # =========================================================
 st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
@@ -24,7 +24,6 @@ st.markdown("""
 <style>
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
     
-    /* כותרת מרכזית */
     .dashboard-header {
         background: linear-gradient(90deg, #4facfe, #00f2fe) !important;
         -webkit-background-clip: text !important;
@@ -32,42 +31,35 @@ st.markdown("""
         text-align: center !important;
         font-size: 3rem !important;
         font-weight: 800;
-        margin-bottom: 5px !important;
-        padding-top: 20px;
-    }
-
-    /* מזג אוויר צף בצד שמאל */
-    .weather-floating {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        background: white;
-        padding: 10px 15px;
-        border-radius: 15px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        border: 1px solid #edf2f7;
-        text-align: center;
-        z-index: 100;
-        min-width: 100px;
+        margin-bottom: 0px !important;
     }
 
     .profile-img {
         width: 140px; height: 140px; border-radius: 50% !important;
         object-fit: cover !important; object-position: center 25% !important;
         border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-        margin-bottom: 10px;
+    }
+
+    .weather-card {
+        background: white;
+        padding: 12px;
+        border-radius: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid #edf2f7;
+        text-align: center;
+        margin-top: 10px;
     }
 
     .kpi-card {
-        background: white !important; padding: 15px !important;
+        background: white !important; padding: 20px !important;
         border-radius: 12px !important; text-align: center !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
     }
-    .kpi-card b { font-size: 1.4rem; color: #1f2a44; display: block; }
+    .kpi-card b { font-size: 1.6rem; color: #1f2a44; display: block; }
     
     .record-row {
-        background: #ffffff !important; padding: 10px 15px !important;
-        border-radius: 10px !important; margin-bottom: 3px !important;
+        background: #ffffff !important; padding: 12px 15px !important;
+        border-radius: 10px !important; margin-bottom: 5px !important;
         border: 1px solid #edf2f7 !important; border-right: 5px solid #4facfe !important;
         display: flex !important; justify-content: space-between !important;
         align-items: center !important; direction: rtl !important;
@@ -75,7 +67,9 @@ st.markdown("""
 
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
     .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
-    p, span, label { text-align: right !important; direction: rtl !important; }
+    
+    /* יישור טקסט גלובלי */
+    p, span, label, h3 { text-align: right !important; direction: rtl !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -87,8 +81,11 @@ def get_weather():
     try:
         geo = requests.get('https://ipapi.co/json/', timeout=3).json()
         city_en = geo.get('city', 'Israel')
-        # מילון תרגום בסיסי
-        cities_he = {"Holon": "חולון", "Tel Aviv": "תל אביב", "Petah Tikva": "פתח תקווה", "Jerusalem": "ירושלים", "Haifa": "חיפה"}
+        # מילון תרגום לעברית
+        cities_he = {
+            "Holon": "חולון", "Tel Aviv": "תל אביב", "Petah Tikva": "פתח תקווה", 
+            "Jerusalem": "ירושלים", "Haifa": "חיפה", "Rishon LeZiyyon": "ראשון לציון"
+        }
         city_he = cities_he.get(city_en, city_en)
         
         lat, lon = geo.get('latitude', 32.08), geo.get('longitude', 34.88)
@@ -125,10 +122,10 @@ def refine_with_ai(txt):
     try:
         genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
         model = genai.GenerativeModel('gemini-1.5-flash')
-        return model.generate_content(f"סכם לעברית עסקית:\n\n{txt}").text
+        return model.generate_content(f"סכם לעברית עסקית רהוטה:\n\n{txt}").text
     except: return "שגיאה בניתוח ה-AI"
 
-# טעינת נתונים
+# טעינת קבצים
 try:
     projects = pd.read_excel("my_projects.xlsx")
     meetings = pd.read_excel("meetings.xlsx")
@@ -138,33 +135,40 @@ except:
     st.error("Missing Files"); st.stop()
 
 # =========================================================
-# 3. מבנה הדף (UI)
+# 3. מבנה הדף - HEADER (כותרת, תמונה, מזג אוויר)
 # =========================================================
 
-# --- HEADER (החלק העליון) ---
-w_info, city_name = get_weather()
-st.markdown(f"""
-    <div class="weather-floating">
-        <span style="color: #4facfe; font-weight: 700; font-size: 0.8rem; display:block;">{city_name}</span>
-        <b style="font-size: 1.2rem; color: #1f2a44;">{w_info}</b>
-    </div>
-""", unsafe_allow_html=True)
-
+# כותרת ראשית מעל הכל
 st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
 
-# תמונה וברכה במרכז מושלם
-img_b64 = get_base64_image("profile.png")
-col_img_1, col_img_2, col_img_3 = st.columns([1, 1, 1])
-with col_img_2:
+# שורת תמונה, ברכה ומזג אוויר
+col_weather, col_profile, col_spacer = st.columns([1, 1.5, 1])
+
+with col_weather:
+    w_info, city_name = get_weather()
+    st.markdown(f"""
+        <div class="weather-card">
+            <span style="color: #4facfe; font-weight: 700; font-size: 0.85rem; display:block;">{city_name}</span>
+            <b style="font-size: 1.3rem; color: #1f2a44;">{w_info}</b>
+        </div>
+    """, unsafe_allow_html=True)
+
+with col_profile:
+    img_b64 = get_base64_image("profile.png")
     if img_b64:
         st.markdown(f'<div style="text-align:center;"><img src="data:image/png;base64,{img_b64}" class="profile-img"></div>', unsafe_allow_html=True)
     
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
     greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
-    st.markdown(f"<div style='text-align:center;'><p style='font-weight:700; font-size:1.3rem; margin-bottom:0;'>{greeting}, סיון!</p>"
-                f"<p style='color:gray; font-size:0.9rem;'>{now.strftime('%H:%M | %d/%m/%Y')}</p></div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='text-align:center; margin-top:10px;'>"
+                f"<p style='font-weight:700; font-size:1.4rem; margin-bottom:0;'>{greeting}, סיון!</p>"
+                f"<p style='color:gray; font-size:1rem;'>{now.strftime('%H:%M | %d/%m/%Y')}</p></div>", unsafe_allow_html=True)
 
-# --- KPIs ---
+# =========================================================
+# 4. מבנה הדף - גוף הדשבורד
+# =========================================================
+
+# KPIs
 st.markdown("<br>", unsafe_allow_html=True)
 k1, k2, k3, k4 = st.columns(4)
 with k1: st.markdown(f'<div class="kpi-card">בסיכון 🔴<br><b>{len(projects[projects["status"]=="אדום"])}</b></div>', unsafe_allow_html=True)
@@ -174,10 +178,10 @@ with k4: st.markdown(f'<div class="kpi-card">סה"כ פרויקטים<br><b>{len
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# --- גוף הדף (עמודות) ---
 col_r, col_l = st.columns([1, 1])
 
 with col_r:
+    # פרויקטים
     with st.container(border=True):
         st.markdown("### 📁 פרויקטים")
         for _, row in projects.iterrows():
@@ -185,22 +189,27 @@ with col_r:
                 <div style="display:flex; align-items:center; gap:10px;"><b>📂 {row["project_name"]}</b><span class="tag-blue">{row.get("project_type", "תחזוקה")}</span></div>
                 <span class="material-symbols-rounded" style="color:#94a3b8;">chevron_left</span></div>''', unsafe_allow_html=True)
 
+    # משימות Azure
     with st.container(border=True):
         st.markdown("### 📋 משימות Azure")
         tasks = get_azure_tasks()
         if tasks:
             for t in tasks:
                 f = t.get('fields', {})
-                st.markdown(f'<div class="record-row"><span>🔗 {f.get("System.Title")[:40]}...</span><span class="tag-orange">{f.get("System.TeamProject")}</span></div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="record-row"><span>🔗 {f.get("System.Title")[:45]}...</span><span class="tag-orange">{f.get("System.TeamProject")}</span></div>', unsafe_allow_html=True)
         else: st.write("אין משימות חדשות")
 
 with col_l:
+    # פגישות
     with st.container(border=True):
         st.markdown("### 📅 פגישות היום")
         t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-        for _, r in t_m.iterrows():
-            st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span><span style="color:#64748b; font-family:monospace;">{r.get("start_time")}</span></div>', unsafe_allow_html=True)
+        if t_m.empty: st.write("אין פגישות היום")
+        else:
+            for _, r in t_m.iterrows():
+                st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span><span style="color:#64748b; font-family:monospace;">{r.get("start_time")}</span></div>', unsafe_allow_html=True)
 
+    # סיכומי Fathom (מתוקן ויציב)
     with st.container(border=True):
         st.markdown("### ✨ סיכומי Fathom")
         f_mtgs = get_fathom_meetings()
@@ -211,11 +220,8 @@ with col_l:
                 date_s = mtg.get('recording_start_time', '')[:10]
                 
                 with st.expander(f"📅 {title} | {date_s}"):
-                    s_key = f"sum_{rid}"
-                    if s_key not in st.session_state:
-                        if st.button("סכם עם AI 🪄", key=f"btn_{rid}"):
-                            with st.spinner("מנתח..."):
-                                raw = get_fathom_summary(rid)
-                                if raw: st.session_state[s_key] = refine_with_ai(raw); st.rerun()
-                    else: st.info(st.session_state[s_key])
+                    if st.button("סכם עם AI 🪄", key=f"btn_{rid}"):
+                        with st.spinner("מנתח..."):
+                            raw = get_fathom_summary(rid)
+                            if raw: st.info(refine_with_ai(raw))
         else: st.write("אין פגישות זמינות")
