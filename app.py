@@ -8,6 +8,7 @@ import urllib.parse
 from zoneinfo import ZoneInfo
 import streamlit.components.v1 as components
 import google.generativeai as genai
+from streamlit_js_eval import get_geolocation
 
 # =========================================================
 # 1. הגדרות דף ועיצוב (CSS)
