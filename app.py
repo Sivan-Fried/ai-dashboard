@@ -310,43 +310,67 @@ else:
                     s_t = fmt_time(r.get('start_time', '')); e_t = fmt_time(r.get('end_time', ''))
                     st.markdown(f'<div class="record-row"><span style="flex-grow:1; text-align:right;">📌 {r["meeting_title"]}</span><span class="time-label">{s_t}-{e_t}</span></div>', unsafe_allow_html=True)
 
-        with st.container(border=True):
-            st.markdown("### 🔔 תזכורות")
+        # =========================================================
+# אזור תזכורות - הקוד המלא
+# =========================================================
+with st.container(border=True):
+    st.markdown("### 🔔 תזכורות")
+    
+    # 1. תצוגת רשימת התזכורות הקיימות
+    with st.container(border=False):
+        # סינון לפי תאריך היום (מניח שקיים משתנה today ו-st.session_state.rem_live)
+        t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
+        if not t_r.empty:
+            for _, row in t_r.iterrows():
+                st.markdown(f'''
+                    <div class="record-row">
+                        <span>🔔 {row["reminder_text"]}</span>
+                        <span class="tag-orange">{row.get("project_name", "כללי")}</span>
+                    </div>
+                ''', unsafe_allow_html=True)
+        else:
+            st.write("אין תזכורות להיום.")
+
+    # 2. שורת הוספת תזכורת (מופיעה רק בלחיצה על +)
+    if st.session_state.get('adding_reminder', False):
+        with st.container():
+            # חלוקת עמודות מדויקת: פרויקט, תיאור, ואז שני כפתורים קטנים
+            # ב-RTL העמודה הימנית היא הראשונה
+            r_col1, r_col2, r_col3, r_col4 = st.columns([1.5, 3, 0.45, 0.45])
             
-            # הצגת התזכורות הקיימות להיום
-            with st.container(border=False):
-                t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
-                for _, row in t_r.iterrows():
-                    st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
+            with r_col1:
+                new_proj = st.selectbox(
+                    "פרויקט", 
+                    projects["project_name"].tolist() + ["כללי"], 
+                    label_visibility="collapsed", 
+                    key="new_rem_proj"
+                )
             
-            # אזור הוספת תזכורת חדשה
-            if st.session_state.adding_reminder:
-                with st.container(border=True):
-                    # חלוקה ל-4 עמודות כדי שהכל ייכנס בשורה אחת
-                    r_col1, r_col2, r_col3, r_col4 = st.columns([1.2, 2.5, 0.4, 0.4])
-                    
-                    with r_col1:
-                        new_proj = st.selectbox("פרויקט", projects["project_name"].tolist() + ["כללי"], label_visibility="collapsed", key="new_rem_proj")
-                    
-                    with r_col2:
-                        new_text = st.text_input("תיאור", placeholder="מה להזכיר?", label_visibility="collapsed", key="new_rem_text")
-                    
-                    with r_col3:
-                        if st.button("✅", key="save_rem_btn"):
-                            if new_text:
-                                new_data = pd.DataFrame([{"date": today, "reminder_text": new_text, "project_name": new_proj}])
-                                st.session_state.rem_live = pd.concat([st.session_state.rem_live, new_data], ignore_index=True)
-                                st.session_state.adding_reminder = False
-                                st.rerun()
-                    
-                    with r_col4:
-                        if st.button("❌", key="cancel_rem_btn"):
-                            st.session_state.adding_reminder = False
-                            st.rerun()
-            else:
-                if st.button("➕ הוספת תזכורת", use_container_width=True):
-                    st.session_state.adding_reminder = True
+            with r_col2:
+                new_text = st.text_input(
+                    "תיאור", 
+                    placeholder="מה להזכיר?", 
+                    label_visibility="collapsed", 
+                    key="new_rem_text"
+                )
+            
+            with r_col3:
+                if st.button("✅", key="save_rem_btn", use_container_width=True):
+                    if new_text:
+                        new_row = {"date": today, "reminder_text": new_text, "project_name": new_proj}
+                        st.session_state.rem_live = pd.concat([st.session_state.rem_live, pd.DataFrame([new_row])], ignore_index=True)
+                        st.session_state.adding_reminder = False
+                        st.rerun()
+            
+            with r_col4:
+                if st.button("❌", key="cancel_rem_btn", use_container_width=True):
+                    st.session_state.adding_reminder = False
                     st.rerun()
+    else:
+        # כפתור הפתיחה המרכזי
+        if st.button("➕ הוספת תזכורת", use_container_width=True):
+            st.session_state.adding_reminder = True
+            st.rerun()
 
         # --- אזור Fathom המעודכן ---
         with st.container(border=True):
