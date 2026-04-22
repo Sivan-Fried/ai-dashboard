@@ -311,9 +311,7 @@ else:
                     st.markdown(f'<div class="record-row"><span style="flex-grow:1; text-align:right;">📌 {r["meeting_title"]}</span><span class="time-label">{s_t}-{e_t}</span></div>', unsafe_allow_html=True)
 
         # =========================================================
-# אזור תזכורות - הקוד המלא
-# =========================================================
-with st.container(border=True):
+        with st.container(border=True):
     st.markdown("### 🔔 תזכורות")
     
     # 1. תצוגת רשימת התזכורות הקיימות
