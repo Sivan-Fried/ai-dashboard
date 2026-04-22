@@ -286,7 +286,7 @@ else:
 
          with st.container(border=True):
             st.markdown("### 🔔 תזכורות")
-        with st.container(border=False):
+            with st.container(border=False):
                 t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
                 for _, row in t_r.iterrows():
                     st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
@@ -303,8 +303,6 @@ else:
                     if st.button("❌"): st.session_state.adding_reminder = False; st.rerun()
             else:
                 if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
-
-
         
             # --- אזור Fathom המעודכן ---
         with st.container(border=True):
