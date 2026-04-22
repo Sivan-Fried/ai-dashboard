@@ -8,51 +8,6 @@ import urllib.parse
 from zoneinfo import ZoneInfo
 import streamlit.components.v1 as components
 import google.generativeai as genai
-from streamlit_js_eval import get_geolocation # הוספה יחידה
-
-# =========================================================
-# 1. הגדרות דף ועיצוב (CSS) - המקור שלך ללא שינוי
-# =========================================================
-st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
-
-st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
-
-def get_base64_image(path):
-    try:
-        with open(path, "rb") as img_file: return base64.b64encode(img_file.read()).decode()
-    except: return ""
-
-st.markdown("""
-<style>
-    .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
-    
-    /* הסרת הפס הלבן של רכיבי ה-JS */
-    iframe { display: none !important; }
-    div[data-testid="stHtml"] > iframe { height: 0px !important; }
-
-    .weather-float {
-        position: absolute; top: 20px; left: 20px; z-index: 999;
-        background: white; padding: 8px 15px; border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #edf2f7; text-align: center;
-    }
-    /* כל שאר ה-CSS המקורי שלך כאן... */
-    .dashboard-header { background: linear-gradient(90deg, #4facfe, #00f2fe) !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; text-align: center !important; font-size: 2.2rem !important; font-weight: 800; margin-bottom: 20px; }
-    .profile-img { width: 130px; height: 130px; border-radius: 50% !important; object-fit: cover !important; border: 4px solid white !important; }
-    .kpi-card { background: white !important; padding: 15px !important; border-radius: 12px !important; text-align: center !important; box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important; }
-    .record-row { background: #ffffff !important; padding: 10px 15px !important; border-radius: 10px !important; margin-bottom: 3px !important; border: 1px solid #edf2f7 !important; border-right: 5px solid #4facfe !important; display: flex !important; justify-content: space-between !important; align-items: center !important; }
-</style>
-""", unsafe_allow_html=True)
-
-import streamlit as st
-import requests
-import pandas as pd
-import base64
-import datetime
-import time
-import urllib.parse
-from zoneinfo import ZoneInfo
-import streamlit.components.v1 as components
-import google.generativeai as genai
 from streamlit_js_eval import get_geolocation
 
 # =========================================================
@@ -161,8 +116,8 @@ if "rem_live" not in st.session_state: st.session_state.rem_live = reminders_df
 # 4. תצוגה
 # =========================================================
 
-# הפעלת בקשת מיקום (זה יקפיץ אישור בדפדפן)
-loc = get_geolocation()
+# הפעלת בקשת מיקום (שימוש ב-component_width=100 מבטיח שהרכיב יטען בדפדפן)
+loc = get_geolocation(component_width=100)
 
 if st.session_state.current_page == "project":
     p_name = st.session_state.get("selected_project", "פרויקט")
@@ -214,7 +169,11 @@ else:
             tasks = get_azure_tasks()
             if tasks:
                 for t in tasks:
-                    st.markdown(f'<div class="record-row"><span>🔗 {t["fields"]["System.Title"]}</span><span class="tag-orange">{t["fields"]["System.TeamProject"]}</span></div>', unsafe_allow_html=True)
+                    # שימוש בגישת get בטוחה למקרה שהמבנה משתנה
+                    fields = t.get('fields', {})
+                    t_title = fields.get('System.Title', 'משימה ללא כותרת')
+                    t_proj = fields.get('System.TeamProject', 'General')
+                    st.markdown(f'<div class="record-row"><span>🔗 {t_title}</span><span class="tag-orange">{t_proj}</span></div>', unsafe_allow_html=True)
             else: st.write("אין משימות חדשות")
 
     with c_left:
@@ -229,9 +188,11 @@ else:
         with st.container(border=True):
             st.markdown("### ✨ Fathom AI")
             f_mtgs = get_fathom_meetings()
-            for m in f_mtgs:
-                with st.expander(f"📅 {m['title']}"):
-                    if st.button("סכם פגישה", key=f"f_{m['recording_id']}"):
-                        with st.spinner("מנתח..."):
-                            summary = get_fathom_summary(m['recording_id'])
-                            st.write(refine_with_ai(summary) if summary else "אין סיכום זמין")
+            if f_mtgs:
+                for m in f_mtgs:
+                    with st.expander(f"📅 {m['title']}"):
+                        if st.button("סכם פגישה", key=f"f_{m['recording_id']}"):
+                            with st.spinner("מנתח..."):
+                                summary = get_fathom_summary(m['recording_id'])
+                                st.write(refine_with_ai(summary) if summary else "אין סיכום זמין")
+            else: st.write("אין פגישות זמינות")
