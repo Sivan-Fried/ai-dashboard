@@ -286,7 +286,7 @@ else:
 
          with st.container(border=True):
             st.markdown("### 🔔 תזכורות")
-            with st.container(border=False):
+        with st.container(border=False):
                 t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
                 for _, row in t_r.iterrows():
                     st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
