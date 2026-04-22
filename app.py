@@ -1,6 +1,4 @@
-my best version 22.04
-
-   import streamlit as st
+import streamlit as st
 import requests
 import pandas as pd
 import base64
