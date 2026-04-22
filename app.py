@@ -23,6 +23,10 @@ def get_base64_image(path):
 
 st.markdown("""
 <style>
+    /* התיקון בפינצטה לפס הלבן */
+    [data-testid="stHeader"] { background: rgba(0,0,0,0) !important; height: 0px !important; }
+    .block-container { padding-top: 0rem !important; }
+
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
     
     /* מזג אוויר צף - לא משנה את ה-Layout */
@@ -310,7 +314,7 @@ else:
                 st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
             if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
 
-            # --- אזור Fathom המעודכן ---
+        # --- אזור Fathom המעודכן ---
         with st.container(border=True):
             col_title, col_refresh = st.columns([0.9, 0.1])
             with col_title:
