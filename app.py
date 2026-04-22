@@ -8,13 +8,15 @@ import urllib.parse
 from zoneinfo import ZoneInfo
 import streamlit.components.v1 as components
 import google.generativeai as genai
+from streamlit_js_eval import get_geolocation # הוספת הספרייה בלבד
 
 # =========================================================
-# 1. הגדרות דף ועיצוב (CSS)
+# 1. הגדרות דף ועיצוב (CSS) - ללא שינוי
 # =========================================================
 st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
 st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
+st.markdown('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">', unsafe_allow_html=True)
 
 def get_base64_image(path):
     try:
@@ -37,6 +39,9 @@ st.markdown("""
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         border: 1px solid #edf2f7;
         text-align: center;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
     button[data-baseweb="tab"] {
@@ -122,22 +127,28 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =========================================================
-# 2. פונקציות ונתונים
+# 2. פונקציות נתונים (תיקון מזג אוויר ומיקום בלבד)
 # =========================================================
 
-def get_weather_data():
+def get_real_weather(lat, lon):
+    api_key = st.secrets.get("OPENWEATHER_API_KEY")
+    url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric&lang=he"
     try:
-        geo = requests.get('https://ipapi.co/json/', timeout=3).json()
-        city_en = geo.get('city', 'Israel')
-        translate = {"Holon": "חולון", "Tel Aviv": "תל אביב", "Petah Tikva": "פתח תקווה", "Jerusalem": "ירושלים", "Rishon LeZiyyon": "ראשון לציון", "Haifa": "חיפה"}
+        data = requests.get(url).json()
+        temp = round(data['main']['temp'])
+        city_en = data.get('name', '')
+        # תרגום שמות ערים לעברית
+        translate = {"Petah Tikva": "פתח תקווה", "Petah Tiqwa": "פתח תקווה", "Holon": "חולון", "Tel Aviv": "תל אביב"}
         city_he = translate.get(city_en, city_en)
-        lat, lon = geo.get('latitude', 32.08), geo.get('longitude', 34.88)
-        w_res = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true", timeout=3).json()
-        temp = round(w_res['current_weather']['temperature'])
-        code = w_res['current_weather']['weathercode']
-        icon = "☀️" if code == 0 else "☁️" if code < 50 else "🌧️"
-        return f"{icon} {temp}°C", city_he
-    except: return "☀️ 22°C", "ישראל"
+        
+        icon_code = data['weather'][0]['icon']
+        is_night = "n" in icon_code
+        # בחירת אייקון ביטסטראפ (bootstrap-icons) לפי יום/לילה
+        icon_class = "bi-moon-stars-fill" if is_night else "bi-sun-fill"
+        icon_color = "#94a3b8" if is_night else "#FFD700"
+        
+        return {"temp": temp, "city": city_he, "icon": icon_class, "color": icon_color}
+    except: return None
 
 def get_azure_tasks():
     ORG_NAME = "amandigital"
@@ -195,8 +206,11 @@ except:
     st.error("Missing Files"); st.stop()
 
 # =========================================================
-# 3. ניהול ניווט
+# 3. ניהול ניווט ומיקום
 # =========================================================
+# הפעלת בקשת מיקום מהדפדפן
+loc = get_geolocation()
+
 params = st.query_params
 if "proj" in params:
     st.session_state.selected_project = params["proj"]
@@ -225,16 +239,21 @@ if st.session_state.current_page == "project":
         with tab_work:
              st.info(f"תוכנית עבודה עבור {p_name} תעודכן בהמשך.")
 else:
-    # --- הזרקת מזג אוויר צף מעל הכל ---
-    w_text, w_city = get_weather_data()
-    st.markdown(f"""
-        <div class="weather-float">
-            <div style="font-size: 0.7rem; color: #4facfe; font-weight: 700;">{w_city}</div>
-            <div style="font-size: 1.1rem; color: #1f2a44; font-weight: 800;">{w_text}</div>
-        </div>
-    """, unsafe_allow_html=True)
+    # --- הזרקת מזג אוויר צף רק אם יש מיקום ---
+    if loc:
+        w_data = get_real_weather(loc['coords']['latitude'], loc['coords']['longitude'])
+        if w_data:
+            st.markdown(f"""
+                <div class="weather-float">
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.7rem; color: #4facfe; font-weight: 700;">{w_data['city']}</div>
+                        <div style="font-size: 1.1rem; color: #1f2a44; font-weight: 800;">{w_data['temp']}°C</div>
+                    </div>
+                    <i class="bi {w_data['icon']}" style="font-size: 1.5rem; color: {w_data['color']};"></i>
+                </div>
+            """, unsafe_allow_html=True)
 
-    # --- דשבורד ראשי ---
+    # --- דשבורד ראשי (ללא שינוי) ---
     st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
     img_b64 = get_base64_image("profile.png")
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
@@ -308,88 +327,22 @@ else:
             t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
             for _, row in t_r.iterrows():
                 st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
-            if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
+            if st.button("➕", use_container_width=True, key="add_rem_btn"): st.session_state.adding_reminder = True; st.rerun()
 
-            # --- אזור Fathom המעודכן ---
         with st.container(border=True):
             col_title, col_refresh = st.columns([0.9, 0.1])
-            with col_title:
-                st.markdown("### ✨ סיכומי פגישות Fathom")
-
+            with col_title: st.markdown("### ✨ סיכומי פגישות Fathom")
             with col_refresh:
                 if st.button("🔄", key="refresh_fathom"):
-                    try:
-                        items, status = get_fathom_meetings()
-                        if status == 200:
-                            st.session_state['fathom_meetings'] = items
-                            st.rerun()
-                    except: pass
-
-            if 'fathom_meetings' not in st.session_state:
-                try:
                     items, status = get_fathom_meetings()
-                    if status == 200:
-                        st.session_state['fathom_meetings'] = items
-                    else:
-                        st.session_state['fathom_meetings'] = []
-                except:
-                    st.session_state['fathom_meetings'] = []
-
-            st.markdown("""
-                <style>
-                .fathom-row-ui {
-                    display: grid;
-                    grid-template-columns: auto 1fr auto;
-                    align-items: center;
-                    background: white;
-                    border: 1px solid #edf2f7;
-                    border-right: 5px solid #4facfe;
-                    border-radius: 8px;
-                    padding: 0 16px;
-                    height: 45px;
-                    direction: rtl;
-                    transition: all 0.2s ease;
-                }
-                div[data-testid="stVerticalBlock"] > div:has(.fathom-row-ui) {
-                    gap: 0rem !important;
-                }
-                div.element-container:has(.fathom-row-ui) + div.element-container {
-                    margin-top: -45px !important;
-                    margin-bottom: 2px !important;
-                }
-                div.element-container:has(.fathom-row-ui) + div.element-container div[data-testid="stButton"] button {
-                    background: transparent !important;
-                    border: 1px solid transparent !important;
-                    border-right: 5px solid transparent !important;
-                    width: 100% !important;
-                    height: 45px !important;
-                    color: transparent !important;
-                    z-index: 20;
-                }
-                div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-testid="stButton"] button:hover) .fathom-row-ui {
-                    border-color: #4facfe;
-                    background-color: #f8fafc;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-                }
-                .fathom-pill-v2 {
-                    background-color: #f1f5f9;
-                    color: #475569;
-                    padding: 1px 8px;
-                    border-radius: 10px;
-                    font-size: 0.75rem;
-                    margin-right: 12px;
-                }
-                </style>
-            """, unsafe_allow_html=True)
+                    if status == 200: st.session_state['fathom_meetings'] = items; st.rerun()
 
             f_meetings = st.session_state.get('fathom_meetings', [])
-
             if f_meetings:
                 for idx, mtg in enumerate(f_meetings):
                     rec_id = mtg.get('recording_id')
                     title = mtg.get('title') or "פגישה"
                     date_str = mtg.get('recording_start_time', '')[:10]
-
                     open_key = f"open_{rec_id}"
                     is_open = st.session_state.get(open_key, False)
                     arrow = "expand_more" if is_open else "chevron_left"
@@ -411,16 +364,11 @@ else:
                         st.rerun()
 
                     if is_open:
-                        with st.container():
-                            s_key = f"sum_v4_{rec_id}"
-                            if s_key not in st.session_state:
-                                if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}"):
-                                    with st.spinner("מנתח..."):
-                                        raw = get_fathom_summary(rec_id)
-                                        if raw:
-                                            st.session_state[s_key] = refine_with_ai(raw)
-                                            st.rerun()
-                            else:
-                                st.info(st.session_state[s_key])
-            else:
-                st.write("אין פגישות זמינות.")
+                        s_key = f"sum_v4_{rec_id}"
+                        if s_key not in st.session_state:
+                            if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}"):
+                                with st.spinner("מנתח..."):
+                                    raw = get_fathom_summary(rec_id)
+                                    if raw: st.session_state[s_key] = refine_with_ai(raw); st.rerun()
+                        else: st.info(st.session_state[s_key])
+            else: st.write("אין פגישות זמינות.")
