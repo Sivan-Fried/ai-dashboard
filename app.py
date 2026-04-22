@@ -8,6 +8,7 @@ import urllib.parse
 from zoneinfo import ZoneInfo
 import streamlit.components.v1 as components
 import google.generativeai as genai
+from streamlit_js_eval import get_geolocation # הוספת הספרייה למיקום
 
 # =========================================================
 # 1. הגדרות דף ועיצוב (CSS)
@@ -15,6 +16,7 @@ import google.generativeai as genai
 st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
 st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
+st.markdown('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">', unsafe_allow_html=True)
 
 def get_base64_image(path):
     try:
@@ -25,19 +27,26 @@ st.markdown("""
 <style>
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
     
-    /* מזג אוויר צף - לא משנה את ה-Layout */
+    /* עיצוב הווידג'ט הצף של מזג האוויר */
     .weather-float {
         position: absolute;
         top: 20px;
         left: 20px;
         z-index: 999;
         background: white;
-        padding: 8px 15px;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        padding: 10px 18px;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         border: 1px solid #edf2f7;
-        text-align: center;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        direction: ltr; /* תצוגה משמאל לימין בתוך הווידג'ט */
     }
+    .weather-info { text-align: right; }
+    .weather-temp { font-size: 1.3rem; font-weight: 800; color: #1f2a44; line-height: 1; }
+    .weather-city { font-size: 0.75rem; color: #4facfe; font-weight: 700; }
+    .weather-icon { font-size: 1.5rem; }
 
     button[data-baseweb="tab"] {
         gap: 20px !important;
@@ -84,21 +93,6 @@ st.markdown("""
         padding-bottom: 30px !important; 
     }
 
-    .project-link {
-        text-decoration: none !important;
-        color: inherit !important;
-        display: block !important;
-        transition: all 0.2s ease;
-    }
-    
-    .project-link:hover .record-row {
-        border-color: #4facfe !important;
-        background-color: #f8fafc !important;
-        transform: translateY(-1px);
-        z-index: 5;
-        box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
-    }
-
     .record-row {
         background: #ffffff !important;
         padding: 10px 15px !important;
@@ -111,15 +105,213 @@ st.markdown("""
         align-items: center !important;
         direction: rtl !important;
         position: relative;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
     }
 
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
     .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
     .time-label { color: #64748b; font-size: 0.85em; font-weight: 500; font-family: monospace; }
-    p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
 </style>
 """, unsafe_allow_html=True)
+
+# =========================================================
+# 2. פונקציות נתונים (כולל מזג אוויר דינמי)
+# =========================================================
+
+def get_dynamic_weather(lat, lon):
+    api_key = st.secrets.get("OPENWEATHER_API_KEY")
+    url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric&lang=he"
+    try:
+        res = requests.get(url).json()
+        if res and res.get('main'):
+            temp = round(res['main']['temp'])
+            city = res.get('name', 'מיקום נוכחי')
+            icon_code = res['weather'][0]['icon']
+            is_night = "n" in icon_code
+            icon_class = "bi-moon-stars-fill" if is_night else "bi-sun-fill"
+            icon_color = "#E0E0E0" if is_night else "#FFD700"
+            return {"temp": temp, "city": city, "icon": icon_class, "color": icon_color}
+    except: pass
+    return None
+
+def get_azure_tasks():
+    ORG_NAME = "amandigital"
+    wiql_url = f"https://dev.azure.com/{ORG_NAME}/_apis/wit/wiql?api-version=6.0"
+    query = {"query": "SELECT [System.Id], [System.Title], [System.TeamProject], [System.CreatedDate] FROM WorkItems WHERE [System.AssignedTo] = @me AND [System.State] = 'New' ORDER BY [System.ChangedDate] DESC"}
+    try:
+        auth = ('', st.secrets["AZURE_PAT"])
+        res = requests.post(wiql_url, json=query, auth=auth)
+        ids = ",".join([str(item['id']) for item in res.json().get('workItems', [])[:5]])
+        if not ids: return []
+        details = requests.get(f"https://dev.azure.com/{ORG_NAME}/_apis/wit/workitems?ids={ids}&fields=System.Title,System.TeamProject,System.CreatedDate&api-version=6.0", auth=auth)
+        return details.json().get('value', [])
+    except: return []
+
+# פונקציות Fathom (כפי שהיו בגרסה היציבה)
+def get_fathom_meetings():
+    api_key = st.secrets["FATHOM_API_KEY"]
+    url = "https://api.fathom.ai/external/v1/meetings"
+    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
+    try:
+        response = requests.get(url, headers=headers, timeout=15)
+        if response.status_code == 200: return response.json().get('items', [])[:5], 200
+        return response.text, response.status_code
+    except: return "", 500
+
+def get_fathom_summary(recording_id):
+    api_key = st.secrets["FATHOM_API_KEY"]
+    url = f"https://api.fathom.ai/external/v1/recordings/{recording_id}/summary"
+    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
+    try:
+        response = requests.get(url, headers=headers, timeout=15)
+        if response.status_code == 200: return response.json().get("summary", {}).get("markdown_formatted")
+    except: return None
+
+def refine_with_ai(raw_text):
+    try:
+        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        prompt = f"סכם את הפגישה לעברית עסקית רהוטה:\n\n{raw_text}"
+        return model.generate_content(prompt).text
+    except: return "שגיאה בניתוח AI"
+
+def fmt_time(t):
+    try: return t.strftime("%H:%M")
+    except: return ""
+
+# טעינת קבצים
+try:
+    projects = pd.read_excel("my_projects.xlsx")
+    meetings = pd.read_excel("meetings.xlsx")
+    reminders_df = pd.read_excel("reminders.xlsx")
+    today = pd.Timestamp.today().date()
+except:
+    st.error("Missing Files"); st.stop()
+
+# =========================================================
+# 3. לוגיקה ומזג אוויר
+# =========================================================
+
+# בקשת מיקום (קורה פעם אחת ונטען)
+loc = get_geolocation()
+
+if "rem_live" not in st.session_state: st.session_state.rem_live = reminders_df
+if "current_page" not in st.session_state: st.session_state.current_page = "main"
+
+# =========================================================
+# 4. תצוגה
+# =========================================================
+
+# הצגת מזג אוויר צף רק אם יש מיקום
+if loc:
+    w_data = get_dynamic_weather(loc['coords']['latitude'], loc['coords']['longitude'])
+    if w_data:
+        st.markdown(f"""
+            <div class="weather-float">
+                <i class="bi {w_data['icon']} weather-icon" style="color: {w_data['color']};"></i>
+                <div class="weather-info">
+                    <div class="weather-city">{w_data['city']}</div>
+                    <div class="weather-temp">{w_data['temp']}°</div>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+
+st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
+
+# כותרת ופרופיל
+img_b64 = get_base64_image("profile.png")
+now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
+greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
+
+p1, p2, p3 = st.columns([1, 1, 2])
+with p2:
+    if img_b64: st.markdown(f'<div style="display:flex; justify-content:center;"><img src="data:image/png;base64,{img_b64}" class="profile-img"></div>', unsafe_allow_html=True)
+with p3: st.markdown(f"<div><h3 style='margin-bottom:0;'>{greeting}, סיון!</h3><p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p></div>", unsafe_allow_html=True)
+
+# KPI Cards
+st.markdown("<br>", unsafe_allow_html=True)
+k1, k2, k3, k4 = st.columns(4)
+with k1: st.markdown(f'<div class="kpi-card">בסיכון 🔴<br><b>{len(projects[projects["status"]=="אדום"])}</b></div>', unsafe_allow_html=True)
+with k2: st.markdown(f'<div class="kpi-card">במעקב 🟡<br><b>{len(projects[projects["status"]=="צהוב"])}</b></div>', unsafe_allow_html=True)
+with k3: st.markdown(f'<div class="kpi-card">תקין 🟢<br><b>{len(projects[projects["status"]=="ירוק"])}</b></div>', unsafe_allow_html=True)
+with k4: st.markdown(f'<div class="kpi-card">סה"כ פרויקטים<br><b>{len(projects)}</b></div>', unsafe_allow_html=True)
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+col_right, col_left = st.columns([1, 1])
+
+with col_right:
+    # פרויקטים
+    with st.container(border=True):
+        st.markdown("### 📁 פרויקטים")
+        for _, row in projects.iterrows():
+            st.markdown(f'<div class="record-row"><b>📂 {row["project_name"]}</b><span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">chevron_left</span></div>', unsafe_allow_html=True)
+
+    # Azure
+    with st.container(border=True):
+        st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
+        tasks_data = get_azure_tasks()
+        if tasks_data:
+            for t in tasks_data:
+                f = t.get('fields', {}); t_title = f.get('System.Title', '')
+                st.markdown(f'<div class="record-row"><span>🔗 {t_title[:40]}...</span><span class="tag-orange">{f.get("System.TeamProject")}</span></div>', unsafe_allow_html=True)
+        else: st.write("אין משימות חדשות.")
+
+with col_left:
+    # פגישות
+    with st.container(border=True):
+        st.markdown("### 📅 פגישות היום")
+        t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
+        if t_m.empty: st.write("אין פגישות היום")
+        else:
+            for _, r in t_m.iterrows():
+                st.markdown(f'<div class="record-row"><span>📌 {r["meeting_title"]}</span><span class="time-label">{fmt_time(r.get("start_time"))}</span></div>', unsafe_allow_html=True)
+
+    # --- אזור Fathom (נשמר אחד לאחד) ---
+    with st.container(border=True):
+        col_title, col_refresh = st.columns([0.9, 0.1])
+        with col_title: st.markdown("### ✨ סיכומי פגישות Fathom")
+        with col_refresh:
+            if st.button("🔄", key="refresh_fathom"):
+                items, status = get_fathom_meetings()
+                if status == 200: st.session_state['fathom_meetings'] = items; st.rerun()
+
+        if 'fathom_meetings' not in st.session_state:
+            items, status = get_fathom_meetings()
+            st.session_state['fathom_meetings'] = items if status == 200 else []
+
+        # CSS המקורי של הפאטום
+        st.markdown("""
+            <style>
+            .fathom-row-ui {
+                display: grid; grid-template-columns: auto 1fr auto; align-items: center;
+                background: white; border: 1px solid #edf2f7; border-right: 5px solid #4facfe;
+                border-radius: 8px; padding: 0 16px; height: 45px; direction: rtl;
+            }
+            div.element-container:has(.fathom-row-ui) + div.element-container { margin-top: -45px !important; }
+            div.element-container:has(.fathom-row-ui) + div.element-container div[data-testid="stButton"] button {
+                background: transparent !important; border: none !important; width: 100% !important; height: 45px !important; color: transparent !important;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+
+        for idx, mtg in enumerate(st.session_state.get('fathom_meetings', [])):
+            rec_id = mtg.get('recording_id')
+            title = mtg.get('title') or "פגישה"
+            open_key = f"open_{rec_id}"
+            is_open = st.session_state.get(open_key, False)
+            
+            st.markdown(f'<div class="fathom-row-ui"><span>📅 {title}</span><span></span><span class="material-symbols-rounded">{"expand_more" if is_open else "chevron_left"}</span></div>', unsafe_allow_html=True)
+            if st.button("", key=f"f_trig_{rec_id}_{idx}", use_container_width=True):
+                st.session_state[open_key] = not is_open
+                st.rerun()
+            
+            if is_open:
+                s_key = f"sum_{rec_id}"
+                if s_key not in st.session_state:
+                    if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}"):
+                        raw = get_fathom_summary(rec_id)
+                        if raw: st.session_state[s_key] = refine_with_ai(raw); st.rerun()
+                else: st.info(st.session_state[s_key])
 
 # =========================================================
 # 2. פונקציות ונתונים
