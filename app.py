@@ -137,11 +137,19 @@ def get_weather_realtime(location):
     if location and 'coords' in location:
         lat, lon = location['coords']['latitude'], location['coords']['longitude']
         try:
+            # זיהוי עיר
             g = requests.get(f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}", headers={'User-Agent': 'SivanDash'}).json()
             city = g.get('address', {}).get('city') or g.get('address', {}).get('town') or "ישראל"
+            
+            # נתוני מזג אוויר
             w = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true").json()
             temp = round(w['current_weather']['temperature'])
-            return f"☀️ {temp}°C", city
+            
+            # בדיקה האם עכשיו יום או לילה לפי השעה המקומית
+            hour = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).hour
+            icon = "🌙" if (hour >= 19 or hour < 6) else "☀️"
+            
+            return f"{icon} {temp}°C", city
         except: pass
     return "☀️ --°C", "ישראל"
 
