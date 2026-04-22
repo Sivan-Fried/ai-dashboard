@@ -13,6 +13,9 @@ from streamlit_js_eval import get_geolocation
 # =========================================================
 # 1. הגדרות דף ועיצוב (CSS)
 # =========================================================
+# =========================================================
+# 1. הגדרות דף ועיצוב (CSS)
+# =========================================================
 st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
 st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
@@ -26,64 +29,89 @@ st.markdown("""
 <style>
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
     
-    .weather-float {
-        position: absolute; top: 20px; left: 20px; z-index: 999;
-        background: white; padding: 8px 15px; border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #edf2f7; text-align: center;
+    button[data-baseweb="tab"] {
+        gap: 20px !important;
+        margin-left: 15px !important;
+        padding-right: 20px !important;
+        padding-left: 20px !important;
     }
-
-    button[data-baseweb="tab"] { gap: 20px !important; margin-left: 15px !important; padding-right: 20px !important; padding-left: 20px !important; }
     
     .dashboard-header {
         background: linear-gradient(90deg, #4facfe, #00f2fe) !important;
         -webkit-background-clip: text !important;
         -webkit-text-fill-color: transparent !important;
-        text-align: center !important; font-size: 2.2rem !important; font-weight: 800; margin-bottom: 20px;
+        text-align: center !important;
+        font-size: 2.2rem !important;
+        font-weight: 800;
+        margin-bottom: 20px;
     }
-    h3 { font-size: 1.15rem !important; font-weight: 700 !important; margin-bottom: 12px !important; color: #1f2a44 !important; text-align: right !important; }
-    
+    h3 {
+        font-size: 1.15rem !important;
+        font-weight: 700 !important;
+        margin-bottom: 12px !important;
+        color: #1f2a44 !important;
+        text-align: right !important;
+    }
     .profile-img {
         width: 130px; height: 130px; border-radius: 50% !important;
         object-fit: cover !important; object-position: center 25% !important;
         border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
     }
     .kpi-card {
-        background: white !important; padding: 15px !important; border-radius: 12px !important;
-        text-align: center !important; box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+        background: white !important;
+        padding: 15px !important;
+        border-radius: 12px !important;
+        text-align: center !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
     }
     .kpi-card b { font-size: 1.4rem; color: #1f2a44; display: block; }
     
     div[data-testid="stVerticalBlockBorderWrapper"], .st-emotion-cache-1ne20ew {
-        background: white !important; border: 1.5px solid transparent !important;
-        border-radius: 18px !important; padding: 15px !important; padding-bottom: 30px !important; 
+        background: white !important;
+        border: 1.5px solid transparent !important;
+        border-radius: 18px !important;
+        padding: 15px !important;
+        padding-bottom: 30px !important; 
     }
 
-    .project-link { text-decoration: none !important; color: inherit !important; display: block !important; transition: all 0.2s ease; }
+    .project-link {
+        text-decoration: none !important;
+        color: inherit !important;
+        display: block !important;
+        transition: all 0.2s ease;
+    }
     
     .project-link:hover .record-row {
-        border-color: #4facfe !important; background-color: #f8fafc !important;
-        transform: translateY(-1px); z-index: 5; box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
+        border-color: #4facfe !important;
+        background-color: #f8fafc !important;
+        transform: translateY(-1px);
+        z-index: 5;
+        box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
     }
 
     .record-row {
-        background: #ffffff !important; padding: 10px 15px !important; border-radius: 10px !important; margin-bottom: 3px !important;
-        border: 1px solid #edf2f7 !important; border-right: 5px solid #4facfe !important;
-        display: flex !important; justify-content: space-between !important; align-items: center !important; direction: rtl !important;
-        position: relative; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+        background: #ffffff !important;
+        padding: 10px 15px !important;
+        border-radius: 10px !important;
+        margin-bottom: 3px !important;
+        border: 1px solid #edf2f7 !important;
+        border-right: 5px solid #4facfe !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        direction: rtl !important;
+        position: relative;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+    }
+
+    .project-link:first-child .record-row, .record-row:first-of-type {
+        margin-top: 4px !important;
     }
 
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
     .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
     .time-label { color: #64748b; font-size: 0.85em; font-weight: 500; font-family: monospace; }
     p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
-
-    /* Fathom Custom UI Grid */
-    .fathom-row-ui {
-        display: grid; grid-template-columns: auto 1fr auto; align-items: center;
-        background: white; border: 1px solid #edf2f7; border-right: 5px solid #4facfe;
-        border-radius: 8px; padding: 0 16px; height: 45px; direction: rtl; transition: all 0.2s ease;
-    }
-    .fathom-pill-v2 { background-color: #f1f5f9; color: #475569; padding: 1px 8px; border-radius: 10px; font-size: 0.75rem; margin-right: 12px; }
 </style>
 """, unsafe_allow_html=True)
 
