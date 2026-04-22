@@ -284,13 +284,25 @@ else:
                     s_t = fmt_time(r.get('start_time', '')); e_t = fmt_time(r.get('end_time', ''))
                     st.markdown(f'<div class="record-row"><span style="flex-grow:1; text-align:right;">📌 {r["meeting_title"]}</span><span class="time-label">{s_t}-{e_t}</span></div>', unsafe_allow_html=True)
 
-        with st.container(border=True):
+                with st.container(border=True):
             st.markdown("### 🔔 תזכורות")
-            t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
-            for _, row in t_r.iterrows():
-                st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
-            if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
-
+            with st.container(border=False):
+                t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
+                for _, row in t_r.iterrows():
+                    st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
+            if st.session_state.adding_reminder:
+                with st.container(border=True):
+                    r_col1, r_col2 = st.columns([1, 2])
+                    new_proj = r_col1.selectbox("בחר פרויקט", projects["project_name"].tolist() + ["כללי"], label_visibility="collapsed")
+                    new_text = r_col2.text_input("תיאור התזכורת", placeholder="מה להזכיר?", label_visibility="collapsed")
+                    if st.button("✅"):
+                        if new_text:
+                            new_data = pd.DataFrame([{"date": today, "reminder_text": new_text, "project_name": new_proj}])
+                            st.session_state.rem_live = pd.concat([st.session_state.rem_live, new_data], ignore_index=True)
+                            st.session_state.adding_reminder = False; st.rerun()
+                    if st.button("❌"): st.session_state.adding_reminder = False; st.rerun()
+            else:
+                if st.button("➕", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
             # --- אזור Fathom המעודכן ---
         with st.container(border=True):
             col_title, col_refresh = st.columns([0.9, 0.1])
