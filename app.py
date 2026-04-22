@@ -26,7 +26,7 @@ st.markdown("""
 <style>
     .stApp { background-color: #f2f4f7 !important; direction: rtl !important; }
     
-    /* הסתרת אלמנטים ריקים שיוצרים פסים לבנים (רכיב המיקום) */
+    /* הסתרת אלמנטים ריקים שיוצרים פסים לבנים */
     iframe { display: none !important; }
     div[data-testid="stHtml"] > iframe { height: 0px !important; }
 
@@ -116,8 +116,13 @@ if "rem_live" not in st.session_state: st.session_state.rem_live = reminders_df
 # 4. תצוגה
 # =========================================================
 
-# הפעלת בקשת מיקום (שימוש ב-component_width=100 מבטיח שהרכיב יטען בדפדפן)
-loc = get_geolocation(component_width=100)
+# הפעלת בקשת מיקום
+loc = get_geolocation()
+
+# --- התיקון כאן: אם המיקום עדיין לא הגיע, אל תמשיך להריץ את שאר הדף ---
+if loc is None:
+    st.info("מזהה מיקום... אנא אשרי גישה בדפדפן במידה והתבקשת.")
+    st.stop() 
 
 if st.session_state.current_page == "project":
     p_name = st.session_state.get("selected_project", "פרויקט")
@@ -169,11 +174,8 @@ else:
             tasks = get_azure_tasks()
             if tasks:
                 for t in tasks:
-                    # שימוש בגישת get בטוחה למקרה שהמבנה משתנה
                     fields = t.get('fields', {})
-                    t_title = fields.get('System.Title', 'משימה ללא כותרת')
-                    t_proj = fields.get('System.TeamProject', 'General')
-                    st.markdown(f'<div class="record-row"><span>🔗 {t_title}</span><span class="tag-orange">{t_proj}</span></div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="record-row"><span>🔗 {fields.get("System.Title", "N/A")}</span><span class="tag-orange">{fields.get("System.TeamProject", "N/A")}</span></div>', unsafe_allow_html=True)
             else: st.write("אין משימות חדשות")
 
     with c_left:
@@ -188,11 +190,9 @@ else:
         with st.container(border=True):
             st.markdown("### ✨ Fathom AI")
             f_mtgs = get_fathom_meetings()
-            if f_mtgs:
-                for m in f_mtgs:
-                    with st.expander(f"📅 {m['title']}"):
-                        if st.button("סכם פגישה", key=f"f_{m['recording_id']}"):
-                            with st.spinner("מנתח..."):
-                                summary = get_fathom_summary(m['recording_id'])
-                                st.write(refine_with_ai(summary) if summary else "אין סיכום זמין")
-            else: st.write("אין פגישות זמינות")
+            for m in f_mtgs:
+                with st.expander(f"📅 {m['title']}"):
+                    if st.button("סכם פגישה", key=f"f_{m['recording_id']}"):
+                        with st.spinner("מנתח..."):
+                            summary = get_fathom_summary(m['recording_id'])
+                            st.write(refine_with_ai(summary) if summary else "אין סיכום זמין")
