@@ -137,16 +137,27 @@ else:
     st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
     
     # פרופיל
-    img_b64 = get_base64_image("profile.png")
-    now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
-    greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
-
-    p1, p2, p3 = st.columns([1, 1, 2])
-    with p2:
-        if img_b64: st.markdown(f'<div style="display:flex; justify-content:center;"><img src="data:image/png;base64,{img_b64}" class="profile-img"></div>', unsafe_allow_html=True)
-    with p3: st.markdown(f"<div><h3 style='margin-bottom:0;'>{greeting}, סיון!</h3><p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p></div>", unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
+  .dashboard-header {
+        background: linear-gradient(90deg, #4facfe, #00f2fe) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        text-align: center !important;
+        font-size: 2.2rem !important;
+        font-weight: 800;
+        margin-bottom: 20px;
+    }
+    h3 {
+        font-size: 1.15rem !important;
+        font-weight: 700 !important;
+        margin-bottom: 12px !important;
+        color: #1f2a44 !important;
+        text-align: right !important;
+    }
+    .profile-img {
+        width: 130px; height: 130px; border-radius: 50% !important;
+        object-fit: cover !important; object-position: center 25% !important;
+        border: 4px solid white !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
     
     # KPIs
     k1, k2, k3, k4 = st.columns(4)
