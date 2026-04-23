@@ -203,17 +203,15 @@ def fmt_time(t):
     except: return ""
 
 # ========= פונקציות חדשות לסוכן ה-AI =========
+# ========= פונקציות חדשות לסוכן ה-AI =========
 
 def detect_gemini_model():
     """
-    בודקת בצורה פשוטה אילו מודלים זמינים אצלך.
-    מנסה לטעון כל מודל לפי סדר עדיפות.
-    מחזירה את שם המודל הראשון שעובד בפועל.
+    בודקת אילו מודלים זמינים ושיש להם quota בפועל.
+    מנסה לבצע קריאה זעירה (ping) לכל מודל.
+    אם המודל מחזיר 429 – מדלגים למודל הבא.
     """
-    try:
-        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-    except:
-        return None
+    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
     candidates = [
         "gemini-2.0-flash",
@@ -221,14 +219,110 @@ def detect_gemini_model():
         "gemini-pro"
     ]
 
+    test_prompt = "ping"
+
     for model_name in candidates:
         try:
-            genai.GenerativeModel(model_name)
-            return model_name
-        except:
-            pass
+            model = genai.GenerativeModel(model_name)
+            resp = model.generate_content(test_prompt)
+            if hasattr(resp, "text"):
+                return model_name
+        except Exception as e:
+            if "quota" in str(e).lower() or "429" in str(e):
+                continue
+            continue
 
     return None
+
+
+def build_project_context(project_name, projects_df, meetings_df, reminders_df, fathom_state):
+    parts = []
+
+    proj_rows = projects_df[projects_df["project_name"] == project_name]
+    if not proj_rows.empty:
+        row = proj_rows.iloc[0]
+        parts.append("### פרטי פרויקט")
+        parts.append(f"שם פרויקט: {row.get('project_name', '')}")
+        parts.append(f"סטטוס: {row.get('status', '')}")
+        if "project_type" in row:
+            parts.append(f"סוג פרויקט: {row.get('project_type', '')}")
+        for col in proj_rows.columns:
+            if col not in ["project_name", "status", "project_type"] and pd.notna(row.get(col)):
+                parts.append(f"{col}: {row.get(col)}")
+
+    if "project_name" in meetings_df.columns:
+        m_rows = meetings_df[meetings_df["project_name"] == project_name]
+    else:
+        m_rows = pd.DataFrame()
+    if not m_rows.empty:
+        parts.append("\n### פגישות קשורות")
+        for _, r in m_rows.iterrows():
+            parts.append(
+                f"- פגישה: {r.get('meeting_title','')} | תאריך: {r.get('date','')} | שעות: {r.get('start_time','')}-{r.get('end_time','')}"
+            )
+
+    if "project_name" in reminders_df.columns:
+        r_rows = reminders_df[reminders_df["project_name"] == project_name]
+    else:
+        r_rows = pd.DataFrame()
+    if not r_rows.empty:
+        parts.append("\n### תזכורות")
+        for _, r in r_rows.iterrows():
+            parts.append(f"- {r.get('date','')}: {r.get('reminder_text','')}")
+
+    fathom_summaries = []
+    for key, val in fathom_state.items():
+        if isinstance(key, str) and key.startswith("sum_v4_") and isinstance(val, str) and val.strip():
+            fathom_summaries.append(val.strip())
+    if fathom_summaries:
+        parts.append("\n### סיכומי פגישות (Fathom + AI)")
+        for idx, s in enumerate(fathom_summaries, start=1):
+            parts.append(f"\nסיכום {idx}:\n{s}")
+
+    if not parts:
+        return "אין מידע זמין על הפרויקט מעבר לשמו."
+
+    return "\n".join(parts)
+
+
+def run_project_agent(project_name, question, projects_df, meetings_df, reminders_df):
+    model_name = detect_gemini_model()
+    if not model_name:
+        return "❗ לא נמצא מודל Gemini זמין בחשבון שלך."
+
+    try:
+        context = build_project_context(
+            project_name=project_name,
+            projects_df=projects_df,
+            meetings_df=meetings_df,
+            reminders_df=reminders_df,
+            fathom_state=st.session_state
+        )
+
+        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+        model = genai.GenerativeModel(model_name)
+
+        prompt = f"""
+את סוכן ניהול פרויקטים חכם.
+הנה כל המידע שיש על הפרויקט "{project_name}":
+
+----------------
+{context}
+----------------
+
+השאלה:
+{question}
+
+ענה בעברית עסקית, בצורה ברורה ותמציתית, עם כותרות קצרות ונקודות עיקריות.
+אם משהו לא מופיע במידע – ציין זאת במפורש ואל תמציא.
+"""
+
+        resp = model.generate_content(prompt)
+        return resp.text if hasattr(resp, "text") else "לא התקבלה תשובה מהמודל."
+
+    except Exception as e:
+        return f"שגיאה בהרצת הסוכן על המודל {model_name}: {e}"
+
 
 
 def build_project_context(project_name, projects_df, meetings_df, reminders_df, fathom_state):
