@@ -156,16 +156,26 @@ def get_fathom_summary(recording_id):
 
 # ⭐ פונקציית AI חינמית — HuggingFace FLAN‑T5‑Large
 def refine_with_ai(raw_text):
-    # מודל AI מקומי — ללא API — יציב ב‑100%
     try:
-        # "סיכום" פשוט: לוקח את 400 התווים הראשונים
-        clean = raw_text.strip().replace("\n", " ")
-        short = clean[:400]
+        import requests
 
-        return f"סיכום אוטומטי:\n{short}..."
-    except:
-        return "שגיאה בעיבוד הטקסט."
+        API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-large"
+        headers = {"Authorization": f"Bearer {st.secrets['HF_TOKEN']}"}
 
+        payload = {
+            "inputs": f"סכם את הטקסט הבא לעברית עסקית ברורה:\n\n{raw_text}"
+        }
+
+        response = requests.post(API_URL, headers=headers, json=payload, timeout=40)
+        data = response.json()
+
+        # HuggingFace מחזיר רשימה עם generated_text
+        if isinstance(data, list) and "generated_text" in data[0]:
+            return data[0]["generated_text"]
+
+        return "לא הצלחתי לייצר סיכום."
+    except Exception as e:
+        return f"שגיאה: {e}"
 
 
 def fmt_time(t):
@@ -358,34 +368,56 @@ else:
         # ============================
         # ✨ עוזר AI אישי — HuggingFace
         # ============================
-
-with st.container(border=True):
-    st.markdown("### ✨ עוזר AI אישי (ללא API)")
-
-    a1, a2 = st.columns([1, 2])
-    sel_p = a1.selectbox(
-        "פרויקט",
-        projects["project_name"].tolist(),
-        label_visibility="collapsed",
-        key="ai_p"
-    )
-
-    q_in = a2.text_input(
-        "שאלה",
-        placeholder="מה תרצי לדעת?",
-        label_visibility="collapsed",
-        key="ai_i"
-    )
-
-    if st.button("שגר שאילתה 🚀", use_container_width=True):
-        if q_in:
-            with st.spinner("מנתח..."):
-                st.session_state.ai_response = f"ניתוח בסיסי עבור {sel_p}:\n{q_in}"
-
-    if st.session_state.ai_response:
-        st.info(st.session_state.ai_response)
-
+        with st.container(border=True):
+            st.markdown("### ✨ עוזר AI אישי (HuggingFace)")
         
+            a1, a2 = st.columns([1, 2])
+            sel_p = a1.selectbox(
+                "פרויקט",
+                projects["project_name"].tolist(),
+                label_visibility="collapsed",
+                key="ai_p"
+            )
+        
+            q_in = a2.text_input(
+                "שאלה",
+                placeholder="מה תרצי לדעת?",
+                label_visibility="collapsed",
+                key="ai_i"
+            )
+        
+            if st.button("שגר שאילתה 🚀", use_container_width=True):
+                if q_in:
+                    with st.spinner("מנתח..."):
+                        try:
+                            import requests
+        
+                            API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-large"
+                            headers = {"Authorization": f"Bearer {st.secrets['HF_TOKEN']}"}
+        
+                            prompt = f"""
+                            ענה בעברית ברורה ומקצועית.
+                            השאלה קשורה לפרויקט: {sel_p}.
+                            השאלה: {q_in}
+                            """
+        
+                            payload = {"inputs": prompt}
+        
+                            response = requests.post(API_URL, headers=headers, json=payload, timeout=40)
+                            data = response.json()
+        
+                            if isinstance(data, list) and "generated_text" in data[0]:
+                                st.session_state.ai_response = data[0]["generated_text"]
+                            else:
+                                st.session_state.ai_response = "לא הצלחתי לנתח."
+                        except Exception as e:
+                            st.session_state.ai_response = f"שגיאה: {e}"
+        
+            if st.session_state.ai_response:
+                st.info(st.session_state.ai_response)
+
+
+
     # ============================
     # 📅 פגישות היום
     # ============================
