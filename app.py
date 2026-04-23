@@ -202,6 +202,37 @@ def fmt_time(t):
     try: return t.strftime("%H:%M")
     except: return ""
 
+# פונקציית עזר לניתוח (כדאי לשים אותה באזור פונקציות העזר בראש הקוד)
+def run_smart_analysis(project_name, user_question):
+    # איסוף נתונים מהאקסלים
+    p_data = projects[projects['project_name'] == project_name].to_dict('records')
+    p_reminders = st.session_state.rem_live[st.session_state.rem_live['project_name'] == project_name]
+    p_meetings = meetings[meetings['meeting_title'].str.contains(project_name, na=False)]
+    
+    # איסוף סיכומי פגישות מ-Session State (מה שנותח ב-Fathom)
+    fathom_summaries = ""
+    for key, val in st.session_state.items():
+        if key.startswith("sum_v4_") and project_name.lower() in str(val).lower():
+            fathom_summaries += f"\n- {val}"
+
+    full_prompt = f"""
+    נתחי כסוכנת AI אסטרטגית את הפרויקט: {project_name}
+    מידע מהמערכת:
+    - סטטוס: {p_data[0] if p_data else 'לא הוזן'}
+    - תזכורות: {p_reminders['reminder_text'].tolist()}
+    - פגישות: {p_meetings['meeting_title'].tolist()}
+    - סיכומי Fathom: {fathom_summaries if fathom_summaries else 'אין סיכומים'}
+    
+    שאלה מהמשתמשת: {user_question}
+    
+    ספקי ניתוח מעמיק, זהי סיכונים ותני המלצות פרקטיות בעברית.
+    """
+    try:
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        return model.generate_content(full_prompt).text
+    except:
+        return "שגיאה בחיבור ל-AI."
+
 # טעינת נתונים
 try:
     projects = pd.read_excel("my_projects.xlsx")
@@ -329,12 +360,21 @@ else:
             else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
         with st.container(border=True):
-            st.markdown("### ✨ עוזר AI אישי")
-            a1, a2 = st.columns([1, 2]); sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p"); q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
-            if st.button("שגר שאילתה 🚀", use_container_width=True):
-                if q_in:
-                    with st.spinner("מנתח..."): time.sleep(0.5); st.session_state.ai_response = f"**ניתוח עבור {sel_p}:** הסטטוס תקין."
-            if st.session_state.ai_response: st.info(st.session_state.ai_response)
+             st.markdown("### ✨ עוזר AI אישי")
+             a1, a2 = st.columns([1, 2])
+             sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
+             q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
+    
+    if st.button("שגר שאילתה 🚀", use_container_width=True):
+        if q_in:
+            with st.spinner("מנתח נתונים..."):
+                # הרצת הלוגיקה החדשה
+                st.session_state.ai_response = run_smart_analysis(sel_p, q_in)
+                st.rerun()
+
+    if st.session_state.ai_response:
+        # שימוש ב-st.info כפי שהיה קודם, עם תמיכה ב-RTL (יישור לימין)
+        st.info(st.session_state.ai_response)
 
     with col_left:
         with st.container(border=True):
