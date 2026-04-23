@@ -33,6 +33,14 @@ st.markdown("""
         padding-right: 20px !important;
         padding-left: 20px !important;
     }
+
+    /* ← תיקון הפס הלבן של מזג האוויר */
+    div[data-testid="stMarkdownContainer"]:has(.weather-float) {
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 0 !important;
+        overflow: visible !important;
+    }
     
     .dashboard-header {
         background: linear-gradient(90deg, #4facfe, #00f2fe) !important;
@@ -473,4 +481,3 @@ else:
                                 st.info(st.session_state[s_key])
             else:
                 st.write("אין פגישות זמינות.")
-
