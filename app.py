@@ -194,7 +194,7 @@ def get_fathom_summary(recording_id):
 def refine_with_ai(raw_text):
     try:
         genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-        model = genai.GenerativeModel('gemini-2.0-flash-lite')
+        model = genai.GenerativeModel('gemini-2.5-flash-lite')
         prompt = f"סכם את הפגישה לעברית עסקית רהוטה:\n\n{raw_text}"
         response = model.generate_content(prompt)
         return response.text
@@ -342,7 +342,7 @@ else:
                     with st.spinner("מנתח..."):
                         try:
                             genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-                            model = genai.GenerativeModel('gemini-2.0-flash-lite')
+                            model = genai.GenerativeModel('gemini-2.5-flash-lite')
                             proj_row = projects[projects["project_name"] == sel_p].iloc[0]
                             prompt = f"""אתה עוזר AI לניהול פרויקטים.
         פרויקט: {sel_p}
