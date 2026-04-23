@@ -337,26 +337,26 @@ else:
             sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
             q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
             
-            if st.button("שגר שאילתה 🚀", use_container_width=True):
-                if q_in:
-                    with st.spinner("מנתח..."):
-                        try:
-                            genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-                            model = genai.GenerativeModel('gemini-2.5-flash-lite')
-                            proj_row = projects[projects["project_name"] == sel_p].iloc[0]
-                            prompt = f"""אתה עוזר AI לניהול פרויקטים.
-        פרויקט: {sel_p}
-        סטטוס: {proj_row.get('status', 'לא ידוע')}
-        שאלה: {q_in}
-        ענה בעברית עסקית, קצר וממוקד."""
-                            response = model.generate_content(prompt)
-                            st.session_state.ai_response = response.text
-                        except Exception as e:
-                            st.session_state.ai_response = f"שגיאה: {str(e)}"
-    
-    if st.session_state.ai_response:
-        st.info(st.session_state.ai_response)
+                if st.button("שגר שאילתה 🚀", use_container_width=True):
+                    if q_in:
+                        with st.spinner("מנתח..."):
+                            try:
+                                genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+                                model = genai.GenerativeModel('gemini-2.5-flash-lite')
+                                proj_row = projects[projects["project_name"] == sel_p].iloc[0]
+                                prompt = f"""אתה עוזר AI לניהול פרויקטים.
+            פרויקט: {sel_p}
+            סטטוס: {proj_row.get('status', 'לא ידוע')}
+            שאלה: {q_in}
+            ענה בעברית עסקית, קצר וממוקד."""
+                                response = model.generate_content(prompt)
+                                st.session_state.ai_response = response.text
+                            except Exception as e:
+                                st.session_state.ai_response = f"שגיאה: {str(e)}"
         
+        if st.session_state.ai_response:
+            st.info(st.session_state.ai_response)
+            
     with col_left:
         with st.container(border=True):
             st.markdown("### 📅 פגישות היום")
