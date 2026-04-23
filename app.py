@@ -11,7 +11,7 @@ import google.generativeai as genai
 from streamlit_js_eval import get_geolocation
 
 # =========================================================
-# הגדרת ה-AI
+# הגדרת ה-AI - תיקון שם מודל למניעת 404
 # =========================================================
 try:
     if "GEMINI_API_KEY" in st.secrets:
@@ -82,6 +82,21 @@ st.markdown("""
         border-radius: 18px !important;
         padding: 15px !important;
         padding-bottom: 30px !important; 
+    }
+
+    .project-link {
+        text-decoration: none !important;
+        color: inherit !important;
+        display: block !important;
+        transition: all 0.2s ease;
+    }
+    
+    .project-link:hover .record-row {
+        border-color: #4facfe !important;
+        background-color: #f8fafc !important;
+        transform: translateY(-1px);
+        z-index: 5;
+        box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15) !important;
     }
 
     .record-row {
@@ -166,7 +181,6 @@ def get_fathom_summary(recording_id):
 
 def refine_with_ai(raw_text):
     try:
-        # תיקון שם המודל למניעת 404
         model = genai.GenerativeModel('gemini-1.5-flash')
         prompt = f"סכם את הפגישה לעברית עסקית רהוטה:\n\n{raw_text}"
         return model.generate_content(prompt).text
@@ -200,13 +214,28 @@ if "current_page" not in st.session_state: st.session_state.current_page = "main
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders_df
 if "ai_response" not in st.session_state: st.session_state.ai_response = ""
 
+params = st.query_params
+if "proj" in params:
+    st.session_state.selected_project = params["proj"]
+    st.session_state.current_page = "project"
+
 # =========================================================
 # 4. מבנה התצוגה
 # =========================================================
 
 loc = get_geolocation()
 
-if st.session_state.current_page == "main":
+if st.session_state.current_page == "project":
+    p_name = st.session_state.get("selected_project", "פרויקט")
+    st.markdown(f'<h1 class="dashboard-header">{p_name}</h1>', unsafe_allow_html=True)
+    if st.button("⬅️ חזרה לדשבורד"):
+        st.query_params.clear()
+        st.session_state.current_page = "main"
+        st.rerun()
+    st.write(f"ניהול פרויקט: {p_name}")
+    # כאן יבוא התוכן של עמוד הפרויקט בהמשך
+
+else:
     if loc: w_text, w_city = get_weather_realtime(loc)
     else: w_text, w_city = "☀️ --°C", "מזהה מיקום..."
         
@@ -249,13 +278,24 @@ if st.session_state.current_page == "main":
     with col_right:
         with st.container(border=True):
             st.markdown("### 📁 פרויקטים")
-            for _, row in projects.iterrows():
-                st.markdown(f'<div class="record-row"><b>📂 {row["project_name"]}</b></div>', unsafe_allow_html=True)
+            with st.container(height=300, border=False):
+                for _, row in projects.iterrows():
+                    p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
+                    st.markdown(f'<a href="{p_url}" target="_self" class="project-link"><div class="record-row"><b>📂 {row["project_name"]}</b></div></a>', unsafe_allow_html=True)
                     
         with st.container(border=True):
+            st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
+            tasks_data = get_azure_tasks()
+            if tasks_data:
+                for t in tasks_data:
+                    f = t.get('fields', {})
+                    st.markdown(f'<div class="record-row">{f.get("System.Title", "")}</div>', unsafe_allow_html=True)
+
+        with st.container(border=True):
             st.markdown("### ✨ עוזר AI אישי")
-            sel_p = st.selectbox("פרויקט", projects["project_name"].tolist(), key="ai_p", label_visibility="collapsed")
-            q_in = st.text_input("שאלה", key="ai_i", label_visibility="collapsed")
+            a1, a2 = st.columns([1, 2])
+            sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), key="ai_p", label_visibility="collapsed")
+            q_in = a2.text_input("שאלה", key="ai_i", label_visibility="collapsed")
             if st.button("שגר שאילתה 🚀", use_container_width=True):
                 if q_in:
                     st.session_state.ai_response = run_smart_analysis(sel_p, q_in)
@@ -270,7 +310,13 @@ if st.session_state.current_page == "main":
             for _, r in t_m.iterrows():
                 st.markdown(f'<div class="record-row">📌 {r["meeting_title"]}</div>', unsafe_allow_html=True)
 
-        # --- אזור Fathom המעודכן (1:1 כפי ששלחת) ---
+        with st.container(border=True):
+            st.markdown("### 🔔 תזכורות")
+            t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
+            for _, row in t_r.iterrows():
+                st.markdown(f'<div class="record-row">🔔 {row["reminder_text"]}</div>', unsafe_allow_html=True)
+
+        # --- אזור Fathom המעודכן ---
         with st.container(border=True):
             col_title, col_refresh = st.columns([0.9, 0.1])
             with col_title:
