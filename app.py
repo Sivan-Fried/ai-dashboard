@@ -535,13 +535,13 @@ else:
                                     <div style="
                                         direction: rtl;
                                         text-align: right;
-                                        line-height: 1.8;
+                                        line-height: 1.6;
                                         color: #1e293b;
                                         font-size: 0.9rem;
                                         background: #f0f9ff;
                                         border: 1px solid #bae6fd;
                                         border-radius: 10px;
                                         padding: 15px 20px;
-                                        white-space: pre-line;
-                                    ">{st.session_state.get(s_key)}</div>
+                                        white-space: normal;
+                                    ">{st.session_state.get(s_key).replace(chr(10), '<br>')}</div>
                                 """, unsafe_allow_html=True)
