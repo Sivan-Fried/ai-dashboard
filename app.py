@@ -461,6 +461,7 @@ else:
                     font-size: 0.75rem;
                     margin-right: 12px;
                 }
+                div[data-testid="stAlert"] { direction: rtl; text-align: right; }
                 </style>
             """, unsafe_allow_html=True)
 
@@ -504,12 +505,7 @@ else:
                                             st.session_state[s_key] = summary
                                             save_summary_to_excel(title, date_str, summary)
                                             st.rerun()
-        else:
-            st.markdown("""
-                <style>
-                div[data-testid="stAlert"] { direction: rtl; text-align: right; }
-                </style>
-            """, unsafe_allow_html=True)
-            st.info(st.session_state[s_key])
+                            else:
+                                st.info(st.session_state[s_key])
             else:
                 st.write("אין פגישות זמינות.")
