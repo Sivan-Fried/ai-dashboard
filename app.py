@@ -490,10 +490,10 @@ else:
                     rec_id = mtg.get('recording_id')
                     title = mtg.get('title') or "פגישה"
                     date_str = mtg.get('recording_start_time', '')[:10]
-
                     open_key = f"open_{rec_id}"
                     is_open = st.session_state.get(open_key, False)
                     arrow = "expand_more" if is_open else "chevron_left"
+                    s_key = f"sum_v4_{rec_id}"
 
                     st.markdown(f'''
                         <div class="fathom-row-ui">
@@ -513,7 +513,6 @@ else:
 
                     if is_open:
                         with st.container():
-                            s_key = f"sum_v4_{rec_id}"
                             if s_key not in st.session_state:
                                 if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}"):
                                     with st.spinner("מנתח..."):
@@ -523,12 +522,9 @@ else:
                                             st.session_state[s_key] = summary
                                             save_summary_to_excel(title, date_str, summary)
                                         else:
-                                            st.error("לא נמצא תוכן לסיכום")
-                                            
-                            if s_key in st.session_state and st.session_state.get(s_key):
-                                st.info(st.session_state.get(s_key, ""))
-            
-                            else:
-                                st.info(st.session_state[s_key])
+                                            st.session_state[s_key] = "לא נמצא תוכן לסיכום"
+                            
+                            if st.session_state.get(s_key):
+                                st.info(st.session_state.get(s_key))
             else:
                 st.write("אין פגישות זמינות.")
