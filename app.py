@@ -141,18 +141,12 @@ def get_weather_realtime(location):
     if location and 'coords' in location:
         lat, lon = location['coords']['latitude'], location['coords']['longitude']
         try:
-            # זיהוי עיר
             g = requests.get(f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}", headers={'User-Agent': 'SivanDash'}).json()
             city = g.get('address', {}).get('city') or g.get('address', {}).get('town') or "ישראל"
-            
-            # נתוני מזג אוויר
             w = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true").json()
             temp = round(w['current_weather']['temperature'])
-            
-            # בדיקה האם עכשיו יום או לילה לפי השעה המקומית
             hour = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).hour
             icon = "🌙" if (hour >= 19 or hour < 6) else "☀️"
-            
             return f"{icon} {temp}°C", city
         except: pass
     return "☀️ --°C", "ישראל"
@@ -202,14 +196,15 @@ def fmt_time(t):
     try: return t.strftime("%H:%M")
     except: return ""
 
-# פונקציית עזר לניתוח (כדאי לשים אותה באזור פונקציות העזר בראש הקוד)
 def run_smart_analysis(project_name, user_question):
+    # הגדרת ה-API תחילה כדי למנוע שגיאת התחברות
+    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+    
     # איסוף נתונים מהאקסלים
     p_data = projects[projects['project_name'] == project_name].to_dict('records')
     p_reminders = st.session_state.rem_live[st.session_state.rem_live['project_name'] == project_name]
     p_meetings = meetings[meetings['meeting_title'].str.contains(project_name, na=False)]
     
-    # איסוף סיכומי פגישות מ-Session State (מה שנותח ב-Fathom)
     fathom_summaries = ""
     for key, val in st.session_state.items():
         if key.startswith("sum_v4_") and project_name.lower() in str(val).lower():
@@ -259,11 +254,9 @@ if "proj" in params:
 # 4. מבנה התצוגה
 # =========================================================
 
-# קבלת מיקום
 loc = get_geolocation()
 
 if st.session_state.current_page == "project":
-    # --- דף פרויקט ספציפי ---
     p_name = st.session_state.get("selected_project", "פרויקט")
     st.markdown(f'<h1 class="dashboard-header">{p_name}</h1>', unsafe_allow_html=True)
     if st.button("⬅️ חזרה לדשבורד"):
@@ -284,17 +277,11 @@ if st.session_state.current_page == "project":
         with tab_meetings: st.write("סיכומי פגישות הפרויקט")
 
 else:
-    # --- דף ראשי (דשבורד) ---
-    
-    # מזג אוויר צף
-    if loc:
-        w_text, w_city = get_weather_realtime(loc)
-    else:
-        w_text, w_city = "☀️ --°C", "מזהה מיקום..."
+    if loc: w_text, w_city = get_weather_realtime(loc)
+    else: w_text, w_city = "☀️ --°C", "מזהה מיקום..."
         
     st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
 
-    # אזור פרופיל
     img_b64 = get_base64_image("profile.png")
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
     greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
@@ -319,7 +306,6 @@ else:
 
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # KPIs
     k1, k2, k3, k4 = st.columns(4)
     with k1: st.markdown(f'<div class="kpi-card">בסיכון 🔴<br><b>{len(projects[projects["status"]=="אדום"])}</b></div>', unsafe_allow_html=True)
     with k2: st.markdown(f'<div class="kpi-card">במעקב 🟡<br><b>{len(projects[projects["status"]=="צהוב"])}</b></div>', unsafe_allow_html=True)
@@ -360,21 +346,19 @@ else:
             else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
         with st.container(border=True):
-             st.markdown("### ✨ עוזר AI אישי")
-             a1, a2 = st.columns([1, 2])
-             sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
-             q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
-    
-    if st.button("שגר שאילתה 🚀", use_container_width=True):
-        if q_in:
-            with st.spinner("מנתח נתונים..."):
-                # הרצת הלוגיקה החדשה
-                st.session_state.ai_response = run_smart_analysis(sel_p, q_in)
-                st.rerun()
+            st.markdown("### ✨ עוזר AI אישי")
+            a1, a2 = st.columns([1, 2])
+            sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
+            q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
+            
+            if st.button("שגר שאילתה 🚀", use_container_width=True):
+                if q_in:
+                    with st.spinner("מנתח נתונים..."):
+                        st.session_state.ai_response = run_smart_analysis(sel_p, q_in)
+                        st.rerun()
 
-    if st.session_state.ai_response:
-        # שימוש ב-st.info כפי שהיה קודם, עם תמיכה ב-RTL (יישור לימין)
-        st.info(st.session_state.ai_response)
+            if st.session_state.ai_response:
+                st.info(st.session_state.ai_response)
 
     with col_left:
         with st.container(border=True):
@@ -410,31 +394,23 @@ else:
                         if st.button("❌", key="cancel_rem_btn"): st.session_state.adding_reminder = False; st.rerun()
             else:
                 if st.button("➕ הוספת תזכורת", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
-#fathom
-                    # --- אזור Fathom המעודכן ---
+
         with st.container(border=True):
             col_title, col_refresh = st.columns([0.9, 0.1])
-            with col_title:
-                st.markdown("### ✨ סיכומי פגישות Fathom")
-
+            with col_title: st.markdown("### ✨ סיכומי פגישות Fathom")
             with col_refresh:
                 if st.button("🔄", key="refresh_fathom"):
                     try:
                         items, status = get_fathom_meetings()
-                        if status == 200:
-                            st.session_state['fathom_meetings'] = items
-                            st.rerun()
+                        if status == 200: st.session_state['fathom_meetings'] = items; st.rerun()
                     except: pass
 
             if 'fathom_meetings' not in st.session_state:
                 try:
                     items, status = get_fathom_meetings()
-                    if status == 200:
-                        st.session_state['fathom_meetings'] = items
-                    else:
-                        st.session_state['fathom_meetings'] = []
-                except:
-                    st.session_state['fathom_meetings'] = []
+                    if status == 200: st.session_state['fathom_meetings'] = items
+                    else: st.session_state['fathom_meetings'] = []
+                except: st.session_state['fathom_meetings'] = []
 
             st.markdown("""
                 <style>
@@ -451,27 +427,6 @@ else:
                     direction: rtl;
                     transition: all 0.2s ease;
                 }
-                div[data-testid="stVerticalBlock"] > div:has(.fathom-row-ui) {
-                    gap: 0rem !important;
-                }
-                div.element-container:has(.fathom-row-ui) + div.element-container {
-                    margin-top: -45px !important;
-                    margin-bottom: 2px !important;
-                }
-                div.element-container:has(.fathom-row-ui) + div.element-container div[data-testid="stButton"] button {
-                    background: transparent !important;
-                    border: 1px solid transparent !important;
-                    border-right: 5px solid transparent !important;
-                    width: 100% !important;
-                    height: 45px !important;
-                    color: transparent !important;
-                    z-index: 20;
-                }
-                div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-testid="stButton"] button:hover) .fathom-row-ui {
-                    border-color: #4facfe;
-                    background-color: #f8fafc;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-                }
                 .fathom-pill-v2 {
                     background-color: #f1f5f9;
                     color: #475569;
@@ -484,16 +439,10 @@ else:
             """, unsafe_allow_html=True)
 
             f_meetings = st.session_state.get('fathom_meetings', [])
-
             if f_meetings:
                 for idx, mtg in enumerate(f_meetings):
-                    rec_id = mtg.get('recording_id')
-                    title = mtg.get('title') or "פגישה"
-                    date_str = mtg.get('recording_start_time', '')[:10]
-
-                    open_key = f"open_{rec_id}"
-                    is_open = st.session_state.get(open_key, False)
-                    arrow = "expand_more" if is_open else "chevron_left"
+                    rec_id = mtg.get('recording_id'); title = mtg.get('title') or "פגישה"; date_str = mtg.get('recording_start_time', '')[:10]
+                    open_key = f"open_{rec_id}"; is_open = st.session_state.get(open_key, False); arrow = "expand_more" if is_open else "chevron_left"
 
                     st.markdown(f'''
                         <div class="fathom-row-ui">
@@ -508,8 +457,7 @@ else:
                     ''', unsafe_allow_html=True)
 
                     if st.button("", key=f"f_trig_{rec_id}_{idx}", use_container_width=True):
-                        st.session_state[open_key] = not is_open
-                        st.rerun()
+                        st.session_state[open_key] = not is_open; st.rerun()
 
                     if is_open:
                         with st.container():
@@ -518,10 +466,6 @@ else:
                                 if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}"):
                                     with st.spinner("מנתח..."):
                                         raw = get_fathom_summary(rec_id)
-                                        if raw:
-                                            st.session_state[s_key] = refine_with_ai(raw)
-                                            st.rerun()
-                            else:
-                                st.info(st.session_state[s_key])
-            else:
-                st.write("אין פגישות זמינות.")
+                                        if raw: st.session_state[s_key] = refine_with_ai(raw); st.rerun()
+                            else: st.info(st.session_state[s_key])
+            else: st.write("אין פגישות זמינות.")
