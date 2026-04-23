@@ -5,24 +5,54 @@ import datetime
 # כותרת עליונה
 st.markdown("<h2 style='text-align: right; color: #334155; font-family: Assistant, sans-serif; font-weight: 300; padding-right: 50px;'>תוכנית עבודה: <span style='font-weight:700'>אזורים אישיים</span></h2>", unsafe_allow_html=True)
 
-# חישוב תאריך היום ומיקומו בציר
+# =========================================================
+# חישוב מיקומים דינמיים לפי תאריך
+# =========================================================
 today = datetime.date.today()
 today_str = today.strftime("%d.%m")
 
-# ציר הזמן: מ-08.03 עד ~01.10 (TBD)
 timeline_start = datetime.date(today.year, 3, 8)
 timeline_end   = datetime.date(today.year, 10, 1)
 total_days     = (timeline_end - timeline_start).days
+timeline_width = 900  # px בין padding ל-padding
 
-# רוחב הציר בפועל (wrapper רוחב 1000px, padding 50px מכל צד → 900px)
-timeline_width = 900
+def date_to_right(d):
+    """המרת תאריך לערך right בפיקסלים (RTL: ימין = התחלה)"""
+    days = (d - timeline_start).days
+    days = max(0, min(days, total_days))
+    ratio = days / total_days
+    # RTL: right=950 = תחילת הציר, right=50 = סופו
+    return int(950 - ratio * timeline_width)
 
-days_passed = (today - timeline_start).days
-days_passed = max(0, min(days_passed, total_days))  # clamp
+# מיקום חיווי היום
+today_right = date_to_right(today)
 
-# ב-RTL: right=0 הוא תחילת הציר (08.03), right=900 הוא סופו
-# אז: right = timeline_width - (days_passed / total_days * timeline_width)
-today_right = int(timeline_width - (days_passed / total_days * timeline_width)) + 50  # +50 לפדינג
+# מיקומי הפריטים
+items = [
+    {"date": datetime.date(today.year, 3, 8),  "label": "08.03", "tag": "עמיתים",  "cls": "amit", "status": "LIVE", "scls": "live"},
+    {"date": datetime.date(today.year, 3, 8),  "label": "08.03", "tag": "מעסיקים", "cls": "measy","status": "LIVE", "scls": "live"},
+    {"date": datetime.date(today.year, 3, 24), "label": "24.03", "tag": "סוכנים",  "cls": "soch", "status": "LIVE", "scls": "live"},
+    {"date": datetime.date(today.year, 4, 10), "label": "10.04", "tag": "עמיתים",  "cls": "amit", "status": "LIVE", "scls": "live"},
+    {"date": datetime.date(today.year, 7, 1),  "label": "07/26", "tag": "עמיתים",  "cls": "amit", "status": "WIP",  "scls": "wip"},
+    {"date": datetime.date(today.year, 10, 1), "label": "TBD",   "tag": "מעסיקים", "cls": "measy","status": "HOLD", "scls": "hold"},
+]
+
+# בניית HTML לפריטים
+items_html = ""
+for item in items:
+    r = date_to_right(item["date"])
+    hold_style = 'style="color:#94a3b8"' if item["scls"] == "hold" else ""
+    items_html += f"""
+        <div class="item" style="right: {r}px;">
+            <div class="card">
+                <span class="tag {item['cls']}">{item['tag']}</span>
+                <div class="date">{item['label']}</div>
+                <span class="status {item['scls']}" {hold_style}>{item['status']}</span>
+            </div>
+            <div class="connector"></div>
+            <div class="dot"></div>
+        </div>
+    """
 
 roadmap_html = f"""
 <!DOCTYPE html>
@@ -38,15 +68,12 @@ roadmap_html = f"""
             width: 1000px;
             margin: 50px auto;
             height: 200px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
             padding: 0 50px;
         }}
 
         .main-line {{
             position: absolute;
-            bottom: 6px;
+            bottom: 21px;
             left: 0;
             right: 0;
             height: 1px;
@@ -56,16 +83,17 @@ roadmap_html = f"""
 
         .today-indicator {{
             position: absolute;
-            bottom: -15px;
+            bottom: 0px;
             right: {today_right}px;
             display: flex;
             flex-direction: column;
             align-items: center;
             z-index: 5;
+            transform: translateX(50%);
         }}
         .today-line {{
             width: 2px;
-            height: 60px;
+            height: 75px;
             border-left: 2px dashed #bfdbfe;
         }}
         .today-text {{
@@ -73,23 +101,26 @@ roadmap_html = f"""
             font-size: 11px;
             font-weight: 700;
             margin-bottom: 4px;
+            white-space: nowrap;
         }}
 
         .item {{
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 90px;
+            width: 100px;
             z-index: 3;
-            position: relative;
+            position: absolute;
+            bottom: 15px;
+            transform: translateX(50%);
         }}
 
         .card {{
             background: white;
-            padding: 4px 6px;
-            border-radius: 6px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-            border: 1px solid #f1f5f9;
+            padding: 6px 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            border: 1px solid #e2e8f0;
             text-align: center;
             width: 100%;
             margin-bottom: 8px;
@@ -111,13 +142,14 @@ roadmap_html = f"""
             z-index: 4;
         }}
 
-        .tag {{ font-size: 8px; font-weight: 700; padding: 1px 4px; border-radius: 2px; display: inline-block; margin-bottom: 2px; }}
-        .amit {{ background: #eff6ff; color: #1e40af; }}
-        .measy {{ background: #f5f3ff; color: #5b21b6; }}
-        .soch {{ background: #ecfdf5; color: #065f46; }}
-        .date {{ font-size: 13px; font-weight: 600; color: #1e293b; margin: 0; }}
-        .status {{ font-size: 8px; font-weight: 700; margin-top: 2px; }}
-        .live {{ color: #10b981; }} .wip {{ color: #f59e0b; }}
+        .tag    {{ font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; display: inline-block; margin-bottom: 3px; }}
+        .amit   {{ background: #eff6ff; color: #1e40af; }}
+        .measy  {{ background: #f5f3ff; color: #5b21b6; }}
+        .soch   {{ background: #ecfdf5; color: #065f46; }}
+        .date   {{ font-size: 14px; font-weight: 700; color: #1e293b; margin: 0; }}
+        .status {{ font-size: 9px; font-weight: 700; margin-top: 3px; display: block; }}
+        .live   {{ color: #10b981; }}
+        .wip    {{ color: #f59e0b; }}
     </style>
 </head>
 <body>
@@ -129,35 +161,7 @@ roadmap_html = f"""
             <div class="today-line"></div>
         </div>
 
-        <div class="item">
-            <div class="card"><span class="tag amit">עמיתים</span><div class="date">08.03</div><span class="status live">LIVE</span></div>
-            <div class="connector"></div><div class="dot"></div>
-        </div>
-        
-        <div class="item">
-            <div class="card"><span class="tag measy">מעסיקים</span><div class="date">08.03</div><span class="status live">LIVE</span></div>
-            <div class="connector"></div><div class="dot"></div>
-        </div>
-
-        <div class="item">
-            <div class="card"><span class="tag soch">סוכנים</span><div class="date">24.03</div><span class="status live">LIVE</span></div>
-            <div class="connector"></div><div class="dot"></div>
-        </div>
-
-        <div class="item">
-            <div class="card"><span class="tag amit">עמיתים</span><div class="date">10.04</div><span class="status live">LIVE</span></div>
-            <div class="connector"></div><div class="dot"></div>
-        </div>
-
-        <div class="item">
-            <div class="card"><span class="tag amit">עמיתים</span><div class="date">יולי</div><span class="status wip">WIP</span></div>
-            <div class="connector"></div><div class="dot"></div>
-        </div>
-
-        <div class="item">
-            <div class="card"><span class="tag measy">מעסיקים</span><div class="date">TBD</div><span class="status" style="color:#94a3b8">HOLD</span></div>
-            <div class="connector"></div><div class="dot"></div>
-        </div>
+        {items_html}
     </div>
 </body>
 </html>
