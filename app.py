@@ -119,15 +119,13 @@ st.markdown("""
     /* Weather inline */
     .weather-float {
         display: inline-flex;
-        flex-direction: row;
+        flex-direction: column;
         align-items: center;
-        gap: 8px;
         background: white;
-        padding: 6px 18px;
+        padding: 8px 15px;
         border-radius: 15px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         border: 1px solid #edf2f7;
-        margin: 0 auto 16px auto;
     }
     div[data-testid="stMarkdownContainer"]:has(.weather-float) {
         text-align: center !important;
@@ -261,19 +259,19 @@ else:
         
     st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
 
-    st.markdown(f"""
-        <div class="weather-float">
-            <div style="font-size: 0.7rem; color: #4facfe; font-weight: 700;">{w_city}</div>
-            <div style="font-size: 1.1rem; color: #1f2a44; font-weight: 800;">{w_text}</div>
-        </div>
-    """, unsafe_allow_html=True)
-
     # אזור פרופיל
     img_b64 = get_base64_image("profile.png")
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
     greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
 
     p1, p2, p3 = st.columns([1, 1, 2])
+    with p1:
+        st.markdown(f"""
+            <div class="weather-float">
+                <div style="font-size: 0.7rem; color: #4facfe; font-weight: 700;">{w_city}</div>
+                <div style="font-size: 1.1rem; color: #1f2a44; font-weight: 800;">{w_text}</div>
+            </div>
+        """, unsafe_allow_html=True)
     with p2:
         if img_b64:
             st.markdown(f'<div style="display:flex; justify-content:center;"><img src="data:image/png;base64,{img_b64}" class="profile-img"></div>', unsafe_allow_html=True)
