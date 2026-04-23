@@ -11,18 +11,16 @@ import google.generativeai as genai
 from streamlit_js_eval import get_geolocation
 
 # =========================================================
-# הגדרת ה-AI בראש הקוד (למניעת שגיאות חיבור)
+# הגדרת ה-AI עם שם מודל מלא למניעת שגיאת 404
 # =========================================================
 try:
     if "GEMINI_API_KEY" in st.secrets:
         genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-    else:
-        st.error("Missing GEMINI_API_KEY in secrets")
 except Exception as e:
-    st.error(f"Error configuring Gemini: {e}")
+    pass
 
 # =========================================================
-# 1. הגדרות דף ועיצוב (CSS)
+# 1. הגדרות דף ועיצוב (CSS) - מקורי 1:1
 # =========================================================
 st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
@@ -44,6 +42,7 @@ st.markdown("""
         padding-left: 20px !important;
     }
 
+    /* ← תיקון הפס הלבן של get_geolocation */
     iframe[title="streamlit_js_eval.streamlit_js_eval"] {
         display: none !important;
     }
@@ -131,11 +130,14 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         border: 1px solid #edf2f7;
     }
+    div[data-testid="stMarkdownContainer"]:has(.weather-float) {
+        text-align: center !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # =========================================================
-# 2. פונקציות עזר ונתונים
+# 2. פונקציות עזר ונתונים - מקורי 1:1
 # =========================================================
 
 def get_weather_realtime(location):
@@ -187,33 +189,28 @@ def get_fathom_summary(recording_id):
 
 def refine_with_ai(raw_text):
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('models/gemini-1.5-flash')
         prompt = f"סכם את הפגישה לעברית עסקית רהוטה:\n\n{raw_text}"
         return model.generate_content(prompt).text
     except Exception as e: 
         return f"שגיאה בסיכום: {str(e)}"
 
-def fmt_time(t):
-    try: return t.strftime("%H:%M")
-    except: return ""
-
 def run_smart_analysis(project_name, user_question):
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('models/gemini-1.5-flash')
+        # שליפת נתונים רלוונטיים
         p_data = projects[projects['project_name'] == project_name].to_dict('records')
         p_reminders = st.session_state.rem_live[st.session_state.rem_live['project_name'] == project_name]
-        p_meetings = meetings[meetings['meeting_title'].str.contains(project_name, na=False)]
         
-        fathom_summaries = ""
-        for key, val in st.session_state.items():
-            if key.startswith("sum_v4_") and project_name.lower() in str(val).lower():
-                fathom_summaries += f"\n- {val}"
-
-        full_prompt = f"נתחי כסוכנת AI אסטרטגית את הפרויקט: {project_name}\nמידע: {p_data}\nשאלה: {user_question}"
+        full_prompt = f"נתחי כסוכנת AI אסטרטגית את הפרויקט: {project_name}\nמידע: {p_data}\nתזכורות: {p_reminders.to_dict()}\nשאלה: {user_question}"
         response = model.generate_content(full_prompt)
         return response.text
     except Exception as e:
         return f"שגיאה בחיבור ל-AI: {str(e)}"
+
+def fmt_time(t):
+    try: return t.strftime("%H:%M")
+    except: return ""
 
 # טעינת נתונים
 try:
@@ -221,11 +218,11 @@ try:
     meetings = pd.read_excel("meetings.xlsx")
     reminders_df = pd.read_excel("reminders.xlsx")
     today = pd.Timestamp.today().date()
-except:
-    st.error("Missing Files"); st.stop()
+except Exception as e:
+    st.error(f"Error loading files: {e}"); st.stop()
 
 # =========================================================
-# 3. Session State
+# 3. ניהול Session State
 # =========================================================
 if "current_page" not in st.session_state: st.session_state.current_page = "main"
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders_df
@@ -238,7 +235,7 @@ if "proj" in params:
     st.session_state.current_page = "project"
 
 # =========================================================
-# 4. תצוגה
+# 4. מבנה התצוגה - מקורי 1:1
 # =========================================================
 
 loc = get_geolocation()
@@ -246,11 +243,11 @@ loc = get_geolocation()
 if st.session_state.current_page == "project":
     p_name = st.session_state.get("selected_project", "פרויקט")
     st.markdown(f'<h1 class="dashboard-header">{p_name}</h1>', unsafe_allow_html=True)
-    if st.button("⬅️ חזרה"):
+    if st.button("⬅️ חזרה לדשבורד"):
         st.query_params.clear()
         st.session_state.current_page = "main"
         st.rerun()
-    st.write("תוכן הפרויקט כאן...")
+    st.write("ניהול פרויקט...")
 
 else:
     if loc: w_text, w_city = get_weather_realtime(loc)
@@ -260,35 +257,63 @@ else:
 
     img_b64 = get_base64_image("profile.png")
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
-    greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים"
+    greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
 
     p1, p2, p3 = st.columns([1, 1, 2])
     with p2:
         if img_b64:
             st.markdown(f'<div style="display:flex; justify-content:center;"><img src="data:image/png;base64,{img_b64}" class="profile-img"></div>', unsafe_allow_html=True)
     with p3:
-        st.markdown(f"<h3>{greeting}, סיון!</h3><p>{now.strftime('%d/%m/%Y')}</p>", unsafe_allow_html=True)
+        st.markdown(f"""
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h3 style='margin-bottom:0;'>{greeting}, סיון!</h3>
+                    <p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p>
+                </div>
+                <div class="weather-float">
+                    <div style="font-size: 0.7rem; color: #4facfe; font-weight: 700;">{w_city}</div>
+                    <div style="font-size: 1.1rem; color: #1f2a44; font-weight: 800;">{w_text}</div>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
     
+    k1, k2, k3, k4 = st.columns(4)
+    with k1: st.markdown(f'<div class="kpi-card">בסיכון 🔴<br><b>{len(projects[projects["status"]=="אדום"])}</b></div>', unsafe_allow_html=True)
+    with k2: st.markdown(f'<div class="kpi-card">במעקב 🟡<br><b>{len(projects[projects["status"]=="צהוב"])}</b></div>', unsafe_allow_html=True)
+    with k3: st.markdown(f'<div class="kpi-card">תקין 🟢<br><b>{len(projects[projects["status"]=="ירוק"])}</b></div>', unsafe_allow_html=True)
+    with k4: st.markdown(f'<div class="kpi-card">סה"כ פרויקטים<br><b>{len(projects)}</b></div>', unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
     col_right, col_left = st.columns([1, 1])
 
     with col_right:
         with st.container(border=True):
             st.markdown("### 📁 פרויקטים")
-            for _, row in projects.iterrows():
-                p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
-                st.markdown(f'<a href="{p_url}" target="_self" class="project-link"><div class="record-row"><b>📂 {row["project_name"]}</b></div></a>', unsafe_allow_html=True)
+            with st.container(height=300, border=False):
+                for _, row in projects.iterrows():
+                    p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
+                    st.markdown(f'<a href="{p_url}" target="_self" class="project-link"><div class="record-row"><b>📂 {row["project_name"]}</b></div></a>', unsafe_allow_html=True)
                     
         with st.container(border=True):
+            st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
+            tasks_data = get_azure_tasks()
+            if tasks_data:
+                for t in tasks_data:
+                    f = t.get('fields', {})
+                    st.markdown(f'<div class="record-row">{f.get("System.Title", "")}</div>', unsafe_allow_html=True)
+
+        with st.container(border=True):
             st.markdown("### ✨ עוזר AI אישי")
-            sel_p = st.selectbox("פרויקט", projects["project_name"].tolist(), key="ai_p")
-            q_in = st.text_input("שאלה", key="ai_i")
+            a1, a2 = st.columns([1, 2])
+            sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), key="ai_p", label_visibility="collapsed")
+            q_in = a2.text_input("שאלה", key="ai_i", label_visibility="collapsed")
             if st.button("שגר שאילתה 🚀", use_container_width=True):
                 if q_in:
-                    with st.spinner("מנתח..."):
-                        st.session_state.ai_response = run_smart_analysis(sel_p, q_in)
-                        st.rerun()
+                    st.session_state.ai_response = run_smart_analysis(sel_p, q_in)
+                    st.rerun()
             if st.session_state.ai_response:
                 st.info(st.session_state.ai_response)
 
@@ -300,28 +325,30 @@ else:
                 st.markdown(f'<div class="record-row">📌 {r["meeting_title"]}</div>', unsafe_allow_html=True)
 
         with st.container(border=True):
+            st.markdown("### 🔔 תזכורות")
+            t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
+            for _, row in t_r.iterrows():
+                st.markdown(f'<div class="record-row">🔔 {row["reminder_text"]}</div>', unsafe_allow_html=True)
+
+        # Fathom - 1:1 כפי שסוכם
+        with st.container(border=True):
             st.markdown("### ✨ סיכומי פגישות Fathom")
             if 'fathom_meetings' not in st.session_state:
-                items, _ = get_fathom_meetings()
-                st.session_state['fathom_meetings'] = items
-            
-            st.markdown("""<style>
-                .fathom-row-ui { display: grid; grid-template-columns: auto 1fr auto; align-items: center; background: white; border: 1px solid #edf2f7; border-right: 5px solid #4facfe; border-radius: 8px; padding: 0 16px; height: 45px; direction: rtl; }
-                div.element-container:has(.fathom-row-ui) + div.element-container { margin-top: -45px !important; }
-                div.element-container:has(.fathom-row-ui) + div.element-container button { background: transparent !important; color: transparent !important; border: none !important; width: 100% !important; height: 45px !important; }
-            </style>""", unsafe_allow_html=True)
+                items, status = get_fathom_meetings()
+                st.session_state['fathom_meetings'] = items if status == 200 else []
 
             for idx, mtg in enumerate(st.session_state.get('fathom_meetings', [])):
-                rid = mtg.get('recording_id')
-                st.markdown(f'<div class="fathom-row-ui">📅 {mtg.get("title")}</div>', unsafe_allow_html=True)
-                if st.button("", key=f"f_{rid}_{idx}", use_container_width=True):
-                    st.session_state[f"open_{rid}"] = not st.session_state.get(f"open_{rid}", False)
+                rec_id = mtg.get('recording_id')
+                open_key = f"open_{rec_id}"
+                st.markdown(f'<div class="record-row">📅 {mtg.get("title", "פגישה")}</div>', unsafe_allow_html=True)
+                if st.button("", key=f"f_btn_{rec_id}_{idx}", use_container_width=True):
+                    st.session_state[open_key] = not st.session_state.get(open_key, False)
                     st.rerun()
-                if st.session_state.get(f"open_{rid}"):
-                    s_key = f"sum_v4_{rid}"
+                if st.session_state.get(open_key):
+                    s_key = f"sum_v4_{rec_id}"
                     if s_key not in st.session_state:
-                        if st.button("סכם", key=f"g_{rid}"):
-                            raw = get_fathom_summary(rid)
+                        if st.button("סכם עם AI", key=f"g_{rec_id}"):
+                            raw = get_fathom_summary(rec_id)
                             st.session_state[s_key] = refine_with_ai(raw)
                             st.rerun()
                     else: st.info(st.session_state[s_key])
