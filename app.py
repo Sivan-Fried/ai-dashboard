@@ -528,6 +528,22 @@ else:
                                             st.session_state[s_key] = "לא נמצא תוכן לסיכום"
                             
                             if st.session_state.get(s_key):
-                                st.info(st.session_state.get(s_key))
+                                clean_text = st.session_state.get(s_key, "")
+                                # הסרת כותרות markdown והמרה לטקסט רגיל
+                                import re
+                                clean_text = re.sub(r'^#{1,6}\s*', '', clean_text, flags=re.MULTILINE)
+                                st.markdown(f"""
+                                    <div style="
+                                        background: #f0f9ff;
+                                        border: 1px solid #bae6fd;
+                                        border-radius: 10px;
+                                        padding: 15px 20px;
+                                        direction: rtl;
+                                        text-align: right;
+                                        line-height: 1.8;
+                                        color: #1e293b;
+                                        font-size: 0.9rem;
+                                    ">{clean_text.replace(chr(10), '<br>')}</div>
+                                """, unsafe_allow_html=True)
             else:
                 st.write("אין פגישות זמינות.")
