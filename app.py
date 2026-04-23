@@ -9,6 +9,8 @@ from zoneinfo import ZoneInfo
 import streamlit.components.v1 as components
 import google.generativeai as genai
 from streamlit_js_eval import get_geolocation
+from openai import OpenAI
+
 
 # =========================================================
 # 1. הגדרות דף ועיצוב (CSS)
@@ -114,10 +116,13 @@ def get_fathom_summary(recording_id):
 
 def refine_with_ai(raw_text):
     try:
-        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        client = OpenAI()
         prompt = f"סכם את הפגישה לעברית עסקית רהוטה:\n\n{raw_text}"
-        return model.generate_content(prompt).text
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return response.choices[0].message.content
     except:
         return "שגיאה בסיכום"
 
@@ -518,15 +523,14 @@ else:
 
             if st.button("שגר שאילתה 🚀", use_container_width=True):
                 if q_in:
-                    with st.spinner("הסוכן עובר על כל המידע ומנתח..."):
-                        answer = run_project_agent(
-                            project_name=sel_p,
-                            question=q_in,
-                            projects_df=projects,
-                            meetings_df=meetings,
-                            reminders_df=st.session_state.rem_live
-                        )
-                        st.session_state.ai_response = answer
+                    with st.spinner("מנתח..."):
+                    client = OpenAI()
+                    prompt = f"שאלה על פרויקט {sel_p}:\n{q_in}"
+                    response = client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[{"role": "user", "content": prompt}]
+                    )
+                    st.session_state.ai_response = response.choices[0].message.content
 
             if st.session_state.ai_response:
                 st.info(st.session_state.ai_response)
