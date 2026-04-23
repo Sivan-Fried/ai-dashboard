@@ -493,17 +493,17 @@ else:
                         st.rerun()
 
                     if is_open:
-    with st.container():
-        s_key = f"sum_v4_{rec_id}"
-        if s_key not in st.session_state:
-            if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}"):
-                with st.spinner("מנתח..."):
-                    raw = get_fathom_summary(rec_id)
-                    if raw:
-                        summary = refine_with_ai(raw)
-                        st.session_state[s_key] = summary
-                        save_summary_to_excel(title, date_str, summary)
-                        st.rerun()
+                        with st.container():
+                            s_key = f"sum_v4_{rec_id}"
+                            if s_key not in st.session_state:
+                                if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}"):
+                                    with st.spinner("מנתח..."):
+                                        raw = get_fathom_summary(rec_id)
+                                        if raw:
+                                            summary = refine_with_ai(raw)
+                                            st.session_state[s_key] = summary
+                                            save_summary_to_excel(title, date_str, summary)
+                                            st.rerun()
         else:
             st.markdown("""
                 <style>
