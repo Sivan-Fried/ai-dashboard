@@ -203,19 +203,21 @@ def fmt_time(t):
     except: return ""
 
 # ========= פונקציות חדשות לסוכן ה-AI =========
-# ========= פונקציות חדשות לסוכן ה-AI =========
-
 def detect_gemini_model():
     """
     בודקת אילו מודלים זמינים ושיש להם quota בפועל.
     מנסה לבצע קריאה זעירה (ping) לכל מודל.
     אם המודל מחזיר 429 – מדלגים למודל הבא.
     """
+
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
+    # סדר עדיפות למודלים חינמיים ויציבים
     candidates = [
-        "gemini-2.0-flash",
-        "gemini-1.5-flash",
+        "gemini-1.5-flash-latest",
+        "gemini-1.5-flash-8b",
+        "gemini-1.5-pro-latest",
+        "gemini-1.0-pro",
         "gemini-pro"
     ]
 
