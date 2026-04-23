@@ -157,19 +157,19 @@ def get_fathom_summary(recording_id):
 # ⭐ פונקציית AI חינמית — HuggingFace FLAN‑T5‑Large
 def refine_with_ai(raw_text):
     try:
-        url = "https://api-inference.huggingface.co/models/google/flan-t5-large"
-        payload = {"inputs": f"סכם לעברית עסקית:\n{raw_text}"}
+        url = "https://api-inference.huggingface.co/models/google/flan-t5-base"
+        payload = {"inputs": f"סכם לעברית:\n{raw_text}"}
         headers = {"Content-Type": "application/json"}
 
-        response = requests.post(url, json=payload, headers=headers, timeout=30)
+        response = requests.post(url, json=payload, headers=headers, timeout=20)
         data = response.json()
 
         if isinstance(data, list) and len(data) > 0:
             return data[0]["generated_text"]
 
         return "לא הצלחתי לנתח."
-    except:
-        return "שגיאה בסיכום"
+    except Exception as e:
+        return f"שגיאה: {e}"
 
 
 def fmt_time(t):
