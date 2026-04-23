@@ -531,7 +531,11 @@ else:
                                             st.session_state[s_key] = "לא נמצא תוכן לסיכום"
                             
                             if st.session_state.get(s_key):
-                                clean = "\n".join(line for line in st.session_state.get(s_key).splitlines() if line.strip())
+                                import re
+                                raw_s = st.session_state.get(s_key)
+                                clean = re.sub(r'\*+', '', raw_s)
+                                clean = re.sub(r'^#{1,6}\s*', '', clean, flags=re.MULTILINE)
+                                clean = "\n".join(line for line in clean.splitlines() if line.strip())
                                 st.markdown(f"""
                                     <div style="
                                         direction: rtl;
