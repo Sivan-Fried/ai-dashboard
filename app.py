@@ -9,8 +9,6 @@ from zoneinfo import ZoneInfo
 import streamlit.components.v1 as components
 import google.generativeai as genai
 from streamlit_js_eval import get_geolocation
-from openai import OpenAI
-
 import requests
 
 def refine_with_ai(raw_text):
