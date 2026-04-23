@@ -116,20 +116,21 @@ st.markdown("""
     .time-label { color: #64748b; font-size: 0.85em; font-weight: 500; font-family: monospace; }
     p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
 
-    /* Weather float */
+    /* Weather inline */
     .weather-float {
-        position: absolute;
-        top: 20px;
-        left: 20px;
+        display: inline-flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
         background: white;
-        padding: 8px 15px;
+        padding: 6px 18px;
         border-radius: 15px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        z-index: 100;
         border: 1px solid #edf2f7;
+        margin: 0 auto 16px auto;
+    }
+    div[data-testid="stMarkdownContainer"]:has(.weather-float) {
+        text-align: center !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -258,14 +259,14 @@ else:
     else:
         w_text, w_city = "☀️ --°C", "מזהה מיקום..."
         
+    st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
+
     st.markdown(f"""
         <div class="weather-float">
             <div style="font-size: 0.7rem; color: #4facfe; font-weight: 700;">{w_city}</div>
             <div style="font-size: 1.1rem; color: #1f2a44; font-weight: 800;">{w_text}</div>
         </div>
     """, unsafe_allow_html=True)
-
-    st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
 
     # אזור פרופיל
     img_b64 = get_base64_image("profile.png")
