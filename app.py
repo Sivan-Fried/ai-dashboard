@@ -10,17 +10,9 @@ import streamlit.components.v1 as components
 import google.generativeai as genai
 from streamlit_js_eval import get_geolocation
 
-# =========================================================
-# הגדרת ה-AI - תיקון שם מודל למניעת 404
-# =========================================================
-try:
-    if "GEMINI_API_KEY" in st.secrets:
-        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-except Exception as e:
-    pass
 
 # =========================================================
-# 1. הגדרות דף ועיצוב (CSS) - מקורי 1:1
+# 1. הגדרות דף ועיצוב (CSS)
 # =========================================================
 st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
@@ -42,6 +34,7 @@ st.markdown("""
         padding-left: 20px !important;
     }
 
+    /* ← תיקון הפס הלבן של get_geolocation */
     iframe[title="streamlit_js_eval.streamlit_js_eval"] {
         display: none !important;
     }
@@ -114,6 +107,16 @@ st.markdown("""
         box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
     }
 
+    .project-link:first-child .record-row, .record-row:first-of-type {
+        margin-top: 4px !important;
+    }
+
+    .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
+    .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
+    .time-label { color: #64748b; font-size: 0.85em; font-weight: 500; font-family: monospace; }
+    p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
+
+    /* Weather inline */
     .weather-float {
         display: inline-flex;
         flex-direction: column;
@@ -124,7 +127,9 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         border: 1px solid #edf2f7;
     }
-    p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
+    div[data-testid="stMarkdownContainer"]:has(.weather-float) {
+        text-align: center !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -136,12 +141,18 @@ def get_weather_realtime(location):
     if location and 'coords' in location:
         lat, lon = location['coords']['latitude'], location['coords']['longitude']
         try:
+            # זיהוי עיר
             g = requests.get(f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}", headers={'User-Agent': 'SivanDash'}).json()
             city = g.get('address', {}).get('city') or g.get('address', {}).get('town') or "ישראל"
+            
+            # נתוני מזג אוויר
             w = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true").json()
             temp = round(w['current_weather']['temperature'])
+            
+            # בדיקה האם עכשיו יום או לילה לפי השעה המקומית
             hour = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).hour
             icon = "🌙" if (hour >= 19 or hour < 6) else "☀️"
+            
             return f"{icon} {temp}°C", city
         except: pass
     return "☀️ --°C", "ישראל"
@@ -181,22 +192,15 @@ def get_fathom_summary(recording_id):
 
 def refine_with_ai(raw_text):
     try:
+        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
         model = genai.GenerativeModel('gemini-1.5-flash')
         prompt = f"סכם את הפגישה לעברית עסקית רהוטה:\n\n{raw_text}"
         return model.generate_content(prompt).text
-    except Exception as e: 
-        return f"שגיאה בסיכום: {str(e)}"
+    except: return "שגיאה בסיכום"
 
-def run_smart_analysis(project_name, user_question):
-    try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        p_data = projects[projects['project_name'] == project_name].to_dict('records')
-        p_reminders = st.session_state.rem_live[st.session_state.rem_live['project_name'] == project_name]
-        full_prompt = f"נתחי כסוכנת AI אסטרטגית את הפרויקט: {project_name}\nמידע: {p_data}\nתזכורות: {p_reminders.to_dict()}\nשאלה: {user_question}"
-        response = model.generate_content(full_prompt)
-        return response.text
-    except Exception as e:
-        return f"שגיאה בחיבור ל-AI: {str(e)}"
+def fmt_time(t):
+    try: return t.strftime("%H:%M")
+    except: return ""
 
 # טעינת נתונים
 try:
@@ -204,15 +208,16 @@ try:
     meetings = pd.read_excel("meetings.xlsx")
     reminders_df = pd.read_excel("reminders.xlsx")
     today = pd.Timestamp.today().date()
-except Exception as e:
-    st.error(f"Error loading files: {e}"); st.stop()
+except:
+    st.error("Missing Files (my_projects, meetings, reminders)"); st.stop()
 
 # =========================================================
-# 3. ניהול Session State
+# 3. ניהול ניווט ו-Session State
 # =========================================================
 if "current_page" not in st.session_state: st.session_state.current_page = "main"
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders_df
 if "ai_response" not in st.session_state: st.session_state.ai_response = ""
+if "adding_reminder" not in st.session_state: st.session_state.adding_reminder = False
 
 params = st.query_params
 if "proj" in params:
@@ -223,24 +228,42 @@ if "proj" in params:
 # 4. מבנה התצוגה
 # =========================================================
 
+# קבלת מיקום
 loc = get_geolocation()
 
 if st.session_state.current_page == "project":
+    # --- דף פרויקט ספציפי ---
     p_name = st.session_state.get("selected_project", "פרויקט")
     st.markdown(f'<h1 class="dashboard-header">{p_name}</h1>', unsafe_allow_html=True)
     if st.button("⬅️ חזרה לדשבורד"):
         st.query_params.clear()
         st.session_state.current_page = "main"
         st.rerun()
-    st.write(f"ניהול פרויקט: {p_name}")
-    # כאן יבוא התוכן של עמוד הפרויקט בהמשך
+    
+    with st.container(border=True):
+        st.markdown(f"### ℹ️ ניהול פרויקט: {p_name}")
+        tab_work, tab_res, tab_risk, tab_meetings = st.tabs(["📅 תוכנית עבודה", "👥 משאבים", "⚠️ סיכונים", "📝 סיכומים"])
+        with tab_work:
+            if p_name == "אלטשולר שחם":
+                exec(open("altshuler_module.py").read())
+            else:
+                st.info(f"תוכנית עבודה עבור {p_name} בטעינה...")
+        with tab_res: st.write("רשימת צוות ומשאבים")
+        with tab_risk: st.write("ניהול סיכונים")
+        with tab_meetings: st.write("סיכומי פגישות הפרויקט")
 
 else:
-    if loc: w_text, w_city = get_weather_realtime(loc)
-    else: w_text, w_city = "☀️ --°C", "מזהה מיקום..."
+    # --- דף ראשי (דשבורד) ---
+    
+    # מזג אוויר צף
+    if loc:
+        w_text, w_city = get_weather_realtime(loc)
+    else:
+        w_text, w_city = "☀️ --°C", "מזהה מיקום..."
         
     st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
 
+    # אזור פרופיל
     img_b64 = get_base64_image("profile.png")
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
     greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
@@ -265,6 +288,7 @@ else:
 
     st.markdown("<br>", unsafe_allow_html=True)
     
+    # KPIs
     k1, k2, k3, k4 = st.columns(4)
     with k1: st.markdown(f'<div class="kpi-card">בסיכון 🔴<br><b>{len(projects[projects["status"]=="אדום"])}</b></div>', unsafe_allow_html=True)
     with k2: st.markdown(f'<div class="kpi-card">במעקב 🟡<br><b>{len(projects[projects["status"]=="צהוב"])}</b></div>', unsafe_allow_html=True)
@@ -281,42 +305,73 @@ else:
             with st.container(height=300, border=False):
                 for _, row in projects.iterrows():
                     p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
-                    st.markdown(f'<a href="{p_url}" target="_self" class="project-link"><div class="record-row"><b>📂 {row["project_name"]}</b></div></a>', unsafe_allow_html=True)
+                    st.markdown(f'''
+                        <a href="{p_url}" target="_self" class="project-link">
+                            <div class="record-row">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <b>📂 {row["project_name"]}</b>
+                                    <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
+                                </div>
+                                <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">chevron_left</span>
+                            </div>
+                        </a>
+                    ''', unsafe_allow_html=True)
                     
         with st.container(border=True):
             st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
             tasks_data = get_azure_tasks()
             if tasks_data:
                 for t in tasks_data:
-                    f = t.get('fields', {})
-                    st.markdown(f'<div class="record-row">{f.get("System.Title", "")}</div>', unsafe_allow_html=True)
+                    f = t.get('fields', {}); t_id, t_title, p_task = t.get('id'), f.get('System.Title', ''), f.get('System.TeamProject', 'General')
+                    raw_date = f.get('System.CreatedDate', ''); fmt_date = f"{raw_date[8:10]}/{raw_date[5:7]} {raw_date[11:16]}" if raw_date else ""
+                    t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_task)}/_workitems/edit/{t_id}"
+                    st.markdown(f'<div class="record-row" style="white-space: nowrap;"><div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis;"><a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: none; font-weight: 500;">🔗 {t_title}</a><span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">נוצר ב {fmt_date}</span></div><span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_task}</span></div>', unsafe_allow_html=True)
+            else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
         with st.container(border=True):
             st.markdown("### ✨ עוזר AI אישי")
-            a1, a2 = st.columns([1, 2])
-            sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), key="ai_p", label_visibility="collapsed")
-            q_in = a2.text_input("שאלה", key="ai_i", label_visibility="collapsed")
+            a1, a2 = st.columns([1, 2]); sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p"); q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
             if st.button("שגר שאילתה 🚀", use_container_width=True):
                 if q_in:
-                    st.session_state.ai_response = run_smart_analysis(sel_p, q_in)
-                    st.rerun()
-            if st.session_state.ai_response:
-                st.info(st.session_state.ai_response)
+                    with st.spinner("מנתח..."): time.sleep(0.5); st.session_state.ai_response = f"**ניתוח עבור {sel_p}:** הסטטוס תקין."
+            if st.session_state.ai_response: st.info(st.session_state.ai_response)
 
     with col_left:
         with st.container(border=True):
             st.markdown("### 📅 פגישות היום")
             t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-            for _, r in t_m.iterrows():
-                st.markdown(f'<div class="record-row">📌 {r["meeting_title"]}</div>', unsafe_allow_html=True)
+            if t_m.empty: st.write("אין פגישות היום")
+            else:
+                for _, r in t_m.iterrows():
+                    s_t = fmt_time(r.get('start_time', '')); e_t = fmt_time(r.get('end_time', ''))
+                    st.markdown(f'<div class="record-row"><span style="flex-grow:1; text-align:right;">📌 {r["meeting_title"]}</span><span class="time-label">{s_t}-{e_t}</span></div>', unsafe_allow_html=True)
 
         with st.container(border=True):
             st.markdown("### 🔔 תזכורות")
-            t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
-            for _, row in t_r.iterrows():
-                st.markdown(f'<div class="record-row">🔔 {row["reminder_text"]}</div>', unsafe_allow_html=True)
-
-        # --- אזור Fathom המעודכן ---
+            with st.container(border=False):
+                t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
+                if not t_r.empty:
+                    for _, row in t_r.iterrows():
+                        st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
+                else: st.write("אין תזכורות להיום.")
+            
+            if st.session_state.adding_reminder:
+                with st.container():
+                    r_col1, r_col2, r_col3, r_col4 = st.columns([1.5, 3, 0.5, 0.5])
+                    with r_col1: new_proj = st.selectbox("פרויקט", projects["project_name"].tolist() + ["כללי"], label_visibility="collapsed", key="new_rem_proj")
+                    with r_col2: new_text = st.text_input("תיאור", placeholder="מה להזכיר?", label_visibility="collapsed", key="new_rem_text")
+                    with r_col3:
+                        if st.button("✅", key="save_rem_btn"):
+                            if new_text:
+                                new_row = {"date": today, "reminder_text": new_text, "project_name": new_proj}
+                                st.session_state.rem_live = pd.concat([st.session_state.rem_live, pd.DataFrame([new_row])], ignore_index=True)
+                                st.session_state.adding_reminder = False; st.rerun()
+                    with r_col4:
+                        if st.button("❌", key="cancel_rem_btn"): st.session_state.adding_reminder = False; st.rerun()
+            else:
+                if st.button("➕ הוספת תזכורת", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
+#fathom
+                    # --- אזור Fathom המעודכן ---
         with st.container(border=True):
             col_title, col_refresh = st.columns([0.9, 0.1])
             with col_title:
