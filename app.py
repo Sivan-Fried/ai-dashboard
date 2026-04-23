@@ -212,8 +212,9 @@ def detect_gemini_model():
 
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
-    # סדר עדיפות למודלים חינמיים ויציבים
+    # סדר עדיפות — המודל שלך ראשון
     candidates = [
+        "gemini-1.5-flash",          # ← המודל שלך
         "gemini-1.5-flash-latest",
         "gemini-1.5-flash-8b",
         "gemini-1.5-pro-latest",
@@ -235,7 +236,7 @@ def detect_gemini_model():
             continue
 
     return None
-
+# סוף הפונקציה
 
 def build_project_context(project_name, projects_df, meetings_df, reminders_df, fathom_state):
     parts = []
