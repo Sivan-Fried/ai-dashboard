@@ -491,7 +491,7 @@ else:
                 div[data-testid="stAlert"] li { text-align: right !important; }
                 div[data-testid="stAlert"] h1,
                 div[data-testid="stAlert"] h2,
-                div[data-testid="stAlert"] h3 { font-size: 1rem !important; font-weight: 700 !important; }
+                div[data-testid="stAlert"] h3 { font-size: 1.1rem !important; font-weight: 700 !important; }
                 </style>
             """, unsafe_allow_html=True)
 
