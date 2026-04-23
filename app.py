@@ -516,6 +516,7 @@ else:
                     )
             else:
                 st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
+
 with st.container(border=True):
     st.markdown("### ✨ עוזר AI אישי")
 
@@ -554,6 +555,7 @@ with st.container(border=True):
 
     if st.session_state.ai_response:
         st.info(st.session_state.ai_response)
+
 
     # =========================================================
     # 11.6 טור שמאל – פגישות, תזכורות, Fathom
