@@ -11,6 +11,24 @@ import google.generativeai as genai
 from streamlit_js_eval import get_geolocation
 from openai import OpenAI
 
+import requests
+
+def refine_with_ai(raw_text):
+    try:
+        url = "https://api-inference.huggingface.co/models/google/flan-t5-large"
+        payload = {
+            "inputs": f"סכם את הפגישה לעברית עסקית:\n\n{raw_text}"
+        }
+        headers = {"Content-Type": "application/json"}
+
+        response = requests.post(url, json=payload, headers=headers, timeout=30)
+        data = response.json()
+
+        if isinstance(data, list) and len(data) > 0:
+            return data[0]["generated_text"]
+        return "לא הצלחתי לייצר סיכום."
+    except Exception as e:
+        return f"שגיאה: {e}"
 
 # =========================================================
 # 1. הגדרות דף ועיצוב (CSS)
@@ -501,7 +519,6 @@ else:
             else:
                 st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
-        # ------------------ עוזר AI אישי ------------------
         with st.container(border=True):
     st.markdown("### ✨ עוזר AI אישי")
 
@@ -523,13 +540,19 @@ else:
     if st.button("שגר שאילתה 🚀", use_container_width=True):
         if q_in:
             with st.spinner("מנתח..."):
-                client = OpenAI()
-                prompt = f"שאלה על פרויקט {sel_p}:\n{q_in}"
-                response = client.chat.completions.create(
-                    model="gpt-4o-mini",
-                    messages=[{"role": "user", "content": prompt}]
-                )
-                st.session_state.ai_response = response.choices[0].message.content
+                url = "https://api-inference.huggingface.co/models/google/flan-t5-large"
+                payload = {
+                    "inputs": f"שאלה על פרויקט {sel_p}:\n{q_in}"
+                }
+                headers = {"Content-Type": "application/json"}
+
+                response = requests.post(url, json=payload, headers=headers, timeout=30)
+                data = response.json()
+
+                if isinstance(data, list) and len(data) > 0:
+                    st.session_state.ai_response = data[0]["generated_text"]
+                else:
+                    st.session_state.ai_response = "לא הצלחתי לנתח."
 
     if st.session_state.ai_response:
         st.info(st.session_state.ai_response)
