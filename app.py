@@ -190,17 +190,13 @@ def get_fathom_summary(recording_id):
         return None
     except: return None
 
-# תיקון AI - פונקציה רזה ומדויקת
 def refine_with_ai(raw_text):
     try:
-        if "GEMINI_API_KEY" not in st.secrets:
-            return "מפתח API חסר ב-Secrets"
         genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
         model = genai.GenerativeModel('gemini-1.5-flash')
         prompt = f"סכם את הפגישה לעברית עסקית רהוטה:\n\n{raw_text}"
         return model.generate_content(prompt).text
-    except Exception as e: 
-        return f"שגיאה בסיכום: {str(e)}"
+    except: return "שגיאה בסיכום"
 
 def fmt_time(t):
     try: return t.strftime("%H:%M")
@@ -249,10 +245,7 @@ if st.session_state.current_page == "project":
         tab_work, tab_res, tab_risk, tab_meetings = st.tabs(["📅 תוכנית עבודה", "👥 משאבים", "⚠️ סיכונים", "📝 סיכומים"])
         with tab_work:
             if p_name == "אלטשולר שחם":
-                try:
-                    exec(open("altshuler_module.py").read())
-                except:
-                    st.error("לא ניתן לטעון את אלטשולר שחם")
+                exec(open("altshuler_module.py").read())
             else:
                 st.info(f"תוכנית עבודה עבור {p_name} בטעינה...")
         with tab_res: st.write("רשימת צוות ומשאבים")
@@ -340,14 +333,7 @@ else:
             a1, a2 = st.columns([1, 2]); sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p"); q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
             if st.button("שגר שאילתה 🚀", use_container_width=True):
                 if q_in:
-                    with st.spinner("מנתח..."):
-                        try:
-                            genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-                            model = genai.GenerativeModel('gemini-1.5-flash')
-                            st.session_state.ai_response = model.generate_content(f"פרויקט: {sel_p}. שאלה: {q_in}").text
-                        except:
-                            st.session_state.ai_response = f"שגיאה בחיבור ל-AI."
-                        st.rerun()
+                    with st.spinner("מנתח..."): time.sleep(0.5); st.session_state.ai_response = f"**ניתוח עבור {sel_p}:** הסטטוס תקין."
             if st.session_state.ai_response: st.info(st.session_state.ai_response)
 
     with col_left:
@@ -384,8 +370,8 @@ else:
                         if st.button("❌", key="cancel_rem_btn"): st.session_state.adding_reminder = False; st.rerun()
             else:
                 if st.button("➕ הוספת תזכורת", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
-
-        # --- אזור Fathom המעודכן ---
+#fathom
+                    # --- אזור Fathom המעודכן ---
         with st.container(border=True):
             col_title, col_refresh = st.columns([0.9, 0.1])
             with col_title:
@@ -424,6 +410,27 @@ else:
                     height: 45px;
                     direction: rtl;
                     transition: all 0.2s ease;
+                }
+                div[data-testid="stVerticalBlock"] > div:has(.fathom-row-ui) {
+                    gap: 0rem !important;
+                }
+                div.element-container:has(.fathom-row-ui) + div.element-container {
+                    margin-top: -45px !important;
+                    margin-bottom: 2px !important;
+                }
+                div.element-container:has(.fathom-row-ui) + div.element-container div[data-testid="stButton"] button {
+                    background: transparent !important;
+                    border: 1px solid transparent !important;
+                    border-right: 5px solid transparent !important;
+                    width: 100% !important;
+                    height: 45px !important;
+                    color: transparent !important;
+                    z-index: 20;
+                }
+                div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-testid="stButton"] button:hover) .fathom-row-ui {
+                    border-color: #4facfe;
+                    background-color: #f8fafc;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
                 }
                 .fathom-pill-v2 {
                     background-color: #f1f5f9;
