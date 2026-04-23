@@ -7,26 +7,24 @@ import time
 import urllib.parse
 from zoneinfo import ZoneInfo
 import streamlit.components.v1 as components
-import google.generativeai as genai
+from openai import OpenAI
 from streamlit_js_eval import get_geolocation
 import requests
 
 def refine_with_ai(raw_text):
     try:
-        url = "https://api-inference.huggingface.co/models/google/flan-t5-large"
-        payload = {
-            "inputs": f"סכם את הפגישה לעברית עסקית:\n\n{raw_text}"
-        }
-        headers = {"Content-Type": "application/json"}
+        client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+        prompt = f"סכם את הפגישה לעברית עסקית רהוטה:\n\n{raw_text}"
 
-        response = requests.post(url, json=payload, headers=headers, timeout=30)
-        data = response.json()
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}]
+        )
 
-        if isinstance(data, list) and len(data) > 0:
-            return data[0]["generated_text"]
-        return "לא הצלחתי לייצר סיכום."
+        return response.choices[0].message.content
     except Exception as e:
-        return f"שגיאה: {e}"
+        return f"שגיאה בסיכום: {e}"
+
 
 # =========================================================
 # 1. הגדרות דף ועיצוב (CSS)
@@ -539,23 +537,21 @@ with st.container(border=True):
         if q_in:
             with st.spinner("מנתח..."):
                 try:
-                    url = "https://api-inference.huggingface.co/models/google/flan-t5-large"
-                    payload = {"inputs": f"שאלה על פרויקט {sel_p}:\n{q_in}"}
-                    headers = {"Content-Type": "application/json"}
+                    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+                    prompt = f"שאלה על פרויקט {sel_p}:\n{q_in}"
 
-                    response = requests.post(url, json=payload, headers=headers, timeout=30)
-                    data = response.json()
+                    response = client.chat.completions.create(
+                        model="gpt-4o-mini",
+                        messages=[{"role": "user", "content": prompt}]
+                    )
 
-                    if isinstance(data, list) and len(data) > 0:
-                        st.session_state.ai_response = data[0]["generated_text"]
-                    else:
-                        st.session_state.ai_response = "לא הצלחתי לנתח."
-                except:
-                    st.session_state.ai_response = "שגיאה בפנייה למודל."
+                    st.session_state.ai_response = response.choices[0].message.content
+
+                except Exception as e:
+                    st.session_state.ai_response = f"שגיאה: {e}"
 
     if st.session_state.ai_response:
         st.info(st.session_state.ai_response)
-
 
     # =========================================================
     # 11.6 טור שמאל – פגישות, תזכורות, Fathom
