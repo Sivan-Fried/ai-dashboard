@@ -190,13 +190,16 @@ def get_fathom_summary(recording_id):
         return None
     except: return None
 
+# החלף את הפונקציה refine_with_ai
 def refine_with_ai(raw_text):
     try:
         genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-1.5-flash-latest')
         prompt = f"סכם את הפגישה לעברית עסקית רהוטה:\n\n{raw_text}"
-        return model.generate_content(prompt).text
-    except: return "שגיאה בסיכום"
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        return f"שגיאה בסיכום: {str(e)}"
 
 def fmt_time(t):
     try: return t.strftime("%H:%M")
