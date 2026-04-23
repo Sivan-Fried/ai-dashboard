@@ -358,8 +358,9 @@ else:
         # ============================
         # ✨ עוזר AI אישי — HuggingFace
         # ============================
+
 with st.container(border=True):
-    st.markdown("### ✨ עוזר AI אישי")
+    st.markdown("### ✨ עוזר AI אישי (ללא API)")
 
     a1, a2 = st.columns([1, 2])
     sel_p = a1.selectbox(
@@ -379,23 +380,11 @@ with st.container(border=True):
     if st.button("שגר שאילתה 🚀", use_container_width=True):
         if q_in:
             with st.spinner("מנתח..."):
-                try:
-                    url = "https://api-inference.huggingface.co/models/google/flan-t5-base"
-                    payload = {"inputs": f"שאלה על פרויקט {sel_p}:\n{q_in}"}
-                    headers = {"Content-Type": "application/json"}
-
-                    response = requests.post(url, json=payload, headers=headers, timeout=20)
-                    data = response.json()
-
-                    if isinstance(data, list) and len(data) > 0:
-                        st.session_state.ai_response = data[0]["generated_text"]
-                    else:
-                        st.session_state.ai_response = "לא הצלחתי לנתח."
-                except Exception as e:
-                    st.session_state.ai_response = f"שגיאה: {e}"
+                st.session_state.ai_response = f"ניתוח בסיסי עבור {sel_p}:\n{q_in}"
 
     if st.session_state.ai_response:
         st.info(st.session_state.ai_response)
+
         
     # ============================
     # 📅 פגישות היום
