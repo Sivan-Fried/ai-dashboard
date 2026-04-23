@@ -524,8 +524,9 @@ else:
                                             save_summary_to_excel(title, date_str, summary)
                                         else:
                                             st.error("לא נמצא תוכן לסיכום")
-                            if s_key in st.session_state:
-                                st.info(st.session_state[s_key])
+                                            
+                            if s_key in st.session_state and st.session_state.get(s_key):
+                                st.info(st.session_state.get(s_key, ""))
             
                             else:
                                 st.info(st.session_state[s_key])
