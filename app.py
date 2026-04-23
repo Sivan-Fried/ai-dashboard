@@ -34,12 +34,9 @@ st.markdown("""
         padding-left: 20px !important;
     }
 
-    /* ← תיקון הפס הלבן של מזג האוויר */
-    div[data-testid="stMarkdownContainer"]:has(.weather-float) {
-        margin: 0 !important;
-        padding: 0 !important;
-        height: 0 !important;
-        overflow: visible !important;
+    /* ← תיקון הפס הלבן של get_geolocation */
+    iframe[title="streamlit_js_eval.streamlit_js_eval"] {
+        display: none !important;
     }
     
     .dashboard-header {
