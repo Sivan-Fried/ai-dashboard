@@ -518,41 +518,41 @@ else:
                     )
             else:
                 st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
+with st.container(border=True):
+    st.markdown("### ✨ עוזר AI אישי")
 
-        with st.container(border=True):
-        st.markdown("### ✨ עוזר AI אישי")
+    a1, a2 = st.columns([1, 2])
+    sel_p = a1.selectbox(
+        "פרויקט",
+        projects["project_name"].tolist(),
+        label_visibility="collapsed",
+        key="ai_p"
+    )
 
-        a1, a2 = st.columns([1, 2])
-        sel_p = a1.selectbox(
-            "פרויקט",
-            projects["project_name"].tolist(),
-            label_visibility="collapsed",
-            key="ai_p"
-        )
-
-        q_in = a2.text_input(
-            "שאלה",
-            placeholder="מה תרצי לדעת?",
-            label_visibility="collapsed",
-            key="ai_i"
-        )
+    q_in = a2.text_input(
+        "שאלה",
+        placeholder="מה תרצי לדעת?",
+        label_visibility="collapsed",
+        key="ai_i"
+    )
 
     if st.button("שגר שאילתה 🚀", use_container_width=True):
         if q_in:
             with st.spinner("מנתח..."):
-                url = "https://api-inference.huggingface.co/models/google/flan-t5-large"
-                payload = {
-                    "inputs": f"שאלה על פרויקט {sel_p}:\n{q_in}"
-                }
-                headers = {"Content-Type": "application/json"}
+                try:
+                    url = "https://api-inference.huggingface.co/models/google/flan-t5-large"
+                    payload = {"inputs": f"שאלה על פרויקט {sel_p}:\n{q_in}"}
+                    headers = {"Content-Type": "application/json"}
 
-                response = requests.post(url, json=payload, headers=headers, timeout=30)
-                data = response.json()
+                    response = requests.post(url, json=payload, headers=headers, timeout=30)
+                    data = response.json()
 
-                if isinstance(data, list) and len(data) > 0:
-                    st.session_state.ai_response = data[0]["generated_text"]
-                else:
-                    st.session_state.ai_response = "לא הצלחתי לנתח."
+                    if isinstance(data, list) and len(data) > 0:
+                        st.session_state.ai_response = data[0]["generated_text"]
+                    else:
+                        st.session_state.ai_response = "לא הצלחתי לנתח."
+                except:
+                    st.session_state.ai_response = "שגיאה בפנייה למודל."
 
     if st.session_state.ai_response:
         st.info(st.session_state.ai_response)
