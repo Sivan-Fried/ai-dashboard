@@ -195,9 +195,12 @@ def refine_with_ai(raw_text):
     try:
         genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
         model = genai.GenerativeModel('gemini-2.5-flash-lite')
-        prompt = f"סכם את הפגישה לעברית עסקית רהוטה:\n\n{raw_text}"
-        response = model.generate_content(prompt)
-        return response.text
+        prompt = f"""סכם את הפגישה לעברית עסקית רהוטה.
+חשוב מאוד: אל תשתמש בסימני Markdown כמו # או ** או *.
+השתמש רק בטקסט רגיל עם שורות חדשות להפרדה בין נושאים.
+
+{raw_text}"""
+        return model.generate_content(prompt).text
     except Exception as e:
         return f"שגיאה בסיכום: {str(e)}"
 
@@ -528,22 +531,17 @@ else:
                                             st.session_state[s_key] = "לא נמצא תוכן לסיכום"
                             
                             if st.session_state.get(s_key):
-                                clean_text = st.session_state.get(s_key, "")
-                                # הסרת כותרות markdown והמרה לטקסט רגיל
-                                import re
-                                clean_text = re.sub(r'^#{1,6}\s*', '', clean_text, flags=re.MULTILINE)
                                 st.markdown(f"""
                                     <div style="
-                                        background: #f0f9ff;
-                                        border: 1px solid #bae6fd;
-                                        border-radius: 10px;
-                                        padding: 15px 20px;
                                         direction: rtl;
                                         text-align: right;
                                         line-height: 1.8;
                                         color: #1e293b;
                                         font-size: 0.9rem;
-                                    ">{clean_text.replace(chr(10), '<br>')}</div>
+                                        background: #f0f9ff;
+                                        border: 1px solid #bae6fd;
+                                        border-radius: 10px;
+                                        padding: 15px 20px;
+                                        white-space: pre-line;
+                                    ">{st.session_state.get(s_key)}</div>
                                 """, unsafe_allow_html=True)
-            else:
-                st.write("אין פגישות זמינות.")
