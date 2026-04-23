@@ -485,7 +485,10 @@ else:
                     font-size: 0.75rem;
                     margin-right: 12px;
                 }
-                div[data-testid="stAlert"] { direction: rtl; text-align: right; }
+                div[data-testid="stAlert"] p { direction: rtl !important; text-align: right !important; }
+                div[data-testid="stAlert"] ul { padding-right: 20px !important; padding-left: 0 !important; text-align: right !important; }
+                div[data-testid="stAlert"] ol { padding-right: 20px !important; padding-left: 0 !important; text-align: right !important; }
+                div[data-testid="stAlert"] li { text-align: right !important; }
                 </style>
             """, unsafe_allow_html=True)
 
