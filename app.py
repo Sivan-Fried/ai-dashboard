@@ -243,7 +243,11 @@ if st.session_state.current_page == "project":
     with st.container(border=True):
         st.markdown(f"### ℹ️ ניהול פרויקט: {p_name}")
         tab_work, tab_res, tab_risk, tab_meetings = st.tabs(["📅 תוכנית עבודה", "👥 משאבים", "⚠️ סיכונים", "📝 סיכומים"])
-        with tab_work: st.info(f"תוכנית עבודה עבור {p_name} בטעינה...")
+        with tab_work:
+            if p_name == "אלטשולר שחם":
+                exec(open("altshuler_module.py").read())
+            else:
+                st.info(f"תוכנית עבודה עבור {p_name} בטעינה...")
         with tab_res: st.write("רשימת צוות ומשאבים")
         with tab_risk: st.write("ניהול סיכונים")
         with tab_meetings: st.write("סיכומי פגישות הפרויקט")
