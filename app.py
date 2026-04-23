@@ -337,7 +337,7 @@ else:
             sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
             q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
             
-                if st.button("שגר שאילתה 🚀", use_container_width=True):
+            if st.button("שגר שאילתה 🚀", use_container_width=True):
                     if q_in:
                         with st.spinner("מנתח..."):
                             try:
