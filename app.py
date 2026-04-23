@@ -363,16 +363,16 @@ else:
         # ============================
         # ✨ עוזר AI אישי — HuggingFace
         # ============================
-        with st.container(border=True):
-            st.markdown("### ✨ עוזר AI אישי")
+with st.container(border=True):
+    st.markdown("### ✨ עוזר AI אישי")
 
-            a1, a2 = st.columns([1, 2])
-            sel_p = a1.selectbox(
-            "פרויקט",
-            projects["project_name"].tolist(),
-            label_visibility="collapsed",
-            key="ai_p"
-         )
+    a1, a2 = st.columns([1, 2])
+    sel_p = a1.selectbox(
+        "פרויקט",
+        projects["project_name"].tolist(),
+        label_visibility="collapsed",
+        key="ai_p"
+    )
 
     q_in = a2.text_input(
         "שאלה",
@@ -401,7 +401,7 @@ else:
 
     if st.session_state.ai_response:
         st.info(st.session_state.ai_response)
-
+        
     # ============================
     # 📅 פגישות היום
     # ============================
