@@ -522,7 +522,11 @@ else:
                                             summary = refine_with_ai(raw)
                                             st.session_state[s_key] = summary
                                             save_summary_to_excel(title, date_str, summary)
-                                            st.rerun()
+                                        else:
+                                            st.error("לא נמצא תוכן לסיכום")
+                            if s_key in st.session_state:
+                                st.info(st.session_state[s_key])
+            
                             else:
                                 st.info(st.session_state[s_key])
             else:
