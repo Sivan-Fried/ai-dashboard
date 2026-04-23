@@ -531,6 +531,7 @@ else:
                                             st.session_state[s_key] = "לא נמצא תוכן לסיכום"
                             
                             if st.session_state.get(s_key):
+                                clean = "\n".join(line for line in st.session_state.get(s_key).splitlines() if line.strip())
                                 st.markdown(f"""
                                     <div style="
                                         direction: rtl;
@@ -543,5 +544,5 @@ else:
                                         border-radius: 10px;
                                         padding: 15px 20px;
                                         white-space: pre-line;
-                                    ">{st.session_state.get(s_key)}</div>
+                                    ">{clean}</div>
                                 """, unsafe_allow_html=True)
