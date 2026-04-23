@@ -458,15 +458,15 @@ else:
             else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
         with st.container(border=True):
-    st.markdown("### ✨ עוזר AI אישי")
+            st.markdown("### ✨ עוזר AI אישי")
 
-    a1, a2 = st.columns([1, 2])
-    sel_p = a1.selectbox(
-        "פרויקט",
-        projects["project_name"].tolist(),
-        label_visibility="collapsed",
-        key="ai_p"
-    )
+            a1, a2 = st.columns([1, 2])
+            sel_p = a1.selectbox(
+            "פרויקט",
+            projects["project_name"].tolist(),
+            label_visibility="collapsed",
+            key="ai_p"
+        )
     q_in = a2.text_input(
         "שאלה",
         placeholder="מה תרצי לדעת? אפשר לשאול על סטטוס, סיכונים, משימות, פגישות ועוד.",
