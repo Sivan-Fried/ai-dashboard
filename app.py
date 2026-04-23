@@ -503,37 +503,36 @@ else:
 
         # ------------------ עוזר AI אישי ------------------
         with st.container(border=True):
-            st.markdown("### ✨ עוזר AI אישי")
+    st.markdown("### ✨ עוזר AI אישי")
 
-            a1, a2 = st.columns([1, 2])
+    a1, a2 = st.columns([1, 2])
+    sel_p = a1.selectbox(
+        "פרויקט",
+        projects["project_name"].tolist(),
+        label_visibility="collapsed",
+        key="ai_p"
+    )
 
-            sel_p = a1.selectbox(
-                "פרויקט",
-                projects["project_name"].tolist(),
-                label_visibility="collapsed",
-                key="ai_p"
-            )
+    q_in = a2.text_input(
+        "שאלה",
+        placeholder="מה תרצי לדעת?",
+        label_visibility="collapsed",
+        key="ai_i"
+    )
 
-            q_in = a2.text_input(
-                "שאלה",
-                placeholder="מה תרצי לדעת? אפשר לשאול על סטטוס, סיכונים, משימות, פגישות ועוד.",
-                label_visibility="collapsed",
-                key="ai_i"
-            )
-
-            if st.button("שגר שאילתה 🚀", use_container_width=True):
-                if q_in:
-                    with st.spinner("מנתח..."):
-                    client = OpenAI()
-                    prompt = f"שאלה על פרויקט {sel_p}:\n{q_in}"
-                    response = client.chat.completions.create(
+    if st.button("שגר שאילתה 🚀", use_container_width=True):
+        if q_in:
+            with st.spinner("מנתח..."):
+                client = OpenAI()
+                prompt = f"שאלה על פרויקט {sel_p}:\n{q_in}"
+                response = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[{"role": "user", "content": prompt}]
-                    )
-                    st.session_state.ai_response = response.choices[0].message.content
+                )
+                st.session_state.ai_response = response.choices[0].message.content
 
-            if st.session_state.ai_response:
-                st.info(st.session_state.ai_response)
+    if st.session_state.ai_response:
+        st.info(st.session_state.ai_response)
 
 
     # =========================================================
