@@ -467,27 +467,27 @@ else:
             label_visibility="collapsed",
             key="ai_p"
         )
-    q_in = a2.text_input(
+        q_in = a2.text_input(
         "שאלה",
         placeholder="מה תרצי לדעת? אפשר לשאול על סטטוס, סיכונים, משימות, פגישות ועוד.",
         label_visibility="collapsed",
         key="ai_i"
-    )
+        )
 
-    if st.button("שגר שאילתה 🚀", use_container_width=True):
-        if q_in:
-            with st.spinner("הסוכן עובר על כל המידע ומנתח..."):
-                answer = run_project_agent(
-                    project_name=sel_p,
-                    question=q_in,
-                    projects_df=projects,
-                    meetings_df=meetings,
-                    reminders_df=st.session_state.rem_live
-                )
-                st.session_state.ai_response = answer
+        if st.button("שגר שאילתה 🚀", use_container_width=True):
+            if q_in:
+                with st.spinner("הסוכן עובר על כל המידע ומנתח..."):
+                    answer = run_project_agent(
+                        project_name=sel_p,
+                        question=q_in,
+                        projects_df=projects,
+                        meetings_df=meetings,
+                        reminders_df=st.session_state.rem_live
+                    )
+                    st.session_state.ai_response = answer
 
-    if st.session_state.ai_response:
-        st.info(st.session_state.ai_response)
+        if st.session_state.ai_response:
+            st.info(st.session_state.ai_response)
 
     with col_left:
         with st.container(border=True):
