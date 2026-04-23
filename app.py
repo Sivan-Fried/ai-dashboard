@@ -205,6 +205,24 @@ def fmt_time(t):
     try: return t.strftime("%H:%M")
     except: return ""
 
+# פונקציה לשמירת סיכומים שנוצרים לתוך אקסל
+def save_summary_to_excel(title, date_str, summary_text):
+    file_path = "fathom_summaries.xlsx"
+    new_row = {
+        "title": title,
+        "date": date_str,
+        "summary": summary_text,
+        "created_at": datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).strftime("%d/%m/%Y %H:%M")
+    }
+    try:
+        existing = pd.read_excel(file_path)
+        if title in existing["title"].values:
+            return
+        updated = pd.concat([existing, pd.DataFrame([new_row])], ignore_index=True)
+    except FileNotFoundError:
+        updated = pd.DataFrame([new_row])
+    updated.to_excel(file_path, index=False)
+
 # טעינת נתונים
 try:
     projects = pd.read_excel("my_projects.xlsx")
