@@ -189,7 +189,7 @@ def get_fathom_summary(recording_id):
 
 def refine_with_ai(raw_text):
     try:
-        model = genai.GenerativeModel('models/gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-1.5-flash')
         prompt = f"סכם את הפגישה לעברית עסקית רהוטה:\n\n{raw_text}"
         return model.generate_content(prompt).text
     except Exception as e: 
@@ -197,7 +197,7 @@ def refine_with_ai(raw_text):
 
 def run_smart_analysis(project_name, user_question):
     try:
-        model = genai.GenerativeModel('models/gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-1.5-flash')
         # שליפת נתונים רלוונטיים
         p_data = projects[projects['project_name'] == project_name].to_dict('records')
         p_reminders = st.session_state.rem_live[st.session_state.rem_live['project_name'] == project_name]
