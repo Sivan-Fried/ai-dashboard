@@ -197,33 +197,32 @@ def fmt_time(t):
     except: return ""
 
 def run_smart_analysis(project_name, user_question):
-    # הגדרת ה-API תחילה כדי למנוע שגיאת התחברות
-    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-    
-    # איסוף נתונים מהאקסלים
-    p_data = projects[projects['project_name'] == project_name].to_dict('records')
-    p_reminders = st.session_state.rem_live[st.session_state.rem_live['project_name'] == project_name]
-    p_meetings = meetings[meetings['meeting_title'].str.contains(project_name, na=False)]
-    
-    fathom_summaries = ""
-    for key, val in st.session_state.items():
-        if key.startswith("sum_v4_") and project_name.lower() in str(val).lower():
-            fathom_summaries += f"\n- {val}"
-
-    full_prompt = f"""
-    נתחי כסוכנת AI אסטרטגית את הפרויקט: {project_name}
-    מידע מהמערכת:
-    - סטטוס: {p_data[0] if p_data else 'לא הוזן'}
-    - תזכורות: {p_reminders['reminder_text'].tolist()}
-    - פגישות: {p_meetings['meeting_title'].tolist()}
-    - סיכומי Fathom: {fathom_summaries if fathom_summaries else 'אין סיכומים'}
-    
-    שאלה מהמשתמשת: {user_question}
-    
-    ספקי ניתוח מעמיק, זהי סיכונים ותני המלצות פרקטיות בעברית.
-    """
+    # תיקון: הגדרת ה-API לפני השימוש כדי למנוע שגיאת התחברות
     try:
+        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
         model = genai.GenerativeModel('gemini-1.5-flash')
+        
+        p_data = projects[projects['project_name'] == project_name].to_dict('records')
+        p_reminders = st.session_state.rem_live[st.session_state.rem_live['project_name'] == project_name]
+        p_meetings = meetings[meetings['meeting_title'].str.contains(project_name, na=False)]
+        
+        fathom_summaries = ""
+        for key, val in st.session_state.items():
+            if key.startswith("sum_v4_") and project_name.lower() in str(val).lower():
+                fathom_summaries += f"\n- {val}"
+
+        full_prompt = f"""
+        נתחי כסוכנת AI אסטרטגית את הפרויקט: {project_name}
+        מידע מהמערכת:
+        - סטטוס: {p_data[0] if p_data else 'לא הוזן'}
+        - תזכורות: {p_reminders['reminder_text'].tolist()}
+        - פגישות: {p_meetings['meeting_title'].tolist()}
+        - סיכומי Fathom: {fathom_summaries if fathom_summaries else 'אין סיכומים'}
+        
+        שאלה מהמשתמשת: {user_question}
+        
+        ספקי ניתוח מעמיק, זהי סיכונים ותני המלצות פרקטיות בעברית.
+        """
         return model.generate_content(full_prompt).text
     except:
         return "שגיאה בחיבור ל-AI."
@@ -351,6 +350,7 @@ else:
             sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
             q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
             
+            # הכפתור כאן - בתוך הקונטיינר המתאים
             if st.button("שגר שאילתה 🚀", use_container_width=True):
                 if q_in:
                     with st.spinner("מנתח נתונים..."):
@@ -395,22 +395,31 @@ else:
             else:
                 if st.button("➕ הוספת תזכורת", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
 
+        #fathom
+        # --- אזור Fathom המקורי והמדויק כפי ששלחת ---
         with st.container(border=True):
             col_title, col_refresh = st.columns([0.9, 0.1])
-            with col_title: st.markdown("### ✨ סיכומי פגישות Fathom")
+            with col_title:
+                st.markdown("### ✨ סיכומי פגישות Fathom")
+
             with col_refresh:
                 if st.button("🔄", key="refresh_fathom"):
                     try:
                         items, status = get_fathom_meetings()
-                        if status == 200: st.session_state['fathom_meetings'] = items; st.rerun()
+                        if status == 200:
+                            st.session_state['fathom_meetings'] = items
+                            st.rerun()
                     except: pass
 
             if 'fathom_meetings' not in st.session_state:
                 try:
                     items, status = get_fathom_meetings()
-                    if status == 200: st.session_state['fathom_meetings'] = items
-                    else: st.session_state['fathom_meetings'] = []
-                except: st.session_state['fathom_meetings'] = []
+                    if status == 200:
+                        st.session_state['fathom_meetings'] = items
+                    else:
+                        st.session_state['fathom_meetings'] = []
+                except:
+                    st.session_state['fathom_meetings'] = []
 
             st.markdown("""
                 <style>
@@ -427,6 +436,27 @@ else:
                     direction: rtl;
                     transition: all 0.2s ease;
                 }
+                div[data-testid="stVerticalBlock"] > div:has(.fathom-row-ui) {
+                    gap: 0rem !important;
+                }
+                div.element-container:has(.fathom-row-ui) + div.element-container {
+                    margin-top: -45px !important;
+                    margin-bottom: 2px !important;
+                }
+                div.element-container:has(.fathom-row-ui) + div.element-container div[data-testid="stButton"] button {
+                    background: transparent !important;
+                    border: 1px solid transparent !important;
+                    border-right: 5px solid transparent !important;
+                    width: 100% !important;
+                    height: 45px !important;
+                    color: transparent !important;
+                    z-index: 20;
+                }
+                div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-testid="stButton"] button:hover) .fathom-row-ui {
+                    border-color: #4facfe;
+                    background-color: #f8fafc;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                }
                 .fathom-pill-v2 {
                     background-color: #f1f5f9;
                     color: #475569;
@@ -439,10 +469,16 @@ else:
             """, unsafe_allow_html=True)
 
             f_meetings = st.session_state.get('fathom_meetings', [])
+
             if f_meetings:
                 for idx, mtg in enumerate(f_meetings):
-                    rec_id = mtg.get('recording_id'); title = mtg.get('title') or "פגישה"; date_str = mtg.get('recording_start_time', '')[:10]
-                    open_key = f"open_{rec_id}"; is_open = st.session_state.get(open_key, False); arrow = "expand_more" if is_open else "chevron_left"
+                    rec_id = mtg.get('recording_id')
+                    title = mtg.get('title') or "פגישה"
+                    date_str = mtg.get('recording_start_time', '')[:10]
+
+                    open_key = f"open_{rec_id}"
+                    is_open = st.session_state.get(open_key, False)
+                    arrow = "expand_more" if is_open else "chevron_left"
 
                     st.markdown(f'''
                         <div class="fathom-row-ui">
@@ -457,7 +493,8 @@ else:
                     ''', unsafe_allow_html=True)
 
                     if st.button("", key=f"f_trig_{rec_id}_{idx}", use_container_width=True):
-                        st.session_state[open_key] = not is_open; st.rerun()
+                        st.session_state[open_key] = not is_open
+                        st.rerun()
 
                     if is_open:
                         with st.container():
@@ -466,6 +503,10 @@ else:
                                 if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}"):
                                     with st.spinner("מנתח..."):
                                         raw = get_fathom_summary(rec_id)
-                                        if raw: st.session_state[s_key] = refine_with_ai(raw); st.rerun()
-                            else: st.info(st.session_state[s_key])
-            else: st.write("אין פגישות זמינות.")
+                                        if raw:
+                                            st.session_state[s_key] = refine_with_ai(raw)
+                                            st.rerun()
+                            else:
+                                st.info(st.session_state[s_key])
+            else:
+                st.write("אין פגישות זמינות.")
