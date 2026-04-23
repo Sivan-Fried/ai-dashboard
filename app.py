@@ -364,43 +364,43 @@ else:
         # ✨ עוזר AI אישי — HuggingFace
         # ============================
         with st.container(border=True):
-            st.markdown("### ✨ עוזר AI אישי")
+    st.markdown("### ✨ עוזר AI אישי")
 
-            a1, a2 = st.columns([1, 2])
-            sel_p = a1.selectbox(
-                "פרויקט",
-                projects["project_name"].tolist(),
-                label_visibility="collapsed",
-                key="ai_p"
-            )
+    a1, a2 = st.columns([1, 2])
+    sel_p = a1.selectbox(
+        "פרויקט",
+        projects["project_name"].tolist(),
+        label_visibility="collapsed",
+        key="ai_p"
+    )
 
-            q_in = a2.text_input(
-                "שאלה",
-                placeholder="מה תרצי לדעת?",
-                label_visibility="collapsed",
-                key="ai_i"
-            )
+    q_in = a2.text_input(
+        "שאלה",
+        placeholder="מה תרצי לדעת?",
+        label_visibility="collapsed",
+        key="ai_i"
+    )
 
-            if st.button("שגר שאילתה 🚀", use_container_width=True):
-                if q_in:
-                    with st.spinner("מנתח..."):
-                        try:
-                            url = "https://api-inference.huggingface.co/models/google/flan-t5-large"
-                            payload = {"inputs": f"שאלה על פרויקט {sel_p}:\n{q_in}"}
-                            headers = {"Content-Type": "application/json"}
+    if st.button("שגר שאילתה 🚀", use_container_width=True):
+        if q_in:
+            with st.spinner("מנתח..."):
+                try:
+                    url = "https://api-inference.huggingface.co/models/google/flan-t5-base"
+                    payload = {"inputs": f"שאלה על פרויקט {sel_p}:\n{q_in}"}
+                    headers = {"Content-Type": "application/json"}
 
-                            response = requests.post(url, json=payload, headers=headers, timeout=30)
-                            data = response.json()
+                    response = requests.post(url, json=payload, headers=headers, timeout=20)
+                    data = response.json()
 
-                            if isinstance(data, list) and len(data) > 0:
-                                st.session_state.ai_response = data[0]["generated_text"]
-                            else:
-                                st.session_state.ai_response = "לא הצלחתי לנתח."
-                        except:
-                            st.session_state.ai_response = "שגיאה בפנייה למודל."
+                    if isinstance(data, list) and len(data) > 0:
+                        st.session_state.ai_response = data[0]["generated_text"]
+                    else:
+                        st.session_state.ai_response = "לא הצלחתי לנתח."
+                except Exception as e:
+                    st.session_state.ai_response = f"שגיאה: {e}"
 
-            if st.session_state.ai_response:
-                st.info(st.session_state.ai_response)
+    if st.session_state.ai_response:
+        st.info(st.session_state.ai_response)
 
     # ============================
     # 📅 פגישות היום
