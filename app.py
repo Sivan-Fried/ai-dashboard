@@ -216,13 +216,16 @@ def save_summary_to_excel(title, date_str, summary_text):
     }
     try:
         existing = pd.read_excel(file_path)
-        if title in existing["title"].values:
+        if "title" not in existing.columns:
+            updated = pd.DataFrame([new_row])
+        elif title in existing["title"].values:
             return
-        updated = pd.concat([existing, pd.DataFrame([new_row])], ignore_index=True)
+        else:
+            updated = pd.concat([existing, pd.DataFrame([new_row])], ignore_index=True)
     except FileNotFoundError:
         updated = pd.DataFrame([new_row])
     updated.to_excel(file_path, index=False)
-
+    
 # טעינת נתונים
 try:
     projects = pd.read_excel("my_projects.xlsx")
