@@ -433,61 +433,64 @@ else:
         # ============================
         # 📌 פרויקטים לדיווח (priority.xlsx)
         # ============================
-        with st.container(border=True):
-            st.markdown("### 📌 פרויקטים לדיווח")
-        
-            if priority_df.empty:
-                st.write("לא נמצאו פרויקטים לדיווח.")
-            else:
-        
-                # מיפוי צבעים לפי קטגוריה
-                color_map = {
-                    "אנליסט": "#4f46e5",      # סגול
-                    "דנאל": "#0ea5e9",        # כחול
-                    "דלק": "#f97316",         # כתום
-                    "בנק": "#16a34a",         # ירוק
-                    "פיתוח": "#db2777",       # ורוד
-                    "אלשטול": "#9333ea",      # סגול כהה
-                }
-        
-                for _, row in priority_df.iterrows():
-        
-                    project_name = row["project_name"]
-                    category = project_name.split(" ")[0]  # המילה הראשונה
-        
-                    tag_color = color_map.get(category, "#64748b")  # ברירת מחדל אפור
-        
-                    st.markdown(
-                        f'''
-                        <div class="record-row" style="align-items:center;">
-                            
-                            <div style="display:flex; flex-direction:column; text-align:right;">
-                                <b>{project_name}</b>
-                                <span style="color:#64748b; font-size:0.8rem;">
-                                    מספר פרויקט: {row["project_number"]} | הזמנה: {row["order_number"]}
-                                </span>
-                            </div>
-        
-                            <span style="
-                                background:{tag_color};
-                                color:white;
-                                padding:4px 10px;
-                                border-radius:12px;
-                                font-size:0.75rem;
-                                margin-left:10px;
-                                white-space:nowrap;
-                            ">
-                                {category}
+       # ============================
+# 📌 פרויקטים לדיווח (priority.xlsx)
+# ============================
+    with st.container(border=True):
+        st.markdown("### 📌 פרויקטים לדיווח")
+    
+        if priority_df.empty:
+            st.write("לא נמצאו פרויקטים לדיווח.")
+        else:
+    
+            # מיפוי צבעים לפי קטגוריה
+            color_map = {
+                "אנליסט": "#4f46e5",      # סגול
+                "דנאל": "#0ea5e9",        # כחול
+                "דלק": "#f97316",         # כתום
+                "בנק": "#16a34a",         # ירוק
+                "פיתוח": "#db2777",       # ורוד
+                "אלשטול": "#9333ea",      # סגול כהה
+            }
+    
+            for _, row in priority_df.iterrows():
+    
+                project_name = row["project_name"]
+                category = project_name.split(" ")[0]  # המילה הראשונה
+    
+                tag_color = color_map.get(category, "#64748b")  # ברירת מחדל אפור
+    
+                st.markdown(
+                    f'''
+                    <div class="record-row" style="align-items:center;">
+                        
+                        <div style="display:flex; flex-direction:column; text-align:right;">
+                            <b>{project_name}</b>
+                            <span style="color:#64748b; font-size:0.8rem;">
+                                מספר פרויקט: {row["project_number"]} | הזמנה: {row["order_number"]}
                             </span>
-        
-                            <span class="material-symbols-rounded" style="color:#94a3b8; font-size:20px;">
-                                chevron_left
-                            </span>
-        
                         </div>
-                        ''',
-                        unsafe_allow_html=True
-                    )
+    
+                        <span style="
+                            background:{tag_color};
+                            color:white;
+                            padding:4px 10px;
+                            border-radius:12px;
+                            font-size:0.75rem;
+                            margin-left:10px;
+                            white-space:nowrap;
+                        ">
+                            {category}
+                        </span>
+    
+                        <span class="material-symbols-rounded" style="color:#94a3b8; font-size:20px;">
+                            chevron_left
+                        </span>
+    
+                    </div>
+                    ''',
+                    unsafe_allow_html=True
+                )
 
 
            
