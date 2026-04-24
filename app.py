@@ -497,28 +497,26 @@ else:
                 for _, row in priority_df.iterrows():
         
                     project_name = row["project_name"]
-                    project_number = row["project_number"]
-                    order_number = row["order_number"]
                     category = project_name.split(" ")[0]
                     tag_class = color_map.get(category, "tag-gray")
         
-                    html = (
-                        '<div class="record-row" '
-                        'style="display:flex; justify-content:space-between; align-items:center;">'
+                    col1, col2, col3, col4 = st.columns([3, 1.2, 1.2, 1])
         
-                            '<div style="display:flex; flex-direction:column; text-align:right;">'
-                                f'<b>{project_name}</b>'
-                                f'<span style="color:#64748b; font-size:0.8rem;">'
-                                f'{project_number} | {order_number}'
-                                '</span>'
-                            '</div>'
+                    with col1:
+                        st.markdown(f"**{project_name}**")
         
-                            f'<span class="{tag_class}" style="white-space:nowrap;">{category}</span>'
+                    with col2:
+                        st.write(row["project_number"])
         
-                        '</div>'
-                    )
+                    with col3:
+                        st.write(row["order_number"])
         
-                    st.markdown(html, unsafe_allow_html=True)
+                    with col4:
+                        st.markdown(
+                            f'<span class="{tag_class}">{category}</span>',
+                            unsafe_allow_html=True
+                        )
+
 
           
     with col_left:
