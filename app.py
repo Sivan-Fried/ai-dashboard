@@ -329,7 +329,7 @@ else:
 .notif-btn {{ background: white; border: 1px solid #edf2f7; border-radius: 12px; padding: 8px 16px; font-size: 1rem; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 6px; }}
 .notif-btn:hover {{ background: #f8fafc; }}
 .notif-badge {{ background: #ef4444; color: white; border-radius: 50%; font-size: 0.7rem; font-weight: 700; padding: 1px 6px; }}
-.notif-dropdown {{ display: none; position: absolute; left: 0; top: 48px; width: 320px; background: white; border: 1px solid #edf2f7; border-radius: 14px; padding: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 1000; direction: rtl; }}
+.notif-dropdown {{ display: none; position: fixed; left: 20px; top: 70px; width: 320px; background: white; border: 1px solid #edf2f7; border-radius: 14px; padding: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 9999; direction: rtl; }}
 .notif-dropdown.open {{ display: block; }}
 .notif-item {{ display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }}
 .notif-item:last-child {{ border-bottom: none; }}
@@ -347,7 +347,9 @@ document.addEventListener('click', function(e) {{
     }}
 }});
 </script>
-""", height=80)
+""", height=60, scrolling=False)
+
+    # אזור פרופיל
 
     # אזור פרופיל
     img_b64 = get_base64_image("profile.png")
