@@ -476,8 +476,10 @@ else:
  
     #הוספה של פרויקטים לדיווח
         # ============================
-# 📌 פרויקטים לדיווח (priority.xlsx)
-# ============================
+        # 📌 פרויקטים לדיווח (priority.xlsx)
+        # ============================
+        # ============================
+
         with st.container(border=True):
             st.markdown("### 📌 פרויקטים לדיווח")
         
@@ -510,8 +512,9 @@ else:
                             f'<span style="font-weight:600; overflow:hidden; text-overflow:ellipsis;">'
                             f'{project_name}</span>'
         
-                            # מספרים — בלי טקסט מיותר
-                            f'<span style="color:#64748b; font-size:0.8rem; white-space:nowrap;">'
+                            # מספר פרויקט + הזמנה — מיושרים לימין
+                            f'<span style="color:#64748b; font-size:0.8rem; '
+                            'white-space:nowrap; text-align:right; display:inline-block;">'
                             f'{row["project_number"]} | {row["order_number"]}'
                             '</span>'
         
