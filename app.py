@@ -357,25 +357,73 @@ else:
         with st.container(border=True):
             st.markdown("### ✨ עוזר AI אישי")
             a1, a2 = st.columns([1, 2])
-            sel_p = a1.selectbox("פרויקט", projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
+            sel_p = a1.selectbox("פרויקט", ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
             q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
             
             if st.button("שגר שאילתה 🚀", use_container_width=True):
-                    if q_in:
-                        with st.spinner("מנתח..."):
-                            try:
-                                genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-                                model = genai.GenerativeModel('gemini-2.5-flash-lite')
-                                proj_row = projects[projects["project_name"] == sel_p].iloc[0]
-                                prompt = f"""אתה עוזר AI לניהול פרויקטים.
-            פרויקט: {sel_p}
-            סטטוס: {proj_row.get('status', 'לא ידוע')}
-            שאלה: {q_in}
-            ענה בעברית עסקית, קצר וממוקד."""
-                                response = model.generate_content(prompt)
-                                st.session_state.ai_response = response.text
-                            except Exception as e:
-                                st.session_state.ai_response = f"שגיאה: {str(e)}"
+                if q_in:
+                    with st.spinner("מנתח..."):
+                        try:
+                            genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+                            model = genai.GenerativeModel('gemini-2.5-flash-lite')
+                            
+                            # בניית תמונת מצב מלאה
+                            projects_summary = "\n".join([
+                                f"- {r['project_name']}: סטטוס {r.get('status','לא ידוע')}, סוג {r.get('project_type','לא ידוע')}"
+                                for _, r in projects.iterrows()
+                            ])
+                            
+                            meetings_today = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
+                            meetings_summary = "\n".join([
+                                f"- {r['meeting_title']} בשעה {fmt_time(r.get('start_time',''))}"
+                                for _, r in meetings_today.iterrows()
+                            ]) if not meetings_today.empty else "אין פגישות היום"
+                            
+                            reminders_today = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
+                            reminders_summary = "\n".join([
+                                f"- {r['reminder_text']} ({r.get('project_name','כללי')})"
+                                for _, r in reminders_today.iterrows()
+                            ]) if not reminders_today.empty else "אין תזכורות"
+                            
+                            tasks_summary = "\n".join([
+                                f"- {t.get('fields',{}).get('System.Title','')} ({t.get('fields',{}).get('System.TeamProject','')})"
+                                for t in (get_azure_tasks() or [])
+                            ]) or "אין משימות פתוחות"
+                            
+                            fathom_summaries = "\n".join([
+                                f"- פגישה: {k.replace('sum_v4_','')}: {v[:200]}..."
+                                for k, v in st.session_state.items()
+                                if k.startswith("sum_v4_") and v
+                            ]) or "אין סיכומי פגישות"
+                            
+                            focus = f"התמקד בפרויקט: {sel_p}" if sel_p != "כללי - כל הפרויקטים" else "התייחס לכל הפרויקטים"
+                            
+                            prompt = f"""אתה עוזר AI בכיר לניהול פרויקטים. יש לך גישה לכל המידע הבא:
+
+📁 פרויקטים:
+{projects_summary}
+
+📅 פגישות היום:
+{meetings_summary}
+
+🔔 תזכורות היום:
+{reminders_summary}
+
+📋 משימות פתוחות באז'ור:
+{tasks_summary}
+
+📝 סיכומי פגישות אחרונים:
+{fathom_summaries}
+
+{focus}
+שאלה: {q_in}
+
+ענה בעברית עסקית, בצורה מעמיקה וממוקדת. אם רלוונטי — תצלב מידע בין מקורות שונים."""
+                            
+                            response = model.generate_content(prompt)
+                            st.session_state.ai_response = response.text
+                        except Exception as e:
+                            st.session_state.ai_response = f"שגיאה: {str(e)}"
         
         if st.session_state.ai_response:
             st.info(st.session_state.ai_response)
