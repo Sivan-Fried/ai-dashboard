@@ -478,7 +478,6 @@ else:
         # ============================
         # 📌 פרויקטים לדיווח (priority.xlsx)
         # ============================
-    
         with st.container(border=True):
             st.markdown("### 📌 פרויקטים לדיווח")
         
@@ -498,32 +497,30 @@ else:
                 for _, row in priority_df.iterrows():
         
                     project_name = row["project_name"]
+                    project_number = row["project_number"]
+                    order_number = row["order_number"]
                     category = project_name.split(" ")[0]
                     tag_class = color_map.get(category, "tag-gray")
         
-                    st.markdown(
-                        f"""
-                        <div class="record-row" style="display:flex; justify-content:space-between; align-items:center;">
-                            
-                            <div style="display:flex; flex-direction:column; text-align:right;">
-                                <b>{project_name}</b>
-                                <span style="color:#64748b; font-size:0.8rem;">
-                                    {row["project_number"]} | {row["order_number"]}
-                                </span>
-                            </div>
+                    html = (
+                        '<div class="record-row" '
+                        'style="display:flex; justify-content:space-between; align-items:center;">'
         
-                            <span class="{tag_class}" style="white-space:nowrap;">
-                                {category}
-                            </span>
+                            '<div style="display:flex; flex-direction:column; text-align:right;">'
+                                f'<b>{project_name}</b>'
+                                f'<span style="color:#64748b; font-size:0.8rem;">'
+                                f'{project_number} | {order_number}'
+                                '</span>'
+                            '</div>'
         
-                        </div>
-                        """,
-                        unsafe_allow_html=True
+                            f'<span class="{tag_class}" style="white-space:nowrap;">{category}</span>'
+        
+                        '</div>'
                     )
+        
+                    st.markdown(html, unsafe_allow_html=True)
 
-
-
-           
+          
     with col_left:
         with st.container(border=True):
             st.markdown("### 📅 פגישות היום")
