@@ -509,7 +509,7 @@ else:
 {focus}
 שאלה: {q_in}
 
-ענה בעברית עסקית, בצורה מעמיקה וממוקדת. אם רלוונטי — תצלב מידע בין מקורות שונים."""
+ענה בעברית עסקית, בצורה מעמיקה וממוקדת. אם רלוונטי - תצלב מידע בין מקורות שונים."""
                             
                             response = model.generate_content(prompt)
                             st.session_state.ai_response = response.text
