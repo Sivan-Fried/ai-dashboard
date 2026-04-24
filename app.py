@@ -630,7 +630,7 @@ else:
                 except:
                     st.session_state['fathom_meetings'] = []
 
-            st.markdown("""
+            st.markdown(f"""
                 <style>
                 .fathom-row-ui {
                     display: grid;
