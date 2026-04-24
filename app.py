@@ -494,35 +494,26 @@ else:
                 for _, row in priority_df.iterrows():
         
                     project_name = row["project_name"]
-                    project_number = str(row["project_number"])
-                    order_number = str(row["order_number"])
                     category = project_name.split(" ")[0]
                     tag_class = color_map.get(category, "tag-gray")
         
-                    col1, col2, col3, col4, col5, col6 = st.columns([3, 1, 0.5, 1, 0.5, 1])
+                    col1, col2, col3, col4 = st.columns([3, 1.2, 1.2, 1])
         
                     with col1:
                         st.markdown(f"**{project_name}**")
         
                     with col2:
-                        st.write(project_number)
+                        st.write(row["project_number"])
         
                     with col3:
-                        if st.button("📋", key=f"copy_proj_{project_number}"):
-                            st.session_state["copy"] = project_number
+                        st.write(row["order_number"])
         
                     with col4:
-                        st.write(order_number)
-        
-                    with col5:
-                        if st.button("📋", key=f"copy_order_{order_number}"):
-                            st.session_state["copy"] = order_number
-        
-                    with col6:
                         st.markdown(
                             f'<span class="{tag_class}">{category}</span>',
                             unsafe_allow_html=True
                         )
+
 
 
 
