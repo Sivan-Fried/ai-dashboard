@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import streamlit as st
 import requests
 import pandas as pd
@@ -34,7 +35,6 @@ st.markdown("""
         padding-left: 20px !important;
     }
 
-    /* ← תיקון הפס הלבן של get_geolocation */
     iframe[title="streamlit_js_eval.streamlit_js_eval"] {
         display: none !important;
     }
@@ -113,55 +113,15 @@ st.markdown("""
 
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
     .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
-    .tag-green {
-    color: #15803d;
-    font-size: 0.8em;
-    font-weight: 600;
-    background: #ecfdf5;
-    padding: 2px 8px;
-    border-radius: 5px;
-    }
-
-    .tag-purple {
-        color: #6d28d9;
-        font-size: 0.8em;
-        font-weight: 600;
-        background: #f5f3ff;
-        padding: 2px 8px;
-        border-radius: 5px;
-    }
-    
-    .tag-pink {
-        color: #be185d;
-        font-size: 0.8em;
-        font-weight: 600;
-        background: #fdf2f8;
-        padding: 2px 8px;
-        border-radius: 5px;
-    }
-    
-    .tag-teal {
-        color: #0f766e;
-        font-size: 0.8em;
-        font-weight: 600;
-        background: #f0fdfa;
-        padding: 2px 8px;
-        border-radius: 5px;
-    }
-    
-    .tag-gray {
-        color: #475569;
-        font-size: 0.8em;
-        font-weight: 600;
-        background: #f1f5f9;
-        padding: 2px 8px;
-        border-radius: 5px;
-    }
+    .tag-green { color: #15803d; font-size: 0.8em; font-weight: 600; background: #ecfdf5; padding: 2px 8px; border-radius: 5px; }
+    .tag-purple { color: #6d28d9; font-size: 0.8em; font-weight: 600; background: #f5f3ff; padding: 2px 8px; border-radius: 5px; }
+    .tag-pink { color: #be185d; font-size: 0.8em; font-weight: 600; background: #fdf2f8; padding: 2px 8px; border-radius: 5px; }
+    .tag-teal { color: #0f766e; font-size: 0.8em; font-weight: 600; background: #f0fdfa; padding: 2px 8px; border-radius: 5px; }
+    .tag-gray { color: #475569; font-size: 0.8em; font-weight: 600; background: #f1f5f9; padding: 2px 8px; border-radius: 5px; }
 
     .time-label { color: #64748b; font-size: 0.85em; font-weight: 500; font-family: monospace; }
     p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
 
-    /* Weather inline */
     .weather-float {
         display: inline-flex;
         flex-direction: column;
@@ -201,21 +161,15 @@ def get_weather_realtime(location):
     if location and 'coords' in location:
         lat, lon = location['coords']['latitude'], location['coords']['longitude']
         try:
-            # זיהוי עיר
             g = requests.get(f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}", headers={'User-Agent': 'SivanDash'}).json()
             city = g.get('address', {}).get('city') or g.get('address', {}).get('town') or "ישראל"
-            
-            # נתוני מזג אוויר
             w = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true").json()
             temp = round(w['current_weather']['temperature'])
-            
-            # בדיקה האם עכשיו יום או לילה לפי השעה המקומית
             hour = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).hour
-            icon = "🌙" if (hour >= 19 or hour < 6) else "☀️"
-            
+            icon = "\U0001f319" if (hour >= 19 or hour < 6) else "\u2600\ufe0f"
             return f"{icon} {temp}°C", city
         except: pass
-    return "☀️ --°C", "ישראל"
+    return "\u2600\ufe0f --°C", "ישראל"
 
 def get_azure_tasks():
     ORG_NAME = "amandigital"
@@ -250,7 +204,6 @@ def get_fathom_summary(recording_id):
         return None
     except: return None
 
-# החלף את הפונקציה refine_with_ai
 def refine_with_ai(raw_text):
     try:
         genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
@@ -267,7 +220,6 @@ def fmt_time(t):
     try: return t.strftime("%H:%M")
     except: return ""
 
-# פונקציה לשמירת סיכומים שנוצרים לתוך אקסל
 def save_summary_to_excel(title, date_str, summary_text):
     file_path = "fathom_summaries.xlsx"
     new_row = {
@@ -287,7 +239,7 @@ def save_summary_to_excel(title, date_str, summary_text):
     except FileNotFoundError:
         updated = pd.DataFrame([new_row])
     updated.to_excel(file_path, index=False)
-    
+
 # טעינת נתונים
 try:
     projects = pd.read_excel("my_projects.xlsx")
@@ -315,21 +267,19 @@ if "proj" in params:
 # 4. מבנה התצוגה
 # =========================================================
 
-# קבלת מיקום
 loc = get_geolocation()
 
 if st.session_state.current_page == "project":
-    # --- דף פרויקט ספציפי ---
     p_name = st.session_state.get("selected_project", "פרויקט")
     st.markdown(f'<h1 class="dashboard-header">{p_name}</h1>', unsafe_allow_html=True)
-    if st.button("⬅️ חזרה לדשבורד"):
+    if st.button("חזרה לדשבורד"):
         st.query_params.clear()
         st.session_state.current_page = "main"
         st.rerun()
     
     with st.container(border=True):
-        st.markdown(f"### ℹ️ ניהול פרויקט: {p_name}")
-        tab_work, tab_res, tab_risk, tab_meetings = st.tabs(["📅 תוכנית עבודה", "👥 משאבים", "⚠️ סיכונים", "📝 סיכומים"])
+        st.markdown(f"### ניהול פרויקט: {p_name}")
+        tab_work, tab_res, tab_risk, tab_meetings = st.tabs(["תוכנית עבודה", "משאבים", "סיכונים", "סיכומים"])
         with tab_work:
             if p_name == "אלטשולר שחם":
                 exec(open("altshuler_module.py").read())
@@ -341,13 +291,11 @@ if st.session_state.current_page == "project":
 
 else:
     # --- דף ראשי (דשבורד) ---
-    # --- דף ראשי (דשבורד) ---
     
-    # מזג אוויר צף
     if loc:
         w_text, w_city = get_weather_realtime(loc)
     else:
-        w_text, w_city = "☀️ --°C", "מזהה מיקום..."
+        w_text, w_city = "\u2600\ufe0f --°C", "מזהה מיקום..."
         
     # ספירת התראות היום
     rem_today = st.session_state.rem_live[
@@ -378,7 +326,28 @@ else:
 </div>
 <style>
 .notif-wrapper {{ position: relative; display: inline-block; }}
-.notif-btn {{ background: white; border: 1px solid #edf2f7; border-radius: 12px; padding: 8
+.notif-btn {{ background: white; border: 1px solid #edf2f7; border-radius: 12px; padding: 8px 16px; font-size: 1rem; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 6px; }}
+.notif-btn:hover {{ background: #f8fafc; }}
+.notif-badge {{ background: #ef4444; color: white; border-radius: 50%; font-size: 0.7rem; font-weight: 700; padding: 1px 6px; }}
+.notif-dropdown {{ display: none; position: absolute; left: 0; top: 48px; width: 320px; background: white; border: 1px solid #edf2f7; border-radius: 14px; padding: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 1000; direction: rtl; }}
+.notif-dropdown.open {{ display: block; }}
+.notif-item {{ display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }}
+.notif-item:last-child {{ border-bottom: none; }}
+.tag-orange {{ color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }}
+</style>
+<script>
+function toggleNotif() {{
+    const d = document.getElementById('notifDropdown');
+    d.classList.toggle('open');
+}}
+document.addEventListener('click', function(e) {{
+    const wrapper = document.querySelector('.notif-wrapper');
+    if (wrapper && !wrapper.contains(e.target)) {{
+        document.getElementById('notifDropdown').classList.remove('open');
+    }}
+}});
+</script>
+""", height=80)
 
     # אזור פרופיל
     img_b64 = get_base64_image("profile.png")
@@ -407,9 +376,9 @@ else:
     
     # KPIs
     k1, k2, k3, k4 = st.columns(4)
-    with k1: st.markdown(f'<div class="kpi-card">בסיכון 🔴<br><b>{len(projects[projects["status"]=="אדום"])}</b></div>', unsafe_allow_html=True)
-    with k2: st.markdown(f'<div class="kpi-card">במעקב 🟡<br><b>{len(projects[projects["status"]=="צהוב"])}</b></div>', unsafe_allow_html=True)
-    with k3: st.markdown(f'<div class="kpi-card">תקין 🟢<br><b>{len(projects[projects["status"]=="ירוק"])}</b></div>', unsafe_allow_html=True)
+    with k1: st.markdown(f'<div class="kpi-card">בסיכון<br><b>{len(projects[projects["status"]=="אדום"])}</b></div>', unsafe_allow_html=True)
+    with k2: st.markdown(f'<div class="kpi-card">במעקב<br><b>{len(projects[projects["status"]=="צהוב"])}</b></div>', unsafe_allow_html=True)
+    with k3: st.markdown(f'<div class="kpi-card">תקין<br><b>{len(projects[projects["status"]=="ירוק"])}</b></div>', unsafe_allow_html=True)
     with k4: st.markdown(f'<div class="kpi-card">סה"כ פרויקטים<br><b>{len(projects)}</b></div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
@@ -418,7 +387,7 @@ else:
 
     with col_right:
         with st.container(border=True):
-            st.markdown("### 📁 פרויקטים")
+            st.markdown("### פרויקטים")
             with st.container(height=300, border=False):
                 for _, row in projects.iterrows():
                     p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
@@ -426,7 +395,7 @@ else:
                         <a href="{p_url}" target="_self" class="project-link">
                             <div class="record-row">
                                 <div style="display: flex; align-items: center; gap: 10px;">
-                                    <b>📂 {row["project_name"]}</b>
+                                    <b>{row["project_name"]}</b>
                                     <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
                                 </div>
                                 <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">chevron_left</span>
@@ -435,30 +404,29 @@ else:
                     ''', unsafe_allow_html=True)
                     
         with st.container(border=True):
-            st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
+            st.markdown('<h3>משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
             tasks_data = get_azure_tasks()
             if tasks_data:
                 for t in tasks_data:
                     f = t.get('fields', {}); t_id, t_title, p_task = t.get('id'), f.get('System.Title', ''), f.get('System.TeamProject', 'General')
                     raw_date = f.get('System.CreatedDate', ''); fmt_date = f"{raw_date[8:10]}/{raw_date[5:7]} {raw_date[11:16]}" if raw_date else ""
                     t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_task)}/_workitems/edit/{t_id}"
-                    st.markdown(f'<div class="record-row" style="white-space: nowrap;"><div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis;"><a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: none; font-weight: 500;">🔗 {t_title}</a><span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">נוצר ב {fmt_date}</span></div><span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_task}</span></div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="record-row" style="white-space: nowrap;"><div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis;"><a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: none; font-weight: 500;">{t_title}</a><span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">נוצר ב {fmt_date}</span></div><span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_task}</span></div>', unsafe_allow_html=True)
             else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
         with st.container(border=True):
-            st.markdown("### ✨ עוזר AI אישי")
+            st.markdown("### עוזר AI אישי")
             a1, a2 = st.columns([1, 2])
             sel_p = a1.selectbox("פרויקט", ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
             q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
             
-            if st.button("שגר שאילתה 🚀", use_container_width=True):
+            if st.button("שגר שאילתה", use_container_width=True):
                 if q_in:
                     with st.spinner("מנתח..."):
                         try:
                             genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
                             model = genai.GenerativeModel('gemini-2.5-flash-lite')
                             
-                            # בניית תמונת מצב מלאה
                             projects_summary = "\n".join([
                                 f"- {r['project_name']}: סטטוס {r.get('status','לא ידוע')}, סוג {r.get('project_type','לא ידוע')}"
                                 for _, r in projects.iterrows()
@@ -489,27 +457,17 @@ else:
                             
                             focus = f"התמקד בפרויקט: {sel_p}" if sel_p != "כללי - כל הפרויקטים" else "התייחס לכל הפרויקטים"
                             
-                            prompt = f"""אתה עוזר AI בכיר לניהול פרויקטים. יש לך גישה לכל המידע הבא:
-
-פרויקטים:
-{projects_summary}
-
-פגישות היום:
-{meetings_summary}
-
-תזכורות היום:
-{reminders_summary}
-
-משימות פתוחות באזור:
-{tasks_summary}
-
-סיכומי פגישות אחרונים:
-{fathom_summaries}
-
-{focus}
-שאלה: {q_in}
-
-ענה בעברית עסקית, בצורה מעמיקה וממוקדת. אם רלוונטי - תצלב מידע בין מקורות שונים."""
+                            prompt = (
+                                "אתה עוזר AI בכיר לניהול פרויקטים. יש לך גישה לכל המידע הבא:\n\n"
+                                "פרויקטים:\n" + projects_summary + "\n\n"
+                                "פגישות היום:\n" + meetings_summary + "\n\n"
+                                "תזכורות היום:\n" + reminders_summary + "\n\n"
+                                "משימות פתוחות באזור:\n" + tasks_summary + "\n\n"
+                                "סיכומי פגישות אחרונים:\n" + fathom_summaries + "\n\n"
+                                + focus + "\n"
+                                "שאלה: " + q_in + "\n\n"
+                                "ענה בעברית עסקית, בצורה מעמיקה וממוקדת. אם רלוונטי - תצלב מידע בין מקורות שונים."
+                            )
                             
                             response = model.generate_content(prompt)
                             st.session_state.ai_response = response.text
@@ -518,18 +476,13 @@ else:
         
         if st.session_state.ai_response:
             st.info(st.session_state.ai_response)
- 
-    #הוספה של פרויקטים לדיווח
-        # ============================
-        # 📌 פרויקטים לדיווח (priority.xlsx)
-        # ============================
+
         with st.container(border=True):
-            st.markdown("### 📌 פרויקטים לדיווח")
+            st.markdown("### פרויקטים לדיווח")
         
             if priority_df.empty:
                 st.write("לא נמצאו פרויקטים לדיווח.")
             else:
-        
                 color_map = {
                     "אנליסט": "tag-blue",
                     "דנאל": "tag-green",
@@ -540,7 +493,6 @@ else:
                 }
         
                 for _, row in priority_df.iterrows():
-        
                     project_name = row["project_name"]
                     project_number = row["project_number"]
                     order_number = row["order_number"]
@@ -551,42 +503,35 @@ else:
                         '<div class="record-row" '
                         'style="display:flex; align-items:center; justify-content:space-between; '
                         'gap:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'
-        
-                            # שם הפרויקט + המספרים — ביחד!
-                            f'<span style="font-weight:600; overflow:hidden; text-overflow:ellipsis;">'
-                            f'{project_name} '
-                            f'<span style="color:#64748b; font-size:0.8rem; margin-right:6px;">'
-                            f'{project_number} | {order_number}'
-                            '</span>'
-                            '</span>'
-        
-                            # תגית קטגוריה
-                            f'<span class="{tag_class}" style="white-space:nowrap; flex-shrink:0;">'
-                            f'{category}</span>'
-        
+                        f'<span style="font-weight:600; overflow:hidden; text-overflow:ellipsis;">'
+                        f'{project_name} '
+                        f'<span style="color:#64748b; font-size:0.8rem; margin-right:6px;">'
+                        f'{project_number} | {order_number}'
+                        '</span>'
+                        '</span>'
+                        f'<span class="{tag_class}" style="white-space:nowrap; flex-shrink:0;">'
+                        f'{category}</span>'
                         '</div>'
                     )
-        
                     st.markdown(html, unsafe_allow_html=True)
 
-          
     with col_left:
         with st.container(border=True):
-            st.markdown("### 📅 פגישות היום")
+            st.markdown("### פגישות היום")
             t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
             if t_m.empty: st.write("אין פגישות היום")
             else:
                 for _, r in t_m.iterrows():
                     s_t = fmt_time(r.get('start_time', '')); e_t = fmt_time(r.get('end_time', ''))
-                    st.markdown(f'<div class="record-row"><span style="flex-grow:1; text-align:right;">📌 {r["meeting_title"]}</span><span class="time-label">{s_t}-{e_t}</span></div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="record-row"><span style="flex-grow:1; text-align:right;">{r["meeting_title"]}</span><span class="time-label">{s_t}-{e_t}</span></div>', unsafe_allow_html=True)
 
         with st.container(border=True):
-            st.markdown("### 🔔 תזכורות")
+            st.markdown("### תזכורות")
             with st.container(border=False):
                 t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
                 if not t_r.empty:
                     for _, row in t_r.iterrows():
-                        st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
+                        st.markdown(f'<div class="record-row"><span>{row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
                 else: st.write("אין תזכורות להיום.")
             
             if st.session_state.adding_reminder:
@@ -603,13 +548,12 @@ else:
                     with r_col4:
                         if st.button("❌", key="cancel_rem_btn"): st.session_state.adding_reminder = False; st.rerun()
             else:
-                if st.button("➕ הוספת תזכורת", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
-#fathom
-                    # --- אזור Fathom המעודכן ---
+                if st.button("הוספת תזכורת", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
+
         with st.container(border=True):
             col_title, col_refresh = st.columns([0.9, 0.1])
             with col_title:
-                st.markdown("### ✨ סיכומי פגישות Fathom")
+                st.markdown("### סיכומי פגישות Fathom")
 
             with col_refresh:
                 if st.button("🔄", key="refresh_fathom"):
@@ -630,7 +574,7 @@ else:
                 except:
                     st.session_state['fathom_meetings'] = []
 
-            st.markdown(f"""
+            st.markdown("""
                 <style>
                 .fathom-row-ui {
                     display: grid;
@@ -715,7 +659,7 @@ else:
                     if is_open:
                         with st.container():
                             if s_key not in st.session_state:
-                                if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}"):
+                                if st.button("צור סיכום עם AI", key=f"gen_{rec_id}"):
                                     with st.spinner("מנתח..."):
                                         raw = get_fathom_summary(rec_id)
                                         if raw:
@@ -727,3 +671,5 @@ else:
                             
                             if st.session_state.get(s_key):
                                 st.info(st.session_state.get(s_key))
+            else:
+                st.write("אין פגישות זמינות.")
