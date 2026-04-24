@@ -433,8 +433,6 @@ else:
         # ============================
         # 📌 פרויקטים לדיווח (priority.xlsx)
         # ============================
- 
-        # ============================
 
         with st.container(border=True):
             st.markdown("### 📌 פרויקטים לדיווח")
@@ -445,36 +443,37 @@ else:
         
                 # מיפוי צבעים לפי קטגוריה (המילה הראשונה בשם הפרויקט)
                 color_map = {
-                    "אנליסט": "#4f46e5",
-                    "דנאל": "#0ea5e9",
-                    "דלק": "#f97316",
-                    "בנק": "#16a34a",
-                    "פיתוח": "#db2777",
-                    "אלשטול": "#9333ea",
+                    "אנליסט": "tag-blue",
+                    "דנאל": "tag-green",
+                    "דלק": "tag-orange",
+                    "בנק": "tag-blue",
+                    "פיתוח": "tag-purple",
+                    "אלשטול": "tag-green",
                 }
         
                 for _, row in priority_df.iterrows():
         
                     project_name = row["project_name"]
                     category = project_name.split(" ")[0]
-                    tag_color = color_map.get(category, "#64748b")
+                    tag_class = color_map.get(category, "tag-gray")  # ברירת מחדל אפור
         
                     html = (
                         '<div class="record-row" style="align-items:center; justify-content:space-between;">'
+        
                             '<div style="display:flex; flex-direction:column; text-align:right;">'
                                 f'<b>{project_name}</b>'
                                 f'<span style="color:#64748b; font-size:0.8rem;">'
                                 f'מספר פרויקט: {row["project_number"]} | הזמנה: {row["order_number"]}'
                                 '</span>'
                             '</div>'
-                            f'<span style="background:{tag_color}; color:white; padding:4px 10px; '
-                            'border-radius:12px; font-size:0.75rem; white-space:nowrap;">'
-                            f'{category}'
-                            '</span>'
+        
+                            f'<span class="{tag_class}" style="white-space:nowrap;">{category}</span>'
+        
                         '</div>'
                     )
         
                     st.markdown(html, unsafe_allow_html=True)
+
 
            
     with col_left:
