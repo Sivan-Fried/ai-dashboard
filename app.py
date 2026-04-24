@@ -492,7 +492,7 @@ else:
                     "דלק": "tag-orange",
                     "בנק": "tag-teal",
                     "פיתוח": "tag-pink",
-                    "אלשטול": "tag-purple",
+                    "אלשטולר": "tag-purple",
                 }
         
                 for _, row in priority_df.iterrows():
@@ -503,22 +503,27 @@ else:
         
                     html = (
                         '<div class="record-row" '
-                        'style="display:flex; align-items:center; justify-content:space-between; '
+                        'style="display:flex; flex-direction:row; align-items:center; '
+                        'justify-content:space-between; gap:12px; '
                         'white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'
         
-                            f'<div style="display:flex; flex-direction:column; text-align:right; overflow:hidden; text-overflow:ellipsis;">'
+                            '<div style="display:flex; flex-direction:column; text-align:right; '
+                            'white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'
                                 f'<b style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{project_name}</b>'
                                 f'<span style="color:#64748b; font-size:0.8rem; white-space:nowrap;">'
                                 f'מספר פרויקט: {row["project_number"]} | הזמנה: {row["order_number"]}'
                                 '</span>'
                             '</div>'
         
-                            f'<span class="{tag_class}" style="margin-left:12px; white-space:nowrap;">{category}</span>'
+                            f'<span class="{tag_class}" '
+                            'style="white-space:nowrap; flex-shrink:0;">'
+                            f'{category}</span>'
         
                         '</div>'
                     )
         
                     st.markdown(html, unsafe_allow_html=True)
+
 
 
            
