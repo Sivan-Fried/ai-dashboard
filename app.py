@@ -113,6 +113,51 @@ st.markdown("""
 
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
     .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
+    .tag-green {
+    color: #15803d;
+    font-size: 0.8em;
+    font-weight: 600;
+    background: #ecfdf5;
+    padding: 2px 8px;
+    border-radius: 5px;
+    }
+
+    .tag-purple {
+        color: #6d28d9;
+        font-size: 0.8em;
+        font-weight: 600;
+        background: #f5f3ff;
+        padding: 2px 8px;
+        border-radius: 5px;
+    }
+    
+    .tag-pink {
+        color: #be185d;
+        font-size: 0.8em;
+        font-weight: 600;
+        background: #fdf2f8;
+        padding: 2px 8px;
+        border-radius: 5px;
+    }
+    
+    .tag-teal {
+        color: #0f766e;
+        font-size: 0.8em;
+        font-weight: 600;
+        background: #f0fdfa;
+        padding: 2px 8px;
+        border-radius: 5px;
+    }
+    
+    .tag-gray {
+        color: #475569;
+        font-size: 0.8em;
+        font-weight: 600;
+        background: #f1f5f9;
+        padding: 2px 8px;
+        border-radius: 5px;
+    }
+
     .time-label { color: #64748b; font-size: 0.85em; font-weight: 500; font-family: monospace; }
     p, span, label, .stSelectbox, .stTextInput { text-align: right !important; direction: rtl !important; }
 
@@ -441,21 +486,20 @@ else:
                 st.write("לא נמצאו פרויקטים לדיווח.")
             else:
         
-                # מיפוי צבעים לפי קטגוריה (המילה הראשונה בשם הפרויקט)
                 color_map = {
                     "אנליסט": "tag-blue",
                     "דנאל": "tag-green",
                     "דלק": "tag-orange",
-                    "בנק": "tag-blue",
-                    "פיתוח": "tag-purple",
-                    "אלשטול": "tag-green",
+                    "בנק": "tag-teal",
+                    "פיתוח": "tag-pink",
+                    "אלשטול": "tag-purple",
                 }
         
                 for _, row in priority_df.iterrows():
         
                     project_name = row["project_name"]
                     category = project_name.split(" ")[0]
-                    tag_class = color_map.get(category, "tag-gray")  # ברירת מחדל אפור
+                    tag_class = color_map.get(category, "tag-gray")
         
                     html = (
                         '<div class="record-row" style="align-items:center; justify-content:space-between;">'
@@ -467,7 +511,7 @@ else:
                                 '</span>'
                             '</div>'
         
-                            f'<span class="{tag_class}" style="white-space:nowrap;">{category}</span>'
+                            f'<span class="{tag_class}">{category}</span>'
         
                         '</div>'
                     )
