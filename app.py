@@ -475,9 +475,6 @@ else:
             st.info(st.session_state.ai_response)
  
     #הוספה של פרויקטים לדיווח
-        # ============================
-        # 📌 פרויקטים לדיווח (priority.xlsx)
-        # ============================
         with st.container(border=True):
             st.markdown("### 📌 פרויקטים לדיווח")
         
@@ -500,7 +497,7 @@ else:
                     category = project_name.split(" ")[0]
                     tag_class = color_map.get(category, "tag-gray")
         
-                    col1, col2, col3, col4 = st.columns([3, 1.2, 1.2, 0.8])
+                    col1, col2, col3, col4 = st.columns([3, 1.2, 1.2, 1])
         
                     with col1:
                         st.markdown(f"**{project_name}**")
@@ -516,6 +513,7 @@ else:
                             f'<span class="{tag_class}">{category}</span>',
                             unsafe_allow_html=True
                         )
+
 
 
 
