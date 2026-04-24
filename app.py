@@ -479,6 +479,8 @@ else:
         # 📌 פרויקטים לדיווח (priority.xlsx)
         # ============================
 
+        # ============================
+
         with st.container(border=True):
             st.markdown("### 📌 פרויקטים לדיווח")
         
@@ -495,6 +497,15 @@ else:
                     "אלשטול": "tag-purple",
                 }
         
+                # פונקציית העתקה (מוזרקת פעם אחת)
+                st.markdown("""
+                    <script>
+                    function copyToClipboard(text) {
+                        navigator.clipboard.writeText(text);
+                    }
+                    </script>
+                """, unsafe_allow_html=True)
+        
                 for _, row in priority_df.iterrows():
         
                     project_name = row["project_name"]
@@ -508,27 +519,32 @@ else:
                         <div class="record-row"
                             style="
                                 display:flex;
-                                flex-direction:row;
                                 align-items:center;
                                 justify-content:space-between;
-                                gap:12px;
+                                gap:16px;
                                 white-space:nowrap;
                                 overflow:hidden;
                                 text-overflow:ellipsis;
                             ">
         
                             <!-- שם הפרויקט -->
-                            <span style="font-weight:600; overflow:hidden; text-overflow:ellipsis;">
+                            <span style="
+                                font-weight:600;
+                                overflow:hidden;
+                                text-overflow:ellipsis;
+                                flex-grow:1;
+                            ">
                                 {project_name}
                             </span>
         
-                            <!-- מספרים מיושרים לימין + פונט גדול יותר -->
+                            <!-- מספרים מיושרים לימין -->
                             <span style="
                                 color:#334155;
                                 font-size:0.9rem;
                                 font-weight:500;
                                 white-space:nowrap;
                                 text-align:right;
+                                flex-shrink:0;
                             ">
                                 {row["project_number"]} | {row["order_number"]}
                             </span>
@@ -539,7 +555,7 @@ else:
                             </span>
         
                             <!-- כפתור העתקה -->
-                            <span onclick="navigator.clipboard.writeText('{copy_text}')"
+                            <span onclick="copyToClipboard('{copy_text}')"
                                 style="
                                     cursor:pointer;
                                     font-size:14px;
@@ -556,6 +572,8 @@ else:
                     """
         
                     st.markdown(html, unsafe_allow_html=True)
+
+
 
 
            
