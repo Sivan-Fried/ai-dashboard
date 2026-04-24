@@ -478,9 +478,7 @@ else:
         # ============================
         # 📌 פרויקטים לדיווח (priority.xlsx)
         # ============================
-# ============================
-# 📌 פרויקטים לדיווח (priority.xlsx)
-# ============================
+
         with st.container(border=True):
             st.markdown("### 📌 פרויקטים לדיווח")
         
@@ -503,27 +501,59 @@ else:
                     category = project_name.split(" ")[0]
                     tag_class = color_map.get(category, "tag-gray")
         
-                    html = (
-                        '<div class="record-row" '
-                        'style="display:flex; flex-direction:row; align-items:center; '
-                        'justify-content:space-between; gap:12px; '
-                        'white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'
+                    # מה יועתק בלחיצה
+                    copy_text = f"{project_name} | {row['project_number']} | {row['order_number']}"
         
-                            # שם הפרויקט
-                            f'<span style="font-weight:600; overflow:hidden; text-overflow:ellipsis;">'
-                            f'{project_name}</span>'
+                    html = f"""
+                        <div class="record-row"
+                            style="
+                                display:flex;
+                                flex-direction:row;
+                                align-items:center;
+                                justify-content:space-between;
+                                gap:12px;
+                                white-space:nowrap;
+                                overflow:hidden;
+                                text-overflow:ellipsis;
+                            ">
         
-                            # מספרים — בלי טקסט מיותר
-                            f'<span style="color:#64748b; font-size:0.8rem; white-space:nowrap;">'
-                            f'{row["project_number"]} | {row["order_number"]}'
-                            '</span>'
+                            <!-- שם הפרויקט -->
+                            <span style="font-weight:600; overflow:hidden; text-overflow:ellipsis;">
+                                {project_name}
+                            </span>
         
-                            # תגית קטגוריה
-                            f'<span class="{tag_class}" style="white-space:nowrap; flex-shrink:0;">'
-                            f'{category}</span>'
+                            <!-- מספרים מיושרים לימין + פונט גדול יותר -->
+                            <span style="
+                                color:#334155;
+                                font-size:0.9rem;
+                                font-weight:500;
+                                white-space:nowrap;
+                                text-align:right;
+                            ">
+                                {row["project_number"]} | {row["order_number"]}
+                            </span>
         
-                        '</div>'
-                    )
+                            <!-- תגית קטגוריה -->
+                            <span class="{tag_class}" style="white-space:nowrap; flex-shrink:0;">
+                                {category}
+                            </span>
+        
+                            <!-- כפתור העתקה -->
+                            <span onclick="navigator.clipboard.writeText('{copy_text}')"
+                                style="
+                                    cursor:pointer;
+                                    font-size:14px;
+                                    padding:4px 6px;
+                                    border-radius:4px;
+                                    background:#e2e8f0;
+                                    color:#475569;
+                                    flex-shrink:0;
+                                ">
+                                📋
+                            </span>
+        
+                        </div>
+                    """
         
                     st.markdown(html, unsafe_allow_html=True)
 
