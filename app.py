@@ -342,6 +342,7 @@ if st.session_state.current_page == "project":
 else:
     # --- דף ראשי (דשבורד) ---
     
+    
     # מזג אוויר צף
     if loc:
         w_text, w_city = get_weather_realtime(loc)
@@ -349,99 +350,99 @@ else:
         w_text, w_city = "☀️ --°C", "מזהה מיקום..."
         
     # ספירת התראות היום
-rem_today = st.session_state.rem_live[
-    pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today
-]
-rem_count = len(rem_today)
-
-notif_items_html = "".join([
-    f'<div class="notif-item"><span>{row["reminder_text"]}</span>'
-    f'<span class="tag-orange">{row.get("project_name","כללי")}</span></div>'
-    for _, row in rem_today.iterrows()
-]) if not rem_today.empty else "<p style='color:gray; text-align:right;'>אין תזכורות להיום.</p>"
-
-st.markdown(f"""
-<div style="display:flex; justify-content:center; align-items:center; position:relative; margin-bottom:20px;">
+    rem_today = st.session_state.rem_live[
+        pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today
+    ]
+    rem_count = len(rem_today)
     
-    <h1 class="dashboard-header" style="margin:0; flex:1; text-align:center;">Dashboard AI</h1>
+    notif_items_html = "".join([
+        f'<div class="notif-item"><span>{row["reminder_text"]}</span>'
+        f'<span class="tag-orange">{row.get("project_name","כללי")}</span></div>'
+        for _, row in rem_today.iterrows()
+    ]) if not rem_today.empty else "<p style='color:gray; text-align:right;'>אין תזכורות להיום.</p>"
     
-    <div style="position:absolute; left:0;">
-        <div class="notif-wrapper">
-            <button class="notif-btn" onclick="toggleNotif()">
-                🔔 <span class="notif-badge">{rem_count}</span>
-            </button>
-            <div class="notif-dropdown" id="notifDropdown">
-                <div style="font-weight:700; color:#1f2a44; margin-bottom:10px; text-align:right;">
-                    🔔 התראות להיום
+    st.markdown(f"""
+    <div style="display:flex; justify-content:center; align-items:center; position:relative; margin-bottom:20px;">
+        
+        <h1 class="dashboard-header" style="margin:0; flex:1; text-align:center;">Dashboard AI</h1>
+        
+        <div style="position:absolute; left:0;">
+            <div class="notif-wrapper">
+                <button class="notif-btn" onclick="toggleNotif()">
+                    🔔 <span class="notif-badge">{rem_count}</span>
+                </button>
+                <div class="notif-dropdown" id="notifDropdown">
+                    <div style="font-weight:700; color:#1f2a44; margin-bottom:10px; text-align:right;">
+                        🔔 התראות להיום
+                    </div>
+                    {notif_items_html}
                 </div>
-                {notif_items_html}
             </div>
         </div>
     </div>
-</div>
-
-<style>
-.notif-wrapper {{ position: relative; display: inline-block; }}
-.notif-btn {{
-    background: white;
-    border: 1px solid #edf2f7;
-    border-radius: 12px;
-    padding: 8px 16px;
-    font-size: 1rem;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}}
-.notif-btn:hover {{ background: #f8fafc; }}
-.notif-badge {{
-    background: #ef4444;
-    color: white;
-    border-radius: 50%;
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 1px 6px;
-}}
-.notif-dropdown {{
-    display: none;
-    position: absolute;
-    left: 0;
-    top: 48px;
-    width: 320px;
-    background: white;
-    border: 1px solid #edf2f7;
-    border-radius: 14px;
-    padding: 16px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-    z-index: 1000;
-    direction: rtl;
-}}
-.notif-dropdown.open {{ display: block; }}
-.notif-item {{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid #f1f5f9;
-    font-size: 0.85rem;
-}}
-.notif-item:last-child {{ border-bottom: none; }}
-</style>
-
-<script>
-function toggleNotif() {{
-    const d = document.getElementById('notifDropdown');
-    d.classList.toggle('open');
-}}
-document.addEventListener('click', function(e) {{
-    const wrapper = document.querySelector('.notif-wrapper');
-    if (wrapper && !wrapper.contains(e.target)) {{
-        document.getElementById('notifDropdown').classList.remove('open');
+    
+    <style>
+    .notif-wrapper {{ position: relative; display: inline-block; }}
+    .notif-btn {{
+        background: white;
+        border: 1px solid #edf2f7;
+        border-radius: 12px;
+        padding: 8px 16px;
+        font-size: 1rem;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        display: flex;
+        align-items: center;
+        gap: 6px;
     }}
-}});
-</script>
-""", unsafe_allow_html=True)
+    .notif-btn:hover {{ background: #f8fafc; }}
+    .notif-badge {{
+        background: #ef4444;
+        color: white;
+        border-radius: 50%;
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 1px 6px;
+    }}
+    .notif-dropdown {{
+        display: none;
+        position: absolute;
+        left: 0;
+        top: 48px;
+        width: 320px;
+        background: white;
+        border: 1px solid #edf2f7;
+        border-radius: 14px;
+        padding: 16px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        z-index: 1000;
+        direction: rtl;
+    }}
+    .notif-dropdown.open {{ display: block; }}
+    .notif-item {{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.85rem;
+    }}
+    .notif-item:last-child {{ border-bottom: none; }}
+    </style>
+    
+    <script>
+    function toggleNotif() {{
+        const d = document.getElementById('notifDropdown');
+        d.classList.toggle('open');
+    }}
+    document.addEventListener('click', function(e) {{
+        const wrapper = document.querySelector('.notif-wrapper');
+        if (wrapper && !wrapper.contains(e.target)) {{
+            document.getElementById('notifDropdown').classList.remove('open');
+        }}
+    }});
+    </script>
+    """, unsafe_allow_html=True)
 
 
     # אזור פרופיל
