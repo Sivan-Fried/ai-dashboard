@@ -434,6 +434,8 @@ else:
         # 📌 פרויקטים לדיווח (priority.xlsx)
         # ============================
  
+        # ============================
+
         with st.container(border=True):
             st.markdown("### 📌 פרויקטים לדיווח")
         
@@ -454,37 +456,25 @@ else:
                 for _, row in priority_df.iterrows():
         
                     project_name = row["project_name"]
-                    category = project_name.split(" ")[0]  # המילה הראשונה
-                    tag_color = color_map.get(category, "#64748b")  # ברירת מחדל אפור
+                    category = project_name.split(" ")[0]
+                    tag_color = color_map.get(category, "#64748b")
         
-                    st.markdown(
-                        f"""
-                        <div class="record-row" style="align-items:center; justify-content:space-between;">
-        
-                            <div style="display:flex; flex-direction:column; text-align:right;">
-                                <b>{project_name}</b>
-                                <span style="color:#64748b; font-size:0.8rem;">
-                                    מספר פרויקט: {row["project_number"]} | הזמנה: {row["order_number"]}
-                                </span>
-                            </div>
-        
-                            <span style="
-                                background:{tag_color};
-                                color:white;
-                                padding:4px 10px;
-                                border-radius:12px;
-                                font-size:0.75rem;
-                                white-space:nowrap;
-                            ">
-                                {category}
-                            </span>
-        
-                        </div>
-                        """,
-                        unsafe_allow_html=True
+                    html = (
+                        '<div class="record-row" style="align-items:center; justify-content:space-between;">'
+                            '<div style="display:flex; flex-direction:column; text-align:right;">'
+                                f'<b>{project_name}</b>'
+                                f'<span style="color:#64748b; font-size:0.8rem;">'
+                                f'מספר פרויקט: {row["project_number"]} | הזמנה: {row["order_number"]}'
+                                '</span>'
+                            '</div>'
+                            f'<span style="background:{tag_color}; color:white; padding:4px 10px; '
+                            'border-radius:12px; font-size:0.75rem; white-space:nowrap;">'
+                            f'{category}'
+                            '</span>'
+                        '</div>'
                     )
-
-
+        
+                    st.markdown(html, unsafe_allow_html=True)
 
            
     with col_left:
