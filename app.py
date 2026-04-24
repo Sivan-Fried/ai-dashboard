@@ -479,9 +479,6 @@ else:
         # 📌 פרויקטים לדיווח (priority.xlsx)
         # ============================
 
-        # ============================
-# 📌 פרויקטים לדיווח (priority.xlsx)
-# ============================
         with st.container(border=True):
             st.markdown("### 📌 פרויקטים לדיווח")
         
@@ -504,22 +501,24 @@ else:
                     category = project_name.split(" ")[0]
                     tag_class = color_map.get(category, "tag-gray")
         
-                    c1, c2, c3, c4 = st.columns([3, 1.2, 1.2, 1])
+                    # שורה אחת עם 4 עמודות
+                    col1, col2, col3, col4 = st.columns([3, 1.2, 1.2, 1])
         
-                    with c1:
+                    with col1:
                         st.markdown(f"**{project_name}**")
         
-                    with c2:
+                    with col2:
                         st.code(str(row["project_number"]), language=None)
         
-                    with c3:
+                    with col3:
                         st.code(str(row["order_number"]), language=None)
         
-                    with c4:
+                    with col4:
                         st.markdown(
                             f'<span class="{tag_class}">{category}</span>',
                             unsafe_allow_html=True
                         )
+
 
 
            
