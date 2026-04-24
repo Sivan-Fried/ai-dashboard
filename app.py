@@ -233,6 +233,7 @@ try:
     projects = pd.read_excel("my_projects.xlsx")
     meetings = pd.read_excel("meetings.xlsx")
     reminders_df = pd.read_excel("reminders.xlsx")
+    priority_df = pd.read_excel("priority.xlsx")
     today = pd.Timestamp.today().date()
 except:
     st.error("Missing Files (my_projects, meetings, reminders)"); st.stop()
@@ -427,7 +428,37 @@ else:
         
         if st.session_state.ai_response:
             st.info(st.session_state.ai_response)
-            
+ 
+    #הוספה של פרויקטים לדיווח
+    # ============================
+    # 📌 פרויקטים לדיווח (priority.xlsx)
+    # ============================
+    with st.container(border=True):
+        st.markdown("### 📌 פרויקטים לדיווח")
+    
+        if priority_df.empty:
+            st.write("לא נמצאו פרויקטים לדיווח.")
+        else:
+            for _, row in priority_df.iterrows():
+                st.markdown(
+                    f'''
+                    <div class="record-row">
+                        <div style="display:flex; flex-direction:column; text-align:right;">
+                            <b>{row["project_name"]}</b>
+                            <span style="color:#64748b; font-size:0.8rem;">
+                                מספר פרויקט: {row["project_number"]}  
+                                | הזמנה: {row["order_number"]}
+                            </span>
+                        </div>
+                        <span class="material-symbols-rounded" style="color:#94a3b8; font-size:20px;">
+                            chevron_left
+                        </span>
+                    </div>
+                    ''',
+                    unsafe_allow_html=True
+                )
+
+           
     with col_left:
         with st.container(border=True):
             st.markdown("### 📅 פגישות היום")
