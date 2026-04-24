@@ -478,8 +478,6 @@ else:
         # ============================
         # 📌 פרויקטים לדיווח (priority.xlsx)
         # ============================
-        # ============================
-
         with st.container(border=True):
             st.markdown("### 📌 פרויקטים לדיווח")
         
@@ -499,23 +497,22 @@ else:
                 for _, row in priority_df.iterrows():
         
                     project_name = row["project_name"]
+                    project_number = row["project_number"]
+                    order_number = row["order_number"]
                     category = project_name.split(" ")[0]
                     tag_class = color_map.get(category, "tag-gray")
         
                     html = (
                         '<div class="record-row" '
-                        'style="display:flex; flex-direction:row; align-items:center; '
-                        'justify-content:space-between; gap:12px; '
-                        'white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'
+                        'style="display:flex; align-items:center; justify-content:space-between; '
+                        'gap:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'
         
-                            # שם הפרויקט
+                            # שם הפרויקט + המספרים — ביחד!
                             f'<span style="font-weight:600; overflow:hidden; text-overflow:ellipsis;">'
-                            f'{project_name}</span>'
-        
-                            # מספר פרויקט + הזמנה — מיושרים לימין
-                            f'<span style="color:#64748b; font-size:0.8rem; '
-                            'white-space:nowrap; text-align:right; display:inline-block;">'
-                            f'{row["project_number"]} | {row["order_number"]}'
+                            f'{project_name} '
+                            f'<span style="color:#64748b; font-size:0.8rem; margin-right:6px;">'
+                            f'{project_number} | {order_number}'
+                            '</span>'
                             '</span>'
         
                             # תגית קטגוריה
@@ -526,8 +523,6 @@ else:
                     )
         
                     st.markdown(html, unsafe_allow_html=True)
-
-
 
           
     with col_left:
