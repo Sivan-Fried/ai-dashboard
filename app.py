@@ -175,6 +175,21 @@ st.markdown("""
     div[data-testid="stMarkdownContainer"]:has(.weather-float) {
         text-align: center !important;
     }
+    .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .notif-panel {
+        background: white;
+        border: 1px solid #edf2f7;
+        border-radius: 12px;
+        padding: 12px 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        margin-bottom: 16px;
+        direction: rtl;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -333,8 +348,39 @@ else:
     else:
         w_text, w_city = "☀️ --°C", "מזהה מיקום..."
         
-    st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
+    # ספירת התראות היום
+rem_count = len(st.session_state.rem_live[
+    pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today
+])
 
+notif_key = "show_notif"
+if notif_key not in st.session_state:
+    st.session_state[notif_key] = False
+
+tb1, tb2, tb3 = st.columns([1, 4, 1])
+with tb2:
+    st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
+with tb3:
+    badge = f" ({rem_count})" if rem_count > 0 else ""
+    if st.button(f"🔔{badge}", key="notif_btn", use_container_width=True):
+        st.session_state[notif_key] = not st.session_state[notif_key]
+
+if st.session_state[notif_key]:
+    t_r = st.session_state.rem_live[
+        pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today
+    ]
+    st.markdown('<div class="notif-panel">', unsafe_allow_html=True)
+    st.markdown("**🔔 התראות להיום:**")
+    if t_r.empty:
+        st.write("אין תזכורות להיום.")
+    else:
+        for _, row in t_r.iterrows():
+            st.markdown(
+                f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span>'
+                f'<span class="tag-orange">{row.get("project_name","כללי")}</span></div>',
+                unsafe_allow_html=True
+            )
+    st.markdown('</div>', unsafe_allow_html=True)
     # אזור פרופיל
     img_b64 = get_base64_image("profile.png")
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
