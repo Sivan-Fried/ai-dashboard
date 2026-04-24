@@ -191,13 +191,12 @@ def get_fathom_summary(recording_id):
     except: return None
 
 # החלף את הפונקציה refine_with_ai
-def refine_with_ai(raw_text):
+ddef refine_with_ai(raw_text):
     try:
         genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
         model = genai.GenerativeModel('gemini-2.5-flash-lite')
         prompt = f"""סכם את הפגישה לעברית עסקית רהוטה.
-חשוב מאוד: אל תשתמש בסימני Markdown כמו # או ** או *.
-השתמש רק בטקסט רגיל עם שורות חדשות להפרדה בין נושאים.
+השתמש בפורמט Markdown: כותרות עם ##, בולטים עם -, מספור עם 1. 2. 3.
 
 {raw_text}"""
         return model.generate_content(prompt).text
