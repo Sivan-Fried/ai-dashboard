@@ -480,7 +480,8 @@ else:
         # ============================
 
         # ============================
-
+# 📌 פרויקטים לדיווח (priority.xlsx)
+# ============================
         with st.container(border=True):
             st.markdown("### 📌 פרויקטים לדיווח")
         
@@ -497,83 +498,28 @@ else:
                     "אלשטול": "tag-purple",
                 }
         
-                # פונקציית העתקה (מוזרקת פעם אחת)
-                st.markdown("""
-                    <script>
-                    function copyToClipboard(text) {
-                        navigator.clipboard.writeText(text);
-                    }
-                    </script>
-                """, unsafe_allow_html=True)
-        
                 for _, row in priority_df.iterrows():
         
                     project_name = row["project_name"]
                     category = project_name.split(" ")[0]
                     tag_class = color_map.get(category, "tag-gray")
         
-                    # מה יועתק בלחיצה
-                    copy_text = f"{project_name} | {row['project_number']} | {row['order_number']}"
+                    c1, c2, c3, c4 = st.columns([3, 1.2, 1.2, 1])
         
-                    html = f"""
-                        <div class="record-row"
-                            style="
-                                display:flex;
-                                align-items:center;
-                                justify-content:space-between;
-                                gap:16px;
-                                white-space:nowrap;
-                                overflow:hidden;
-                                text-overflow:ellipsis;
-                            ">
+                    with c1:
+                        st.markdown(f"**{project_name}**")
         
-                            <!-- שם הפרויקט -->
-                            <span style="
-                                font-weight:600;
-                                overflow:hidden;
-                                text-overflow:ellipsis;
-                                flex-grow:1;
-                            ">
-                                {project_name}
-                            </span>
+                    with c2:
+                        st.code(str(row["project_number"]), language=None)
         
-                            <!-- מספרים מיושרים לימין -->
-                            <span style="
-                                color:#334155;
-                                font-size:0.9rem;
-                                font-weight:500;
-                                white-space:nowrap;
-                                text-align:right;
-                                flex-shrink:0;
-                            ">
-                                {row["project_number"]} | {row["order_number"]}
-                            </span>
+                    with c3:
+                        st.code(str(row["order_number"]), language=None)
         
-                            <!-- תגית קטגוריה -->
-                            <span class="{tag_class}" style="white-space:nowrap; flex-shrink:0;">
-                                {category}
-                            </span>
-        
-                            <!-- כפתור העתקה -->
-                            <span onclick="copyToClipboard('{copy_text}')"
-                                style="
-                                    cursor:pointer;
-                                    font-size:14px;
-                                    padding:4px 6px;
-                                    border-radius:4px;
-                                    background:#e2e8f0;
-                                    color:#475569;
-                                    flex-shrink:0;
-                                ">
-                                📋
-                            </span>
-        
-                        </div>
-                    """
-        
-                    st.markdown(html, unsafe_allow_html=True)
-
-
+                    with c4:
+                        st.markdown(
+                            f'<span class="{tag_class}">{category}</span>',
+                            unsafe_allow_html=True
+                        )
 
 
            
