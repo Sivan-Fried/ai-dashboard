@@ -478,51 +478,51 @@ else:
         # ============================
 # 📌 פרויקטים לדיווח (priority.xlsx)
 # ============================
-    with st.container(border=True):
-        st.markdown("### 📌 פרויקטים לדיווח")
-    
-        if priority_df.empty:
-            st.write("לא נמצאו פרויקטים לדיווח.")
-        else:
-    
-            color_map = {
-                "אנליסט": "tag-blue",
-                "דנאל": "tag-green",
-                "דלק": "tag-orange",
-                "בנק": "tag-teal",
-                "פיתוח": "tag-pink",
-                "אלשטול": "tag-purple",
-            }
-    
-            for _, row in priority_df.iterrows():
-    
-                project_name = row["project_name"]
-                category = project_name.split(" ")[0]
-                tag_class = color_map.get(category, "tag-gray")
-    
-                html = (
-                    '<div class="record-row" '
-                    'style="display:flex; flex-direction:row; align-items:center; '
-                    'justify-content:space-between; gap:12px; '
-                    'white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'
-    
-                        # שם הפרויקט
-                        f'<span style="font-weight:600; overflow:hidden; text-overflow:ellipsis;">'
-                        f'{project_name}</span>'
-    
-                        # מספרים — בלי טקסט מיותר
-                        f'<span style="color:#64748b; font-size:0.8rem; white-space:nowrap;">'
-                        f'{row["project_number"]} | {row["order_number"]}'
-                        '</span>'
-    
-                        # תגית קטגוריה
-                        f'<span class="{tag_class}" style="white-space:nowrap; flex-shrink:0;">'
-                        f'{category}</span>'
-    
-                    '</div>'
-                )
-    
-                st.markdown(html, unsafe_allow_html=True)
+        with st.container(border=True):
+            st.markdown("### 📌 פרויקטים לדיווח")
+        
+            if priority_df.empty:
+                st.write("לא נמצאו פרויקטים לדיווח.")
+            else:
+        
+                color_map = {
+                    "אנליסט": "tag-blue",
+                    "דנאל": "tag-green",
+                    "דלק": "tag-orange",
+                    "בנק": "tag-teal",
+                    "פיתוח": "tag-pink",
+                    "אלשטול": "tag-purple",
+                }
+        
+                for _, row in priority_df.iterrows():
+        
+                    project_name = row["project_name"]
+                    category = project_name.split(" ")[0]
+                    tag_class = color_map.get(category, "tag-gray")
+        
+                    html = (
+                        '<div class="record-row" '
+                        'style="display:flex; flex-direction:row; align-items:center; '
+                        'justify-content:space-between; gap:12px; '
+                        'white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'
+        
+                            # שם הפרויקט
+                            f'<span style="font-weight:600; overflow:hidden; text-overflow:ellipsis;">'
+                            f'{project_name}</span>'
+        
+                            # מספרים — בלי טקסט מיותר
+                            f'<span style="color:#64748b; font-size:0.8rem; white-space:nowrap;">'
+                            f'{row["project_number"]} | {row["order_number"]}'
+                            '</span>'
+        
+                            # תגית קטגוריה
+                            f'<span class="{tag_class}" style="white-space:nowrap; flex-shrink:0;">'
+                            f'{category}</span>'
+        
+                        '</div>'
+                    )
+        
+                    st.markdown(html, unsafe_allow_html=True)
 
 
 
