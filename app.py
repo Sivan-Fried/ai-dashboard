@@ -433,30 +433,30 @@ else:
     # ============================
     # 📌 פרויקטים לדיווח (priority.xlsx)
     # ============================
-    with st.container(border=True):
-        st.markdown("### 📌 פרויקטים לדיווח")
-    
-        if priority_df.empty:
-            st.write("לא נמצאו פרויקטים לדיווח.")
-        else:
-            for _, row in priority_df.iterrows():
-                st.markdown(
-                    f'''
-                    <div class="record-row">
-                        <div style="display:flex; flex-direction:column; text-align:right;">
-                            <b>{row["project_name"]}</b>
-                            <span style="color:#64748b; font-size:0.8rem;">
-                                מספר פרויקט: {row["project_number"]}  
-                                | הזמנה: {row["order_number"]}
+        with st.container(border=True):
+            st.markdown("### 📌 פרויקטים לדיווח")
+        
+            if priority_df.empty:
+                st.write("לא נמצאו פרויקטים לדיווח.")
+            else:
+                for _, row in priority_df.iterrows():
+                    st.markdown(
+                        f'''
+                        <div class="record-row">
+                            <div style="display:flex; flex-direction:column; text-align:right;">
+                                <b>{row["project_name"]}</b>
+                                <span style="color:#64748b; font-size:0.8rem;">
+                                    מספר פרויקט: {row["project_number"]}  
+                                    | הזמנה: {row["order_number"]}
+                                </span>
+                            </div>
+                            <span class="material-symbols-rounded" style="color:#94a3b8; font-size:20px;">
+                                chevron_left
                             </span>
                         </div>
-                        <span class="material-symbols-rounded" style="color:#94a3b8; font-size:20px;">
-                            chevron_left
-                        </span>
-                    </div>
-                    ''',
-                    unsafe_allow_html=True
-                )
+                        ''',
+                        unsafe_allow_html=True
+                    )
 
            
     with col_left:
