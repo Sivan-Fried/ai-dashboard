@@ -15,11 +15,16 @@ def load_workplan_df():
 # 2. יצירת HTML עבור milestone בודד
 # ---------------------------------------------------------
 def milestone_to_html(row):
-    tag_class = {
-        "עמיתים": "amit",
-        "מעסיקים": "measy",
-        "סוכנים": "soch"
-    }.get(row["milestone_name"], "amit")
+    name = str(row["milestone_name"])
+    if "עמיתים" in name:
+        tag_class = "amit"
+    elif "מעסיקים" in name:
+        tag_class = "measy"
+    elif "סוכנים" in name:
+        tag_class = "soch"
+    else:
+        tag_class = "amit"   # ברירת מחדל
+
 
     status_class = {
         "LIVE": "live",
