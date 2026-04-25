@@ -117,7 +117,8 @@ roadmap_html = f"""
         .soch {{ background: #ecfdf5; color: #065f46; }}
         .date {{ font-size: 13px; font-weight: 600; color: #1e293b; margin: 0; }}
         .status {{ font-size: 8px; font-weight: 700; margin-top: 2px; }}
-        .live {{ color: #10b981; }} .wip {{ color: #f59e0b; }}
+        .live {{ color: #10b981; }} 
+        .wip {{ color: #f59e0b; }}
     </style>
 </head>
 <body>
@@ -129,35 +130,8 @@ roadmap_html = f"""
             <div class="today-line"></div>
         </div>
 
-        <div class="item">
-            <div class="card"><span class="tag amit">עמיתים</span><div class="date">08.03</div><span class="status live">LIVE</span></div>
-            <div class="connector"></div><div class="dot"></div>
-        </div>
-        
-        <div class="item">
-            <div class="card"><span class="tag measy">מעסיקים</span><div class="date">08.03</div><span class="status live">LIVE</span></div>
-            <div class="connector"></div><div class="dot"></div>
-        </div>
+        <!-- ITEMS_PLACEHOLDER -->
 
-        <div class="item">
-            <div class="card"><span class="tag soch">סוכנים</span><div class="date">24.03</div><span class="status live">LIVE</span></div>
-            <div class="connector"></div><div class="dot"></div>
-        </div>
-
-        <div class="item">
-            <div class="card"><span class="tag amit">עמיתים</span><div class="date">10.04</div><span class="status live">LIVE</span></div>
-            <div class="connector"></div><div class="dot"></div>
-        </div>
-
-        <div class="item">
-            <div class="card"><span class="tag amit">עמיתים</span><div class="date">יולי</div><span class="status wip">WIP</span></div>
-            <div class="connector"></div><div class="dot"></div>
-        </div>
-
-        <div class="item">
-            <div class="card"><span class="tag measy">מעסיקים</span><div class="date">TBD</div><span class="status" style="color:#94a3b8">HOLD</span></div>
-            <div class="connector"></div><div class="dot"></div>
-        </div>
     </div>
 </body>
 </html>
