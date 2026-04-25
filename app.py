@@ -537,7 +537,9 @@ else:
             st.info(st.session_state.ai_response)
 
         # ── פרויקטים לדיווח ─────────────────────────────────
-        # ── פרויקטים לדיווח ─────────────────────────────────
+        # ============================
+        # 📌 פרויקטים לדיווח (priority.xlsx)
+        # ============================
         with st.container(border=True):
             st.markdown("### 📌 פרויקטים לדיווח")
         
@@ -545,57 +547,44 @@ else:
                 st.write("לא נמצאו פרויקטים לדיווח.")
             else:
         
-                # מצב פתוח/סגור — רק בתוך האזור הזה
-                if "show_all_priority" not in st.session_state:
-                    st.session_state.show_all_priority = False
-        
-                # מציגים 4 רשומות בלבד אם לא פתוח
-                df_to_show = priority_df if st.session_state.show_all_priority else priority_df.head(4)
-        
                 color_map = {
-                    "אנליסט": "tag-blue", "דנאל": "tag-green", "דלק": "tag-orange",
-                    "בנק": "tag-teal",    "פיתוח": "tag-pink", "אלשטול": "tag-purple",
+                    "אנליסט": "tag-blue",
+                    "דנאל": "tag-green",
+                    "דלק": "tag-orange",
+                    "בנק": "tag-teal",
+                    "פיתוח": "tag-pink",
+                    "אלשטול": "tag-purple",
                 }
         
-                # הצגת הרשומות
-                for _, row in df_to_show.iterrows():
-                    project_name   = row["project_name"]
+                for _, row in priority_df.iterrows():
+        
+                    project_name = row["project_name"]
                     project_number = row["project_number"]
-                    order_number   = row["order_number"]
-                    category  = project_name.split(" ")[0]
+                    order_number = row["order_number"]
+                    category = project_name.split(" ")[0]
                     tag_class = color_map.get(category, "tag-gray")
         
-                    st.markdown(
-                        f'<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
-                        f'<span style="font-weight:600;overflow:hidden;text-overflow:ellipsis;">{project_name} '
-                        f'<span style="color:#64748b;font-size:0.8rem;margin-right:6px;">{project_number} | {order_number}</span></span>'
-                        f'<span class="{tag_class}" style="white-space:nowrap;flex-shrink:0;">{category}</span></div>',
-                        unsafe_allow_html=True
+                    html = (
+                        '<div class="record-row" '
+                        'style="display:flex; align-items:center; justify-content:space-between; '
+                        'gap:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'
+        
+                            # שם הפרויקט + המספרים — ביחד!
+                            f'<span style="font-weight:600; overflow:hidden; text-overflow:ellipsis;">'
+                            f'{project_name} '
+                            f'<span style="color:#64748b; font-size:0.8rem; margin-right:6px;">'
+                            f'{project_number} | {order_number}'
+                            '</span>'
+                            '</span>'
+        
+                            # תגית קטגוריה
+                            f'<span class="{tag_class}" style="white-space:nowrap; flex-shrink:0;">'
+                            f'{category}</span>'
+        
+                        '</div>'
                     )
         
-                # לינק הצג הכל / הצג פחות — טקסט + כפתור אמיתי
-                if len(priority_df) > 4:
-        
-                    # טקסט שנראה כמו לינק
-                    if not st.session_state.show_all_priority:
-                        st.markdown(
-                            "<span style='color:#2563eb; text-decoration:underline;'>הצג הכל</span>",
-                            unsafe_allow_html=True
-                        )
-                        if st.button("הצג הכל", key="show_all_priority_more"):
-                            st.session_state.show_all_priority = True
-        
-                    else:
-                        st.markdown(
-                            "<span style='color:#2563eb; text-decoration:underline;'>הצג פחות</span>",
-                            unsafe_allow_html=True
-                        )
-                        if st.button("הצג פחות", key="show_all_priority_less"):
-                            st.session_state.show_all_priority = False
-
-
-
-
+                    st.markdown(html, unsafe_allow_html=True)
 
     # ══════════════════════════════════════════════════════
     # עמודה שמאלית
