@@ -1,5 +1,7 @@
 import pandas as pd
 import datetime
+import pandas as pd
+
 
 # ---------------------------------------------------------
 # 1. טעינת קובץ ה־Excel
@@ -167,7 +169,7 @@ def get_base_html(today_right, today_str):
 # 5. פונקציה גנרית שמחזירה HTML מלא לפרויקט
 # ---------------------------------------------------------
 def build_timeline_html(project_name):
-    df = load_work_plan()
+    df = load_workplan()
     project_df = df[df["project_name"] == project_name].copy()
 
     # חישוב תאריך היום
