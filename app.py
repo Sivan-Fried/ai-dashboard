@@ -537,27 +537,25 @@ else:
 
         # ── פרויקטים לדיווח ─────────────────────────────────
         # ── פרויקטים לדיווח ─────────────────────────────────
+        # ── פרויקטים לדיווח ─────────────────────────────────
         with st.container(border=True):
             st.markdown("### 📌 פרויקטים לדיווח")
         
             if priority_df.empty:
                 st.write("לא נמצאו פרויקטים לדיווח.")
             else:
-        
                 # מצב פתוח/סגור
                 if "show_all_priority" not in st.session_state:
                     st.session_state.show_all_priority = False
         
-                # בחירת כמה להציג
+                # איזה חלק מהטבלה להציג
                 df_to_show = priority_df if st.session_state.show_all_priority else priority_df.head(5)
         
-                # צבעים
                 color_map = {
                     "אנליסט": "tag-blue", "דנאל": "tag-green", "דלק": "tag-orange",
                     "בנק": "tag-teal",    "פיתוח": "tag-pink", "אלשטול": "tag-purple",
                 }
         
-                # הצגת הרשומות
                 for _, row in df_to_show.iterrows():
                     project_name   = row["project_name"]
                     project_number = row["project_number"]
@@ -573,32 +571,17 @@ else:
                         unsafe_allow_html=True
                     )
         
-                # לינק הצג הכל / הצג פחות
+                # כפתור הצג הכל / הצג פחות (ללא השפעה על כפתורים אחרים)
                 if len(priority_df) > 5:
                     if not st.session_state.show_all_priority:
-                        if st.markdown("<a href='#' id='show_more' style='color:#2563eb;'>הצג הכל</a>", unsafe_allow_html=True):
-                            pass
+                        if st.button("הצג הכל", key="show_all_priority_more"):
+                            st.session_state.show_all_priority = True
+                            st.experimental_rerun()
                     else:
-                        if st.markdown("<a href='#' id='show_less' style='color:#2563eb;'>הצג פחות</a>", unsafe_allow_html=True):
-                            pass
-        
-                    # JS קטן שמפעיל שינוי מצב בלחיצה — בלי לפגוע בכלום אחר
-                    st.markdown("""
-                        <script>
-                        const more = window.parent.document.getElementById('show_more');
-                        const less = window.parent.document.getElementById('show_less');
-                        if (more) {
-                            more.onclick = () => {
-                                window.parent.postMessage({type: 'streamlit:setSessionState', key: 'show_all_priority', value: true}, '*');
-                            };
-                        }
-                        if (less) {
-                            less.onclick = () => {
-                                window.parent.postMessage({type: 'streamlit:setSessionState', key: 'show_all_priority', value: false}, '*');
-                            };
-                        }
-                        </script>
-                    """, unsafe_allow_html=True)
+                        if st.button("הצג פחות", key="show_all_priority_less"):
+                            st.session_state.show_all_priority = False
+                            st.experimental_rerun()
+
 
 
 
