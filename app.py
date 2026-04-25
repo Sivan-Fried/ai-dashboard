@@ -545,11 +545,11 @@ else:
                 st.write("לא נמצאו פרויקטים לדיווח.")
             else:
         
-                # מצב פתוח/סגור — רק בתוך הבלוק הזה
+                # מצב פתוח/סגור — רק בתוך האזור הזה
                 if "show_all_priority" not in st.session_state:
                     st.session_state.show_all_priority = False
         
-                # 4 רשומות בלבד
+                # מציגים 4 רשומות בלבד אם לא פתוח
                 df_to_show = priority_df if st.session_state.show_all_priority else priority_df.head(4)
         
                 color_map = {
@@ -566,41 +566,33 @@ else:
                     tag_class = color_map.get(category, "tag-gray")
         
                     st.markdown(
-                        f'<div class="record-row" style="display:flex;align-items:center;justify-content:space-between;gap:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
+                        f'<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
                         f'<span style="font-weight:600;overflow:hidden;text-overflow:ellipsis;">{project_name} '
                         f'<span style="color:#64748b;font-size:0.8rem;margin-right:6px;">{project_number} | {order_number}</span></span>'
                         f'<span class="{tag_class}" style="white-space:nowrap;flex-shrink:0;">{category}</span></div>',
                         unsafe_allow_html=True
                     )
         
-                # לינק הצג הכל / הצג פחות — בלי לגעת בשום דבר אחר
+                # לינק הצג הכל / הצג פחות — טקסט + כפתור נסתר
                 if len(priority_df) > 4:
         
-                    # עטיפה שמסתירה את הכפתור והופכת אותו ללינק
-                    st.markdown("<div style='display:inline;'>", unsafe_allow_html=True)
+                    # טקסט שנראה כמו לינק
+                    if not st.session_state.show_all_priority:
+                        st.markdown(
+                            "<span style='color:#2563eb; text-decoration:underline; cursor:pointer;'>הצג הכל</span>",
+                            unsafe_allow_html=True
+                        )
+                        # כפתור אמיתי — בלתי נראה
+                        if st.button(" ", key="show_all_priority_more"):
+                            st.session_state.show_all_priority = True
         
-                    if st.button(
-                        "הצג פחות" if st.session_state.show_all_priority else "הצג הכל",
-                        key="toggle_priority_list"
-                    ):
-                        st.session_state.show_all_priority = not st.session_state.show_all_priority
-        
-                    # סגירת העטיפה
-                    st.markdown("</div>", unsafe_allow_html=True)
-        
-                    # הפיכת הכפתור ללינק — רק כאן, רק עליו
-                    st.markdown("""
-                        <style>
-                        div[data-testid="stButton"] > button[kind="secondary"] {
-                            background: none !important;
-                            border: none !important;
-                            color: #2563eb !important;
-                            padding: 0 !important;
-                            font-size: 0.9rem !important;
-                            text-decoration: underline;
-                        }
-                        </style>
-                    """, unsafe_allow_html=True)
+                    else:
+                        st.markdown(
+                            "<span style='color:#2563eb; text-decoration:underline; cursor:pointer;'>הצג פחות</span>",
+                            unsafe_allow_html=True
+                        )
+                        if st.button(" ", key="show_all_priority_less"):
+                            st.session_state.show_all_priority = False
 
 
 
