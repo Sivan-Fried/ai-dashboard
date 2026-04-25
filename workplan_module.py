@@ -169,7 +169,7 @@ def get_base_html(today_right, today_str):
 # 5. פונקציה גנרית שמחזירה HTML מלא לפרויקט
 # ---------------------------------------------------------
 def build_timeline_html(project_name):
-    df = load_workplan()
+    df = load_workplan_df()   # ← ← ← התיקון היחיד
     project_df = df[df["project_name"] == project_name].copy()
 
     # חישוב תאריך היום
