@@ -539,24 +539,27 @@ else:
 
         # ── פרויקטים לדיווח ─────────────────────────────────
 
+        # ── פרויקטים לדיווח ─────────────────────────────────
         with st.container(border=True):
             st.markdown("### 📌 פרויקטים לדיווח")
         
             if priority_df.empty:
                 st.write("לא נמצאו פרויקטים לדיווח.")
             else:
-                # מצב פתוח/סגור
-                if "show_all_priority" not in st.session_state:
-                    st.session_state.show_all_priority = False
         
-                # איזה חלק מהטבלה להציג
-                df_to_show = priority_df if st.session_state.show_all_priority else priority_df.head(5)
+                # קבלת פרמטרים מה־URL
+                params = st.query_params
+                show_all = params.get("show_all_priority", ["0"])[0] == "1"
+        
+                # מציגים 4 רשומות בלבד
+                df_to_show = priority_df if show_all else priority_df.head(4)
         
                 color_map = {
                     "אנליסט": "tag-blue", "דנאל": "tag-green", "דלק": "tag-orange",
                     "בנק": "tag-teal",    "פיתוח": "tag-pink", "אלשטול": "tag-purple",
                 }
         
+                # הצגת הרשומות
                 for _, row in df_to_show.iterrows():
                     project_name   = row["project_name"]
                     project_number = row["project_number"]
@@ -572,26 +575,20 @@ else:
                         unsafe_allow_html=True
                     )
         
-                # כפתור הצג הכל / הצג פחות (ללא השפעה על כפתורים אחרים)
-                # קבלת פרמטרים מה־URL
-                params = st.query_params
-                
-                show_all = params.get("show_all_priority", ["0"])[0] == "1"
-                
-                # מציגים 4 רשומות בלבד
-                df_to_show = priority_df if show_all else priority_df.head(4)
-                
-                    # הצג הכל
-                    # לינק הצג הכל / הצג פחות
-                    if len(priority_df) > 4:
-                    
-                        if not show_all:
-                            new_params = urlencode({"show_all_priority": "1"})
-                            st.markdown(f"<a href='?{new_params}' style='color:#2563eb;'>הצג הכל</a>", unsafe_allow_html=True)
-                    
-                        else:
-                            new_params = urlencode({"show_all_priority": "0"})
-                            st.markdown(f"<a href='?{new_params}' style='color:#2563eb;'>הצג פחות</a>", unsafe_allow_html=True)
+                # לינק הצג הכל / הצג פחות
+                if len(priority_df) > 4:
+        
+                    if not show_all:
+                        st.markdown(
+                            "<a href='?show_all_priority=1' style='color:#2563eb;'>הצג הכל</a>",
+                            unsafe_allow_html=True
+                        )
+                    else:
+                        st.markdown(
+                            "<a href='?show_all_priority=0' style='color:#2563eb;'>הצג פחות</a>",
+                            unsafe_allow_html=True
+                        )
+
 
 
 
