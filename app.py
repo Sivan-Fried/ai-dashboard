@@ -544,15 +544,12 @@ else:
                 st.write("לא נמצאו פרויקטים לדיווח.")
             else:
         
-                # שמירת מצב פתוח/סגור
+                # מצב פתוח/סגור
                 if "show_all_priority" not in st.session_state:
                     st.session_state.show_all_priority = False
         
                 # בחירת כמה להציג
-                if st.session_state.show_all_priority:
-                    df_to_show = priority_df
-                else:
-                    df_to_show = priority_df.head(5)
+                df_to_show = priority_df if st.session_state.show_all_priority else priority_df.head(5)
         
                 # צבעים
                 color_map = {
@@ -577,27 +574,30 @@ else:
                     )
         
                 # לינק הצג הכל / הצג פחות
-                # לינק הצג הכל / הצג פחות
                 if len(priority_df) > 5:
-                    if st.session_state.show_all_priority:
-                        if st.button("הצג פחות", key="less", help="", type="secondary"):
-                            st.session_state.show_all_priority = False
+                    if not st.session_state.show_all_priority:
+                        if st.markdown("<a href='#' id='show_more' style='color:#2563eb;'>הצג הכל</a>", unsafe_allow_html=True):
+                            pass
                     else:
-                        if st.button("הצג הכל", key="more", help="", type="secondary"):
-                            st.session_state.show_all_priority = True
-                
-                    # הפיכת הכפתור ללינק ויזואלית
+                        if st.markdown("<a href='#' id='show_less' style='color:#2563eb;'>הצג פחות</a>", unsafe_allow_html=True):
+                            pass
+        
+                    # JS קטן שמפעיל שינוי מצב בלחיצה — בלי לפגוע בכלום אחר
                     st.markdown("""
-                        <style>
-                        button[kind="secondary"] {
-                            background:none !important;
-                            color:#2563eb !important;
-                            border:none !important;
-                            padding:0 !important;
-                            font-size:0.9rem !important;
-                            text-decoration:underline;
+                        <script>
+                        const more = window.parent.document.getElementById('show_more');
+                        const less = window.parent.document.getElementById('show_less');
+                        if (more) {
+                            more.onclick = () => {
+                                window.parent.postMessage({type: 'streamlit:setSessionState', key: 'show_all_priority', value: true}, '*');
+                            };
                         }
-                        </style>
+                        if (less) {
+                            less.onclick = () => {
+                                window.parent.postMessage({type: 'streamlit:setSessionState', key: 'show_all_priority', value: false}, '*');
+                            };
+                        }
+                        </script>
                     """, unsafe_allow_html=True)
 
 
