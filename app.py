@@ -572,36 +572,39 @@ else:
         
                 # כפתור הצג הכל / הצג פחות (ללא השפעה על כפתורים אחרים)
                 # לינק הצג הכל / הצג פחות
-                if len(priority_df) > 5:
+                # לינק הצג הכל / הצג פחות
+                if len(priority_df) > 4:
                 
-                    # כפתור שנראה כמו לינק — אבל רק כאן
-                    link_style = """
+                    # CSS מקומי — משפיע רק על הכפתור שנמצא בתוך div.link-btn
+                    st.markdown("""
                         <style>
-                        .link-button > button {
+                        div.link-btn > button {
                             background: none !important;
                             color: #2563eb !important;
                             border: none !important;
                             padding: 0 !important;
                             font-size: 0.9rem !important;
                             text-decoration: underline;
+                            cursor: pointer;
                         }
                         </style>
-                    """
-                    st.markdown(link_style, unsafe_allow_html=True)
+                    """, unsafe_allow_html=True)
                 
+                    # הצג הכל
                     if not st.session_state.show_all_priority:
-                        # הצג הכל
                         with st.container():
-                            if st.button("הצג הכל", key="show_all_priority_more", help="", type="secondary"):
+                            st.markdown('<div class="link-btn">', unsafe_allow_html=True)
+                            if st.button("הצג הכל", key="show_all_priority_more"):
                                 st.session_state.show_all_priority = True
-                        st.markdown('<div class="link-button"></div>', unsafe_allow_html=True)
+                            st.markdown('</div>', unsafe_allow_html=True)
                 
+                    # הצג פחות
                     else:
-                        # הצג פחות
                         with st.container():
-                            if st.button("הצג פחות", key="show_all_priority_less", help="", type="secondary"):
+                            st.markdown('<div class="link-btn">', unsafe_allow_html=True)
+                            if st.button("הצג פחות", key="show_all_priority_less"):
                                 st.session_state.show_all_priority = False
-                        st.markdown('<div class="link-button"></div>', unsafe_allow_html=True)
+                            st.markdown('</div>', unsafe_allow_html=True)
 
 
 
