@@ -536,21 +536,38 @@ else:
             st.info(st.session_state.ai_response)
 
         # ── פרויקטים לדיווח ─────────────────────────────────
+        # ── פרויקטים לדיווח ─────────────────────────────────
         with st.container(border=True):
             st.markdown("### 📌 פרויקטים לדיווח")
+        
             if priority_df.empty:
                 st.write("לא נמצאו פרויקטים לדיווח.")
             else:
+        
+                # שמירת מצב פתוח/סגור
+                if "show_all_priority" not in st.session_state:
+                    st.session_state.show_all_priority = False
+        
+                # בחירת כמה להציג
+                if st.session_state.show_all_priority:
+                    df_to_show = priority_df
+                else:
+                    df_to_show = priority_df.head(5)
+        
+                # צבעים
                 color_map = {
                     "אנליסט": "tag-blue", "דנאל": "tag-green", "דלק": "tag-orange",
                     "בנק": "tag-teal",    "פיתוח": "tag-pink", "אלשטול": "tag-purple",
                 }
-                for _, row in priority_df.iterrows():
+        
+                # הצגת הרשומות
+                for _, row in df_to_show.iterrows():
                     project_name   = row["project_name"]
                     project_number = row["project_number"]
                     order_number   = row["order_number"]
                     category  = project_name.split(" ")[0]
                     tag_class = color_map.get(category, "tag-gray")
+        
                     st.markdown(
                         f'<div class="record-row" style="display:flex;align-items:center;justify-content:space-between;gap:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
                         f'<span style="font-weight:600;overflow:hidden;text-overflow:ellipsis;">{project_name} '
@@ -558,6 +575,32 @@ else:
                         f'<span class="{tag_class}" style="white-space:nowrap;flex-shrink:0;">{category}</span></div>',
                         unsafe_allow_html=True
                     )
+        
+                # לינק הצג הכל / הצג פחות
+                # לינק הצג הכל / הצג פחות
+                if len(priority_df) > 5:
+                    if st.session_state.show_all_priority:
+                        if st.button("הצג פחות", key="less", help="", type="secondary"):
+                            st.session_state.show_all_priority = False
+                    else:
+                        if st.button("הצג הכל", key="more", help="", type="secondary"):
+                            st.session_state.show_all_priority = True
+                
+                    # הפיכת הכפתור ללינק ויזואלית
+                    st.markdown("""
+                        <style>
+                        button[kind="secondary"] {
+                            background:none !important;
+                            color:#2563eb !important;
+                            border:none !important;
+                            padding:0 !important;
+                            font-size:0.9rem !important;
+                            text-decoration:underline;
+                        }
+                        </style>
+                    """, unsafe_allow_html=True)
+
+
 
     # ══════════════════════════════════════════════════════
     # עמודה שמאלית
