@@ -8,6 +8,8 @@ from zoneinfo import ZoneInfo
 import streamlit.components.v1 as components
 import google.generativeai as genai
 from streamlit_js_eval import get_geolocation
+from workplan_module import build_timeline_html
+
 
 # =========================================================
 # 1. הגדרות דף ועיצוב (CSS)
@@ -367,8 +369,12 @@ if st.session_state.current_page == "project":
         st.markdown(f"### ℹ️ ניהול פרויקט: {p_name}")
         tab_work, tab_res, tab_risk, tab_meetings = st.tabs(["📅 תוכנית עבודה", "👥 משאבים", "⚠️ סיכונים", "📝 סיכומים"])
         with tab_work:
-            if p_name == "אלטשולר שחם":
-                exec(open("altshuler_module.py").read())
+        # טעינת תוכנית העבודה הגנרית מתוך המודול החדש
+            try:
+                html = build_timeline_html(p_name)
+                components.html(html, height=300, scrolling=False)
+            except Exception as e:
+                st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
             else:
                 st.info(f"תוכנית עבודה עבור {p_name} בטעינה...")
         with tab_res:      st.write("רשימת צוות ומשאבים")
