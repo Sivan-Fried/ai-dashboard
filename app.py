@@ -573,26 +573,26 @@ else:
                         unsafe_allow_html=True
                     )
         
-                # לינק הצג הכל / הצג פחות — טקסט + כפתור נסתר
+                # לינק הצג הכל / הצג פחות — טקסט + כפתור אמיתי
                 if len(priority_df) > 4:
         
                     # טקסט שנראה כמו לינק
                     if not st.session_state.show_all_priority:
                         st.markdown(
-                            "<span style='color:#2563eb; text-decoration:underline; cursor:pointer;'>הצג הכל</span>",
+                            "<span style='color:#2563eb; text-decoration:underline;'>הצג הכל</span>",
                             unsafe_allow_html=True
                         )
-                        # כפתור אמיתי — בלתי נראה
-                        if st.button(" ", key="show_all_priority_more"):
+                        if st.button("הצג הכל", key="show_all_priority_more"):
                             st.session_state.show_all_priority = True
         
                     else:
                         st.markdown(
-                            "<span style='color:#2563eb; text-decoration:underline; cursor:pointer;'>הצג פחות</span>",
+                            "<span style='color:#2563eb; text-decoration:underline;'>הצג פחות</span>",
                             unsafe_allow_html=True
                         )
-                        if st.button(" ", key="show_all_priority_less"):
+                        if st.button("הצג פחות", key="show_all_priority_less"):
                             st.session_state.show_all_priority = False
+
 
 
 
