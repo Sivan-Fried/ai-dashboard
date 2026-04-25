@@ -537,8 +537,6 @@ else:
             st.info(st.session_state.ai_response)
 
         # ── פרויקטים לדיווח ─────────────────────────────────
-
-        # ── פרויקטים לדיווח ─────────────────────────────────
         # ── פרויקטים לדיווח ─────────────────────────────────
         with st.container(border=True):
             st.markdown("### 📌 פרויקטים לדיווח")
@@ -547,15 +545,20 @@ else:
                 st.write("לא נמצאו פרויקטים לדיווח.")
             else:
         
+                # מצב פתוח/סגור — רק בתוך הבלוק הזה
+                if "show_all_priority" not in st.session_state:
+                    st.session_state.show_all_priority = False
+        
+                # 4 רשומות בלבד
+                df_to_show = priority_df if st.session_state.show_all_priority else priority_df.head(4)
+        
                 color_map = {
                     "אנליסט": "tag-blue", "דנאל": "tag-green", "דלק": "tag-orange",
                     "בנק": "tag-teal",    "פיתוח": "tag-pink", "אלשטול": "tag-purple",
                 }
         
-                # 4 רשומות ראשונות
-                first_rows = priority_df.head(4)
-        
-                for _, row in first_rows.iterrows():
+                # הצגת הרשומות
+                for _, row in df_to_show.iterrows():
                     project_name   = row["project_name"]
                     project_number = row["project_number"]
                     order_number   = row["order_number"]
@@ -570,23 +573,34 @@ else:
                         unsafe_allow_html=True
                     )
         
-                # אם יש יותר מ־4 — נוסיף expander
+                # לינק הצג הכל / הצג פחות — בלי לגעת בשום דבר אחר
                 if len(priority_df) > 4:
-                    with st.expander("הצג הכל"):
-                        for _, row in priority_df.iloc[4:].iterrows():
-                            project_name   = row["project_name"]
-                            project_number = row["project_number"]
-                            order_number   = row["order_number"]
-                            category  = project_name.split(" ")[0]
-                            tag_class = color_map.get(category, "tag-gray")
         
-                            st.markdown(
-                                f'<div class="record-row" style="display:flex;align-items:center;justify-content:space-between;gap:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
-                                f'<span style="font-weight:600;overflow:hidden;text-overflow:ellipsis;">{project_name} '
-                                f'<span style="color:#64748b;font-size:0.8rem;margin-right:6px;">{project_number} | {order_number}</span></span>'
-                                f'<span class="{tag_class}" style="white-space:nowrap;flex-shrink:0;">{category}</span></div>',
-                                unsafe_allow_html=True
-                            )
+                    # עטיפה שמסתירה את הכפתור והופכת אותו ללינק
+                    st.markdown("<div style='display:inline;'>", unsafe_allow_html=True)
+        
+                    if st.button(
+                        "הצג פחות" if st.session_state.show_all_priority else "הצג הכל",
+                        key="toggle_priority_list"
+                    ):
+                        st.session_state.show_all_priority = not st.session_state.show_all_priority
+        
+                    # סגירת העטיפה
+                    st.markdown("</div>", unsafe_allow_html=True)
+        
+                    # הפיכת הכפתור ללינק — רק כאן, רק עליו
+                    st.markdown("""
+                        <style>
+                        div[data-testid="stButton"] > button[kind="secondary"] {
+                            background: none !important;
+                            border: none !important;
+                            color: #2563eb !important;
+                            padding: 0 !important;
+                            font-size: 0.9rem !important;
+                            text-decoration: underline;
+                        }
+                        </style>
+                    """, unsafe_allow_html=True)
 
 
 
