@@ -1,6 +1,25 @@
 import pandas as pd
 import datetime
-import pandas as pd
+import re
+
+
+# ---------------------------------------------------------
+# פונקציה שמנקה טקסט מתווים נסתרים, רווחים, RTL וכו'
+# ---------------------------------------------------------
+def clean_text(x):
+    if not isinstance(x, str):
+        x = str(x)
+
+    # הסרת רווחים
+    x = x.strip()
+
+    # הסרת תווי RTL נסתרים
+    x = re.sub(r'[\u200f\u202b\u202c\u202d\u202e]', '', x)
+
+    # הסרת תווים לא מודפסים
+    x = re.sub(r'[\x00-\x1F\x7F]', '', x)
+
+    return x
 
 
 # ---------------------------------------------------------
@@ -8,14 +27,24 @@ import pandas as pd
 # ---------------------------------------------------------
 def load_workplan_df():
     df = pd.read_excel("work_plans.xlsx")
+
+    # המרת תאריכים
     df["date"] = pd.to_datetime(df["date"], dayfirst=False, errors="coerce")
+
+    # ניקוי שמות פרויקטים
+    df["project_name"] = df["project_name"].apply(clean_text)
+
     return df
+
 
 # ---------------------------------------------------------
 # 2. יצירת HTML עבור milestone בודד
 # ---------------------------------------------------------
 def milestone_to_html(row):
+
     name = str(row["milestone_name"])
+
+    # מיפוי לפי מילת מפתח
     if "עמיתים" in name:
         tag_class = "amit"
     elif "מעסיקים" in name:
@@ -23,8 +52,7 @@ def milestone_to_html(row):
     elif "סוכנים" in name:
         tag_class = "soch"
     else:
-        tag_class = "amit"   # ברירת מחדל
-
+        tag_class = "amit"  # ברירת מחדל
 
     status_class = {
         "LIVE": "live",
@@ -129,73 +157,3 @@ def get_base_html(today_right, today_str):
 
         .connector {{
             width: 1px;
-            height: 15px;
-            background: #e2e8f0;
-        }}
-
-        .dot {{
-            width: 12px;
-            height: 12px;
-            background: #475569;
-            border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 0 0 1px #475569;
-            z-index: 4;
-        }}
-
-        .tag {{ font-size: 8px; font-weight: 700; padding: 1px 4px; border-radius: 2px; display: inline-block; margin-bottom: 2px; }}
-        .amit {{ background: #eff6ff; color: #1e40af; }}
-        .measy {{ background: #f5f3ff; color: #5b21b6; }}
-        .soch {{ background: #ecfdf5; color: #065f46; }}
-        .date {{ font-size: 13px; font-weight: 600; color: #1e293b; margin: 0; }}
-        .status {{ font-size: 8px; font-weight: 700; margin-top: 2px; }}
-        .live {{ color: #10b981; }} 
-        .wip {{ color: #f59e0b; }}
-    </style>
-</head>
-<body>
-    <div class="timeline-wrapper">
-        <div class="main-line"></div>
-        
-        <div class="today-indicator">
-            <span class="today-text">היום {today_str}</span>
-            <div class="today-line"></div>
-        </div>
-
-        <!-- ITEMS_PLACEHOLDER -->
-
-    </div>
-</body>
-</html>
-"""
-
-
-# ---------------------------------------------------------
-# 5. פונקציה גנרית שמחזירה HTML מלא לפרויקט
-# ---------------------------------------------------------
-def build_timeline_html(project_name):
-    df = load_workplan_df()   # ← ← ← התיקון היחיד
-    project_df = df[df["project_name"] == project_name].copy()
-
-    # חישוב תאריך היום
-    today = datetime.date.today()
-    today_str = today.strftime("%d.%m")
-
-    # חישוב מיקום היום על הציר
-    timeline_start = datetime.date(today.year, 3, 8)
-    timeline_end   = datetime.date(today.year, 10, 1)
-    total_days     = (timeline_end - timeline_start).days
-    timeline_width = 900
-
-    days_passed = (today - timeline_start).days
-    days_passed = max(0, min(days_passed, total_days))
-    today_right = int(timeline_width - (days_passed / total_days * timeline_width)) + 50
-
-    # יצירת items
-    items_html = build_items_html(project_df)
-
-    # הזרקת items לתוך התבנית
-    base_html = get_base_html(today_right, today_str)
-    final_html = base_html.replace("<!-- ITEMS_PLACEHOLDER -->", items_html)
-
-    return final_html
