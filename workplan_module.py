@@ -56,17 +56,21 @@ def milestone_to_html(row):
         "HOLD": ""
     }.get(row["status"], "")
 
+    # תאריך נקי בלי שעה
+    date_str = row["date"].strftime("%d.%m.%Y")
+
     return f"""
     <div class="item">
         <div class="card">
             <span class="tag {tag_class}">{row['milestone_name']}</span>
-            <div class="date">{row['date']}</div>
+            <div class="date">{date_str}</div>
             <span class="status {status_class}">{row['status']}</span>
         </div>
         <div class="connector"></div>
         <div class="dot"></div>
     </div>
     """
+
 
 
 # ---------------------------------------------------------
@@ -206,7 +210,8 @@ def build_timeline_html(project_name):
     project_df = df[df["project_name"] == project_name].copy()
 
     if project_df.empty:
-        return "<div>אין נתונים עבור הפרויקט</div>"
+        return "<div style='text-align:right; font-size:16px; padding:10px;'>אין נתונים עבור הפרויקט</div>"
+
 
     today = datetime.date.today()
     today_str = today.strftime("%d.%m")
