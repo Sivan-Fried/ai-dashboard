@@ -16,20 +16,6 @@ from urllib.parse import urlencode
 # =========================================================
 # 1. הגדרות דף ועיצוב (CSS)
 # =========================================================
-st.markdown("""
-<style>
-.link-btn > button {
-    background: none !important;
-    color: #2563eb !important;
-    border: none !important;
-    padding: 0 !important;
-    font-size: 0.9rem !important;
-    text-decoration: underline;
-    cursor: pointer;
-}
-</style>
-""", unsafe_allow_html=True)
-
 st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
 st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
