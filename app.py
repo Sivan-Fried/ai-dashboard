@@ -10,7 +10,7 @@ import streamlit.components.v1 as components
 import google.generativeai as genai
 from streamlit_js_eval import get_geolocation
 
-#גרסה עם הוספה של פרויקטים לדיווח
+#גרסה עם הוספה של פרויקטים לדיווח + נוטיפיקציות
 # =========================================================
 # 1. הגדרות דף ועיצוב (CSS)
 # =========================================================
@@ -114,12 +114,12 @@ st.markdown("""
     .tag-blue { color: #4facfe; font-size: 0.8em; font-weight: 600; background: #f0f9ff; padding: 2px 8px; border-radius: 5px; }
     .tag-orange { color: #d97706; font-size: 0.8em; font-weight: 600; background: #fffbeb; padding: 2px 8px; border-radius: 5px; }
     .tag-green {
-    color: #15803d;
-    font-size: 0.8em;
-    font-weight: 600;
-    background: #ecfdf5;
-    padding: 2px 8px;
-    border-radius: 5px;
+        color: #15803d;
+        font-size: 0.8em;
+        font-weight: 600;
+        background: #ecfdf5;
+        padding: 2px 8px;
+        border-radius: 5px;
     }
 
     .tag-purple {
@@ -175,6 +175,90 @@ st.markdown("""
     div[data-testid="stMarkdownContainer"]:has(.weather-float) {
         text-align: center !important;
     }
+
+    /* =========================================================
+       נוטיפיקציות — סגנון פייסבוק
+    ========================================================= */
+    .bell-area {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 10px;
+    }
+    .notif-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #ef4444;
+        color: white;
+        border-radius: 50%;
+        min-width: 20px;
+        height: 20px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        border: 2px solid #f2f4f7;
+        padding: 0 3px;
+        margin-right: -14px;
+        margin-bottom: 22px;
+        z-index: 10;
+        position: relative;
+    }
+    .notif-dropdown {
+        background: white;
+        border-radius: 14px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        border: 1px solid #edf2f7;
+        overflow: hidden;
+        margin-bottom: 10px;
+        direction: rtl;
+    }
+    .notif-header {
+        padding: 14px 18px;
+        font-weight: 700;
+        font-size: 1rem;
+        color: #1f2a44;
+        border-bottom: 1px solid #f1f5f9;
+        text-align: right;
+        background: #f8fafc;
+    }
+    .notif-item {
+        padding: 12px 18px;
+        border-bottom: 1px solid #f8fafc;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        direction: rtl;
+        transition: background 0.15s;
+    }
+    .notif-item:last-child { border-bottom: none; }
+    .notif-item.read { opacity: 0.45; }
+    .notif-dot {
+        width: 9px; height: 9px;
+        border-radius: 50%;
+        background: #4facfe;
+        flex-shrink: 0;
+    }
+    .notif-dot.read { background: #e2e8f0; }
+    .notif-item-text { font-size: 0.85rem; color: #1e293b; font-weight: 500; }
+    .notif-item-proj { font-size: 0.75rem; color: #94a3b8; margin-top: 2px; }
+    .notif-empty {
+        padding: 24px;
+        text-align: center;
+        color: #94a3b8;
+        font-size: 0.85rem;
+    }
+
+    /* כפתור ה-✓ קטן ואלגנטי */
+    div[data-testid="stButton"] button[kind="secondary"].notif-read-btn {
+        padding: 2px 8px !important;
+        font-size: 0.75rem !important;
+        border-radius: 20px !important;
+        height: auto !important;
+        min-height: unset !important;
+        border: 1px solid #e2e8f0 !important;
+        color: #64748b !important;
+        background: white !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -186,18 +270,12 @@ def get_weather_realtime(location):
     if location and 'coords' in location:
         lat, lon = location['coords']['latitude'], location['coords']['longitude']
         try:
-            # זיהוי עיר
             g = requests.get(f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}", headers={'User-Agent': 'SivanDash'}).json()
             city = g.get('address', {}).get('city') or g.get('address', {}).get('town') or "ישראל"
-            
-            # נתוני מזג אוויר
             w = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true").json()
             temp = round(w['current_weather']['temperature'])
-            
-            # בדיקה האם עכשיו יום או לילה לפי השעה המקומית
             hour = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).hour
             icon = "🌙" if (hour >= 19 or hour < 6) else "☀️"
-            
             return f"{icon} {temp}°C", city
         except: pass
     return "☀️ --°C", "ישראל"
@@ -235,7 +313,6 @@ def get_fathom_summary(recording_id):
         return None
     except: return None
 
-# החלף את הפונקציה refine_with_ai
 def refine_with_ai(raw_text):
     try:
         genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
@@ -252,7 +329,6 @@ def fmt_time(t):
     try: return t.strftime("%H:%M")
     except: return ""
 
-# פונקציה לשמירת סיכומים שנוצרים לתוך אקסל
 def save_summary_to_excel(title, date_str, summary_text):
     file_path = "fathom_summaries.xlsx"
     new_row = {
@@ -290,6 +366,9 @@ if "current_page" not in st.session_state: st.session_state.current_page = "main
 if "rem_live" not in st.session_state: st.session_state.rem_live = reminders_df
 if "ai_response" not in st.session_state: st.session_state.ai_response = ""
 if "adding_reminder" not in st.session_state: st.session_state.adding_reminder = False
+# --- חדש: נוטיפיקציות ---
+if "read_notifs" not in st.session_state: st.session_state.read_notifs = set()
+if "notif_open" not in st.session_state: st.session_state.notif_open = False
 
 params = st.query_params
 if "proj" in params:
@@ -332,9 +411,401 @@ else:
         w_text, w_city = get_weather_realtime(loc)
     else:
         w_text, w_city = "☀️ --°C", "מזהה מיקום..."
-        
-    st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
 
+    # =========================================================
+    # כותרת ראשית + פעמון נוטיפיקציות
+    # =========================================================
+    today_reminders = st.session_state.rem_live[
+        pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today
+    ]
+    unread_count = sum(
+        1 for i in today_reminders.index
+        if i not in st.session_state.read_notifs
+    )
+
+    title_col, bell_col = st.columns([0.9, 0.1])
+
+    with title_col:
+        st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
+
+    with bell_col:
+        # Badge מעל הפעמון
+        if unread_count > 0:
+            st.markdown(f'<div style="display:flex; justify-content:center;"><span class="notif-badge">{unread_count}</span></div>', unsafe_allow_html=True)
+        else:
+            st.markdown('<div style="height:20px;"></div>', unsafe_allow_html=True)
+
+        if st.button("🔔", key="bell_btn", use_container_width=True):
+            st.session_state.notif_open = not st.session_state.notif_open
+            st.rerun()
+
+    # Dropdown נוטיפיקציות (מיד מתחת לכותרת)
+    if st.session_state.notif_open:
+        st.markdown('<div class="notif-dropdown"><div class="notif-header">🔔 התזכורות שלך להיום</div></div>', unsafe_allow_html=True)
+
+        if today_reminders.empty:
+            st.markdown('<div class="notif-dropdown"><div class="notif-empty">אין תזכורות להיום 🎉</div></div>', unsafe_allow_html=True)
+        else:
+            for idx, row in today_reminders.iterrows():
+                is_read = idx in st.session_state.read_notifs
+                read_class = "read" if is_read else ""
+                dot_class = "read" if is_read else ""
+
+                n_col_text, n_col_btn = st.columns([0.88, 0.12])
+                with n_col_text:
+                    st.markdown(f'''
+                        <div class="notif-item {read_class}">
+                            <div class="notif-dot {dot_class}"></div>
+                            <div style="flex-grow:1;">
+                                <div class="notif-item-text">{row["reminder_text"]}</div>
+                                <div class="notif-item-proj">{row.get("project_name", "כללי")}</div>
+                            </div>
+                        </div>
+                    ''', unsafe_allow_html=True)
+                with n_col_btn:
+                    if not is_read:
+                        if st.button("✓", key=f"read_{idx}", help="סמן כנקראה"):
+                            st.session_state.read_notifs.add(idx)
+                            st.rerun()
+
+        st.markdown("<hr style='margin: 4px 0 12px 0; border-color: #f1f5f9;'>", unsafe_allow_html=True)
+
+    # אזור פרופיל
+    img_b64 = get_base64_image("profile.png")
+    now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
+    greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
+
+    p1, p2, p3 = st.columns([1, 1, 2])
+    with p2:
+        if img_b64:
+            st.markdown(f'<div style="display:flex; justify-content:center;"><img src="data:image/png;base64,{img_b64}" class="profile-img"></div>', unsafe_allow_html=True)
+    with p3:
+        st.markdown(f"""
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h3 style='margin-bottom:0;'>{greeting}, סיון!</h3>
+                    <p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p>
+                </div>
+                <div class="weather-float">
+                    <div style="font-size: 0.7rem; color: #4facfe; font-weight: 700;">{w_city}</div>
+                    <div style="font-size: 1.1rem; color: #1f2a44; font-weight: 800;">{w_text}</div>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # KPIs
+    k1, k2, k3, k4 = st.columns(4)
+    with k1: st.markdown(f'<div class="kpi-card">בסיכון 🔴<br><b>{len(projects[projects["status"]=="אדום"])}</b></div>', unsafe_allow_html=True)
+    with k2: st.markdown(f'<div class="kpi-card">במעקב 🟡<br><b>{len(projects[projects["status"]=="צהוב"])}</b></div>', unsafe_allow_html=True)
+    with k3: st.markdown(f'<div class="kpi-card">תקין 🟢<br><b>{len(projects[projects["status"]=="ירוק"])}</b></div>', unsafe_allow_html=True)
+    with k4: st.markdown(f'<div class="kpi-card">סה"כ פרויקטים<br><b>{len(projects)}</b></div>', unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    col_right, col_left = st.columns([1, 1])
+
+    with col_right:
+        with st.container(border=True):
+            st.markdown("### 📁 פרויקטים")
+            with st.container(height=300, border=False):
+                for _, row in projects.iterrows():
+                    p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
+                    st.markdown(f'''
+                        <a href="{p_url}" target="_self" class="project-link">
+                            <div class="record-row">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <b>📂 {row["project_name"]}</b>
+                                    <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
+                                </div>
+                                <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">chevron_left</span>
+                            </div>
+                        </a>
+                    ''', unsafe_allow_html=True)
+                    
+        with st.container(border=True):
+            st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
+            tasks_data = get_azure_tasks()
+            if tasks_data:
+                for t in tasks_data:
+                    f = t.get('fields', {}); t_id, t_title, p_task = t.get('id'), f.get('System.Title', ''), f.get('System.TeamProject', 'General')
+                    raw_date = f.get('System.CreatedDate', ''); fmt_date = f"{raw_date[8:10]}/{raw_date[5:7]} {raw_date[11:16]}" if raw_date else ""
+                    t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_task)}/_workitems/edit/{t_id}"
+                    st.markdown(f'<div class="record-row" style="white-space: nowrap;"><div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis;"><a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: none; font-weight: 500;">🔗 {t_title}</a><span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">נוצר ב {fmt_date}</span></div><span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_task}</span></div>', unsafe_allow_html=True)
+            else: st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
+
+        with st.container(border=True):
+            st.markdown("### ✨ עוזר AI אישי")
+            a1, a2 = st.columns([1, 2])
+            sel_p = a1.selectbox("פרויקט", ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(), label_visibility="collapsed", key="ai_p")
+            q_in = a2.text_input("שאלה", placeholder="מה תרצי לדעת?", label_visibility="collapsed", key="ai_i")
+            
+            if st.button("שגר שאילתה 🚀", use_container_width=True):
+                if q_in:
+                    with st.spinner("מנתח..."):
+                        try:
+                            genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+                            model = genai.GenerativeModel('gemini-2.5-flash-lite')
+                            
+                            projects_summary = "\n".join([
+                                f"- {r['project_name']}: סטטוס {r.get('status','לא ידוע')}, סוג {r.get('project_type','לא ידוע')}"
+                                for _, r in projects.iterrows()
+                            ])
+                            
+                            meetings_today = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
+                            meetings_summary = "\n".join([
+                                f"- {r['meeting_title']} בשעה {fmt_time(r.get('start_time',''))}"
+                                for _, r in meetings_today.iterrows()
+                            ]) if not meetings_today.empty else "אין פגישות היום"
+                            
+                            reminders_today = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
+                            reminders_summary = "\n".join([
+                                f"- {r['reminder_text']} ({r.get('project_name','כללי')})"
+                                for _, r in reminders_today.iterrows()
+                            ]) if not reminders_today.empty else "אין תזכורות"
+                            
+                            tasks_summary = "\n".join([
+                                f"- {t.get('fields',{}).get('System.Title','')} ({t.get('fields',{}).get('System.TeamProject','')})"
+                                for t in (get_azure_tasks() or [])
+                            ]) or "אין משימות פתוחות"
+                            
+                            fathom_summaries = "\n".join([
+                                f"- פגישה: {k.replace('sum_v4_','')}: {v[:200]}..."
+                                for k, v in st.session_state.items()
+                                if k.startswith("sum_v4_") and v
+                            ]) or "אין סיכומי פגישות"
+                            
+                            focus = f"התמקד בפרויקט: {sel_p}" if sel_p != "כללי - כל הפרויקטים" else "התייחס לכל הפרויקטים"
+                            
+                            prompt = f"""אתה עוזר AI בכיר לניהול פרויקטים. יש לך גישה לכל המידע הבא:
+
+📁 פרויקטים:
+{projects_summary}
+
+📅 פגישות היום:
+{meetings_summary}
+
+🔔 תזכורות היום:
+{reminders_summary}
+
+📋 משימות פתוחות באז'ור:
+{tasks_summary}
+
+📝 סיכומי פגישות אחרונים:
+{fathom_summaries}
+
+{focus}
+שאלה: {q_in}
+
+ענה בעברית עסקית, בצורה מעמיקה וממוקדת. אם רלוונטי — תצלב מידע בין מקורות שונים."""
+                            
+                            response = model.generate_content(prompt)
+                            st.session_state.ai_response = response.text
+                        except Exception as e:
+                            st.session_state.ai_response = f"שגיאה: {str(e)}"
+        
+        if st.session_state.ai_response:
+            st.info(st.session_state.ai_response)
+ 
+        # ============================
+        # 📌 פרויקטים לדיווח (priority.xlsx)
+        # ============================
+        with st.container(border=True):
+            st.markdown("### 📌 פרויקטים לדיווח")
+        
+            if priority_df.empty:
+                st.write("לא נמצאו פרויקטים לדיווח.")
+            else:
+                color_map = {
+                    "אנליסט": "tag-blue",
+                    "דנאל": "tag-green",
+                    "דלק": "tag-orange",
+                    "בנק": "tag-teal",
+                    "פיתוח": "tag-pink",
+                    "אלשטול": "tag-purple",
+                }
+        
+                for _, row in priority_df.iterrows():
+                    project_name = row["project_name"]
+                    project_number = row["project_number"]
+                    order_number = row["order_number"]
+                    category = project_name.split(" ")[0]
+                    tag_class = color_map.get(category, "tag-gray")
+        
+                    html = (
+                        '<div class="record-row" '
+                        'style="display:flex; align-items:center; justify-content:space-between; '
+                        'gap:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'
+                            f'<span style="font-weight:600; overflow:hidden; text-overflow:ellipsis;">'
+                            f'{project_name} '
+                            f'<span style="color:#64748b; font-size:0.8rem; margin-right:6px;">'
+                            f'{project_number} | {order_number}'
+                            '</span>'
+                            '</span>'
+                            f'<span class="{tag_class}" style="white-space:nowrap; flex-shrink:0;">'
+                            f'{category}</span>'
+                        '</div>'
+                    )
+                    st.markdown(html, unsafe_allow_html=True)
+
+    with col_left:
+        with st.container(border=True):
+            st.markdown("### 📅 פגישות היום")
+            t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
+            if t_m.empty: st.write("אין פגישות היום")
+            else:
+                for _, r in t_m.iterrows():
+                    s_t = fmt_time(r.get('start_time', '')); e_t = fmt_time(r.get('end_time', ''))
+                    st.markdown(f'<div class="record-row"><span style="flex-grow:1; text-align:right;">📌 {r["meeting_title"]}</span><span class="time-label">{s_t}-{e_t}</span></div>', unsafe_allow_html=True)
+
+        with st.container(border=True):
+            st.markdown("### 🔔 תזכורות")
+            with st.container(border=False):
+                t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
+                if not t_r.empty:
+                    for _, row in t_r.iterrows():
+                        st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
+                else: st.write("אין תזכורות להיום.")
+            
+            if st.session_state.adding_reminder:
+                with st.container():
+                    r_col1, r_col2, r_col3, r_col4 = st.columns([1.5, 3, 0.5, 0.5])
+                    with r_col1: new_proj = st.selectbox("פרויקט", projects["project_name"].tolist() + ["כללי"], label_visibility="collapsed", key="new_rem_proj")
+                    with r_col2: new_text = st.text_input("תיאור", placeholder="מה להזכיר?", label_visibility="collapsed", key="new_rem_text")
+                    with r_col3:
+                        if st.button("✅", key="save_rem_btn"):
+                            if new_text:
+                                new_row = {"date": today, "reminder_text": new_text, "project_name": new_proj}
+                                st.session_state.rem_live = pd.concat([st.session_state.rem_live, pd.DataFrame([new_row])], ignore_index=True)
+                                st.session_state.adding_reminder = False; st.rerun()
+                    with r_col4:
+                        if st.button("❌", key="cancel_rem_btn"): st.session_state.adding_reminder = False; st.rerun()
+            else:
+                if st.button("➕ הוספת תזכורת", use_container_width=True): st.session_state.adding_reminder = True; st.rerun()
+
+        # --- אזור Fathom המעודכן ---
+        with st.container(border=True):
+            col_title, col_refresh = st.columns([0.9, 0.1])
+            with col_title:
+                st.markdown("### ✨ סיכומי פגישות Fathom")
+
+            with col_refresh:
+                if st.button("🔄", key="refresh_fathom"):
+                    try:
+                        items, status = get_fathom_meetings()
+                        if status == 200:
+                            st.session_state['fathom_meetings'] = items
+                            st.rerun()
+                    except: pass
+
+            if 'fathom_meetings' not in st.session_state:
+                try:
+                    items, status = get_fathom_meetings()
+                    if status == 200:
+                        st.session_state['fathom_meetings'] = items
+                    else:
+                        st.session_state['fathom_meetings'] = []
+                except:
+                    st.session_state['fathom_meetings'] = []
+
+            st.markdown("""
+                <style>
+                .fathom-row-ui {
+                    display: grid;
+                    grid-template-columns: auto 1fr auto;
+                    align-items: center;
+                    background: white;
+                    border: 1px solid #edf2f7;
+                    border-right: 5px solid #4facfe;
+                    border-radius: 8px;
+                    padding: 0 16px;
+                    height: 45px;
+                    direction: rtl;
+                    transition: all 0.2s ease;
+                }
+                div[data-testid="stVerticalBlock"] > div:has(.fathom-row-ui) {
+                    gap: 0rem !important;
+                }
+                div.element-container:has(.fathom-row-ui) + div.element-container {
+                    margin-top: -45px !important;
+                    margin-bottom: 2px !important;
+                }
+                div.element-container:has(.fathom-row-ui) + div.element-container div[data-testid="stButton"] button {
+                    background: transparent !important;
+                    border: 1px solid transparent !important;
+                    border-right: 5px solid transparent !important;
+                    width: 100% !important;
+                    height: 45px !important;
+                    color: transparent !important;
+                    z-index: 20;
+                }
+                div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-testid="stButton"] button:hover) .fathom-row-ui {
+                    border-color: #4facfe;
+                    background-color: #f8fafc;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                }
+                .fathom-pill-v2 {
+                    background-color: #f1f5f9;
+                    color: #475569;
+                    padding: 1px 8px;
+                    border-radius: 10px;
+                    font-size: 0.75rem;
+                    margin-right: 12px;
+                }
+                div[data-testid="stAlert"] p { direction: rtl !important; text-align: right !important; }
+                div[data-testid="stAlert"] ul { padding-right: 20px !important; padding-left: 0 !important; text-align: right !important; }
+                div[data-testid="stAlert"] ol { padding-right: 20px !important; padding-left: 0 !important; text-align: right !important; }
+                div[data-testid="stAlert"] li { text-align: right !important; }
+                div[data-testid="stAlert"] h1,
+                div[data-testid="stAlert"] h2,
+                div[data-testid="stAlert"] h3 { font-size: 1.1rem !important; font-weight: 700 !important; color: #1d6fa4 !important; }
+                </style>
+            """, unsafe_allow_html=True)
+
+            f_meetings = st.session_state.get('fathom_meetings', [])
+
+            if f_meetings:
+                for idx, mtg in enumerate(f_meetings):
+                    rec_id = mtg.get('recording_id')
+                    title = mtg.get('title') or "פגישה"
+                    date_str = mtg.get('recording_start_time', '')[:10]
+                    open_key = f"open_{rec_id}"
+                    is_open = st.session_state.get(open_key, False)
+                    arrow = "expand_more" if is_open else "chevron_left"
+                    s_key = f"sum_v4_{rec_id}"
+
+                    st.markdown(f'''
+                        <div class="fathom-row-ui">
+                            <div style="display: flex; align-items: center;">
+                                <span style="font-size: 1.1rem; margin-left: 10px;">📅</span>
+                                <span style="font-weight: 600; color: #1e293b; font-size: 0.85rem;">{title}</span>
+                                <span class="fathom-pill-v2">{date_str}</span>
+                            </div>
+                            <div></div>
+                            <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">{arrow}</span>
+                        </div>
+                    ''', unsafe_allow_html=True)
+
+                    if st.button("", key=f"f_trig_{rec_id}_{idx}", use_container_width=True):
+                        st.session_state[open_key] = not is_open
+                        st.rerun()
+
+                    if is_open:
+                        with st.container():
+                            if s_key not in st.session_state:
+                                if st.button("צור סיכום עם AI 🪄", key=f"gen_{rec_id}"):
+                                    with st.spinner("מנתח..."):
+                                        raw = get_fathom_summary(rec_id)
+                                        if raw:
+                                            summary = refine_with_ai(raw)
+                                            st.session_state[s_key] = summary
+                                            save_summary_to_excel(title, date_str, summary)
+                                        else:
+                                            st.session_state[s_key] = "לא נמצא תוכן לסיכום"
+                            
+                            if st.session_state.get(s_key):
+                                st.info(st.session_state.get(s_key))
     # אזור פרופיל
     img_b64 = get_base64_image("profile.png")
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
