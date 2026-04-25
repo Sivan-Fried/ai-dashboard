@@ -572,13 +572,12 @@ else:
         
                 # כפתור הצג הכל / הצג פחות (ללא השפעה על כפתורים אחרים)
                 # לינק הצג הכל / הצג פחות
-                # לינק הצג הכל / הצג פחות
                 if len(priority_df) > 4:
                 
-                    # CSS מקומי — משפיע רק על הכפתור שנמצא בתוך div.link-btn
+                    # CSS מקומי — משפיע רק על הכפתור הזה
                     st.markdown("""
                         <style>
-                        div.link-btn > button {
+                        div.link-btn button {
                             background: none !important;
                             color: #2563eb !important;
                             border: none !important;
@@ -605,6 +604,7 @@ else:
                             if st.button("הצג פחות", key="show_all_priority_less"):
                                 st.session_state.show_all_priority = False
                             st.markdown('</div>', unsafe_allow_html=True)
+
 
 
 
