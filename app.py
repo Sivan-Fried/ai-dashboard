@@ -9,6 +9,8 @@ import streamlit.components.v1 as components
 import google.generativeai as genai
 from streamlit_js_eval import get_geolocation
 from workplan_module import build_timeline_html
+from urllib.parse import urlencode
+
 
 
 # =========================================================
@@ -571,40 +573,25 @@ else:
                     )
         
                 # כפתור הצג הכל / הצג פחות (ללא השפעה על כפתורים אחרים)
-                # לינק הצג הכל / הצג פחות
-                if len(priority_df) > 4:
+                # קבלת פרמטרים מה־URL
+                params = st.query_params
                 
-                    # CSS מקומי — משפיע רק על הכפתור הזה
-                    st.markdown("""
-                        <style>
-                        div.link-btn button {
-                            background: none !important;
-                            color: #2563eb !important;
-                            border: none !important;
-                            padding: 0 !important;
-                            font-size: 0.9rem !important;
-                            text-decoration: underline;
-                            cursor: pointer;
-                        }
-                        </style>
-                    """, unsafe_allow_html=True)
+                show_all = params.get("show_all_priority", ["0"])[0] == "1"
+                
+                # מציגים 4 רשומות בלבד
+                df_to_show = priority_df if show_all else priority_df.head(4)
                 
                     # הצג הכל
-                    if not st.session_state.show_all_priority:
-                        with st.container():
-                            st.markdown('<div class="link-btn">', unsafe_allow_html=True)
-                            if st.button("הצג הכל", key="show_all_priority_more"):
-                                st.session_state.show_all_priority = True
-                            st.markdown('</div>', unsafe_allow_html=True)
-                
-                    # הצג פחות
-                    else:
-                        with st.container():
-                            st.markdown('<div class="link-btn">', unsafe_allow_html=True)
-                            if st.button("הצג פחות", key="show_all_priority_less"):
-                                st.session_state.show_all_priority = False
-                            st.markdown('</div>', unsafe_allow_html=True)
-
+                    # לינק הצג הכל / הצג פחות
+                    if len(priority_df) > 4:
+                    
+                        if not show_all:
+                            new_params = urlencode({"show_all_priority": "1"})
+                            st.markdown(f"<a href='?{new_params}' style='color:#2563eb;'>הצג הכל</a>", unsafe_allow_html=True)
+                    
+                        else:
+                            new_params = urlencode({"show_all_priority": "0"})
+                            st.markdown(f"<a href='?{new_params}' style='color:#2563eb;'>הצג פחות</a>", unsafe_allow_html=True)
 
 
 
