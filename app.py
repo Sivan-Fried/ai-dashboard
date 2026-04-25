@@ -536,8 +536,7 @@ else:
             st.info(st.session_state.ai_response)
 
         # ── פרויקטים לדיווח ─────────────────────────────────
-        # ── פרויקטים לדיווח ─────────────────────────────────
-        # ── פרויקטים לדיווח ─────────────────────────────────
+
         with st.container(border=True):
             st.markdown("### 📌 פרויקטים לדיווח")
         
@@ -572,15 +571,38 @@ else:
                     )
         
                 # כפתור הצג הכל / הצג פחות (ללא השפעה על כפתורים אחרים)
+                # לינק הצג הכל / הצג פחות
                 if len(priority_df) > 5:
+                
+                    # כפתור שנראה כמו לינק — אבל רק כאן
+                    link_style = """
+                        <style>
+                        .link-button > button {
+                            background: none !important;
+                            color: #2563eb !important;
+                            border: none !important;
+                            padding: 0 !important;
+                            font-size: 0.9rem !important;
+                            text-decoration: underline;
+                        }
+                        </style>
+                    """
+                    st.markdown(link_style, unsafe_allow_html=True)
+                
                     if not st.session_state.show_all_priority:
-                        if st.button("הצג הכל", key="show_all_priority_more"):
-                            st.session_state.show_all_priority = True
-                            st.experimental_rerun()
+                        # הצג הכל
+                        with st.container():
+                            if st.button("הצג הכל", key="show_all_priority_more", help="", type="secondary"):
+                                st.session_state.show_all_priority = True
+                        st.markdown('<div class="link-button"></div>', unsafe_allow_html=True)
+                
                     else:
-                        if st.button("הצג פחות", key="show_all_priority_less"):
-                            st.session_state.show_all_priority = False
-                            st.experimental_rerun()
+                        # הצג פחות
+                        with st.container():
+                            if st.button("הצג פחות", key="show_all_priority_less", help="", type="secondary"):
+                                st.session_state.show_all_priority = False
+                        st.markdown('<div class="link-button"></div>', unsafe_allow_html=True)
+
 
 
 
