@@ -11,6 +11,10 @@ from streamlit_js_eval import get_geolocation
 from workplan_module import build_timeline_html
 from urllib.parse import urlencode
 
+#אם זה לא תקין צריך להעיף את זה
+if "show_all_priority" not in st.session_state:
+    st.session_state.show_all_priority = False
+
 
 
 # =========================================================
@@ -577,18 +581,22 @@ else:
         
                 # לינק הצג הכל / הצג פחות
                 if len(priority_df) > 4:
-        
+                
                     if not st.session_state.show_all_priority:
-                        st.markdown('<div class="link-btn">', unsafe_allow_html=True)
-                        if st.button("הצג הכל", key="show_all_priority_more"):
-                            st.session_state.show_all_priority = True
-                        st.markdown('</div>', unsafe_allow_html=True)
-        
+                        st.markdown(
+                            "<p style='color:#2563eb; text-decoration:underline; cursor:pointer;' "
+                            "onclick='parent.postMessage({type: \"streamlit:setComponentValue\", key: \"show_all_priority\", value: true}, \"*\")'>"
+                            "הצג הכל</p>",
+                            unsafe_allow_html=True
+                        )
                     else:
-                        st.markdown('<div class="link-btn">', unsafe_allow_html=True)
-                        if st.button("הצג פחות", key="show_all_priority_less"):
-                            st.session_state.show_all_priority = False
-                        st.markdown('</div>', unsafe_allow_html=True)
+                        st.markdown(
+                            "<p style='color:#2563eb; text-decoration:underline; cursor:pointer;' "
+                            "onclick='parent.postMessage({type: \"streamlit:setComponentValue\", key: \"show_all_priority\", value: false}, \"*\")'>"
+                            "הצג פחות</p>",
+                            unsafe_allow_html=True
+                        )
+
 
 
 
