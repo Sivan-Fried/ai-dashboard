@@ -4,9 +4,10 @@ import datetime
 # ---------------------------------------------------------
 # 1. טעינת קובץ ה־Excel
 # ---------------------------------------------------------
-def load_work_plan():
-    return pd.read_excel("work_plans.xlsx", parse_dates=["date"], dayfirst=False)
-
+def load_workplan_df():
+    df = pd.read_excel("work_plans.xlsx")
+    df["date"] = pd.to_datetime(df["date"], dayfirst=False, errors="coerce")
+    return df
 
 # ---------------------------------------------------------
 # 2. יצירת HTML עבור milestone בודד
