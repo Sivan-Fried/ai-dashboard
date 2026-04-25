@@ -11,11 +11,6 @@ from streamlit_js_eval import get_geolocation
 from workplan_module import build_timeline_html
 from urllib.parse import urlencode
 
-#אם זה לא תקין צריך להעיף את זה
-if "show_all_priority" not in st.session_state:
-    st.session_state.show_all_priority = False
-
-
 
 # =========================================================
 # 1. הגדרות דף ועיצוב (CSS)
@@ -544,6 +539,7 @@ else:
         # ── פרויקטים לדיווח ─────────────────────────────────
 
         # ── פרויקטים לדיווח ─────────────────────────────────
+        # ── פרויקטים לדיווח ─────────────────────────────────
         with st.container(border=True):
             st.markdown("### 📌 פרויקטים לדיווח")
         
@@ -551,20 +547,15 @@ else:
                 st.write("לא נמצאו פרויקטים לדיווח.")
             else:
         
-                # מצב פתוח/סגור
-                if "show_all_priority" not in st.session_state:
-                    st.session_state.show_all_priority = False
-        
-                # מציגים 4 רשומות בלבד
-                df_to_show = priority_df if st.session_state.show_all_priority else priority_df.head(4)
-        
                 color_map = {
                     "אנליסט": "tag-blue", "דנאל": "tag-green", "דלק": "tag-orange",
                     "בנק": "tag-teal",    "פיתוח": "tag-pink", "אלשטול": "tag-purple",
                 }
         
-                # הצגת הרשומות
-                for _, row in df_to_show.iterrows():
+                # 4 רשומות ראשונות
+                first_rows = priority_df.head(4)
+        
+                for _, row in first_rows.iterrows():
                     project_name   = row["project_name"]
                     project_number = row["project_number"]
                     order_number   = row["order_number"]
@@ -579,27 +570,23 @@ else:
                         unsafe_allow_html=True
                     )
         
-                # לינק הצג הכל / הצג פחות
+                # אם יש יותר מ־4 — נוסיף expander
                 if len(priority_df) > 4:
-                
-                    if not st.session_state.show_all_priority:
-                        st.markdown(
-                            "<p style='color:#2563eb; text-decoration:underline; cursor:pointer;' "
-                            "onclick='parent.postMessage({type: \"streamlit:setComponentValue\", key: \"show_all_priority\", value: true}, \"*\")'>"
-                            "הצג הכל</p>",
-                            unsafe_allow_html=True
-                        )
-                    else:
-                        st.markdown(
-                            "<p style='color:#2563eb; text-decoration:underline; cursor:pointer;' "
-                            "onclick='parent.postMessage({type: \"streamlit:setComponentValue\", key: \"show_all_priority\", value: false}, \"*\")'>"
-                            "הצג פחות</p>",
-                            unsafe_allow_html=True
-                        )
-
-
-
-
+                    with st.expander("הצג הכל"):
+                        for _, row in priority_df.iloc[4:].iterrows():
+                            project_name   = row["project_name"]
+                            project_number = row["project_number"]
+                            order_number   = row["order_number"]
+                            category  = project_name.split(" ")[0]
+                            tag_class = color_map.get(category, "tag-gray")
+        
+                            st.markdown(
+                                f'<div class="record-row" style="display:flex;align-items:center;justify-content:space-between;gap:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
+                                f'<span style="font-weight:600;overflow:hidden;text-overflow:ellipsis;">{project_name} '
+                                f'<span style="color:#64748b;font-size:0.8rem;margin-right:6px;">{project_number} | {order_number}</span></span>'
+                                f'<span class="{tag_class}" style="white-space:nowrap;flex-shrink:0;">{category}</span></div>',
+                                unsafe_allow_html=True
+                            )
 
 
 
