@@ -365,18 +365,17 @@ if st.session_state.current_page == "project":
         st.query_params.clear()
         st.session_state.current_page = "main"
         st.rerun()
+        
     with st.container(border=True):
         st.markdown(f"### ℹ️ ניהול פרויקט: {p_name}")
         tab_work, tab_res, tab_risk, tab_meetings = st.tabs(["📅 תוכנית עבודה", "👥 משאבים", "⚠️ סיכונים", "📝 סיכומים"])
         with tab_work:
-        # טעינת תוכנית העבודה הגנרית מתוך המודול החדש
             try:
                 html = build_timeline_html(p_name)
-                components.html(html, height=300, scrolling=False)
+                st.components.v1.html(html, height=300, scrolling=False)
             except Exception as e:
                 st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
-            else:
-                st.info(f"תוכנית עבודה עבור {p_name} בטעינה...")
+
         with tab_res:      st.write("רשימת צוות ומשאבים")
         with tab_risk:     st.write("ניהול סיכונים")
         with tab_meetings: st.write("סיכומי פגישות הפרויקט")
