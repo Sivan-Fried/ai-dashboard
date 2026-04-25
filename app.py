@@ -16,6 +16,20 @@ from urllib.parse import urlencode
 # =========================================================
 # 1. הגדרות דף ועיצוב (CSS)
 # =========================================================
+st.markdown("""
+<style>
+.link-btn > button {
+    background: none !important;
+    color: #2563eb !important;
+    border: none !important;
+    padding: 0 !important;
+    font-size: 0.9rem !important;
+    text-decoration: underline;
+    cursor: pointer;
+}
+</style>
+""", unsafe_allow_html=True)
+
 st.set_page_config(layout="wide", page_title="Dashboard Sivan", initial_sidebar_state="collapsed")
 
 st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
@@ -547,12 +561,12 @@ else:
                 st.write("לא נמצאו פרויקטים לדיווח.")
             else:
         
-                # קבלת פרמטרים מה־URL
-                params = st.query_params
-                show_all = params.get("show_all_priority", ["0"])[0] == "1"
+                # מצב פתוח/סגור
+                if "show_all_priority" not in st.session_state:
+                    st.session_state.show_all_priority = False
         
                 # מציגים 4 רשומות בלבד
-                df_to_show = priority_df if show_all else priority_df.head(4)
+                df_to_show = priority_df if st.session_state.show_all_priority else priority_df.head(4)
         
                 color_map = {
                     "אנליסט": "tag-blue", "דנאל": "tag-green", "דלק": "tag-orange",
@@ -578,16 +592,18 @@ else:
                 # לינק הצג הכל / הצג פחות
                 if len(priority_df) > 4:
         
-                    if not show_all:
-                        st.markdown(
-                            "<a href='?show_all_priority=1' style='color:#2563eb;'>הצג הכל</a>",
-                            unsafe_allow_html=True
-                        )
+                    if not st.session_state.show_all_priority:
+                        st.markdown('<div class="link-btn">', unsafe_allow_html=True)
+                        if st.button("הצג הכל", key="show_all_priority_more"):
+                            st.session_state.show_all_priority = True
+                        st.markdown('</div>', unsafe_allow_html=True)
+        
                     else:
-                        st.markdown(
-                            "<a href='?show_all_priority=0' style='color:#2563eb;'>הצג פחות</a>",
-                            unsafe_allow_html=True
-                        )
+                        st.markdown('<div class="link-btn">', unsafe_allow_html=True)
+                        if st.button("הצג פחות", key="show_all_priority_less"):
+                            st.session_state.show_all_priority = False
+                        st.markdown('</div>', unsafe_allow_html=True)
+
 
 
 
