@@ -5,7 +5,7 @@ import datetime
 # 1. טעינת קובץ ה־Excel
 # ---------------------------------------------------------
 def load_work_plan():
-    return pd.read_excel("work_plans.xlsx")
+    return pd.read_excel("work_plans.xlsx", parse_dates=["date"], dayfirst=False)
 
 
 # ---------------------------------------------------------
