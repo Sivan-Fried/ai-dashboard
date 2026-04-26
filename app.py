@@ -269,9 +269,9 @@ def render_notification_bell(reminders_today):
     display:flex;
     justify-content:flex-start;
     align-items:center;
-    height:54px;
+    height:60px;
     overflow:hidden;
-    padding-right: 4px;
+    padding: 4px;
   }}
   .bell-wrap {{ position:relative; display:inline-block; }}
   .bell-btn {{
