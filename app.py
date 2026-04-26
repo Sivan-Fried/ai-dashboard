@@ -223,9 +223,6 @@ def save_summary_to_excel(title, date_str, summary_text):
 # פעמון נוטיפיקציות — חלונית צפה אמיתית (JS)
 # =========================================================
 # =========================================================
-# פעמון נוטיפיקציות — הזרקה ישירה ל-DOM של Streamlit
-# =========================================================
-# =========================================================
 # טעינת נתונים
 # =========================================================
 try:
@@ -306,104 +303,7 @@ def render_notification_bell(reminders_today):
 
     // נקה ישן
     var old = parentDoc.getElementById('sn-floating-dropdown');
-    if (old) old.remove();
-    var oldStyle = parentDoc.getElementById('sn-styles');
-    if (oldStyle) oldStyle.remove();
-
-    // CSS לדרופדאון
-    var style = parentDoc.createElement('style');
-    style.id = 'sn-styles';
-    style.textContent = `
-      #sn-floating-dropdown {{
-        display: none;
-        position: fixed;
-        width: 320px;
-        background: white;
-        border-radius: 14px;
-        box-shadow: 0 8px 30px rgba(0,0,0,0.18);
-        border: 1px solid #edf2f7;
-        z-index: 999999;
-        overflow: hidden;
-        direction: rtl;
-        font-family: 'Segoe UI', Arial, sans-serif;
-      }}
-      @keyframes snFadeIn {{
-        from {{ opacity:0; transform:translateY(-8px); }}
-        to   {{ opacity:1; transform:translateY(0); }}
-      }}
-      .sn-header {{
-        padding: 13px 16px; font-weight: 700; font-size: 0.95rem;
-        color: #1f2a44; border-bottom: 1px solid #f1f5f9; background: #f8fafc;
-      }}
-      .sn-item {{
-        padding: 12px 16px; display: flex; align-items: center; gap: 10px;
-        cursor: pointer; border-bottom: 1px solid #f8fafc; transition: background 0.15s;
-      }}
-      .sn-item:last-child {{ border-bottom: none; }}
-      .sn-item:hover {{ background: #f0f9ff; }}
-      .sn-item.read {{ opacity: 0.4; }}
-      .sn-item.read .sn-dot {{ background: #cbd5e1 !important; }}
-      .sn-dot {{ width:9px; height:9px; border-radius:50%; background:#4facfe; flex-shrink:0; }}
-      .sn-text {{ font-size:0.83rem; color:#1e293b; font-weight:500; }}
-      .sn-proj {{ font-size:0.73rem; color:#94a3b8; margin-top:2px; }}
-      .sn-empty {{ padding:24px 16px; text-align:center; color:#94a3b8; font-size:0.85rem; }}
-    `;
-    parentDoc.head.appendChild(style);
-
-    // יצירת דרופדאון
-    var dropdown = parentDoc.createElement('div');
-    dropdown.id = 'sn-floating-dropdown';
-    dropdown.innerHTML = `
-      <div class="sn-header">🔔 התזכורות שלך להיום</div>
-      {items_js}
-    `;
-    parentDoc.body.appendChild(dropdown);
-
-    // סמן כנקרא
-    dropdown.querySelectorAll('.sn-item').forEach(function(item) {{
-      item.addEventListener('click', function() {{
-        item.classList.add('read');
-        var unreadCount = dropdown.querySelectorAll('.sn-item:not(.read)').length;
-        var badge = document.getElementById('badge');
-        if (unreadCount === 0) badge.style.display = 'none';
-        else {{ badge.style.display = 'flex'; badge.textContent = unreadCount; }}
-      }});
-    }});
-
-    // סגירה בלחיצה מחוץ
-    parentDoc.addEventListener('click', function(e) {{
-      var d = parentDoc.getElementById('sn-floating-dropdown');
-      if (d && d.style.display === 'block' && !d.contains(e.target)) {{
-        d.style.display = 'none';
-        isOpen = false;
-      }}
-    }}, true);
-  }});
-
-  // לחיצה על פעמון
-  document.getElementById('bellBtn').addEventListener('click', function() {{
-    var parentDoc = window.parent.document;
-    var d = parentDoc.getElementById('sn-floating-dropdown');
-    if (!d) return;
-
-    isOpen = !isOpen;
-    if (isOpen) {{
-      // מיקום: מתחת לפעמון, צמוד לצד ימין שלו
-      var iframe = window.frameElement;
-      var rect   = iframe.getBoundingClientRect();
-      d.style.top   = (rect.bottom + 8) + 'px';
-      d.style.right = (parentDoc.documentElement.clientWidth - rect.right) + 'px';
-      d.style.left  = 'auto';
-      d.style.animation = 'snFadeIn 0.15s ease';
-      d.style.display   = 'block';
-    }} else {{
-      d.style.display = 'none';
-    }}
-  }});
-</script>
-</body>
-</html>
-    """, height=60, scrolling=False)
+    if (old) old.remove
 
 # =========================================================
 # 3. ניהול ניווט ו-Session State
