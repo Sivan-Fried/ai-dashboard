@@ -61,7 +61,7 @@ def render_topbar(img_b64, w_text, w_city, greeting):
     html += '<div style="width:1px;height:28px;background:#F4F4F5;"></div>'
     html += f'<div style="text-align:right;"><div style="font-size:0.85rem;font-weight:700;color:#3f3f46;">{time_str}</div><div style="font-size:0.68rem;color:#a1a1aa;">{date_str}</div></div>'
     html += '<div style="width:1px;height:28px;background:#F4F4F5;"></div>'
-    html += '<div style="font-size:1rem;font-weight:800;background:linear-gradient(90deg,#FADCE6,#f0b8cb);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Dashboard AI</div>'
+    html += '<div style="font-size:1rem;font-weight:800;color:#f0b8cb;">Dashboard AI</div>'
     html += '</div></div>'
     st.markdown(html, unsafe_allow_html=True)
 #סוף נסיון
