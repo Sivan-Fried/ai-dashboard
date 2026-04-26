@@ -276,9 +276,6 @@ def render_topbar(img_b64, w_text, w_city, greeting):
     """, height=0, scrolling=False)
     #סוף נסיון
 
-#קריאה לסרגל עליון
-render_topbar(img_b64, w_text, w_city, greeting)
-
 
 # ---תמונת פרופיל ---
 def get_base64_image(path):
@@ -627,6 +624,12 @@ else:
         """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
+
+    
+
+    #נסיון לקרוא לפונקציה
+    render_topbar(img_b64, w_text, w_city, greeting)
+
 
     # ── KPIs ────────────────────────────────────────────────
     k1, k2, k3, k4 = st.columns(4)
