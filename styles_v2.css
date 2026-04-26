@@ -1,0 +1,276 @@
+/* =========================================================
+   AURA DASHBOARD — Design System
+   Primary:   #FADCE6 (ורוד עדין)
+   Secondary: #71717A (אפור)
+   Tertiary:  #F4F4F5 (אפור בהיר)
+   Neutral:   #FFFFFF
+   Font:      Plus Jakarta Sans
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+/* ── CSS Variables ─────────────────────────────────────── */
+:root {
+    --primary:        #FADCE6;
+    --primary-dark:   #f0b8cb;
+    --secondary:      #71717A;
+    --tertiary:       #F4F4F5;
+    --neutral:        #FFFFFF;
+    --text-main:      #71717A;
+    --text-dark:      #3f3f46;
+    --text-light:     #a1a1aa;
+    --bg:             #F4F4F5;
+    --card-bg:        #FFFFFF;
+    --shadow-sm:      0 1px 4px rgba(0,0,0,0.06);
+    --shadow-md:      0 4px 16px rgba(0,0,0,0.08);
+    --shadow-lg:      0 8px 30px rgba(0,0,0,0.10);
+    --radius-sm:      8px;
+    --radius-md:      14px;
+    --radius-lg:      20px;
+    --border-accent:  #FADCE6;
+}
+
+/* ── בסיס ──────────────────────────────────────────────── */
+.stApp {
+    background-color: var(--bg) !important;
+    direction: rtl !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    color: var(--text-main) !important;
+}
+
+* {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+/* ── Tabs ──────────────────────────────────────────────── */
+button[data-baseweb="tab"] {
+    gap: 20px !important;
+    margin-left: 15px !important;
+    padding-right: 20px !important;
+    padding-left: 20px !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+/* ── iframe של geolocation ─────────────────────────────── */
+iframe[title="streamlit_js_eval.streamlit_js_eval"] {
+    display: none !important;
+}
+
+/* ── כותרת ראשית ───────────────────────────────────────── */
+.dashboard-header {
+    background: linear-gradient(90deg, #FADCE6, #f0b8cb) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    text-align: center !important;
+    font-size: 2.2rem !important;
+    font-weight: 800 !important;
+    margin-bottom: 20px !important;
+    letter-spacing: -0.5px !important;
+}
+
+/* ── כותרות H3 ─────────────────────────────────────────── */
+h3 {
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 12px !important;
+    color: var(--text-dark) !important;
+    text-align: right !important;
+    letter-spacing: -0.2px !important;
+}
+
+/* ── תמונת פרופיל ──────────────────────────────────────── */
+.profile-img {
+    width: 130px !important;
+    height: 130px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    object-position: center 25% !important;
+    border: 4px solid var(--primary) !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+/* ── KPI Cards ─────────────────────────────────────────── */
+.kpi-card {
+    background: var(--card-bg) !important;
+    padding: 18px 15px !important;
+    border-radius: var(--radius-md) !important;
+    text-align: center !important;
+    box-shadow: var(--shadow-sm) !important;
+    border: none !important;
+    transition: box-shadow 0.2s ease, transform 0.2s ease !important;
+}
+.kpi-card:hover {
+    box-shadow: var(--shadow-md) !important;
+    transform: translateY(-1px) !important;
+}
+.kpi-card b {
+    font-size: 1.6rem !important;
+    color: var(--text-dark) !important;
+    display: block !important;
+    font-weight: 800 !important;
+    margin-top: 4px !important;
+}
+.kpi-card span, .kpi-card div {
+    font-size: 0.8rem !important;
+    color: var(--text-light) !important;
+    font-weight: 500 !important;
+}
+
+/* ── Containers / כרטיסים ──────────────────────────────── */
+div[data-testid="stVerticalBlockBorderWrapper"],
+.st-emotion-cache-1ne20ew {
+    background: var(--card-bg) !important;
+    border: none !important;
+    border-radius: var(--radius-lg) !important;
+    padding: 18px !important;
+    padding-bottom: 28px !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+/* ── Project Links ─────────────────────────────────────── */
+.project-link {
+    text-decoration: none !important;
+    color: inherit !important;
+    display: block !important;
+    transition: all 0.2s ease !important;
+}
+.project-link:hover .record-row {
+    border-right-color: var(--primary-dark) !important;
+    background-color: #fdf6f9 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+/* ── Record Row ────────────────────────────────────────── */
+.record-row {
+    background: var(--card-bg) !important;
+    padding: 10px 15px !important;
+    border-radius: var(--radius-sm) !important;
+    margin-bottom: 4px !important;
+    border: none !important;
+    border-right: 4px solid var(--border-accent) !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    direction: rtl !important;
+    position: relative !important;
+    box-shadow: var(--shadow-sm) !important;
+    transition: all 0.2s ease !important;
+}
+.record-row:hover {
+    box-shadow: var(--shadow-md) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* ── Tags ──────────────────────────────────────────────── */
+.tag-blue   { color: #71717A; font-size: 0.78em; font-weight: 600; background: #F4F4F5; padding: 3px 10px; border-radius: 20px; }
+.tag-orange { color: #71717A; font-size: 0.78em; font-weight: 600; background: #F4F4F5; padding: 3px 10px; border-radius: 20px; }
+.tag-green  { color: #71717A; font-size: 0.78em; font-weight: 600; background: #F4F4F5; padding: 3px 10px; border-radius: 20px; }
+.tag-purple { color: #71717A; font-size: 0.78em; font-weight: 600; background: #F4F4F5; padding: 3px 10px; border-radius: 20px; }
+.tag-pink   { color: #71717A; font-size: 0.78em; font-weight: 600; background: #FADCE6; padding: 3px 10px; border-radius: 20px; }
+.tag-teal   { color: #71717A; font-size: 0.78em; font-weight: 600; background: #F4F4F5; padding: 3px 10px; border-radius: 20px; }
+.tag-gray   { color: #71717A; font-size: 0.78em; font-weight: 600; background: #F4F4F5; padding: 3px 10px; border-radius: 20px; }
+
+/* ── Time Label ────────────────────────────────────────── */
+.time-label {
+    color: var(--text-light) !important;
+    font-size: 0.82em !important;
+    font-weight: 500 !important;
+    font-family: 'Plus Jakarta Sans', monospace !important;
+}
+
+/* ── טקסט כללי ─────────────────────────────────────────── */
+p, label, .stSelectbox, .stTextInput {
+    text-align: right !important;
+    direction: rtl !important;
+    color: var(--text-main) !important;
+}
+
+/* ── Weather Float ─────────────────────────────────────── */
+.weather-float {
+    display: inline-flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    background: var(--card-bg) !important;
+    padding: 8px 16px !important;
+    border-radius: var(--radius-md) !important;
+    box-shadow: var(--shadow-sm) !important;
+    border: none !important;
+}
+div[data-testid="stMarkdownContainer"]:has(.weather-float) {
+    text-align: center !important;
+}
+
+/* ── Buttons ───────────────────────────────────────────── */
+div[data-testid="stButton"] button {
+    border-radius: var(--radius-sm) !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+}
+div[data-testid="stButton"] button:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+/* ── Inputs ────────────────────────────────────────────── */
+div[data-testid="stTextInput"] input,
+div[data-testid="stSelectbox"] > div {
+    border-radius: var(--radius-sm) !important;
+    border-color: var(--tertiary) !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    color: var(--text-main) !important;
+}
+div[data-testid="stTextInput"] input:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px rgba(250, 220, 230, 0.4) !important;
+}
+
+/* ── Alerts / st.info ──────────────────────────────────── */
+div[data-testid="stAlert"] {
+    border-radius: var(--radius-md) !important;
+    border: none !important;
+    background: #fdf6f9 !important;
+    direction: rtl !important;
+}
+div[data-testid="stAlert"] p  { direction: rtl !important; text-align: right !important; color: var(--text-main) !important; }
+div[data-testid="stAlert"] ul { padding-right: 20px !important; padding-left: 0 !important; text-align: right !important; }
+div[data-testid="stAlert"] ol { padding-right: 20px !important; padding-left: 0 !important; text-align: right !important; }
+div[data-testid="stAlert"] li { text-align: right !important; }
+div[data-testid="stAlert"] h1,
+div[data-testid="stAlert"] h2,
+div[data-testid="stAlert"] h3 {
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+    color: var(--text-dark) !important;
+}
+
+/* ── Fathom rows ───────────────────────────────────────── */
+.fathom-row-ui {
+    display: grid !important;
+    grid-template-columns: auto 1fr auto !important;
+    align-items: center !important;
+    background: var(--card-bg) !important;
+    border: none !important;
+    border-right: 4px solid var(--border-accent) !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 0 16px !important;
+    height: 45px !important;
+    direction: rtl !important;
+    transition: all 0.2s ease !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+.fathom-pill-v2 {
+    background-color: var(--tertiary) !important;
+    color: var(--text-light) !important;
+    padding: 2px 10px !important;
+    border-radius: 20px !important;
+    font-size: 0.75rem !important;
+    margin-right: 12px !important;
+}
+
+/* ── Scrollbar עדין ────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary-dark); }
