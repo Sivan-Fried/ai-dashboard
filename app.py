@@ -588,15 +588,30 @@ else:
                     st.markdown(html, unsafe_allow_html=True)
         
                 # --- כפתור הצג הכל / הראה פחות ---
+                # --- הצג הכל / הראה פחות ---
                 if len(priority_df) > 4:
                     label = "הראה פחות ▲" if st.session_state.priority_expanded else f"הצג הכל ({len(priority_df)}) ▼"
-                    st.markdown(
-                        f'<div style="text-align:center; margin-top:6px;">'
-                        f'<span id="toggle_priority" style="color:#4facfe; font-size:0.82rem; font-weight:600; cursor:pointer;">{label}</span>'
-                        f'</div>',
-                        unsafe_allow_html=True
-                    )
-                    if st.button(label, key="toggle_priority_btn", use_container_width=False):
+                    st.markdown("""
+                        <style>
+                        div[data-testid="stBaseButton-secondary"]:has(p) button,
+                        .priority-link-btn button {
+                            background: transparent !important;
+                            border: none !important;
+                            box-shadow: none !important;
+                            color: #4facfe !important;
+                            font-size: 0.82rem !important;
+                            font-weight: 600 !important;
+                            padding: 2px 0 !important;
+                            margin-top: 4px !important;
+                            text-align: right !important;
+                            width: auto !important;
+                            min-height: unset !important;
+                            cursor: pointer !important;
+                            float: right !important;
+                        }
+                        </style>
+                    """, unsafe_allow_html=True)
+                    if st.button(label, key="toggle_priority_btn"):
                         st.session_state.priority_expanded = not st.session_state.priority_expanded
                         st.rerun()
                 
