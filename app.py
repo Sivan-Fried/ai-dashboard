@@ -222,111 +222,125 @@ def save_summary_to_excel(title, date_str, summary_text):
 # =========================================================
 # פעמון נוטיפיקציות — חלונית צפה אמיתית (JS)
 # =========================================================
+# =========================================================
+# פעמון נוטיפיקציות — הזרקה ישירה ל-DOM של Streamlit
+# =========================================================
 def render_notification_bell(reminders_today):
-    """
-    מרנדר iframe קטן (55px) עם פעמון + dropdown צף.
-    הdropdown הוא position:absolute ולא דוחף שום דבר בדשבורד.
-    """
+    unread = len(reminders_today)
+
     items_html = ""
     if reminders_today.empty:
-        items_html = '<div class="notif-empty">אין תזכורות להיום 🎉</div>'
+        items_html = '<div class="sn-empty">אין תזכורות להיום 🎉</div>'
     else:
         for _, row in reminders_today.iterrows():
-            text = str(row.get("reminder_text", ""))
-            proj = str(row.get("project_name", "כללי"))
+            text = str(row.get("reminder_text", "")).replace("'", "&#39;")
+            proj = str(row.get("project_name", "כללי")).replace("'", "&#39;")
             items_html += f"""
-            <div class="notif-item" onclick="markRead(this)">
-                <div class="notif-dot"></div>
+            <div class="sn-item" onclick="snMarkRead(this)">
+                <div class="sn-dot"></div>
                 <div>
-                    <div class="notif-text">{text}</div>
-                    <div class="notif-proj">{proj}</div>
+                    <div class="sn-text">{text}</div>
+                    <div class="sn-proj">{proj}</div>
                 </div>
             </div>"""
 
-    unread = len(reminders_today)
-    badge  = f'<span class="badge" id="badge">{unread}</span>' if unread > 0 else '<span class="badge" id="badge" style="display:none">0</span>'
-
-    html = f"""
-    <div style="display:flex; justify-content:center; padding-top:6px;">
-      <div style="position:relative; display:inline-block;">
-        {badge}
-        <button class="bell-btn" onclick="toggleDropdown()">🔔</button>
-        <div class="dropdown" id="dropdown">
-          <div class="notif-header">🔔 התזכורות שלך להיום</div>
-          {items_html}
+    st.markdown(f"""
+    <div id="sn-bell-wrap" style="display:flex; justify-content:center; padding-top:8px;">
+        <div style="position:relative; display:inline-block;">
+            <span id="sn-badge" style="
+                display:{'flex' if unread > 0 else 'none'};
+                position:absolute; top:-5px; left:-5px;
+                background:#ef4444; color:white; border-radius:50%;
+                min-width:18px; height:18px; font-size:0.65rem; font-weight:800;
+                align-items:center; justify-content:center;
+                border:2px solid #f2f4f7; z-index:10; padding:0 3px;
+            ">{unread}</span>
+            <button onclick="snToggle()" style="
+                background:white; border:1px solid #e2e8f0; border-radius:50%;
+                width:42px; height:42px; font-size:1.15rem; cursor:pointer;
+                box-shadow:0 2px 8px rgba(0,0,0,0.08);
+                display:flex; align-items:center; justify-content:center;
+                transition:all 0.2s;
+            ">🔔</button>
         </div>
-      </div>
+    </div>
+
+    <!-- Dropdown — position:fixed, צף מעל הכל -->
+    <div id="sn-dropdown" style="
+        display:none; position:fixed;
+        width:300px; background:white;
+        border-radius:14px;
+        box-shadow:0 8px 30px rgba(0,0,0,0.18);
+        border:1px solid #edf2f7;
+        z-index:999999; overflow:hidden;
+        direction:rtl;
+        font-family:'Segoe UI',Arial,sans-serif;
+    ">
+        <div style="padding:13px 16px; font-weight:700; font-size:0.9rem;
+                    color:#1f2a44; border-bottom:1px solid #f1f5f9; background:#f8fafc;">
+            🔔 התזכורות שלך להיום
+        </div>
+        {items_html}
     </div>
 
     <style>
-      * {{ box-sizing:border-box; font-family:'Segoe UI',Arial,sans-serif; margin:0; padding:0; }}
-      body {{ background:transparent; overflow:visible; }}
-
-      .bell-btn {{
-        background:white; border:1px solid #e2e8f0; border-radius:50%;
-        width:42px; height:42px; font-size:1.15rem; cursor:pointer;
-        box-shadow:0 2px 8px rgba(0,0,0,0.08); transition:all 0.2s;
-        display:flex; align-items:center; justify-content:center;
-      }}
-      .bell-btn:hover {{ background:#f0f9ff; box-shadow:0 4px 12px rgba(79,172,254,0.25); }}
-
-      .badge {{
-        position:absolute; top:-5px; left:-5px;
-        background:#ef4444; color:white; border-radius:50%;
-        min-width:18px; height:18px; font-size:0.65rem; font-weight:800;
-        display:flex; align-items:center; justify-content:center;
-        border:2px solid #f2f4f7; z-index:10; padding:0 3px;
-      }}
-
-      .dropdown {{
-        display:none; position:absolute;
-        top:50px; left:50%; transform:translateX(-50%);
-        width:300px; background:white;
-        border-radius:14px; box-shadow:0 8px 30px rgba(0,0,0,0.15);
-        border:1px solid #edf2f7; z-index:9999; overflow:hidden;
-        direction:rtl; animation:fadeIn 0.15s ease;
-      }}
-      @keyframes fadeIn {{ from{{opacity:0;transform:translateX(-50%) translateY(-6px)}} to{{opacity:1;transform:translateX(-50%) translateY(0)}} }}
-
-      .notif-header {{
-        padding:13px 16px; font-weight:700; font-size:0.9rem;
-        color:#1f2a44; border-bottom:1px solid #f1f5f9; background:#f8fafc;
-      }}
-      .notif-item {{
-        padding:12px 16px; display:flex; align-items:center; gap:10px;
-        cursor:pointer; transition:background 0.15s; border-bottom:1px solid #f8fafc;
-      }}
-      .notif-item:last-child {{ border-bottom:none; }}
-      .notif-item:hover {{ background:#f0f9ff; }}
-      .notif-item.read {{ opacity:0.4; }}
-      .notif-item.read .notif-dot {{ background:#cbd5e1; }}
-      .notif-dot {{ width:9px; height:9px; border-radius:50%; background:#4facfe; flex-shrink:0; }}
-      .notif-text {{ font-size:0.83rem; color:#1e293b; font-weight:500; }}
-      .notif-proj {{ font-size:0.73rem; color:#94a3b8; margin-top:2px; }}
-      .notif-empty {{ padding:24px 16px; text-align:center; color:#94a3b8; font-size:0.85rem; }}
+        .sn-item {{
+            padding:12px 16px; display:flex; align-items:center; gap:10px;
+            cursor:pointer; border-bottom:1px solid #f8fafc; transition:background 0.15s;
+        }}
+        .sn-item:last-child {{ border-bottom:none; }}
+        .sn-item:hover {{ background:#f0f9ff; }}
+        .sn-item.read {{ opacity:0.4; }}
+        .sn-item.read .sn-dot {{ background:#cbd5e1 !important; }}
+        .sn-dot {{ width:9px; height:9px; border-radius:50%; background:#4facfe; flex-shrink:0; }}
+        .sn-text {{ font-size:0.83rem; color:#1e293b; font-weight:500; }}
+        .sn-proj {{ font-size:0.73rem; color:#94a3b8; margin-top:2px; }}
+        .sn-empty {{ padding:24px 16px; text-align:center; color:#94a3b8; font-size:0.85rem; }}
+        @keyframes snFadeIn {{
+            from {{ opacity:0; transform:translateY(-8px); }}
+            to   {{ opacity:1; transform:translateY(0); }}
+        }}
     </style>
 
     <script>
-      function toggleDropdown() {{
-        var d = document.getElementById('dropdown');
-        d.style.display = (d.style.display === 'block') ? 'none' : 'block';
-      }}
-      document.addEventListener('click', function(e) {{
-        var d = document.getElementById('dropdown');
-        var b = document.querySelector('.bell-btn');
-        if (d && b && !d.contains(e.target) && !b.contains(e.target))
-          d.style.display = 'none';
-      }});
-      function markRead(el) {{
-        el.classList.add('read');
-        var unread = document.querySelectorAll('.notif-item:not(.read)').length;
-        var badge  = document.getElementById('badge');
-        if (unread === 0) badge.style.display = 'none';
-        else badge.textContent = unread;
-      }}
+    (function() {{
+        window.snToggle = function() {{
+            var d = document.getElementById('sn-dropdown');
+            if (!d) return;
+            var isOpen = d.style.display === 'block';
+            if (!isOpen) {{
+                // חישוב מיקום ביחס לפעמון
+                var wrap = document.getElementById('sn-bell-wrap');
+                var rect = wrap ? wrap.getBoundingClientRect() : {{bottom:70, right:200}};
+                d.style.top  = (rect.bottom + window.scrollY + 8) + 'px';
+                d.style.left = Math.max(10, rect.right - 300) + 'px';
+                d.style.display = 'block';
+                d.style.animation = 'snFadeIn 0.15s ease';
+            }} else {{
+                d.style.display = 'none';
+            }}
+        }};
+
+        window.snMarkRead = function(el) {{
+            el.classList.add('read');
+            var unread = document.querySelectorAll('.sn-item:not(.read)').length;
+            var badge  = document.getElementById('sn-badge');
+            if (!badge) return;
+            if (unread === 0) badge.style.display = 'none';
+            else {{ badge.style.display = 'flex'; badge.textContent = unread; }}
+        }};
+
+        document.addEventListener('click', function(e) {{
+            var d = document.getElementById('sn-dropdown');
+            var w = document.getElementById('sn-bell-wrap');
+            if (d && w && d.style.display === 'block'
+                && !d.contains(e.target) && !w.contains(e.target)) {{
+                d.style.display = 'none';
+            }}
+        }}, true);
+    }})();
     </script>
-    """
-    components.html(html, height=55, scrolling=False)
+    """, unsafe_allow_html=True)
 
 
 # =========================================================
