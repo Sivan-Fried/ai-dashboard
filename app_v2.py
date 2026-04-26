@@ -738,7 +738,59 @@ else:
                                 <span class="fathom-pill-v2">{date_str}</span>
                             </div>
                             <div></div>
-                            <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">{arrow}</span>
+                            def get_fathom_meetings():
+    api_key = st.secrets["FATHOM_API_KEY"]
+    url = "https://api.fathom.ai/external/v1/meetings"
+    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
+    try:
+        response = requests.get(url, headers=headers, timeout=15)
+        if response.status_code == 200: return response.json().get('items', [])[:5], 200
+        return [], response.status_code
+    except: return [], 500
+
+def get_fathom_summary(recording_id):
+    api_key = st.secrets["FATHOM_API_KEY"]
+    url = f"https://api.fathom.ai/external/v1/recordings/{recording_id}/summary"
+    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
+    try:
+        response = requests.get(url, headers=headers, timeout=15)
+        if response.status_code == 200: return response.json().get("summary", {}).get("markdown_formatted")
+        return None
+    except: return None
+
+def refine_with_ai(raw_text):
+    try:
+        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+        model = genai.GenerativeModel('gemini-2.5-flash-lite')
+        prompt = f"""סכם את הפגישה לעברית עסקית רהוטה.
+השתמש בפורמט Markdown: כותרות עם ##, בולטים עם -, מספור עם 1. 2. 3.
+
+{raw_text}"""
+        return model.generate_content(prompt).text
+    except Exception as e:
+        return f"שגיאה בסיכום: {str(e)}"
+
+def fmt_time(t):
+    try: return t.strftime("%H:%M")
+    except: return ""
+
+def save_summary_to_excel(title, date_str, summary_text):
+    file_path = "fathom_summaries.xlsx"
+    new_row = {
+        "title": title, "date": date_str, "summary": summary_text,
+        "created_at": datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).strftime("%d/%m/%Y %H:%M")
+    }
+    try:
+        existing = pd.read_excel(file_path)
+        if "title" not in existing.columns:
+            updated = pd.DataFrame([new_row])
+        elif title in existing["title"].values:
+            return
+        else:
+            updated = pd.concat([existing, pd.DataFrame([new_row])], ignore_index=True)
+    except FileNotFoundError:
+        updated = pd.DataFrame([new_row])
+    updated.to_excel(file_path, index=False)
                         </div>
                     ''', unsafe_allow_html=True)
 
