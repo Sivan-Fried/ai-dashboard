@@ -51,21 +51,67 @@ def render_topbar(img_b64, w_text, w_city, greeting):
     # =========================================================
 # דיבוג — לראות אם ה‑iframe בכלל נטען
 # =========================================================
-
-components.html(
-    f"""
+components.html(f"""
 <!DOCTYPE html>
 <html dir="rtl">
 <head>
 <meta charset="utf-8"/>
-
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0" rel="stylesheet"/>
 <style>
-  body {{
-    background: red !important;   /* ⭐ דיבוג — לראות את ה‑iframe */
-    height: 80px !important;      /* ⭐ דיבוג — iframe נראה */
-    overflow: hidden;
-  }}
+  * {{ box-sizing:border-box; margin:0; padding:0; font-family:'Plus Jakarta Sans',sans-serif; }}
+  body {{ background:transparent; overflow:hidden; height:72px; }}
 </style>
+</head>
+<body>
+<div class="topbar">
+  <!-- כל התוכן של הסרגל שלך כאן -->
+</div>
+
+<script>
+  window.addEventListener('load', function() {{
+    var parentDoc = window.parent.document;
+
+    var old = parentDoc.getElementById('sn-topbar');
+    if (old) old.remove();
+    var oldStyle = parentDoc.getElementById('sn-topbar-style');
+    if (oldStyle) oldStyle.remove();
+
+    var style = parentDoc.createElement('style');
+    style.id = 'sn-topbar-style';
+    style.textContent = `
+      #sn-topbar {{
+        position: fixed;
+        top: 0; right: 0; left: 0;
+        height: 64px;
+        background: rgba(255,255,255,0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid #F4F4F5;
+        box-shadow: 0 2px 20px rgba(225,200,210,0.12);
+        z-index: 99998;
+        display: flex;
+        align-items: center;
+        padding: 0 28px;
+        direction: rtl;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        justify-content: space-between;
+      }}
+      section[tabindex="0"] > div:first-child {{
+        padding-top: 72px !important;
+      }}
+    `;
+    parentDoc.head.appendChild(style);
+
+    var topbarEl = parentDoc.createElement('div');
+    topbarEl.id = 'sn-topbar';
+    topbarEl.innerHTML = document.querySelector('.topbar').innerHTML;
+    parentDoc.body.appendChild(topbarEl);
+  }});
+</script>
+</body>
+</html>
+""", height=0, scrolling=False)
 
 </head>
 <body>
