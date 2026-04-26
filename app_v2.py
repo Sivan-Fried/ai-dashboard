@@ -40,6 +40,9 @@ def render_topbar(img_b64, w_text, w_city, greeting):
     time_str = now.strftime("%H:%M")
     date_str = now.strftime("%d/%m/%Y")
 
+    # מנקים את w_text מאמוג'י לפני הכנסה ל-HTML
+    w_text_clean = w_text.encode('ascii', 'ignore').decode('ascii').strip()
+
     profile_tag = (
         f'<img src="data:image/png;base64,{img_b64}" '
         'style="width:36px;height:36px;border-radius:50%;'
@@ -47,57 +50,19 @@ def render_topbar(img_b64, w_text, w_city, greeting):
         if img_b64 else ""
     )
 
-    st.markdown(f"""
-    <div style="
-        background:rgba(255,255,255,0.95);
-        border-radius:16px;
-        border:1px solid #F4F4F5;
-        box-shadow:0 2px 20px rgba(225,200,210,0.2);
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        padding:12px 24px;
-        direction:rtl;
-        font-family:'Plus Jakarta Sans',sans-serif;
-        margin-bottom:20px;
-    ">
-        <!-- ימין: פרופיל -->
-        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
-            {profile_tag}
-            <div style="line-height:1.3;">
-                <div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{greeting}, סיון</div>
-                <div style="font-size:0.7rem;color:#a1a1aa;">מנהלת פרויקטים</div>
-            </div>
-        </div>
+    parts = [
+        '<div style="background:rgba(255,255,255,0.95);border-radius:16px;',
+        'border:1px solid #F4F4F5;box-shadow:0 2px 20px rgba(225,200,210,0.2);',
+        'display:flex;align-items:center;justify-content:space-between;',
+        'padding:12px 24px;direction:rtl;',
+        'font-family:Plus Jakarta Sans,sans-serif;margin-bottom:20px;">',
 
-        <!-- מרכז: ניווט -->
-        <nav style="display:flex;gap:4px;flex:1;justify-content:center;">
-            <span style="font-size:0.82rem;font-weight:600;padding:6px 14px;
-                border-radius:20px;background:#FADCE6;color:#3f3f46;">דשבורד</span>
-            <span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">פרויקטים</span>
-            <span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">פגישות</span>
-            <span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">משימות</span>
-            <span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">דוחות</span>
-        </nav>
-
-        <!-- שמאל: מזג אוויר + שעה -->
-        <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
-            <div style="text-align:right;line-height:1.3;">
-                <div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{w_text}</div>
-                <div style="font-size:0.68rem;color:#a1a1aa;">{w_city}</div>
-            </div>
-            <div style="width:1px;height:28px;background:#F4F4F5;"></div>
-            <div style="text-align:right;line-height:1.3;">
-                <div style="font-size:0.85rem;font-weight:700;color:#3f3f46;">{time_str}</div>
-                <div style="font-size:0.68rem;color:#a1a1aa;">{date_str}</div>
-            </div>
-            <div style="width:1px;height:28px;background:#F4F4F5;"></div>
-            <div style="width:32px;height:32px;border-radius:50%;background:#F4F4F5;
-                display:flex;align-items:center;justify-content:center;
-                font-size:1rem;cursor:pointer;">⚙️</div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+        # ימין
+        '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">',
+        profile_tag,
+        '<div style="line-height:1.3;">',
+        f'<div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{greeting}, סיון</div>',
+        '<div style="font-size:0.7rem;color:#a1a1aa;
 #סוף נסיון
 
 
