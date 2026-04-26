@@ -34,6 +34,11 @@ with open("styles_v2.css", encoding="utf-8") as f:
 
 # --- כאן מתחיל התוכן של הדשבורד הישן שלך ---
 # =========================================================
+
+#קריאה לסרגל עליון
+render_topbar(img_b64, w_text, w_city, greeting)
+
+
 # ---תמונת פרופיל ---
 def get_base64_image(path):
     try:
