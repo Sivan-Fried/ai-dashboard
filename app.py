@@ -403,7 +403,7 @@ def render_notification_bell(reminders_today):
 </script>
 </body>
 </html>
-    """, height=54, scrolling=False)
+    """, height=60, scrolling=False)
 
 # =========================================================
 # 3. ניהול ניווט ו-Session State
