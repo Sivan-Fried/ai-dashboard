@@ -40,14 +40,14 @@ def render_topbar(img_b64, w_text, w_city, greeting):
     time_str = now.strftime("%H:%M")
     date_str = now.strftime("%d/%m/%Y")
     w_text_clean = w_text.encode('ascii', 'ignore').decode('ascii').strip()
-    profile_tag = f'<img src="data:image/png;base64,{img_b64}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #FADCE6;"/>' if img_b64 else ""
+    profile_tag = f'<img src="data:image/png;base64,{img_b64}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid #FADCE6;"/>' if img_b64 else ""
 
-    html = '<div style="background:white;border-radius:16px;border:1px solid #F4F4F5;box-shadow:0 2px 20px rgba(225,200,210,0.2);display:flex;align-items:center;justify-content:space-between;padding:12px 24px;direction:rtl;font-family:sans-serif;margin-bottom:20px;">'
+    html = '<div style="background:white;border-radius:16px;border:1px solid #F4F4F5;box-shadow:0 2px 20px rgba(225,200,210,0.2);display:flex;align-items:center;justify-content:space-between;padding:20px 24px;direction:rtl;font-family:sans-serif;margin-bottom:20px;margin-top:-60px;">'
     html += '<div style="display:flex;align-items:center;gap:10px;">'
     html += profile_tag
     html += '<div>'
-    html += f'<div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{greeting}, סיון</div>'
-    html += '<div style="font-size:0.7rem;color:#a1a1aa;">מנהלת פרויקטים</div>'
+    html += f'<div style="font-size:1rem;font-weight:700;color:#3f3f46;">{greeting}, סיון</div>'
+    html += '<div style="font-size:0.8rem;color:#a1a1aa;">מנהלת פרויקטים</div>'
     html += '</div></div>'
     html += '<nav style="display:flex;gap:4px;flex:1;justify-content:center;">'
     html += '<span style="font-size:0.82rem;font-weight:600;padding:6px 14px;border-radius:20px;background:#FADCE6;color:#3f3f46;">דשבורד</span>'
