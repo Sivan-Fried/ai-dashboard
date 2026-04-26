@@ -738,6 +738,10 @@ else:
                                 <span class="fathom-pill-v2">{date_str}</span>
                             </div>
                             <div></div>
+                            <span style="color: #94a3b8; font-size: 22px; line-height: 1; flex-shrink: 0;">&#8250;</span>
+                        </div>
+                    ''', unsafe_allow_html=True)
+                            
                             def get_fathom_meetings():
     api_key = st.secrets["FATHOM_API_KEY"]
     url = "https://api.fathom.ai/external/v1/meetings"
