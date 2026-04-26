@@ -34,120 +34,6 @@ with open("styles_v2.css", encoding="utf-8") as f:
 
 # --- כאן מתחיל התוכן של הדשבורד הישן שלך ---
 # =========================================================
-
-#קריאה לסרגל עליון
-render_topbar(img_b64, w_text, w_city, greeting)
-
-
-# ---תמונת פרופיל ---
-def get_base64_image(path):
-    try:
-        with open(path, "rb") as img_file:
-            return base64.b64encode(img_file.read()).decode()
-    except:
-        return ""
-
-# =========================================================
-# 2. פונקציות עזר ונתונים
-# =========================================================
-
-def get_weather_realtime(location):
-    if location and 'coords' in location:
-        lat, lon = location['coords']['latitude'], location['coords']['longitude']
-        try:
-            g = requests.get(f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}", headers={'User-Agent': 'SivanDash'}).json()
-            city = g.get('address', {}).get('city') or g.get('address', {}).get('town') or "ישראל"
-            w = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true").json()
-            temp = round(w['current_weather']['temperature'])
-            hour = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).hour
-            icon = "🌙" if (hour >= 19 or hour < 6) else "☀️"
-            return f"{icon} {temp}°C", city
-        except: pass
-    return "☀️ --°C", "ישראל"
-
-def get_azure_tasks():
-    ORG_NAME = "amandigital"
-    wiql_url = f"https://dev.azure.com/{ORG_NAME}/_apis/wit/wiql?api-version=6.0"
-    query = {"query": "SELECT [System.Id], [System.Title], [System.TeamProject], [System.CreatedDate] FROM WorkItems WHERE [System.AssignedTo] = @me AND [System.State] = 'New' ORDER BY [System.ChangedDate] DESC"}
-    try:
-        auth = ('', st.secrets["AZURE_PAT"])
-        res = requests.post(wiql_url, json=query, auth=auth)
-        ids = ",".join([str(item['id']) for item in res.json().get('workItems', [])[:5]])
-        if not ids: return []
-        details = requests.get(f"https://dev.azure.com/{ORG_NAME}/_apis/wit/workitems?ids={ids}&fields=System.Title,System.TeamProject,System.CreatedDate&api-version=6.0", auth=auth)
-        return details.json().get('value', [])
-    except: return []
-
-def get_fathom_meetings():
-    api_key = st.secrets["FATHOM_API_KEY"]
-    url = "https://api.fathom.ai/external/v1/meetings"
-    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
-    try:
-        response = requests.get(url, headers=headers, timeout=15)
-        if response.status_code == 200: return response.json().get('items', [])[:5], 200
-        return [], response.status_code
-    except: return [], 500
-
-def get_fathom_summary(recording_id):
-    api_key = st.secrets["FATHOM_API_KEY"]
-    url = f"https://api.fathom.ai/external/v1/recordings/{recording_id}/summary"
-    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
-    try:
-        response = requests.get(url, headers=headers, timeout=15)
-        if response.status_code == 200: return response.json().get("summary", {}).get("markdown_formatted")
-        return None
-    except: return None
-
-def refine_with_ai(raw_text):
-    try:
-        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-        model = genai.GenerativeModel('gemini-2.5-flash-lite')
-        prompt = f"""סכם את הפגישה לעברית עסקית רהוטה.
-השתמש בפורמט Markdown: כותרות עם ##, בולטים עם -, מספור עם 1. 2. 3.
-
-{raw_text}"""
-        return model.generate_content(prompt).text
-    except Exception as e:
-        return f"שגיאה בסיכום: {str(e)}"
-
-def fmt_time(t):
-    try: return t.strftime("%H:%M")
-    except: return ""
-
-def save_summary_to_excel(title, date_str, summary_text):
-    file_path = "fathom_summaries.xlsx"
-    new_row = {
-        "title": title, "date": date_str, "summary": summary_text,
-        "created_at": datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).strftime("%d/%m/%Y %H:%M")
-    }
-    try:
-        existing = pd.read_excel(file_path)
-        if "title" not in existing.columns:
-            updated = pd.DataFrame([new_row])
-        elif title in existing["title"].values:
-            return
-        else:
-            updated = pd.concat([existing, pd.DataFrame([new_row])], ignore_index=True)
-    except FileNotFoundError:
-        updated = pd.DataFrame([new_row])
-    updated.to_excel(file_path, index=False)
-
-# =========================================================
-# פעמון נוטיפיקציות — חלונית צפה אמיתית (JS)
-# =========================================================
-# =========================================================
-# טעינת נתונים
-# =========================================================
-try:
-    projects     = pd.read_excel("my_projects.xlsx")
-    meetings     = pd.read_excel("meetings.xlsx")
-    reminders_df = pd.read_excel("reminders.xlsx")
-    priority_df  = pd.read_excel("priority.xlsx")
-except Exception as e:
-    st.error(f"שגיאה בטעינת קבצים: {e}"); st.stop()
-
-today = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).date()
-
 #ניסיון להוסיף סרגל עליון
 def render_topbar(img_b64, w_text, w_city, greeting):
     """
@@ -389,6 +275,119 @@ def render_topbar(img_b64, w_text, w_city, greeting):
 </html>
     """, height=0, scrolling=False)
     #סוף נסיון
+
+#קריאה לסרגל עליון
+render_topbar(img_b64, w_text, w_city, greeting)
+
+
+# ---תמונת פרופיל ---
+def get_base64_image(path):
+    try:
+        with open(path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    except:
+        return ""
+
+# =========================================================
+# 2. פונקציות עזר ונתונים
+# =========================================================
+
+def get_weather_realtime(location):
+    if location and 'coords' in location:
+        lat, lon = location['coords']['latitude'], location['coords']['longitude']
+        try:
+            g = requests.get(f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}", headers={'User-Agent': 'SivanDash'}).json()
+            city = g.get('address', {}).get('city') or g.get('address', {}).get('town') or "ישראל"
+            w = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true").json()
+            temp = round(w['current_weather']['temperature'])
+            hour = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).hour
+            icon = "🌙" if (hour >= 19 or hour < 6) else "☀️"
+            return f"{icon} {temp}°C", city
+        except: pass
+    return "☀️ --°C", "ישראל"
+
+def get_azure_tasks():
+    ORG_NAME = "amandigital"
+    wiql_url = f"https://dev.azure.com/{ORG_NAME}/_apis/wit/wiql?api-version=6.0"
+    query = {"query": "SELECT [System.Id], [System.Title], [System.TeamProject], [System.CreatedDate] FROM WorkItems WHERE [System.AssignedTo] = @me AND [System.State] = 'New' ORDER BY [System.ChangedDate] DESC"}
+    try:
+        auth = ('', st.secrets["AZURE_PAT"])
+        res = requests.post(wiql_url, json=query, auth=auth)
+        ids = ",".join([str(item['id']) for item in res.json().get('workItems', [])[:5]])
+        if not ids: return []
+        details = requests.get(f"https://dev.azure.com/{ORG_NAME}/_apis/wit/workitems?ids={ids}&fields=System.Title,System.TeamProject,System.CreatedDate&api-version=6.0", auth=auth)
+        return details.json().get('value', [])
+    except: return []
+
+def get_fathom_meetings():
+    api_key = st.secrets["FATHOM_API_KEY"]
+    url = "https://api.fathom.ai/external/v1/meetings"
+    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
+    try:
+        response = requests.get(url, headers=headers, timeout=15)
+        if response.status_code == 200: return response.json().get('items', [])[:5], 200
+        return [], response.status_code
+    except: return [], 500
+
+def get_fathom_summary(recording_id):
+    api_key = st.secrets["FATHOM_API_KEY"]
+    url = f"https://api.fathom.ai/external/v1/recordings/{recording_id}/summary"
+    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
+    try:
+        response = requests.get(url, headers=headers, timeout=15)
+        if response.status_code == 200: return response.json().get("summary", {}).get("markdown_formatted")
+        return None
+    except: return None
+
+def refine_with_ai(raw_text):
+    try:
+        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+        model = genai.GenerativeModel('gemini-2.5-flash-lite')
+        prompt = f"""סכם את הפגישה לעברית עסקית רהוטה.
+השתמש בפורמט Markdown: כותרות עם ##, בולטים עם -, מספור עם 1. 2. 3.
+
+{raw_text}"""
+        return model.generate_content(prompt).text
+    except Exception as e:
+        return f"שגיאה בסיכום: {str(e)}"
+
+def fmt_time(t):
+    try: return t.strftime("%H:%M")
+    except: return ""
+
+def save_summary_to_excel(title, date_str, summary_text):
+    file_path = "fathom_summaries.xlsx"
+    new_row = {
+        "title": title, "date": date_str, "summary": summary_text,
+        "created_at": datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).strftime("%d/%m/%Y %H:%M")
+    }
+    try:
+        existing = pd.read_excel(file_path)
+        if "title" not in existing.columns:
+            updated = pd.DataFrame([new_row])
+        elif title in existing["title"].values:
+            return
+        else:
+            updated = pd.concat([existing, pd.DataFrame([new_row])], ignore_index=True)
+    except FileNotFoundError:
+        updated = pd.DataFrame([new_row])
+    updated.to_excel(file_path, index=False)
+
+# =========================================================
+# פעמון נוטיפיקציות — חלונית צפה אמיתית (JS)
+# =========================================================
+# =========================================================
+# טעינת נתונים
+# =========================================================
+try:
+    projects     = pd.read_excel("my_projects.xlsx")
+    meetings     = pd.read_excel("meetings.xlsx")
+    reminders_df = pd.read_excel("reminders.xlsx")
+    priority_df  = pd.read_excel("priority.xlsx")
+except Exception as e:
+    st.error(f"שגיאה בטעינת קבצים: {e}"); st.stop()
+
+today = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).date()
 
 def render_notification_bell(reminders_today):
     unread = len(reminders_today)
