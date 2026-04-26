@@ -38,6 +38,13 @@ st.markdown("<h1 class='dashboard-header'>AURA Dashboard</h1>", unsafe_allow_htm
 
 # --- כאן מתחיל התוכן של הדשבורד הישן שלך ---
 # =========================================================
+# ---תמונת פרופיל ---
+def get_base64_image(path):
+    try:
+        with open(path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    except:
+        return ""
 
 # =========================================================
 # 2. פונקציות עזר ונתונים
