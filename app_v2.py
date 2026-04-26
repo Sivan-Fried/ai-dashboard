@@ -31,10 +31,6 @@ st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fami
 with open("styles_v2.css", encoding="utf-8") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# =========================================================
-# התחלת הדשבורד החדש (AURA)
-# =========================================================
-st.markdown("<h1 class='dashboard-header'>AURA Dashboard</h1>", unsafe_allow_html=True)
 
 # --- כאן מתחיל התוכן של הדשבורד הישן שלך ---
 # =========================================================
