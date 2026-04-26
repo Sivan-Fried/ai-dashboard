@@ -267,7 +267,7 @@ def render_notification_bell(reminders_today):
   body {{
     background:transparent;
     display:flex;
-    justify-content:flex-end;  /* ← ימין */
+    justify-content:flex-start;
     align-items:center;
     height:54px;
     overflow:hidden;
@@ -453,14 +453,14 @@ else:
         w_text, w_city = "☀️ --°C", "מזהה מיקום..."
 
     # ── כותרת + פעמון (פעמון צף, לא דוחף layout) ──────────
-    title_col, bell_col = st.columns([0.92, 0.08])
-    with title_col:
-        st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
+    bell_col, title_col = st.columns([0.08, 0.92])
     with bell_col:
         today_reminders = st.session_state.rem_live[
             pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today
         ]
         render_notification_bell(today_reminders)
+    with title_col:
+        st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
 
     # ── אזור פרופיל ────────────────────────────────────────
     img_b64  = get_base64_image("profile.png")
