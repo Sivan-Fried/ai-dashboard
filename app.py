@@ -233,8 +233,8 @@ def render_notification_bell(reminders_today):
         items_html = '<div class="sn-empty">אין תזכורות להיום 🎉</div>'
     else:
         for _, row in reminders_today.iterrows():
-            text = str(row.get("reminder_text", "")).replace("'", "&#39;")
-            proj = str(row.get("project_name", "כללי")).replace("'", "&#39;")
+            text = str(row.get("reminder_text", "")).replace('"', '&quot;').replace("'", "&#39;").replace("<", "&lt;")
+            proj = str(row.get("project_name", "כללי")).replace('"', '&quot;').replace("'", "&#39;")
             items_html += f"""
             <div class="sn-item" onclick="snMarkRead(this)">
                 <div class="sn-dot"></div>
@@ -244,116 +244,143 @@ def render_notification_bell(reminders_today):
                 </div>
             </div>"""
 
-    st.markdown(f"""
-    <div id="sn-bell-wrap" style="display:flex; justify-content:center; padding-top:8px;">
-        <div style="position:relative; display:inline-block;">
-            <span id="sn-badge" style="
-                display:{'flex' if unread > 0 else 'none'};
-                position:absolute; top:-5px; left:-5px;
-                background:#ef4444; color:white; border-radius:50%;
-                min-width:18px; height:18px; font-size:0.65rem; font-weight:800;
-                align-items:center; justify-content:center;
-                border:2px solid #f2f4f7; z-index:10; padding:0 3px;
-            ">{unread}</span>
-            <button onclick="snToggle()" style="
-                background:white; border:1px solid #e2e8f0; border-radius:50%;
-                width:42px; height:42px; font-size:1.15rem; cursor:pointer;
-                box-shadow:0 2px 8px rgba(0,0,0,0.08);
-                display:flex; align-items:center; justify-content:center;
-                transition:all 0.2s;
-            ">🔔</button>
-        </div>
-    </div>
+    items_js = items_html.replace('`', r'\`').replace('\\', '\\\\')
 
-    <!-- Dropdown — position:fixed, צף מעל הכל -->
-    <div id="sn-dropdown" style="
-        display:none; position:fixed;
-        width:300px; background:white;
-        border-radius:14px;
-        box-shadow:0 8px 30px rgba(0,0,0,0.18);
-        border:1px solid #edf2f7;
-        z-index:999999; overflow:hidden;
-        direction:rtl;
-        font-family:'Segoe UI',Arial,sans-serif;
-    ">
-        <div style="padding:13px 16px; font-weight:700; font-size:0.9rem;
-                    color:#1f2a44; border-bottom:1px solid #f1f5f9; background:#f8fafc;">
-            🔔 התזכורות שלך להיום
-        </div>
-        {items_html}
-    </div>
+    components.html(f"""
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * {{ box-sizing:border-box; margin:0; padding:0; font-family:'Segoe UI',Arial,sans-serif; }}
+  body {{ background:transparent; display:flex; justify-content:center; align-items:center; height:54px; overflow:hidden; }}
 
-    <style>
-        .sn-item {{
-            padding:12px 16px; display:flex; align-items:center; gap:10px;
-            cursor:pointer; border-bottom:1px solid #f8fafc; transition:background 0.15s;
-        }}
-        .sn-item:last-child {{ border-bottom:none; }}
-        .sn-item:hover {{ background:#f0f9ff; }}
-        .sn-item.read {{ opacity:0.4; }}
-        .sn-item.read .sn-dot {{ background:#cbd5e1 !important; }}
-        .sn-dot {{ width:9px; height:9px; border-radius:50%; background:#4facfe; flex-shrink:0; }}
-        .sn-text {{ font-size:0.83rem; color:#1e293b; font-weight:500; }}
-        .sn-proj {{ font-size:0.73rem; color:#94a3b8; margin-top:2px; }}
-        .sn-empty {{ padding:24px 16px; text-align:center; color:#94a3b8; font-size:0.85rem; }}
-        @keyframes snFadeIn {{
-            from {{ opacity:0; transform:translateY(-8px); }}
-            to   {{ opacity:1; transform:translateY(0); }}
-        }}
-    </style>
+  .bell-wrap {{ position:relative; display:inline-block; }}
 
-    <script>
-    (function() {{
-        window.snToggle = function() {{
-            var d = document.getElementById('sn-dropdown');
-            if (!d) return;
-            var isOpen = d.style.display === 'block';
-            if (!isOpen) {{
-                // חישוב מיקום ביחס לפעמון
-                var wrap = document.getElementById('sn-bell-wrap');
-                var rect = wrap ? wrap.getBoundingClientRect() : {{bottom:70, right:200}};
-                d.style.top  = (rect.bottom + window.scrollY + 8) + 'px';
-                d.style.left = Math.max(10, rect.right - 300) + 'px';
-                d.style.display = 'block';
-                d.style.animation = 'snFadeIn 0.15s ease';
-            }} else {{
-                d.style.display = 'none';
-            }}
-        }};
+  .bell-btn {{
+    background:white; border:1px solid #e2e8f0; border-radius:50%;
+    width:42px; height:42px; font-size:1.2rem; cursor:pointer;
+    box-shadow:0 2px 8px rgba(0,0,0,0.08);
+    display:flex; align-items:center; justify-content:center;
+    transition:all 0.2s; outline:none;
+  }}
+  .bell-btn:hover {{ background:#f0f9ff; }}
 
-        window.snMarkRead = function(el) {{
-            el.classList.add('read');
-            var unread = document.querySelectorAll('.sn-item:not(.read)').length;
-            var badge  = document.getElementById('sn-badge');
-            if (!badge) return;
-            if (unread === 0) badge.style.display = 'none';
-            else {{ badge.style.display = 'flex'; badge.textContent = unread; }}
-        }};
+  .badge {{
+    position:absolute; top:-5px; left:-5px;
+    background:#ef4444; color:white; border-radius:50%;
+    min-width:18px; height:18px; font-size:0.65rem; font-weight:800;
+    display:{'flex' if unread > 0 else 'none'};
+    align-items:center; justify-content:center;
+    border:2px solid white; z-index:10; padding:0 3px;
+  }}
+</style>
+</head>
+<body>
+  <div class="bell-wrap">
+    <span class="badge" id="badge">{unread}</span>
+    <button class="bell-btn" id="bellBtn">🔔</button>
+  </div>
 
-        document.addEventListener('click', function(e) {{
-            var d = document.getElementById('sn-dropdown');
-            var w = document.getElementById('sn-bell-wrap');
-            if (d && w && d.style.display === 'block'
-                && !d.contains(e.target) && !w.contains(e.target)) {{
-                d.style.display = 'none';
-            }}
-        }}, true);
-    }})();
-    </script>
-    """, unsafe_allow_html=True)
+<script>
+  var isOpen = false;
 
+  // הזרקת ה-dropdown ל-parent (דף Streamlit) בטעינה
+  window.addEventListener('load', function() {{
+    var parentDoc = window.parent.document;
 
-# =========================================================
-# טעינת נתונים
-# =========================================================
-try:
-    projects     = pd.read_excel("my_projects.xlsx")
-    meetings     = pd.read_excel("meetings.xlsx")
-    reminders_df = pd.read_excel("reminders.xlsx")
-    priority_df  = pd.read_excel("priority.xlsx")
-    today        = pd.Timestamp.today().date()
-except:
-    st.error("Missing Files (my_projects, meetings, reminders)"); st.stop()
+    // הסר dropdown קיים אם יש
+    var old = parentDoc.getElementById('sn-floating-dropdown');
+    if (old) old.remove();
+
+    // CSS ל-parent
+    var style = parentDoc.createElement('style');
+    style.id = 'sn-styles';
+    style.textContent = `
+      #sn-floating-dropdown {{
+        display: none;
+        position: fixed;
+        top: 70px;
+        right: 20px;
+        width: 300px;
+        background: white;
+        border-radius: 14px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+        border: 1px solid #edf2f7;
+        z-index: 999999;
+        overflow: hidden;
+        direction: rtl;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        animation: snFadeIn 0.15s ease;
+      }}
+      @keyframes snFadeIn {{
+        from {{ opacity:0; transform:translateY(-8px); }}
+        to   {{ opacity:1; transform:translateY(0); }}
+      }}
+      .sn-header {{
+        padding: 13px 16px; font-weight: 700; font-size: 0.9rem;
+        color: #1f2a44; border-bottom: 1px solid #f1f5f9; background: #f8fafc;
+      }}
+      .sn-item {{
+        padding: 12px 16px; display: flex; align-items: center; gap: 10px;
+        cursor: pointer; border-bottom: 1px solid #f8fafc; transition: background 0.15s;
+      }}
+      .sn-item:last-child {{ border-bottom: none; }}
+      .sn-item:hover {{ background: #f0f9ff; }}
+      .sn-item.read {{ opacity: 0.4; }}
+      .sn-item.read .sn-dot {{ background: #cbd5e1 !important; }}
+      .sn-dot {{ width:9px; height:9px; border-radius:50%; background:#4facfe; flex-shrink:0; }}
+      .sn-text {{ font-size:0.83rem; color:#1e293b; font-weight:500; }}
+      .sn-proj {{ font-size:0.73rem; color:#94a3b8; margin-top:2px; }}
+      .sn-empty {{ padding:24px 16px; text-align:center; color:#94a3b8; font-size:0.85rem; }}
+    `;
+    // הסר styles ישן
+    var oldStyle = parentDoc.getElementById('sn-styles');
+    if (oldStyle) oldStyle.remove();
+    parentDoc.head.appendChild(style);
+
+    // יצירת ה-dropdown
+    var dropdown = parentDoc.createElement('div');
+    dropdown.id = 'sn-floating-dropdown';
+    dropdown.innerHTML = `
+      <div class="sn-header">🔔 התזכורות שלך להיום</div>
+      {items_js}
+    `;
+    parentDoc.body.appendChild(dropdown);
+
+    // הוסף onclick לכל sn-item
+    dropdown.querySelectorAll('.sn-item').forEach(function(item) {{
+      item.addEventListener('click', function() {{
+        item.classList.add('read');
+        var unread = dropdown.querySelectorAll('.sn-item:not(.read)').length;
+        var badge = document.getElementById('badge'); // badge בתוך iframe
+        if (unread === 0) badge.style.display = 'none';
+        else {{ badge.style.display = 'flex'; badge.textContent = unread; }}
+      }});
+    }});
+
+    // סגירה בלחיצה מחוץ
+    parentDoc.addEventListener('click', function(e) {{
+      var d = parentDoc.getElementById('sn-floating-dropdown');
+      var iframe = parentDoc.querySelector('iframe[srcdoc]');
+      if (d && d.style.display === 'block' && !d.contains(e.target)) {{
+        d.style.display = 'none';
+        isOpen = false;
+      }}
+    }}, true);
+  }});
+
+  // לחיצה על הפעמון — פותח/סוגר את ה-dropdown ב-parent
+  document.getElementById('bellBtn').addEventListener('click', function() {{
+    var parentDoc = window.parent.document;
+    var d = parentDoc.getElementById('sn-floating-dropdown');
+    if (!d) return;
+    isOpen = !isOpen;
+    d.style.display = isOpen ? 'block' : 'none';
+  }});
+</script>
+</body>
+</html>
+    """, height=54, scrolling=False)
 
 # =========================================================
 # 3. ניהול ניווט ו-Session State
