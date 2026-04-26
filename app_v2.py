@@ -174,7 +174,7 @@ window.addEventListener('load', function() {{
 
 </body>
 </html>
-""", height=0, scrolling=False)
+""", height=1, scrolling=False)
 #סוף נסיון
 
 
