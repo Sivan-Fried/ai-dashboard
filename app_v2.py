@@ -48,16 +48,35 @@ def render_topbar(img_b64, w_text, w_city, greeting):
 
     profile_img_tag = f'<img src="data:image/png;base64,{img_b64}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;object-position:center 25%;border:2px solid #FADCE6;"/>' if img_b64 else '<div style="width:36px;height:36px;border-radius:50%;background:#FADCE6;"></div>'
 
-    components.html(f"""
+    # =========================================================
+# דיבוג — לראות אם ה‑iframe בכלל נטען
+# =========================================================
+
+components.html(
+    f"""
 <!DOCTYPE html>
 <html dir="rtl">
 <head>
 <meta charset="utf-8"/>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0" rel="stylesheet"/>
+
 <style>
-  * {{ box-sizing:border-box; margin:0; padding:0; font-family:'Plus Jakarta Sans',sans-serif; }}
-  body {{ background:transparent; overflow:hidden; height:72px; }}
+  body {{
+    background: red !important;   /* ⭐ דיבוג — לראות את ה‑iframe */
+    height: 80px !important;      /* ⭐ דיבוג — iframe נראה */
+    overflow: hidden;
+  }}
+</style>
+
+</head>
+<body>
+<div>DEBUG — iframe loaded</div>
+</body>
+</html>
+""",
+    height=80,     # ⭐ חשוב — לא 0
+    scrolling=False
+)
+
 
   .topbar {{
     display: flex;
