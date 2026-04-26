@@ -40,114 +40,64 @@ def render_topbar(img_b64, w_text, w_city, greeting):
     time_str = now.strftime("%H:%M")
     date_str = now.strftime("%d/%m/%Y")
 
-    profile_src = f"data:image/png;base64,{img_b64}" if img_b64 else ""
+    profile_tag = (
+        f'<img src="data:image/png;base64,{img_b64}" '
+        'style="width:36px;height:36px;border-radius:50%;'
+        'object-fit:cover;border:2px solid #FADCE6;vertical-align:middle;"/>'
+        if img_b64 else ""
+    )
 
-    components.html(f"""
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8"/>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<style>
-  body {{ margin:0; padding:0; background:transparent; overflow:hidden; height:1px; }}
-</style>
-</head>
-<body>
-<script>
-window.addEventListener('load', function() {{
-  var p = window.parent.document;
+    st.markdown(f"""
+    <div style="
+        background:rgba(255,255,255,0.95);
+        border-radius:16px;
+        border:1px solid #F4F4F5;
+        box-shadow:0 2px 20px rgba(225,200,210,0.2);
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        padding:12px 24px;
+        direction:rtl;
+        font-family:'Plus Jakarta Sans',sans-serif;
+        margin-bottom:20px;
+    ">
+        <!-- ימין: פרופיל -->
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+            {profile_tag}
+            <div style="line-height:1.3;">
+                <div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{greeting}, סיון</div>
+                <div style="font-size:0.7rem;color:#a1a1aa;">מנהלת פרויקטים</div>
+            </div>
+        </div>
 
-  // הסר ישן
-  var old = p.getElementById('sn-topbar');
-  if (old) old.remove();
-  var olds = p.getElementById('sn-topbar-css');
-  if (olds) olds.remove();
+        <!-- מרכז: ניווט -->
+        <nav style="display:flex;gap:4px;flex:1;justify-content:center;">
+            <span style="font-size:0.82rem;font-weight:600;padding:6px 14px;
+                border-radius:20px;background:#FADCE6;color:#3f3f46;">דשבורד</span>
+            <span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">פרויקטים</span>
+            <span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">פגישות</span>
+            <span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">משימות</span>
+            <span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">דוחות</span>
+        </nav>
 
-  // CSS
-  var s = p.createElement('style');
-  s.id = 'sn-topbar-css';
-  s.textContent = `
-    #sn-topbar {{
-      position: fixed !important;
-      top: 0 !important;
-      right: 0 !important;
-      left: 0 !important;
-      height: 64px;
-      background: rgba(255,255,255,0.95);
-      border-bottom: 1px solid #F4F4F5;
-      box-shadow: 0 2px 20px rgba(225,200,210,0.2);
-      z-index: 99999;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 28px;
-      direction: rtl;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      box-sizing: border-box;
-    }}
-    #sn-topbar .tb-nav-item {{
-      font-size: 0.82rem;
-      padding: 6px 14px;
-      border-radius: 20px;
-      color: #71717A;
-      cursor: pointer;
-      text-decoration: none;
-    }}
-    #sn-topbar .tb-nav-item.active {{
-      background: #FADCE6;
-      color: #3f3f46;
-      font-weight: 600;
-    }}
-    #sn-topbar .tb-nav-item:hover {{
-      background: #fdf0f5;
-    }}
-    /* דחיפת תוכן למטה */
-    .main .block-container {{
-      padding-top: 80px !important;
-    }}
-  `;
-  p.head.appendChild(s);
-
-  // HTML של הסרגל
-  var bar = p.createElement('div');
-  bar.id = 'sn-topbar';
-  bar.innerHTML = `
-    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
-      {'<img src="' + "{profile_src}" + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #FADCE6;"/>' if profile_src else '<div style="width:36px;height:36px;border-radius:50%;background:#FADCE6;"></div>'}
-      <div style="line-height:1.3;">
-        <div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{greeting}, סיון</div>
-        <div style="font-size:0.7rem;color:#a1a1aa;">מנהלת פרויקטים</div>
-      </div>
+        <!-- שמאל: מזג אוויר + שעה -->
+        <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
+            <div style="text-align:right;line-height:1.3;">
+                <div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{w_text}</div>
+                <div style="font-size:0.68rem;color:#a1a1aa;">{w_city}</div>
+            </div>
+            <div style="width:1px;height:28px;background:#F4F4F5;"></div>
+            <div style="text-align:right;line-height:1.3;">
+                <div style="font-size:0.85rem;font-weight:700;color:#3f3f46;">{time_str}</div>
+                <div style="font-size:0.68rem;color:#a1a1aa;">{date_str}</div>
+            </div>
+            <div style="width:1px;height:28px;background:#F4F4F5;"></div>
+            <div style="width:32px;height:32px;border-radius:50%;background:#F4F4F5;
+                display:flex;align-items:center;justify-content:center;
+                font-size:1rem;cursor:pointer;">⚙️</div>
+        </div>
     </div>
-    <nav style="display:flex;gap:4px;flex:1;justify-content:center;">
-      <a class="tb-nav-item active">דשבורד</a>
-      <a class="tb-nav-item">פרויקטים</a>
-      <a class="tb-nav-item">פגישות</a>
-      <a class="tb-nav-item">משימות</a>
-      <a class="tb-nav-item">דוחות</a>
-    </nav>
-    <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
-      <div style="text-align:right;line-height:1.3;">
-        <div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{w_text}</div>
-        <div style="font-size:0.68rem;color:#a1a1aa;">{w_city}</div>
-      </div>
-      <div style="width:1px;height:28px;background:#F4F4F5;"></div>
-      <div style="text-align:right;line-height:1.3;">
-        <div style="font-size:0.85rem;font-weight:700;color:#3f3f46;">{time_str}</div>
-        <div style="font-size:0.68rem;color:#a1a1aa;">{date_str}</div>
-      </div>
-      <div style="width:1px;height:28px;background:#F4F4F5;"></div>
-      <div style="width:32px;height:32px;border-radius:50%;background:#F4F4F5;
-        display:flex;align-items:center;justify-content:center;cursor:pointer;
-        font-size:0.75rem;color:#71717A;font-weight:600;">HG</div>
-    </div>
-  `;
-  p.body.appendChild(bar);
-}});
-</script>
-</body>
-</html>
-""", height=1, scrolling=False)
+    """, unsafe_allow_html=True)
 #סוף נסיון
 
 
