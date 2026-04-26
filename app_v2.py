@@ -28,7 +28,7 @@ st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fami
 st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0"/>', unsafe_allow_html=True)
 
 # טעינת CSS חיצוני
-with open("styles.css", encoding="utf-8") as f:
+with open("styles_v2.css", encoding="utf-8") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # --- כאן מתחיל הדשבורד שלך ---
