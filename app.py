@@ -357,6 +357,17 @@ def render_notification_bell(reminders_today):
         isOpen = false;
       }}
     }}, true);
+
+    // עדכון מיקום בגלילה — כך החלונית נשארת מתחת לפעמון
+    parentDoc.addEventListener('scroll', function() {{
+      var d = parentDoc.getElementById('sn-floating-dropdown');
+      if (d && d.style.display === 'block') {{
+        var iframe = window.frameElement;
+        var rect   = iframe.getBoundingClientRect();
+        d.style.top   = (rect.bottom + 8) + 'px';
+        d.style.right = (parentDoc.documentElement.clientWidth - rect.right) + 'px';
+      }}
+    }}, true);
   }});
 
   document.getElementById('bellBtn').addEventListener('click', function() {{
