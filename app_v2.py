@@ -491,23 +491,23 @@ else:
     else:
         w_text, w_city = "☀️ --°C", "מזהה מיקום..."
 
-    # ── כותרת + פעמון (פעמון צף, לא דוחף layout) ──────────
-    bell_col, title_col = st.columns([0.08, 0.92])
-    with bell_col:
-        today_reminders = st.session_state.rem_live[
-            pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today
-        ]
-        render_notification_bell(today_reminders)
-    with title_col:
-        st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
-
-    # ── אזור פרופיל ────────────────────────────────────────
+    
+    # ── אזור פרופיל + סרגל עליון ───────────────────────────
     img_b64  = get_base64_image("profile.png")
     now      = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
     greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
 
-    # ⭐ קריאה לסרגל העליון ⭐
+    # ⭐ סרגל עליון — חייב להיות ראשון ⭐
     render_topbar(img_b64, w_text, w_city, greeting)
+
+    # ── כותרת ──────────────────────────────────────────────
+    st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
+
+    # ── פעמון נוטיפיקציות ──────────────────────────────────
+    today_reminders = st.session_state.rem_live[
+        pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today
+    ]
+    render_notification_bell(today_reminders)
 
 
     p1, p2, p3 = st.columns([1, 1, 2])
