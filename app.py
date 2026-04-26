@@ -225,6 +225,18 @@ def save_summary_to_excel(title, date_str, summary_text):
 # =========================================================
 # פעמון נוטיפיקציות — הזרקה ישירה ל-DOM של Streamlit
 # =========================================================
+# =========================================================
+# טעינת נתונים
+# =========================================================
+try:
+    projects     = pd.read_excel("my_projects.xlsx")
+    meetings     = pd.read_excel("meetings.xlsx")
+    reminders_df = pd.read_excel("reminders.xlsx")
+    priority_df  = pd.read_excel("priority.xlsx")
+except Exception as e:
+    st.error(f"שגיאה בטעינת קבצים: {e}"); st.stop()
+
+today = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).date()
 def render_notification_bell(reminders_today):
     unread = len(reminders_today)
 
