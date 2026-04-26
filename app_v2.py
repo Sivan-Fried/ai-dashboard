@@ -142,6 +142,249 @@ except Exception as e:
     st.error(f"שגיאה בטעינת קבצים: {e}"); st.stop()
 
 today = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).date()
+
+#ניסיון להוסיף סרגל עליון
+def render_topbar(img_b64, w_text, w_city, greeting):
+    """
+    סרגל ניווט עליון קבוע — מוזרק ל-DOM של Streamlit.
+    ימין: פרופיל + ברכה + פעמון
+    מרכז: ניווט placeholders
+    שמאל: הגדרות + מזג אוויר + שעה
+    """
+    now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
+    time_str = now.strftime("%H:%M")
+    date_str = now.strftime("%d/%m/%Y")
+
+    profile_img_tag = f'<img src="data:image/png;base64,{img_b64}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;object-position:center 25%;border:2px solid #FADCE6;"/>' if img_b64 else '<div style="width:36px;height:36px;border-radius:50%;background:#FADCE6;"></div>'
+
+    components.html(f"""
+<!DOCTYPE html>
+<html dir="rtl">
+<head>
+<meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0" rel="stylesheet"/>
+<style>
+  * {{ box-sizing:border-box; margin:0; padding:0; font-family:'Plus Jakarta Sans',sans-serif; }}
+  body {{ background:transparent; overflow:hidden; height:72px; }}
+
+  .topbar {{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    direction: rtl;
+  }}
+
+  /* ── ימין: פרופיל ── */
+  .tb-right {{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }}
+  .tb-greeting {{
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #3f3f46;
+    white-space: nowrap;
+  }}
+  .tb-greeting span {{
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 400;
+    color: #a1a1aa;
+    margin-top: 1px;
+  }}
+
+  /* ── מרכז: ניווט ── */
+  .tb-nav {{
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    justify-content: center;
+  }}
+  .tb-nav a {{
+    text-decoration: none;
+    color: #71717A;
+    font-size: 0.82rem;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }}
+  .tb-nav a:hover {{ background: #FADCE6; color: #3f3f46; }}
+  .tb-nav a.active {{ background: #FADCE6; color: #3f3f46; font-weight: 600; }}
+
+  /* ── שמאל: כלים ── */
+  .tb-left {{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }}
+  .tb-weather {{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.2;
+  }}
+  .tb-weather-temp {{
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #3f3f46;
+    white-space: nowrap;
+  }}
+  .tb-weather-city {{
+    font-size: 0.68rem;
+    color: #a1a1aa;
+  }}
+  .tb-divider {{
+    width: 1px;
+    height: 28px;
+    background: #F4F4F5;
+    flex-shrink: 0;
+  }}
+  .tb-datetime {{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.2;
+  }}
+  .tb-time {{
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #3f3f46;
+    font-variant-numeric: tabular-nums;
+  }}
+  .tb-date {{
+    font-size: 0.68rem;
+    color: #a1a1aa;
+  }}
+  .tb-icon-btn {{
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+    color: #71717A;
+    font-size: 1.1rem;
+  }}
+  .tb-icon-btn:hover {{ background: #F4F4F5; }}
+  .material-symbols-outlined {{
+    font-size: 20px;
+    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  }}
+</style>
+</head>
+<body>
+<div class="topbar">
+
+  <!-- ימין: פרופיל + ברכה -->
+  <div class="tb-right">
+    {profile_img_tag}
+    <div class="tb-greeting">
+      {greeting}, סיון
+      <span>מנהלת פרויקטים</span>
+    </div>
+  </div>
+
+  <!-- מרכז: ניווט -->
+  <nav class="tb-nav">
+    <a href="#" class="active">דשבורד</a>
+    <a href="#">פרויקטים</a>
+    <a href="#">פגישות</a>
+    <a href="#">משימות</a>
+    <a href="#">דוחות</a>
+  </nav>
+
+  <!-- שמאל: הגדרות + מזג אוויר + שעה -->
+  <div class="tb-left">
+    <div class="tb-weather">
+      <span class="tb-weather-temp">{w_text}</span>
+      <span class="tb-weather-city">{w_city}</span>
+    </div>
+    <div class="tb-divider"></div>
+    <div class="tb-datetime" id="tb-dt">
+      <span class="tb-time">{time_str}</span>
+      <span class="tb-date">{date_str}</span>
+    </div>
+    <div class="tb-divider"></div>
+    <button class="tb-icon-btn" title="הגדרות">
+      <span class="material-symbols-outlined">settings</span>
+    </button>
+  </div>
+
+</div>
+
+<script>
+  // הזרקת הסרגל ל-DOM של Streamlit
+  window.addEventListener('load', function() {{
+    var parentDoc = window.parent.document;
+
+    // הסר ישן
+    var old = parentDoc.getElementById('sn-topbar');
+    if (old) old.remove();
+    var oldStyle = parentDoc.getElementById('sn-topbar-style');
+    if (oldStyle) oldStyle.remove();
+
+    // CSS לסרגל ב-parent
+    var style = parentDoc.createElement('style');
+    style.id = 'sn-topbar-style';
+    style.textContent = `
+      #sn-topbar {{
+        position: fixed;
+        top: 0; right: 0; left: 0;
+        height: 64px;
+        background: rgba(255,255,255,0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid #F4F4F5;
+        box-shadow: 0 2px 20px rgba(225,200,210,0.12);
+        z-index: 99998;
+        display: flex;
+        align-items: center;
+        padding: 0 28px;
+        direction: rtl;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        justify-content: space-between;
+      }}
+      /* דחוף את תוכן Streamlit למטה */
+      section[tabindex="0"] > div:first-child {{
+        padding-top: 72px !important;
+      }}
+    `;
+    parentDoc.head.appendChild(style);
+
+    // העתק את ה-topbar ל-parent
+    var topbarEl = parentDoc.createElement('div');
+    topbarEl.id = 'sn-topbar';
+    topbarEl.innerHTML = document.querySelector('.topbar').innerHTML;
+    parentDoc.body.appendChild(topbarEl);
+
+    // שעון חי ב-parent
+    setInterval(function() {{
+      var dtEl = parentDoc.getElementById('tb-dt');
+      if (!dtEl) return;
+      var now = new Date();
+      var h = String(now.getHours()).padStart(2,'0');
+      var m = String(now.getMinutes()).padStart(2,'0');
+      var d = String(now.getDate()).padStart(2,'0');
+      var mo = String(now.getMonth()+1).padStart(2,'0');
+      var y = now.getFullYear();
+      dtEl.querySelector('.tb-time').textContent = h + ':' + m;
+      dtEl.querySelector('.tb-date').textContent = d + '/' + mo + '/' + y;
+    }}, 10000);
+  }});
+</script>
+</body>
+</html>
+    """, height=0, scrolling=False)
+    #סוף נסיון
+
 def render_notification_bell(reminders_today):
     unread = len(reminders_today)
 
