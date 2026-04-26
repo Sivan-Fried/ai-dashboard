@@ -39,30 +39,32 @@ def render_topbar(img_b64, w_text, w_city, greeting):
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
     time_str = now.strftime("%H:%M")
     date_str = now.strftime("%d/%m/%Y")
-
-    # מנקים את w_text מאמוג'י לפני הכנסה ל-HTML
     w_text_clean = w_text.encode('ascii', 'ignore').decode('ascii').strip()
+    profile_tag = f'<img src="data:image/png;base64,{img_b64}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #FADCE6;"/>' if img_b64 else ""
 
-    profile_tag = (
-        f'<img src="data:image/png;base64,{img_b64}" '
-        'style="width:36px;height:36px;border-radius:50%;'
-        'object-fit:cover;border:2px solid #FADCE6;vertical-align:middle;"/>'
-        if img_b64 else ""
-    )
+    html = '<div style="background:white;border-radius:16px;border:1px solid #F4F4F5;box-shadow:0 2px 20px rgba(225,200,210,0.2);display:flex;align-items:center;justify-content:space-between;padding:12px 24px;direction:rtl;font-family:sans-serif;margin-bottom:20px;">'
+    html += '<div style="display:flex;align-items:center;gap:10px;">'
+    html += profile_tag
+    html += '<div>'
+    html += f'<div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{greeting}, סיון</div>'
+    html += '<div style="font-size:0.7rem;color:#a1a1aa;">מנהלת פרויקטים</div>'
+    html += '</div></div>'
+    html += '<nav style="display:flex;gap:4px;flex:1;justify-content:center;">'
+    html += '<span style="font-size:0.82rem;font-weight:600;padding:6px 14px;border-radius:20px;background:#FADCE6;color:#3f3f46;">דשבורד</span>'
+    html += '<span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">פרויקטים</span>'
+    html += '<span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">פגישות</span>'
+    html += '<span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">משימות</span>'
+    html += '<span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">דוחות</span>'
+    html += '</nav>'
+    html += '<div style="display:flex;align-items:center;gap:12px;">'
+    html += f'<div style="text-align:right;"><div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{w_text_clean}</div><div style="font-size:0.68rem;color:#a1a1aa;">{w_city}</div></div>'
+    html += '<div style="width:1px;height:28px;background:#F4F4F5;"></div>'
+    html += f'<div style="text-align:right;"><div style="font-size:0.85rem;font-weight:700;color:#3f3f46;">{time_str}</div><div style="font-size:0.68rem;color:#a1a1aa;">{date_str}</div></div>'
+    html += '<div style="width:1px;height:28px;background:#F4F4F5;"></div>'
+    html += '<div style="width:32px;height:32px;border-radius:50%;background:#F4F4F5;display:flex;align-items:center;justify-content:center;font-size:0.75rem;color:#71717A;cursor:pointer;">HG</div>'
+    html += '</div></div>'
 
-    parts = [
-        '<div style="background:rgba(255,255,255,0.95);border-radius:16px;',
-        'border:1px solid #F4F4F5;box-shadow:0 2px 20px rgba(225,200,210,0.2);',
-        'display:flex;align-items:center;justify-content:space-between;',
-        'padding:12px 24px;direction:rtl;',
-        'font-family:Plus Jakarta Sans,sans-serif;margin-bottom:20px;">',
-
-        # ימין
-        '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">',
-        profile_tag,
-        '<div style="line-height:1.3;">',
-        f'<div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{greeting}, סיון</div>',
-        '<div style="font-size:0.7rem;color:#a1a1aa;">מנהלת פרויקטים</div>',
+    st.markdown(html, unsafe_allow_html=True)
 #סוף נסיון
 
 
