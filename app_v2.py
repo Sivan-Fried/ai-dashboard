@@ -62,7 +62,7 @@ def render_topbar(img_b64, w_text, w_city, greeting):
         profile_tag,
         '<div style="line-height:1.3;">',
         f'<div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{greeting}, סיון</div>',
-        '<div style="font-size:0.7rem;color:#a1a1aa;
+        '<div style="font-size:0.7rem;color:#a1a1aa;">מנהלת פרויקטים</div>',
 #סוף נסיון
 
 
