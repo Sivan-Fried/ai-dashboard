@@ -32,18 +32,18 @@ st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fami
 with open("styles.css", encoding="utf-8") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-/* =========================================================
-   NEW DASHBOARD — Design System
-   Primary:   #FADCE6 (ורוד עדין)
-   Secondary: #71717A (אפור)
-   Tertiary:  #F4F4F5 (אפור בהיר)
-   Neutral:   #FFFFFF
-   Font:      Plus Jakarta Sans
-   ========================================================= */
+# =========================================================
+#   NEW DASHBOARD — Design System
+#   Primary:   #FADCE6 (ורוד עדין)
+#   Secondary: #71717A (אפור)
+#   Tertiary:  #F4F4F5 (אפור בהיר)
+#   Neutral:   #FFFFFF
+#   Font:      Plus Jakarta Sans
+#   ========================================================= 
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
-/* ── CSS Variables ─────────────────────────────────────── */
+# ── CSS Variables ─────────────────────────────────────── 
 :root {
     --primary:        #FADCE6;
     --primary-dark:   #f0b8cb;
@@ -64,7 +64,7 @@ with open("styles.css", encoding="utf-8") as f:
     --border-accent:  #FADCE6;
 }
 
-/* ── בסיס ──────────────────────────────────────────────── */
+# ── בסיס ──────────────────────────────────────────────── 
 .stApp {
     background-color: var(--bg) !important;
     direction: rtl !important;
@@ -72,11 +72,11 @@ with open("styles.css", encoding="utf-8") as f:
     color: var(--text-main) !important;
 }
 
-* {
+  {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
 }
 
-/* ── Tabs ──────────────────────────────────────────────── */
+#── Tabs ──────────────────────────────────────────────── 
 button[data-baseweb="tab"] {
     gap: 20px !important;
     margin-left: 15px !important;
@@ -85,12 +85,12 @@ button[data-baseweb="tab"] {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
 }
 
-/* ── iframe של geolocation ─────────────────────────────── */
+# ── iframe של geolocation ───────────────────────────────
 iframe[title="streamlit_js_eval.streamlit_js_eval"] {
     display: none !important;
 }
 
-/* ── כותרת ראשית ───────────────────────────────────────── */
+# ── כותרת ראשית ───────────────────────────────────────── 
 .dashboard-header {
     background: linear-gradient(90deg, #FADCE6, #f0b8cb) !important;
     -webkit-background-clip: text !important;
@@ -102,7 +102,7 @@ iframe[title="streamlit_js_eval.streamlit_js_eval"] {
     letter-spacing: -0.5px !important;
 }
 
-/* ── כותרות H3 ─────────────────────────────────────────── */
+#── כותרות H3 ─────────────────────────────────────────── 
 h3 {
     font-size: 1.05rem !important;
     font-weight: 700 !important;
@@ -112,7 +112,7 @@ h3 {
     letter-spacing: -0.2px !important;
 }
 
-/* ── תמונת פרופיל ──────────────────────────────────────── */
+# ── תמונת פרופיל ──────────────────────────────────────── 
 .profile-img {
     width: 130px !important;
     height: 130px !important;
@@ -123,7 +123,7 @@ h3 {
     box-shadow: var(--shadow-md) !important;
 }
 
-/* ── KPI Cards ─────────────────────────────────────────── */
+# ── KPI Cards ─────────────────────────────────────────── 
 .kpi-card {
     background: var(--card-bg) !important;
     padding: 18px 15px !important;
@@ -150,7 +150,7 @@ h3 {
     font-weight: 500 !important;
 }
 
-/* ── Containers / כרטיסים ──────────────────────────────── */
+# ── Containers / כרטיסים ──────────────────────────────── 
 div[data-testid="stVerticalBlockBorderWrapper"],
 .st-emotion-cache-1ne20ew {
     background: var(--card-bg) !important;
@@ -161,7 +161,7 @@ div[data-testid="stVerticalBlockBorderWrapper"],
     box-shadow: var(--shadow-sm) !important;
 }
 
-/* ── Project Links ─────────────────────────────────────── */
+# ── Project Links ─────────────────────────────────────── 
 .project-link {
     text-decoration: none !important;
     color: inherit !important;
@@ -175,7 +175,7 @@ div[data-testid="stVerticalBlockBorderWrapper"],
     box-shadow: var(--shadow-md) !important;
 }
 
-/* ── Record Row ────────────────────────────────────────── */
+# ── Record Row ────────────────────────────────────────── 
 .record-row {
     background: var(--card-bg) !important;
     padding: 10px 15px !important;
@@ -196,7 +196,7 @@ div[data-testid="stVerticalBlockBorderWrapper"],
     transform: translateY(-1px) !important;
 }
 
-/* ── Tags ──────────────────────────────────────────────── */
+# ── Tags ────────────────────────────────────────────────
 .tag-blue   { color: #71717A; font-size: 0.78em; font-weight: 600; background: #F4F4F5; padding: 3px 10px; border-radius: 20px; }
 .tag-orange { color: #71717A; font-size: 0.78em; font-weight: 600; background: #F4F4F5; padding: 3px 10px; border-radius: 20px; }
 .tag-green  { color: #71717A; font-size: 0.78em; font-weight: 600; background: #F4F4F5; padding: 3px 10px; border-radius: 20px; }
@@ -205,7 +205,7 @@ div[data-testid="stVerticalBlockBorderWrapper"],
 .tag-teal   { color: #71717A; font-size: 0.78em; font-weight: 600; background: #F4F4F5; padding: 3px 10px; border-radius: 20px; }
 .tag-gray   { color: #71717A; font-size: 0.78em; font-weight: 600; background: #F4F4F5; padding: 3px 10px; border-radius: 20px; }
 
-/* ── Time Label ────────────────────────────────────────── */
+# ── Time Label ────────────────────────────────────────── 
 .time-label {
     color: var(--text-light) !important;
     font-size: 0.82em !important;
@@ -213,14 +213,14 @@ div[data-testid="stVerticalBlockBorderWrapper"],
     font-family: 'Plus Jakarta Sans', monospace !important;
 }
 
-/* ── טקסט כללי ─────────────────────────────────────────── */
+# ── טקסט כללי ─────────────────────────────────────────── 
 p, label, .stSelectbox, .stTextInput {
     text-align: right !important;
     direction: rtl !important;
     color: var(--text-main) !important;
 }
 
-/* ── Weather Float ─────────────────────────────────────── */
+# ── Weather Float ─────────────────────────────────────── 
 .weather-float {
     display: inline-flex !important;
     flex-direction: column !important;
@@ -235,7 +235,7 @@ div[data-testid="stMarkdownContainer"]:has(.weather-float) {
     text-align: center !important;
 }
 
-/* ── Buttons ───────────────────────────────────────────── */
+# ── Buttons ───────────────────────────────────────────── 
 div[data-testid="stButton"] button {
     border-radius: var(--radius-sm) !important;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
@@ -247,7 +247,7 @@ div[data-testid="stButton"] button:hover {
     box-shadow: var(--shadow-md) !important;
 }
 
-/* ── Inputs ────────────────────────────────────────────── */
+# ── Inputs ────────────────────────────────────────────── 
 div[data-testid="stTextInput"] input,
 div[data-testid="stSelectbox"] > div {
     border-radius: var(--radius-sm) !important;
@@ -260,7 +260,7 @@ div[data-testid="stTextInput"] input:focus {
     box-shadow: 0 0 0 3px rgba(250, 220, 230, 0.4) !important;
 }
 
-/* ── Alerts / st.info ──────────────────────────────────── */
+# ── Alerts / st.info ────────────────────────────────────
 div[data-testid="stAlert"] {
     border-radius: var(--radius-md) !important;
     border: none !important;
@@ -279,7 +279,7 @@ div[data-testid="stAlert"] h3 {
     color: var(--text-dark) !important;
 }
 
-/* ── Fathom rows ───────────────────────────────────────── */
+# ── Fathom rows ───────────────────────────────────────── 
 .fathom-row-ui {
     display: grid !important;
     grid-template-columns: auto 1fr auto !important;
@@ -303,7 +303,7 @@ div[data-testid="stAlert"] h3 {
     margin-right: 12px !important;
 }
 
-/* ── Scrollbar עדין ────────────────────────────────────── */
+# ── Scrollbar עדין ────────────────────────────────────── 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
