@@ -36,6 +36,7 @@ with open("styles_v2.css", encoding="utf-8") as f:
 # =========================================================
 #ניסיון להוסיף סרגל עליון
 def render_topbar(img_b64, w_text, w_city, greeting):
+    st.write("topbar נטען")
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
     time_str = now.strftime("%H:%M")
     date_str = now.strftime("%d/%m/%Y")
