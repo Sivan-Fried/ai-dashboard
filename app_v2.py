@@ -449,7 +449,7 @@ else:
                                     <b>📂 {row["project_name"]}</b>
                                     <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
                                 </div>
-                                <span class="material-symbols-rounded" style="color: #94a3b8; font-size: 20px;">chevron_left</span>
+                                <span style="color: #94a3b8; font-size: 16px;">&#8249;</span>
                             </div>
                         </a>
                     ''', unsafe_allow_html=True)
