@@ -40,7 +40,7 @@ def render_topbar(img_b64, w_text, w_city, greeting):
     time_str = now.strftime("%H:%M")
     date_str = now.strftime("%d/%m/%Y")
     w_text_clean = w_text.encode('ascii', 'ignore').decode('ascii').strip()
-    profile_tag = f'<img src="data:image/png;base64,{img_b64}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid #FADCE6;"/>' if img_b64 else ""
+    profile_tag = f'<img src="data:image/png;base64,{img_b64}" style="width:82px;height:82px;border-radius:50%;object-fit:cover;object-position:center 20%;border:4px solid white;box-shadow:0 2px 12px rgba(225,200,210,0.4);"/>' if img_b64 else ""
 
     html = '<div style="background:white;border-radius:16px;border:1px solid #F4F4F5;box-shadow:0 2px 20px rgba(225,200,210,0.2);display:flex;align-items:center;justify-content:space-between;padding:20px 24px;direction:rtl;font-family:sans-serif;margin-bottom:20px;margin-top:-60px;">'
     html += '<div style="display:flex;align-items:center;gap:10px;">'
