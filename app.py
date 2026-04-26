@@ -546,7 +546,6 @@ else:
             if priority_df.empty:
                 st.write("לא נמצאו פרויקטים לדיווח.")
             else:
-        
                 color_map = {
                     "אנליסט": "tag-blue",
                     "דנאל": "tag-green",
@@ -556,12 +555,17 @@ else:
                     "אלשטול": "tag-purple",
                 }
         
-                for _, row in priority_df.iterrows():
+                # --- חדש: session state לפתיחה/סגירה ---
+                if "priority_expanded" not in st.session_state:
+                    st.session_state.priority_expanded = False
         
-                    project_name = row["project_name"]
+                rows_to_show = priority_df if st.session_state.priority_expanded else priority_df.iloc[:4]
+        
+                for _, row in rows_to_show.iterrows():
+                    project_name   = row["project_name"]
                     project_number = row["project_number"]
-                    order_number = row["order_number"]
-                    category = project_name.split(" ")[0]
+                    order_number   = row["order_number"]
+                    category  = project_name.split(" ")[0]
                     tag_class = color_map.get(category, "tag-gray")
         
                     html = (
@@ -569,7 +573,6 @@ else:
                         'style="display:flex; align-items:center; justify-content:space-between; '
                         'gap:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'
         
-                            # שם הפרויקט + המספרים — ביחד!
                             f'<span style="font-weight:600; overflow:hidden; text-overflow:ellipsis;">'
                             f'{project_name} '
                             f'<span style="color:#64748b; font-size:0.8rem; margin-right:6px;">'
@@ -577,15 +580,26 @@ else:
                             '</span>'
                             '</span>'
         
-                            # תגית קטגוריה
                             f'<span class="{tag_class}" style="white-space:nowrap; flex-shrink:0;">'
                             f'{category}</span>'
         
                         '</div>'
                     )
-        
                     st.markdown(html, unsafe_allow_html=True)
-
+        
+                # --- כפתור הצג הכל / הראה פחות ---
+                if len(priority_df) > 4:
+                    label = "הראה פחות ▲" if st.session_state.priority_expanded else f"הצג הכל ({len(priority_df)}) ▼"
+                    st.markdown(
+                        f'<div style="text-align:center; margin-top:6px;">'
+                        f'<span id="toggle_priority" style="color:#4facfe; font-size:0.82rem; font-weight:600; cursor:pointer;">{label}</span>'
+                        f'</div>',
+                        unsafe_allow_html=True
+                    )
+                    if st.button(label, key="toggle_priority_btn", use_container_width=False):
+                        st.session_state.priority_expanded = not st.session_state.priority_expanded
+                        st.rerun()
+                
     # ══════════════════════════════════════════════════════
     # עמודה שמאלית
     # ══════════════════════════════════════════════════════
