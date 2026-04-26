@@ -605,6 +605,10 @@ else:
     now      = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
     greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
 
+    # ⭐ קריאה לסרגל העליון ⭐
+    render_topbar(img_b64, w_text, w_city, greeting)
+
+
     p1, p2, p3 = st.columns([1, 1, 2])
     with p2:
         if img_b64:
@@ -624,11 +628,6 @@ else:
         """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-
-    
-
-    #נסיון לקרוא לפונקציה
-    render_topbar(img_b64, w_text, w_city, greeting)
 
 
     # ── KPIs ────────────────────────────────────────────────
