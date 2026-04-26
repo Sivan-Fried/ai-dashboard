@@ -48,67 +48,57 @@ def render_topbar(img_b64, w_text, w_city, greeting):
         '<div style="width:36px;height:36px;border-radius:50%;background:#FADCE6;"></div>'
     )
 
-    st.markdown(f"""
-    <div id="sn-topbar" style="
-        position:fixed; top:0; right:0; left:0;
-        height:64px;
-        background:rgba(255,255,255,0.92);
-        backdrop-filter:blur(20px);
-        -webkit-backdrop-filter:blur(20px);
-        border-bottom:1px solid #F4F4F5;
-        box-shadow:0 2px 20px rgba(225,200,210,0.15);
-        z-index:99998;
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        padding:0 28px;
-        direction:rtl;
-        font-family:'Plus Jakarta Sans',sans-serif;
-    ">
-        <!-- ימין: פרופיל + ברכה -->
-        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
-            {profile_img_tag}
-            <div style="line-height:1.3;">
-                <div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{greeting}, סיון</div>
-                <div style="font-size:0.7rem;color:#a1a1aa;">מנהלת פרויקטים</div>
-            </div>
-        </div>
+    html = (
+        '<div id="sn-topbar" style="'
+        'position:fixed;top:0;right:0;left:0;height:64px;'
+        'background:rgba(255,255,255,0.92);'
+        'backdrop-filter:blur(20px);'
+        'border-bottom:1px solid #F4F4F5;'
+        'box-shadow:0 2px 20px rgba(225,200,210,0.15);'
+        'z-index:99998;display:flex;align-items:center;'
+        'justify-content:space-between;padding:0 28px;'
+        'direction:rtl;font-family:Plus Jakarta Sans,sans-serif;">'
 
-        <!-- מרכז: ניווט -->
-        <nav style="display:flex;gap:4px;flex:1;justify-content:center;">
-            <a href="#" style="text-decoration:none;color:#71717A;font-size:0.82rem;font-weight:600;
-                padding:6px 14px;border-radius:20px;background:#FADCE6;color:#3f3f46;">דשבורד</a>
-            <a href="#" style="text-decoration:none;color:#71717A;font-size:0.82rem;
-                padding:6px 14px;border-radius:20px;">פרויקטים</a>
-            <a href="#" style="text-decoration:none;color:#71717A;font-size:0.82rem;
-                padding:6px 14px;border-radius:20px;">פגישות</a>
-            <a href="#" style="text-decoration:none;color:#71717A;font-size:0.82rem;
-                padding:6px 14px;border-radius:20px;">משימות</a>
-            <a href="#" style="text-decoration:none;color:#71717A;font-size:0.82rem;
-                padding:6px 14px;border-radius:20px;">דוחות</a>
-        </nav>
+        # ימין
+        '<div style="display:flex;align-items:center;gap:10px;">'
+        + profile_img_tag +
+        '<div style="line-height:1.3;">'
+        f'<div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{greeting}, סיון</div>'
+        '<div style="font-size:0.7rem;color:#a1a1aa;">מנהלת פרויקטים</div>'
+        '</div></div>'
 
-        <!-- שמאל: מזג אוויר + שעה + הגדרות -->
-        <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
-            <div style="text-align:right;line-height:1.3;">
-                <div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{w_text}</div>
-                <div style="font-size:0.68rem;color:#a1a1aa;">{w_city}</div>
-            </div>
-            <div style="width:1px;height:28px;background:#F4F4F5;"></div>
-            <div style="text-align:right;line-height:1.3;">
-                <div style="font-size:0.85rem;font-weight:700;color:#3f3f46;">{time_str}</div>
-                <div style="font-size:0.68rem;color:#a1a1aa;">{date_str}</div>
-            </div>
-            <div style="width:1px;height:28px;background:#F4F4F5;"></div>
-            <button style="width:36px;height:36px;border-radius:50%;background:transparent;
-                border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
-                color:#71717A;font-size:1.1rem;" title="הגדרות">⚙️</button>
-        </div>
-    </div>
+        # מרכז
+        '<nav style="display:flex;gap:4px;flex:1;justify-content:center;">'
+        '<span style="font-size:0.82rem;font-weight:600;padding:6px 14px;'
+        'border-radius:20px;background:#FADCE6;color:#3f3f46;">דשבורד</span>'
+        '<span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">פרויקטים</span>'
+        '<span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">פגישות</span>'
+        '<span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">משימות</span>'
+        '<span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">דוחות</span>'
+        '</nav>'
 
-    <!-- ריווח כדי שהתוכן לא יתחבא מתחת לסרגל -->
-    <div style="height:72px;"></div>
-    """, unsafe_allow_html=True)
+        # שמאל
+        '<div style="display:flex;align-items:center;gap:12px;">'
+        '<div style="text-align:right;line-height:1.3;">'
+        f'<div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{w_text}</div>'
+        f'<div style="font-size:0.68rem;color:#a1a1aa;">{w_city}</div>'
+        '</div>'
+        '<div style="width:1px;height:28px;background:#F4F4F5;"></div>'
+        '<div style="text-align:right;line-height:1.3;">'
+        f'<div style="font-size:0.85rem;font-weight:700;color:#3f3f46;">{time_str}</div>'
+        f'<div style="font-size:0.68rem;color:#a1a1aa;">{date_str}</div>'
+        '</div>'
+        '<div style="width:1px;height:28px;background:#F4F4F5;"></div>'
+        '<div style="width:36px;height:36px;border-radius:50%;'
+        'display:flex;align-items:center;justify-content:center;'
+        'cursor:pointer;color:#71717A;font-size:0.8rem;font-weight:600;">HG</div>'
+        '</div>'
+
+        '</div>'
+        '<div style="height:72px;"></div>'
+    )
+
+    st.markdown(html, unsafe_allow_html=True)
 #סוף נסיון
 
 
