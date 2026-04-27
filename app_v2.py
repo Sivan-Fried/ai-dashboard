@@ -612,8 +612,13 @@ else:
     greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
 
     # ⭐ סרגל עליון — חייב להיות ראשון ⭐
-    # ── סרגל + פעמון משולבים ───────────────────────────────
-    render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders)
+    render_topbar(img_b64, w_text, w_city, greeting)
+
+    # ── פעמון נוטיפיקציות — מוצב מיד אחרי הסרגל ──────────
+    today_reminders = st.session_state.rem_live[
+        pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today
+    ]
+    render_notification_bell(today_reminders)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
