@@ -494,6 +494,7 @@ else:
                 st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
     
         # --- עוזר אישי AI ---
+        st.markdown("", unsafe_allow_html=True)
         with st.container(border=True):
     
             st.markdown("""
