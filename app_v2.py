@@ -451,20 +451,20 @@ else:
     with col_right:
         with st.container(border=True):
              st.markdown("### 📁 פרויקטים")
-        with st.container(height=300, border=False):
-                    for _, row in projects.iterrows():
-                        p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
-                        st.markdown(f'''
-                            <a href="{p_url}" target="_self" class="project-link">
-                                <div class="record-row">
-                                    <div style="display: flex; align-items: center; gap: 10px;">
-                                        <b>📂 {row["project_name"]}</b>
-                                        <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
+            with st.container(height=300, border=False):
+                        for _, row in projects.iterrows():
+                            p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
+                            st.markdown(f'''
+                                <a href="{p_url}" target="_self" class="project-link">
+                                    <div class="record-row">
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <b>📂 {row["project_name"]}</b>
+                                            <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
+                                        </div>
+                                        <span style="color: #94a3b8; font-size: 22px; line-height: 1; flex-shrink: 0;">&#8250;</span>
                                     </div>
-                                    <span style="color: #94a3b8; font-size: 22px; line-height: 1; flex-shrink: 0;">&#8250;</span>
-                                </div>
-                            </a>
-                        ''', unsafe_allow_html=True)
+                                </a>
+                            ''', unsafe_allow_html=True)
     
         with st.container(border=True):
                 st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
