@@ -35,260 +35,71 @@ with open("styles_v2.css", encoding="utf-8") as f:
 # =========================================================
 #ניסיון להוסיף סרגל עליון
 # =========================================================
+# סרגל עליון — פרופיל + ניווט + מזג אוויר + שעה + פעמון
 # =========================================================
-# סרגל עליון + פעמון נוטיפיקציות משולבים — הכל ב-components.html אחד
-# =========================================================
-def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
+def render_topbar(img_b64, w_text, w_city, greeting):
     import re
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
     time_str = now.strftime("%H:%M")
     date_str = now.strftime("%d/%m/%Y")
-
-    # ניקוי מזג אוויר
+    # ניקוי אמוג'י ממזג האוויר + הוספת סימן מעלות
     w_text_clean = re.sub(r'[^\x00-\x7F]+', '', w_text).strip()
     w_text_clean = w_text_clean.replace('C', '\u00b0C')
-
     # תמונת פרופיל
-    profile_src = f"data:image/png;base64,{img_b64}" if img_b64 else ""
+    profile_tag = f'<img src="data:image/png;base64,{img_b64}" style="width:82px;height:82px;border-radius:50%;object-fit:cover;object-position:center 20%;border:4px solid white;box-shadow:0 2px 12px rgba(225,200,210,0.4);"/>' if img_b64 else ""
 
-    # בניית פריטי הנוטיפיקציות
-    unread = len(reminders_today)
-    items_html = ""
-    if reminders_today.empty:
-        items_html = '<div style="padding:24px 16px;text-align:center;color:#a1a1aa;font-size:0.85rem;">אין תזכורות להיום</div>'
-    else:
-        for _, row in reminders_today.iterrows():
-            text = str(row.get("reminder_text", "")).replace('"', '&quot;').replace("'", "&#39;").replace("<", "&lt;")
-            proj = str(row.get("project_name", "כללי")).replace('"', '&quot;').replace("'", "&#39;")
-            items_html += f"""
-            <div class="notif-item" onclick="markRead(this)">
-                <div class="notif-avatar"></div>
-                <div class="notif-content">
-                    <div class="notif-text">{text}</div>
-                    <div class="notif-proj">{proj}</div>
-                </div>
-                <div class="notif-dot"></div>
-            </div>"""
+    # מבנה הסרגל
+    html = '<div style="background:white;border-radius:16px;border:1px solid #F4F4F5;box-shadow:0 2px 20px rgba(225,200,210,0.2);display:flex;align-items:center;justify-content:space-between;padding:20px 24px;direction:rtl;font-family:sans-serif;margin-bottom:20px;margin-top:-60px;">'
 
-    items_js = items_html.replace('`', r'\`').replace('\\', '\\\\')
-    badge_display = 'flex' if unread > 0 else 'none'
+    # ימין: פרופיל + ברכה
+    html += '<div style="display:flex;align-items:center;gap:10px;">'
+    html += profile_tag
+    html += '<div>'
+    html += f'<div style="font-size:1rem;font-weight:700;color:#3f3f46;">{greeting}, סיון</div>'
+    html += '<div style="font-size:0.8rem;color:#a1a1aa;">מנהלת פרויקטים</div>'
+    html += '</div></div>'
 
-    components.html(f"""<!DOCTYPE html>
-<html dir="rtl">
-<head>
-<meta charset="utf-8"/>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-<style>
-  * {{ box-sizing:border-box; margin:0; padding:0; }}
-  body {{
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    background: transparent;
-    overflow: visible;
-    height: 110px;
-  }}
+    # מרכז: ניווט
+    html += '<nav style="display:flex;gap:4px;flex:1;justify-content:center;">'
+    html += '<span style="font-size:0.82rem;font-weight:600;padding:6px 14px;border-radius:20px;background:#FADCE6;color:#3f3f46;">דשבורד</span>'
+    html += '<span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">פרויקטים</span>'
+    html += '<span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">פגישות</span>'
+    html += '<span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">משימות</span>'
+    html += '<span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">דוחות</span>'
+    html += '</nav>'
 
-  /* ── סרגל ── */
-  .topbar {{
-    background: white;
-    border-radius: 16px;
-    border: 1px solid #F4F4F5;
-    box-shadow: 0 2px 20px rgba(225,200,210,0.2);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 24px;
-    direction: rtl;
-  }}
+    # שמאל: מזג אוויר + שעה + שם + פעמון
+    html += '<div style="display:flex;align-items:center;gap:12px;">'
 
-  /* ימין */
-  .tb-right {{ display:flex; align-items:center; gap:12px; }}
-  .tb-profile {{ width:72px; height:72px; border-radius:50%; object-fit:cover; object-position:center 20%; border:3px solid white; box-shadow:0 2px 12px rgba(225,200,210,0.4); }}
-  .tb-name {{ font-size:0.95rem; font-weight:700; color:#3f3f46; }}
-  .tb-role {{ font-size:0.75rem; color:#a1a1aa; margin-top:2px; }}
+    # אייקון טמפרטורה + מזג אוויר
+    html += '<div style="display:flex;align-items:center;gap:6px;">'
+    html += '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 11V5C12 3.34315 13.3431 2 15 2C16.6569 2 18 3.34315 18 5V11M12 11C10.3431 11 9 12.3431 9 14C9 15.6569 10.3431 17 12 17C13.6569 17 15 15.6569 15 14C15 12.3431 13.6569 11 12 11Z" stroke="#a1a1aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    html += f'<div style="text-align:right;"><div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{w_text_clean}</div><div style="font-size:0.68rem;color:#a1a1aa;">{w_city}</div></div>'
+    html += '</div>'
 
-  /* מרכז */
-  .tb-nav {{ display:flex; gap:4px; flex:1; justify-content:center; }}
-  .tb-nav span {{ font-size:0.82rem; padding:6px 14px; border-radius:20px; color:#71717A; cursor:pointer; transition:all 0.2s; }}
-  .tb-nav span:hover {{ background:#fdf0f5; }}
-  .tb-nav span.active {{ background:#FADCE6; color:#3f3f46; font-weight:600; }}
+    html += '<div style="width:1px;height:28px;background:#F4F4F5;"></div>'
 
-  /* שמאל */
-  .tb-left {{ display:flex; align-items:center; gap:12px; }}
-  .tb-divider {{ width:1px; height:28px; background:#F4F4F5; }}
-  .tb-weather {{ text-align:right; }}
-  .tb-weather-temp {{ font-size:0.82rem; font-weight:600; color:#3f3f46; }}
-  .tb-weather-city {{ font-size:0.68rem; color:#a1a1aa; }}
-  .tb-time {{ font-size:0.85rem; font-weight:700; color:#3f3f46; }}
-  .tb-date {{ font-size:0.68rem; color:#a1a1aa; }}
-  .tb-brand {{ font-size:0.95rem; font-weight:800; color:#f0b8cb; }}
+    # שעה ותאריך
+    html += f'<div style="text-align:right;"><div style="font-size:0.85rem;font-weight:700;color:#3f3f46;">{time_str}</div><div style="font-size:0.68rem;color:#a1a1aa;">{date_str}</div></div>'
 
-  /* פעמון */
-  .bell-wrap {{ position:relative; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; width:38px; height:38px; border-radius:50%; transition:background 0.2s; }}
-  .bell-wrap:hover {{ background:#fdf0f5; }}
-  .bell-badge {{
-    position:absolute; top:-3px; left:-3px;
-    background:#ef4444; color:white; border-radius:50%;
-    min-width:18px; height:18px; font-size:0.62rem; font-weight:800;
-    display:{badge_display}; align-items:center; justify-content:center;
-    border:2px solid white; padding:0 3px;
-  }}
+    html += '<div style="width:1px;height:28px;background:#F4F4F5;"></div>'
 
-  /* dropdown */
-  .notif-dropdown {{
-    display: none;
-    position: absolute;
-    top: 110px;
-    left: 0;
-    width: 360px;
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(225,200,210,0.35);
-    border: 1px solid #fdf0f5;
-    z-index: 9999;
-    overflow: hidden;
-    direction: rtl;
-    animation: fadeIn 0.15s ease;
-  }}
-  @keyframes fadeIn {{
-    from {{ opacity:0; transform:translateY(-8px); }}
-    to   {{ opacity:1; transform:translateY(0); }}
-  }}
-  .notif-header {{
-    padding: 16px 20px;
-    font-weight: 700;
-    font-size: 1rem;
-    color: #3f3f46;
-    border-bottom: 1px solid #fdf0f5;
-    background: white;
-  }}
-  .notif-item {{
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    cursor: pointer;
-    border-bottom: 1px solid #fdf6f9;
-    transition: background 0.15s;
-  }}
-  .notif-item:last-child {{ border-bottom: none; }}
-  .notif-item:hover {{ background: #fdf6f9; }}
-  .notif-item.read {{ opacity: 0.45; }}
-  .notif-item.read .notif-dot {{ display:none; }}
+    # שם הדשבורד
+    html += '<div style="font-size:1rem;font-weight:800;color:#f0b8cb;">Dashboard AI</div>'
 
-  /* עיגול ורוד לכל נוטיפיקציה */
-  .notif-avatar {{
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    background: #FADCE6;
-    flex-shrink: 0;
-  }}
-  .notif-content {{ flex: 1; }}
-  .notif-text {{ font-size:0.85rem; color:#3f3f46; font-weight:500; line-height:1.4; }}
-  .notif-proj {{ font-size:0.72rem; color:#a1a1aa; margin-top:3px; }}
-  .notif-dot {{
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: #FADCE6;
-    flex-shrink: 0;
-  }}
-  .notif-empty {{ padding:28px 20px; text-align:center; color:#a1a1aa; font-size:0.85rem; }}
-</style>
-</head>
-<body>
+    html += '<div style="width:1px;height:28px;background:#F4F4F5;"></div>'
 
-<div class="topbar">
+    # אייקון פעמון SVG
+    html += '<div id="topbar-bell" style="position:relative;display:inline-block;cursor:pointer;" onclick="document.getElementById(\'bellBtn\').click()">'
+    html += '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6981 21.5547 10.4458 21.3031 10.27 21" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    html += '</div>'
 
-  <!-- ימין: פרופיל -->
-  <div class="tb-right">
-    {'<img class="tb-profile" src="' + profile_src + '"/>' if profile_src else '<div style="width:72px;height:72px;border-radius:50%;background:#FADCE6;"></div>'}
-    <div>
-      <div class="tb-name">{greeting}, סיון</div>
-      <div class="tb-role">מנהלת פרויקטים</div>
-    </div>
-  </div>
+    html += '</div>'
+    html += '</div>'
 
-  <!-- מרכז: ניווט -->
-  <nav class="tb-nav">
-    <span class="active">דשבורד</span>
-    <span>פרויקטים</span>
-    <span>פגישות</span>
-    <span>משימות</span>
-    <span>דוחות</span>
-  </nav>
+    st.markdown(html, unsafe_allow_html=True)
 
-  <!-- שמאל: מזג אוויר + שעה + שם + פעמון -->
-  <div class="tb-left">
 
-    <!-- מזג אוויר -->
-    <div class="tb-weather">
-      <div class="tb-weather-temp">{w_text_clean}</div>
-      <div class="tb-weather-city">{w_city}</div>
-    </div>
-
-    <div class="tb-divider"></div>
-
-    <!-- שעה -->
-    <div>
-      <div class="tb-time">{time_str}</div>
-      <div class="tb-date">{date_str}</div>
-    </div>
-
-    <div class="tb-divider"></div>
-
-    <!-- שם -->
-    <div class="tb-brand">Dashboard AI</div>
-
-    <div class="tb-divider"></div>
-
-    <!-- פעמון + dropdown -->
-    <div style="position:relative;">
-      <div class="bell-wrap" id="bellBtn" onclick="toggleDropdown()">
-        <span class="bell-badge" id="badge">{unread}</span>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6981 21.5547 10.4458 21.3031 10.27 21" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-
-      <!-- חלונית נוטיפיקציות -->
-      <div class="notif-dropdown" id="notifDropdown">
-        <div class="notif-header">התראות</div>
-        {items_js}
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<script>
-  var isOpen = false;
-
-  function toggleDropdown() {{
-    isOpen = !isOpen;
-    document.getElementById('notifDropdown').style.display = isOpen ? 'block' : 'none';
-  }}
-
-  function markRead(el) {{
-    el.classList.add('read');
-    var unreadCount = document.querySelectorAll('.notif-item:not(.read)').length;
-    var badge = document.getElementById('badge');
-    if (unreadCount === 0) badge.style.display = 'none';
-    else {{ badge.style.display = 'flex'; badge.textContent = unreadCount; }}
-  }}
-
-  // סגירה בלחיצה מחוץ
-  document.addEventListener('click', function(e) {{
-    var dropdown = document.getElementById('notifDropdown');
-    var bell = document.getElementById('bellBtn');
-    if (isOpen && !dropdown.contains(e.target) && !bell.contains(e.target)) {{
-      dropdown.style.display = 'none';
-      isOpen = false;
-    }}
-  }});
-</script>
-
-</body>
-</html>""", height=110, scrolling=False)
 #סוף נסיון
 
 
