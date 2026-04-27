@@ -31,9 +31,10 @@ st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fami
 with open("styles_v2.css", encoding="utf-8") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
+#ai-card
 st.markdown("""
 <style>
-.ai-card {
+.ai-box {
     background-color: #FADCE6;
     padding: 24px;
     border-radius: 24px;
@@ -41,26 +42,19 @@ st.markdown("""
     direction: rtl;
     margin-bottom: 20px;
 }
-.ai-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-}
-.ai-header h4 {
-    margin: 0;
+.ai-title {
     font-size: 20px;
     font-weight: 600;
     color: #6f5861;
+    margin: 0;
 }
-.ai-description {
+.ai-desc {
     font-size: 14px;
     color: #6f5861;
     opacity: 0.85;
-    margin-bottom: 20px;
-    text-align: right;
+    margin-bottom: 16px;
 }
-.ai-send-btn {
+.ai-send {
     background-color: #6f5861;
     color: white;
     border-radius: 50%;
@@ -70,12 +64,13 @@ st.markdown("""
     align-items: center;
     justify-content: center;
     font-size: 22px;
-    float: left;
     margin-top: -50px;
     margin-right: 10px;
+    float: left;
 }
 </style>
 """, unsafe_allow_html=True)
+
 
     
 # --- כאן מתחיל התוכן של הדשבורד הישן שלך ---
@@ -542,23 +537,55 @@ else:
 
 
         # --- עוזר אישי AI ---  (בלוק עצמאי, לא בתוך המשימות)
-
-        # --- עוזר אישי AI ---  (בלוק עצמאי, לא בתוך המשימות)
-
+        # ============================
+        #      עוזר אישי AI — מלא
+        # ============================
+        
+        # --- CSS לנראות הכרטיס ---
         st.markdown("""
-        <div class="ai-card">
-        
-            <div class="ai-header">
-                <span style="font-size:26px;">🤖</span>
-                <h4>עוזר ה‑AI שלך</h4>
-            </div>
-        
-            <p class="ai-description">
-                שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
-            </p>
-        
-        </div>
+        <style>
+        .ai-box {
+            background-color: #FADCE6;
+            padding: 24px;
+            border-radius: 24px;
+            box-shadow: 0px 10px 30px rgba(225,200,210,0.25);
+            direction: rtl;
+            margin-bottom: 20px;
+        }
+        .ai-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #6f5861;
+            margin: 0;
+        }
+        .ai-desc {
+            font-size: 14px;
+            color: #6f5861;
+            opacity: 0.85;
+            margin-bottom: 16px;
+        }
+        .ai-send {
+            background-color: #6f5861;
+            color: white;
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-top: -50px;
+            margin-right: 10px;
+            float: left;
+        }
+        </style>
         """, unsafe_allow_html=True)
+        
+        # --- כרטיס ה-AI ---
+        st.markdown('<div class="ai-box">', unsafe_allow_html=True)
+        
+        st.markdown('<p class="ai-title">🤖 עוזר ה‑AI שלך</p>', unsafe_allow_html=True)
+        st.markdown('<p class="ai-desc">שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.</p>', unsafe_allow_html=True)
         
         # בחירת פרויקט
         sel_p = st.selectbox(
@@ -576,9 +603,11 @@ else:
         )
         
         # כפתור עיצובי
-        st.markdown('<div class="ai-send-btn">←</div>', unsafe_allow_html=True)
+        st.markdown('<div class="ai-send">←</div>', unsafe_allow_html=True)
         
-        # לוגיקת שליחה (נשארת כמו שהיא)
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # --- לוגיקת שליחה ---
         if st.button("שגר שאילתה 🚀", use_container_width=True):
             if q_in:
                 with st.spinner("מנתח..."):
@@ -646,9 +675,10 @@ else:
                     except Exception as e:
                         st.session_state.ai_response = f"שגיאה: {str(e)}"
         
-        # הצגת תשובה
+        # --- הצגת תשובה ---
         if st.session_state.ai_response:
             st.info(st.session_state.ai_response)
+
 
 
 
