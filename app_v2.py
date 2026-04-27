@@ -31,9 +31,6 @@ st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fami
 with open("styles_v2.css", encoding="utf-8") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
     
-# בדיקה זמנית — האם האייקון עובד
-st.markdown('<span class="material-symbols-rounded">chevron_left</span>', unsafe_allow_html=True)
-
 # --- כאן מתחיל התוכן של הדשבורד הישן שלך ---
 # =========================================================
 #ניסיון להוסיף סרגל עליון
@@ -391,36 +388,13 @@ else:
     # ⭐ סרגל עליון — חייב להיות ראשון ⭐
     render_topbar(img_b64, w_text, w_city, greeting)
 
-    # ── כותרת ──────────────────────────────────────────────
-    st.markdown('<h1 class="dashboard-header">Dashboard AI</h1>', unsafe_allow_html=True)
-
-    # ── פעמון נוטיפיקציות ──────────────────────────────────
+    # ── פעמון נוטיפיקציות — מוצב מיד אחרי הסרגל ──────────
     today_reminders = st.session_state.rem_live[
         pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today
     ]
     render_notification_bell(today_reminders)
 
-
-    p1, p2, p3 = st.columns([1, 1, 2])
-    with p2:
-        if img_b64:
-            st.markdown(f'<div style="display:flex; justify-content:center;"><img src="data:image/png;base64,{img_b64}" class="profile-img"></div>', unsafe_allow_html=True)
-    with p3:
-        st.markdown(f"""
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <h3 style='margin-bottom:0;'>{greeting}, סיון!</h3>
-                    <p style='color:gray;'>{now.strftime('%d/%m/%Y | %H:%M')}</p>
-                </div>
-                <div class="weather-float">
-                    <div style="font-size: 0.7rem; color: #4facfe; font-weight: 700;">{w_city}</div>
-                    <div style="font-size: 1.1rem; color: #1f2a44; font-weight: 800;">{w_text}</div>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
-
     st.markdown("<br>", unsafe_allow_html=True)
-
 
     # ── KPIs ────────────────────────────────────────────────
     k1, k2, k3, k4 = st.columns(4)
