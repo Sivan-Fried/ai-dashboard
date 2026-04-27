@@ -445,247 +445,245 @@ else:
     col_right, col_left = st.columns([1, 1])
 
 
+
     # ══════════════════════════════════════════════════════
     # עמודה ימנית
     # ══════════════════════════════════════════════════════
-    # ══════════════════════════════════════════════════════
-# עמודה ימנית
-# ══════════════════════════════════════════════════════
-with col_right:
-
-    # --- פרויקטים ---
-    with st.container(border=True):
-        st.markdown("### 📁 פרויקטים")
-        with st.container(height=300, border=False):
-            for _, row in projects.iterrows():
-                p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
-                st.markdown(f'''
-                    <a href="{p_url}" target="_self" class="project-link">
-                        <div class="record-row">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <b>📂 {row["project_name"]}</b>
-                                <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
-                            </div>
-                            <span style="color: #94a3b8; font-size: 22px; line-height: 1; flex-shrink: 0;">&#8250;</span>
-                        </div>
-                    </a>
-                ''', unsafe_allow_html=True)
-
-    # --- משימות ---
-    with st.container(border=True):
-        st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
-        tasks_data = get_azure_tasks()
-        if tasks_data:
-            for t in tasks_data:
-                f = t.get('fields', {})
-                t_id, t_title, p_task = t.get('id'), f.get('System.Title', ''), f.get('System.TeamProject', 'General')
-                raw_date = f.get('System.CreatedDate', '')
-                fmt_date = f"{raw_date[8:10]}/{raw_date[5:7]} {raw_date[11:16]}" if raw_date else ""
-                t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_task)}/_workitems/edit/{t_id}"
-
-                st.markdown(
-                    f'<div class="record-row" style="white-space: nowrap;">'
-                    f'<div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis;">'
-                    f'<a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: none; font-weight: 500;">🔗 {t_title}</a>'
-                    f'<span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">נוצר ב {fmt_date}</span>'
-                    f'</div>'
-                    f'<span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_task}</span>'
-                    f'</div>',
-                    unsafe_allow_html=True
-                )
-        else:
-            st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
-
-    # --- עוזר אישי AI ---
-    with st.container(border=True):
-
-        st.markdown("""
-        <div class="ai-card">
-
-            <div class="ai-header">
-                <span class="material-symbols-outlined ai-icon">smart_toy</span>
-                <h4>עוזר ה‑AI שלך</h4>
-            </div>
-
-            <p class="ai-description">
-                שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
-            </p>
-        """, unsafe_allow_html=True)
-
-        # בחירת פרויקט
-        sel_p = st.selectbox(
-            "",
-            ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
-            key="ai_p"
-        )
-
-        # שדה שאלה
-        q_in = st.text_area(
-            "",
-            placeholder="איך אוכל לעזור?",
-            key="ai_i",
-            height=130
-        )
-
-        # כפתור שליחה (בתוך הכרטיס)
-        st.markdown("""
-            <div class="ai-send-btn">
-                <span class="material-symbols-outlined">arrow_back</span>
-            </div>
-        </div> <!-- סגירת ai-card -->
-        """, unsafe_allow_html=True)
-
-        # לוגיקת שליחה
-        if st.button("שגר שאילתה 🚀", use_container_width=True):
-            if q_in:
-                with st.spinner("מנתח..."):
-                    try:
-                        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-                        model = genai.GenerativeModel('gemini-2.5-flash-lite')
-
-                        projects_summary = "\n".join([
-                            f"- {r['project_name']}: סטטוס {r.get('status','לא ידוע')}, סוג {r.get('project_type','לא ידוע')}"
-                            for _, r in projects.iterrows()
-                        ])
-
-                        meetings_today = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-                        meetings_summary = "\n".join([
-                            f"- {r['meeting_title']} בשעה {fmt_time(r.get('start_time',''))}"
-                            for _, r in meetings_today.iterrows()
-                        ]) if not meetings_today.empty else "אין פגישות היום"
-
-                        reminders_today2 = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
-                        reminders_summary = "\n".join([
-                            f"- {r['reminder_text']} ({r.get('project_name','כללי')})"
-                            for _, r in reminders_today2.iterrows()
-                        ]) if not reminders_today2.empty else "אין תזכורות"
-
-                        tasks_summary = "\n".join([
-                            f"- {t.get('fields',{}).get('System.Title','')} ({t.get('fields',{}).get('System.TeamProject','')})"
-                            for t in (get_azure_tasks() or [])
-                        ]) or "אין משימות פתוחות"
-
-                        fathom_summaries = "\n".join([
-                            f"- פגישה: {k.replace('sum_v4_','')}: {v[:200]}..."
-                            for k, v in st.session_state.items()
-                            if k.startswith("sum_v4_") and v
-                        ]) or "אין סיכומי פגישות"
-
-                        focus = f"התמקד בפרויקט: {sel_p}" if sel_p != "כללי - כל הפרויקטים" else "התייחס לכל הפרויקטים"
-
-                        prompt = f\"\"\"אתה עוזר AI בכיר לניהול פרויקטים. יש לך גישה לכל המידע הבא:
-
-📁 פרויקטים:
-{projects_summary}
-
-📅 פגישות היום:
-{meetings_summary}
-
-🔔 תזכורות היום:
-{reminders_summary}
-
-📋 משימות פתוחות באז'ור:
-{tasks_summary}
-
-📝 סיכומי פגישות אחרונים:
-{fathom_summaries}
-
-{focus}
-שאלה: {q_in}
-
-ענה בעברית עסקית, בצורה מעמיקה וממוקדת. אם רלוונטי — תצלב מידע בין מקורות שונים.\"\"\"
-
-                        response = model.generate_content(prompt)
-                        st.session_state.ai_response = response.text
-
-                    except Exception as e:
-                        st.session_state.ai_response = f"שגיאה: {str(e)}"
-
-    # הצגת תשובה
-    if st.session_state.ai_response:
-        st.info(st.session_state.ai_response)
-
-
-    # ── פרויקטים לדיווח ─────────────────────────────────
-    # ============================
-    # 📌 פרויקטים לדיווח (priority.xlsx)
-    # ============================
-    with st.container(border=True):
-        st.markdown("### 📌 פרויקטים לדיווח")
-
-        if priority_df.empty:
-            st.write("לא נמצאו פרויקטים לדיווח.")
-        else:
-            color_map = {
-                "אנליסט": "tag-blue",
-                "דנאל": "tag-green",
-                "דלק": "tag-orange",
-                "בנק": "tag-teal",
-                "פיתוח": "tag-pink",
-                "אלשטול": "tag-purple",
-            }
-
-            # --- חדש: session state לפתיחה/סגירה ---
-            if "priority_expanded" not in st.session_state:
-                st.session_state.priority_expanded = False
-
-            rows_to_show = priority_df if st.session_state.priority_expanded else priority_df.iloc[:4]
-
-            for _, row in rows_to_show.iterrows():
-                project_name   = row["project_name"]
-                project_number = row["project_number"]
-                order_number   = row["order_number"]
-                category  = project_name.split(" ")[0]
-                tag_class = color_map.get(category, "tag-gray")
-
-                html = (
-                    '<div class="record-row" '
-                    'style="display:flex; align-items:center; justify-content:space-between; '
-                    'gap:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'
-
-                        f'<span style="font-weight:600; overflow:hidden; text-overflow:ellipsis;">'
-                        f'{project_name} '
-                        f'<span style="color:#64748b; font-size:0.8rem; margin-right:6px;">'
-                        f'{project_number} | {order_number}'
-                        '</span>'
-                        '</span>'
-
-                        f'<span class="{tag_class}" style="white-space:nowrap; flex-shrink:0;">'
-                        f'{category}</span>'
-
-                    '</div>'
-                )
-                st.markdown(html, unsafe_allow_html=True)
-
-            # --- כפתור הצג הכל / הראה פחות ---
-            if len(priority_df) > 4:
-                label = "הראה פחות ▲" if st.session_state.priority_expanded else f"הצג הכל ({len(priority_df)}) ▼"
-                st.markdown("""
-                    <style>
-                    div[data-testid="stBaseButton-secondary"]:has(p) button,
-                    .priority-link-btn button {
-                        background: transparent !important;
-                        border: none !important;
-                        box-shadow: none !important;
-                        color: #4facfe !important;
-                        font-size: 0.82rem !important;
-                        font-weight: 600 !important;
-                        padding: 2px 0 !important;
-                        margin-top: 4px !important;
-                        text-align: right !important;
-                        width: auto !important;
-                        min-height: unset !important;
-                        cursor: pointer !important;
-                        float: right !important;
-                    }
-                    </style>
-                """, unsafe_allow_html=True)
-                if st.button(label, key="toggle_priority_btn"):
-                    st.session_state.priority_expanded = not st.session_state.priority_expanded
-                    st.rerun()
-
-
+    with col_right:
     
+        # --- פרויקטים ---
+        with st.container(border=True):
+            st.markdown("### 📁 פרויקטים")
+            with st.container(height=300, border=False):
+                for _, row in projects.iterrows():
+                    p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
+                    st.markdown(f'''
+                        <a href="{p_url}" target="_self" class="project-link">
+                            <div class="record-row">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <b>📂 {row["project_name"]}</b>
+                                    <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
+                                </div>
+                                <span style="color: #94a3b8; font-size: 22px; line-height: 1; flex-shrink: 0;">&#8250;</span>
+                            </div>
+                        </a>
+                    ''', unsafe_allow_html=True)
+    
+        # --- משימות ---
+        with st.container(border=True):
+            st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
+            tasks_data = get_azure_tasks()
+            if tasks_data:
+                for t in tasks_data:
+                    f = t.get('fields', {})
+                    t_id, t_title, p_task = t.get('id'), f.get('System.Title', ''), f.get('System.TeamProject', 'General')
+                    raw_date = f.get('System.CreatedDate', '')
+                    fmt_date = f"{raw_date[8:10]}/{raw_date[5:7]} {raw_date[11:16]}" if raw_date else ""
+                    t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_task)}/_workitems/edit/{t_id}"
+    
+                    st.markdown(
+                        f'<div class="record-row" style="white-space: nowrap;">'
+                        f'<div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis;">'
+                        f'<a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: none; font-weight: 500;">🔗 {t_title}</a>'
+                        f'<span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">נוצר ב {fmt_date}</span>'
+                        f'</div>'
+                        f'<span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_task}</span>'
+                        f'</div>',
+                        unsafe_allow_html=True
+                    )
+            else:
+                st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
+    
+        # --- עוזר אישי AI ---
+        with st.container(border=True):
+    
+            st.markdown("""
+            <div class="ai-card">
+    
+                <div class="ai-header">
+                    <span class="material-symbols-outlined ai-icon">smart_toy</span>
+                    <h4>עוזר ה‑AI שלך</h4>
+                </div>
+    
+                <p class="ai-description">
+                    שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
+                </p>
+            """, unsafe_allow_html=True)
+    
+            # בחירת פרויקט
+            sel_p = st.selectbox(
+                "",
+                ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
+                key="ai_p"
+            )
+    
+            # שדה שאלה
+            q_in = st.text_area(
+                "",
+                placeholder="איך אוכל לעזור?",
+                key="ai_i",
+                height=130
+            )
+    
+            # כפתור שליחה (בתוך הכרטיס)
+            st.markdown("""
+                <div class="ai-send-btn">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </div>
+            </div> <!-- סגירת ai-card -->
+            """, unsafe_allow_html=True)
+    
+            # לוגיקת שליחה
+            if st.button("שגר שאילתה 🚀", use_container_width=True):
+                if q_in:
+                    with st.spinner("מנתח..."):
+                        try:
+                            genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+                            model = genai.GenerativeModel('gemini-2.5-flash-lite')
+    
+                            projects_summary = "\n".join([
+                                f"- {r['project_name']}: סטטוס {r.get('status','לא ידוע')}, סוג {r.get('project_type','לא ידוע')}"
+                                for _, r in projects.iterrows()
+                            ])
+    
+                            meetings_today = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
+                            meetings_summary = "\n".join([
+                                f"- {r['meeting_title']} בשעה {fmt_time(r.get('start_time',''))}"
+                                for _, r in meetings_today.iterrows()
+                            ]) if not meetings_today.empty else "אין פגישות היום"
+    
+                            reminders_today2 = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
+                            reminders_summary = "\n".join([
+                                f"- {r['reminder_text']} ({r.get('project_name','כללי')})"
+                                for _, r in reminders_today2.iterrows()
+                            ]) if not reminders_today2.empty else "אין תזכורות"
+    
+                            tasks_summary = "\n".join([
+                                f"- {t.get('fields',{}).get('System.Title','')} ({t.get('fields',{}).get('System.TeamProject','')})"
+                                for t in (get_azure_tasks() or [])
+                            ]) or "אין משימות פתוחות"
+    
+                            fathom_summaries = "\n".join([
+                                f"- פגישה: {k.replace('sum_v4_','')}: {v[:200]}..."
+                                for k, v in st.session_state.items()
+                                if k.startswith("sum_v4_") and v
+                            ]) or "אין סיכומי פגישות"
+    
+                            focus = f"התמקד בפרויקט: {sel_p}" if sel_p != "כללי - כל הפרויקטים" else "התייחס לכל הפרויקטים"
+    
+                            prompt = f\"\"\"אתה עוזר AI בכיר לניהול פרויקטים. יש לך גישה לכל המידע הבא:
+    
+    📁 פרויקטים:
+    {projects_summary}
+    
+    📅 פגישות היום:
+    {meetings_summary}
+    
+    🔔 תזכורות היום:
+    {reminders_summary}
+    
+    📋 משימות פתוחות באז'ור:
+    {tasks_summary}
+    
+    📝 סיכומי פגישות אחרונים:
+    {fathom_summaries}
+    
+    {focus}
+    שאלה: {q_in}
+    
+    ענה בעברית עסקית, בצורה מעמיקה וממוקדת. אם רלוונטי — תצלב מידע בין מקורות שונים.\"\"\"
+    
+                            response = model.generate_content(prompt)
+                            st.session_state.ai_response = response.text
+    
+                        except Exception as e:
+                            st.session_state.ai_response = f"שגיאה: {str(e)}"
+    
+        # הצגת תשובה
+        if st.session_state.ai_response:
+            st.info(st.session_state.ai_response)
+    
+    
+        # ── פרויקטים לדיווח ─────────────────────────────────
+        # ============================
+        # 📌 פרויקטים לדיווח (priority.xlsx)
+        # ============================
+        with st.container(border=True):
+            st.markdown("### 📌 פרויקטים לדיווח")
+    
+            if priority_df.empty:
+                st.write("לא נמצאו פרויקטים לדיווח.")
+            else:
+                color_map = {
+                    "אנליסט": "tag-blue",
+                    "דנאל": "tag-green",
+                    "דלק": "tag-orange",
+                    "בנק": "tag-teal",
+                    "פיתוח": "tag-pink",
+                    "אלשטול": "tag-purple",
+                }
+    
+                # --- חדש: session state לפתיחה/סגירה ---
+                if "priority_expanded" not in st.session_state:
+                    st.session_state.priority_expanded = False
+    
+                rows_to_show = priority_df if st.session_state.priority_expanded else priority_df.iloc[:4]
+    
+                for _, row in rows_to_show.iterrows():
+                    project_name   = row["project_name"]
+                    project_number = row["project_number"]
+                    order_number   = row["order_number"]
+                    category  = project_name.split(" ")[0]
+                    tag_class = color_map.get(category, "tag-gray")
+    
+                    html = (
+                        '<div class="record-row" '
+                        'style="display:flex; align-items:center; justify-content:space-between; '
+                        'gap:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'
+    
+                            f'<span style="font-weight:600; overflow:hidden; text-overflow:ellipsis;">'
+                            f'{project_name} '
+                            f'<span style="color:#64748b; font-size:0.8rem; margin-right:6px;">'
+                            f'{project_number} | {order_number}'
+                            '</span>'
+                            '</span>'
+    
+                            f'<span class="{tag_class}" style="white-space:nowrap; flex-shrink:0;">'
+                            f'{category}</span>'
+    
+                        '</div>'
+                    )
+                    st.markdown(html, unsafe_allow_html=True)
+    
+                # --- כפתור הצג הכל / הראה פחות ---
+                if len(priority_df) > 4:
+                    label = "הראה פחות ▲" if st.session_state.priority_expanded else f"הצג הכל ({len(priority_df)}) ▼"
+                    st.markdown("""
+                        <style>
+                        div[data-testid="stBaseButton-secondary"]:has(p) button,
+                        .priority-link-btn button {
+                            background: transparent !important;
+                            border: none !important;
+                            box-shadow: none !important;
+                            color: #4facfe !important;
+                            font-size: 0.82rem !important;
+                            font-weight: 600 !important;
+                            padding: 2px 0 !important;
+                            margin-top: 4px !important;
+                            text-align: right !important;
+                            width: auto !important;
+                            min-height: unset !important;
+                            cursor: pointer !important;
+                            float: right !important;
+                        }
+                        </style>
+                    """, unsafe_allow_html=True)
+                    if st.button(label, key="toggle_priority_btn"):
+                        st.session_state.priority_expanded = not st.session_state.priority_expanded
+                        st.rerun()
+    
+    
+        
     # ══════════════════════════════════════════════════════
     # עמודה שמאלית
     # ══════════════════════════════════════════════════════
