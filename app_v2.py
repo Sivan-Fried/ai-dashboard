@@ -557,7 +557,7 @@ else:
 
         # הצגת תשובה — לא נוגעת בזה
         if st.session_state.ai_response:
-            st.info(st.session_state.ai_response)
+            st.info(st.session_state.ai_response)  
 
 
             
