@@ -449,9 +449,9 @@ else:
     # עמודה ימנית
     # ══════════════════════════════════════════════════════
     with col_right:
-            with st.container(border=True):
-                st.markdown("### 📁 פרויקטים")
-                with st.container(height=300, border=False):
+        with st.container(border=True):
+             st.markdown("### 📁 פרויקטים")
+        with st.container(height=300, border=False):
                     for _, row in projects.iterrows():
                         p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
                         st.markdown(f'''
@@ -466,7 +466,7 @@ else:
                             </a>
                         ''', unsafe_allow_html=True)
     
-            with st.container(border=True):
+        with st.container(border=True):
                 st.markdown('<h3>📋 משימות חדשות באז\'ור</h3>', unsafe_allow_html=True)
                 tasks_data = get_azure_tasks()
                 if tasks_data:
@@ -478,9 +478,8 @@ else:
                         t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_task)}/_workitems/edit/{t_id}"
                         st.markdown(f'<div class="record-row" style="white-space: nowrap;"><div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis;"><a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: none; font-weight: 500;">🔗 {t_title}</a><span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">נוצר ב {fmt_date}</span></div><span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_task}</span></div>', unsafe_allow_html=True)
                 else:
-                    st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
-
-
+                    st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)           
+    
 
         #אזור AI
         with st.container(border=True):
