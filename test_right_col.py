@@ -1,13 +1,6 @@
 import streamlit as st
 
-st.set_page_config(layout="wide")
-
-
-st.title("אני גרסת TEST_RIGHT_COL.PY מהשעה 20:15")
-st.write("אם את רואה את זה – זה הקובץ הנכון.")
-
-
-# CSS מלא שמייצר את הכרטיס הוורוד כמו בתמונה
+# --- CSS לנראות ---
 st.markdown("""
 <style>
 .ai-box {
@@ -47,18 +40,13 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-col_right, col_left = st.columns([1,1])
+# --- כרטיס AI ---
+st.markdown('<div class="ai-box">', unsafe_allow_html=True)
 
-with col_right:
+st.markdown('<p class="ai-title">🤖 עוזר ה‑AI שלך</p>', unsafe_allow_html=True)
+st.markdown('<p class="ai-desc">שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.</p>', unsafe_allow_html=True)
 
-    st.markdown('<div class="ai-box">', unsafe_allow_html=True)
+project = st.selectbox("", ["כללי - כל הפרויקטים", "AnalystCustomers", "IDI App"])
+question = st.text_area("", placeholder="איך אוכל לעזור?", height=130)
 
-    st.markdown('<p class="ai-title">🤖 עוזר ה‑AI שלך</p>', unsafe_allow_html=True)
-    st.markdown('<p class="ai-desc">שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.</p>', unsafe_allow_html=True)
-
-    project = st.selectbox("", ["כללי - כל הפרויקטים", "AnalystCustomers", "IDI App"])
-    question = st.text_area("", placeholder="איך אוכל לעזור?", height=130)
-
-    st.markdown('<div class="ai-send">←</div>', unsafe_allow_html=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)
+st.markdown('<div class="ai-send">
