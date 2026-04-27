@@ -489,7 +489,7 @@ else:
                     try:
                         genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
                         model = genai.GenerativeModel('gemini-2.5-flash-lite')
-    
+                    
                         projects_summary = "\n".join([
                             f"- {r['project_name']}: סטטוס {r.get('status','לא ידוע')}, סוג {r.get('project_type','לא ידוע')}"
                             for _, r in projects.iterrows()
@@ -499,56 +499,54 @@ else:
                             f"- {r['meeting_title']} בשעה {fmt_time(r.get('start_time',''))}"
                             for _, r in meetings_today.iterrows()
                         ]) if not meetings_today.empty else "אין פגישות היום"
+                    
                         reminders_today2 = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
                         reminders_summary = "\n".join([
                             f"- {r['reminder_text']} ({r.get('project_name','כללי')})"
                             for _, r in reminders_today2.iterrows()
                         ]) if not reminders_today2.empty else "אין תזכורות"
+                    
                         tasks_summary = "\n".join([
                             f"- {t.get('fields',{}).get('System.Title','')} ({t.get('fields',{}).get('System.TeamProject','')})"
                             for t in (get_azure_tasks() or [])
                         ]) or "אין משימות פתוחות"
+                    
                         fathom_summaries = "\n".join([
                             f"- פגישה: {k.replace('sum_v4_','')}: {v[:200]}..."
                             for k, v in st.session_state.items()
                             if k.startswith("sum_v4_") and v
                         ]) or "אין סיכומי פגישות"
-    
+                    
                         focus = f"התמקד בפרויקט: {sel_p}" if sel_p != "כללי - כל הפרויקטים" else "התייחס לכל הפרויקטים"
+                    
                         prompt = f"""אתה עוזר AI בכיר לניהול פרויקטים. יש לך גישה לכל המידע הבא:
+                    
+                    📁 פרויקטים:
+                    {projects_summary}
+                    
+                    📅 פגישות היום:
+                    {meetings_summary}
+                    
+                    🔔 תזכורות היום:
+                    {reminders_summary}
+                    
+                    📋 משימות פתוחות באז'ור:
+                    {tasks_summary}
+                    
+                    📝 סיכומי פגישות אחרונים:
+                    {fathom_summaries}
+                    
+                    {focus}
+                    שאלה: {q_in}
+                    
+                    ענה בעברית עסקית, בצורה מעמיקה וממוקדת. אם רלוונטי — תצלב מידע בין מקורות שונים."""
+                        
+                        response = model.generate_content(prompt)
+                        st.session_state.ai_response = response.text
+                    
+                    except Exception as e:
+                        st.session_state.ai_response = f"שגיאה: {str(e)}"
 
-📁 פרויקטים:
-{projects_summary}
-
-📅 פגישות היום:
-{meetings_summary}
-
-🔔 תזכורות היום:
-{reminders_summary}
-
-📋 משימות פתוחות באז'ור:
-{tasks_summary}
-
-📝 סיכומי פגישות אחרונים:
-{fathom_summaries}
-
-{focus}
-שאלה: {q_in}
-
-ענה בעברית עסקית, בצורה מעמיקה וממוקדת. אם רלוונטי — תצלב מידע בין מקורות שונים."""
-                    response = model.generate_content(prompt)
-                    st.session_state.ai_response = response.text
-                except Exception as e:
-                    st.session_state.ai_response = f"שגיאה: {str(e)}"
-
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    # סגירת כרטיס ה-AI
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# הצגת תשובה — לא נוגעת בזה
-if st.session_state.ai_response:
-    st.info(st.session_state.ai_response)
 
 
         # ── פרויקטים לדיווח ─────────────────────────────────
