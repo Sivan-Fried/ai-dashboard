@@ -448,7 +448,6 @@ else:
     # ══════════════════════════════════════════════════════
     # עמודה ימנית
     # ══════════════════════════════════════════════════════
-
     with col_right:
     
         # --- פרויקטים ---
@@ -497,7 +496,6 @@ else:
         # --- עוזר אישי AI ---
         with st.container(border=True):
     
-            # כרטיס ורוד
             st.markdown("""
             <div class="ai-card">
     
@@ -511,14 +509,12 @@ else:
                 </p>
             """, unsafe_allow_html=True)
     
-            # בחירת פרויקט
             sel_p = st.selectbox(
                 "",
                 ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
                 key="ai_p"
             )
     
-            # שדה שאלה
             q_in = st.text_area(
                 "",
                 placeholder="איך אוכל לעזור?",
@@ -526,7 +522,6 @@ else:
                 height=130
             )
     
-            # כפתור שליחה עגול
             st.markdown("""
                 <div class="ai-send-btn">
                     <span class="material-symbols-outlined">arrow_back</span>
@@ -534,7 +529,6 @@ else:
             </div> <!-- סגירת ai-card -->
             """, unsafe_allow_html=True)
     
-            # לוגיקת שליחה
             if st.button("שגר שאילתה 🚀", use_container_width=True):
                 if q_in:
                     with st.spinner("מנתח..."):
@@ -600,10 +594,10 @@ else:
                         except Exception as e:
                             st.session_state.ai_response = f"שגיאה: {str(e)}"
     
-        # הצגת תשובה
+        # --- הצגת תשובה ---
         if st.session_state.ai_response:
             st.info(st.session_state.ai_response)
-    
+
 
 
     
