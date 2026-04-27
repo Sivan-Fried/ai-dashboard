@@ -38,7 +38,10 @@ def render_topbar(img_b64, w_text, w_city, greeting):
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
     time_str = now.strftime("%H:%M")
     date_str = now.strftime("%d/%m/%Y")
-    w_text_clean = w_text.encode('ascii', 'ignore').decode('ascii').strip()
+    import re
+    w_text_clean = re.sub(r'[^\x00-\x7F]+', '', w_text).strip()
+    # שמור את המעלה
+    w_text_clean = w_text_clean.replace('C', '\u00b0C')
     profile_tag = f'<img src="data:image/png;base64,{img_b64}" style="width:82px;height:82px;border-radius:50%;object-fit:cover;object-position:center 20%;border:4px solid white;box-shadow:0 2px 12px rgba(225,200,210,0.4);"/>' if img_b64 else ""
 
     html = '<div style="background:white;border-radius:16px;border:1px solid #F4F4F5;box-shadow:0 2px 20px rgba(225,200,210,0.2);display:flex;align-items:center;justify-content:space-between;padding:20px 24px;direction:rtl;font-family:sans-serif;margin-bottom:20px;margin-top:-60px;">'
@@ -56,12 +59,14 @@ def render_topbar(img_b64, w_text, w_city, greeting):
     html += '<span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">דוחות</span>'
     html += '</nav>'
     html += '<div style="display:flex;align-items:center;gap:12px;">'
-    html += f'<div style="text-align:right;"><div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{w_text_clean}</div><div style="font-size:0.68rem;color:#a1a1aa;">{w_city}</div></div>'
+    html += '<div style="display:flex;align-items:center;gap:6px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 11V5C12 3.34315 13.3431 2 15 2C16.6569 2 18 3.34315 18 5V11M12 11C10.3431 11 9 12.3431 9 14C9 15.6569 10.3431 17 12 17C13.6569 17 15 15.6569 15 14C15 12.3431 13.6569 11 12 11Z" stroke="#FADCE6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    html += f'<div style="text-align:right;"><div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{w_text_clean}</div><div style="font-size:0.68rem;color:#a1a1aa;">{w_city}</div></div></div>'</div></div>'
     html += '<div style="width:1px;height:28px;background:#F4F4F5;"></div>'
     html += f'<div style="text-align:right;"><div style="font-size:0.85rem;font-weight:700;color:#3f3f46;">{time_str}</div><div style="font-size:0.68rem;color:#a1a1aa;">{date_str}</div></div>'
     html += '<div style="width:1px;height:28px;background:#F4F4F5;"></div>'
     html += '<div style="font-size:1rem;font-weight:800;color:#f0b8cb;">Dashboard AI</div>'
-    html += '</div></div>'
+    html += '<div style="width:1px;height:28px;background:#F4F4F5;"></div>'
+    html += '<div id="topbar-bell" style="position:relative;display:inline-block;cursor:pointer;" onclick="document.getElementById(\'bellBtn\').click()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="#FADCE6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6981 21.5547 10.4458 21.3031 10.27 21" stroke="#FADCE6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'    html += '</div></div>'
     st.markdown(html, unsafe_allow_html=True)
 #סוף נסיון
 
