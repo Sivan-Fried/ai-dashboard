@@ -536,12 +536,11 @@ else:
                 st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
 
-        # --- עוזר אישי AI ---  (בלוק עצמאי, לא בתוך המשימות)
-        # ============================
+    
         #      עוזר אישי AI — מלא
         # ============================
         
-        # --- CSS לנראות הכרטיס ---
+        # --- CSS מלא לכרטיס ---
         st.markdown("""
         <style>
         .ai-box {
@@ -556,7 +555,7 @@ else:
             font-size: 20px;
             font-weight: 600;
             color: #6f5861;
-            margin: 0;
+            margin: 0 0 10px 0;
         }
         .ai-desc {
             font-size: 14px;
@@ -581,31 +580,29 @@ else:
         </style>
         """, unsafe_allow_html=True)
         
-        # --- כרטיס ה-AI ---
-        st.markdown('<div class="ai-box">', unsafe_allow_html=True)
+        # --- כרטיס ה-AI (ללא HTML מורכב) ---
+        with st.container():
+            st.markdown('<div class="ai-box">', unsafe_allow_html=True)
         
-        st.markdown('<p class="ai-title">🤖 עוזר ה‑AI שלך</p>', unsafe_allow_html=True)
-        st.markdown('<p class="ai-desc">שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.</p>', unsafe_allow_html=True)
+            st.markdown('<p class="ai-title">🤖 עוזר ה‑AI שלך</p>', unsafe_allow_html=True)
+            st.markdown('<p class="ai-desc">שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.</p>', unsafe_allow_html=True)
         
-        # בחירת פרויקט
-        sel_p = st.selectbox(
-            "",
-            ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
-            key="ai_p"
-        )
+            sel_p = st.selectbox(
+                "",
+                ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
+                key="ai_p"
+            )
         
-        # שדה שאלה
-        q_in = st.text_area(
-            "",
-            placeholder="איך אוכל לעזור?",
-            key="ai_i",
-            height=130
-        )
+            q_in = st.text_area(
+                "",
+                placeholder="איך אוכל לעזור?",
+                key="ai_i",
+                height=130
+            )
         
-        # כפתור עיצובי
-        st.markdown('<div class="ai-send">←</div>', unsafe_allow_html=True)
+            st.markdown('<div class="ai-send">←</div>', unsafe_allow_html=True)
         
-        st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
         
         # --- לוגיקת שליחה ---
         if st.button("שגר שאילתה 🚀", use_container_width=True):
@@ -645,8 +642,8 @@ else:
         
                         focus = f"התמקד בפרויקט: {sel_p}" if sel_p != "כללי - כל הפרויקטים" else "התייחס לכל הפרויקטים"
         
-                        prompt = (
-                            f"""אתה עוזר AI בכיר לניהול פרויקטים. יש לך גישה לכל המידע הבא:
+                        prompt = f"""
+        אתה עוזר AI בכיר לניהול פרויקטים. יש לך גישה לכל המידע הבא:
         
         📁 פרויקטים:
         {projects_summary}
@@ -666,8 +663,8 @@ else:
         {focus}
         שאלה: {q_in}
         
-        ענה בעברית עסקית, בצורה מעמיקה וממוקדת. אם רלוונטי — תצלב מידע בין מקורות שונים."""
-                        )
+        ענה בעברית עסקית, בצורה מעמיקה וממוקדת.
+        """
         
                         response = model.generate_content(prompt)
                         st.session_state.ai_response = response.text
