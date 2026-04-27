@@ -540,14 +540,18 @@ else:
         #      עוזר אישי AI — מלא
         # ============================
         
-        # --- CSS מלא לכרטיס ---
+        # ============================
+        #      עוזר אישי AI — יציב
+        # ============================
+        
+        # --- CSS גלובלי ---
         st.markdown("""
         <style>
         .ai-box {
             background-color: #FADCE6;
-            padding: 24px;
-            border-radius: 24px;
-            box-shadow: 0px 10px 30px rgba(225,200,210,0.25);
+            padding: 22px;
+            border-radius: 20px;
+            box-shadow: 0px 8px 22px rgba(225,200,210,0.25);
             direction: rtl;
             margin-bottom: 20px;
         }
@@ -555,56 +559,38 @@ else:
             font-size: 20px;
             font-weight: 600;
             color: #6f5861;
-            margin: 0 0 10px 0;
         }
         .ai-desc {
             font-size: 14px;
             color: #6f5861;
             opacity: 0.85;
-            margin-bottom: 16px;
-        }
-        .ai-send {
-            background-color: #6f5861;
-            color: white;
-            border-radius: 50%;
-            width: 42px;
-            height: 42px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            margin-top: -50px;
-            margin-right: 10px;
-            float: left;
+            margin-bottom: 12px;
         }
         </style>
         """, unsafe_allow_html=True)
         
-        # --- כרטיס ה-AI (ללא HTML מורכב) ---
-        with st.container():
-            st.markdown('<div class="ai-box">', unsafe_allow_html=True)
+        # --- כרטיס ---
+        st.markdown('<div class="ai-box">', unsafe_allow_html=True)
         
-            st.markdown('<p class="ai-title">🤖 עוזר ה‑AI שלך</p>', unsafe_allow_html=True)
-            st.markdown('<p class="ai-desc">שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.</p>', unsafe_allow_html=True)
+        st.markdown('<div class="ai-title">🤖 עוזר ה‑AI שלך</div>', unsafe_allow_html=True)
+        st.markdown('<div class="ai-desc">שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.</div>', unsafe_allow_html=True)
         
-            sel_p = st.selectbox(
-                "",
-                ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
-                key="ai_p"
-            )
+        sel_p = st.selectbox(
+            "",
+            ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
+            key="ai_p"
+        )
         
-            q_in = st.text_area(
-                "",
-                placeholder="איך אוכל לעזור?",
-                key="ai_i",
-                height=130
-            )
+        q_in = st.text_area(
+            "",
+            placeholder="איך אוכל לעזור?",
+            key="ai_i",
+            height=130
+        )
         
-            st.markdown('<div class="ai-send">←</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
         
-            st.markdown('</div>', unsafe_allow_html=True)
-        
-        # --- לוגיקת שליחה ---
+        # --- כפתור שליחה ---
         if st.button("שגר שאילתה 🚀", use_container_width=True):
             if q_in:
                 with st.spinner("מנתח..."):
@@ -612,6 +598,7 @@ else:
                         genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
                         model = genai.GenerativeModel('gemini-2.5-flash-lite')
         
+                        # כל הלוגיקה שלך נשארת בדיוק כמו שהיא
                         projects_summary = "\n".join([
                             f"- {r['project_name']}: סטטוס {r.get('status','לא ידוע')}, סוג {r.get('project_type','לא ידוע')}"
                             for _, r in projects.iterrows()
@@ -672,9 +659,10 @@ else:
                     except Exception as e:
                         st.session_state.ai_response = f"שגיאה: {str(e)}"
         
-        # --- הצגת תשובה ---
+        # --- תשובה ---
         if st.session_state.ai_response:
             st.info(st.session_state.ai_response)
+
 
 
 
