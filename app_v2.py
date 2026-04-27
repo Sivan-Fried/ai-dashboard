@@ -454,7 +454,7 @@ else:
     # עמודה ימנית
     # ══════════════════════════════════════════════════════
             # ============================
-        with st.container(border=True):
+    with st.container(border=True):
             
                 # עטיפה חיצונית לעיצוב בלבד
                 st.markdown('<div class="ai-card">', unsafe_allow_html=True)
