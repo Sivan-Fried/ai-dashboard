@@ -8,7 +8,7 @@ import datetime
 import urllib.parse
 from zoneinfo import ZoneInfo
 import streamlit.components.v1 as components
-import google.generativeai as genai
+#import google.generativeai as genai
 from streamlit_js_eval import get_geolocation
 from workplan_module import build_timeline_html
 from urllib.parse import urlencode
