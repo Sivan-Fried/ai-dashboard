@@ -495,19 +495,19 @@ else:
     
         # --- עוזר אישי AI ---
 
-        html_ai = """
-        <div class="ai-card">
-            <div class="ai-header">
-                <span class="material-symbols-outlined ai-icon">smart_toy</span>
-                <h4>עוזר ה‑AI שלך</h4>
+            html_ai = """
+            <div class="ai-card">
+                <div class="ai-header">
+                    <span class="material-symbols-outlined ai-icon">smart_toy</span>
+                    <h4>עוזר ה‑AI שלך</h4>
+                </div>
+                <p class="ai-description">
+                    שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
+                </p>
             </div>
-            <p class="ai-description">
-                שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
-            </p>
-        </div>
-        """
-        
-        st.markdown(html_ai, unsafe_allow_html=True)
+            """
+            
+            st.markdown(html_ai, unsafe_allow_html=True)
 
         
         #st.markdown("", unsafe_allow_html=True)
