@@ -485,37 +485,42 @@ else:
         with st.container(border=True):
     
             # עטיפה חיצונית לעיצוב בלבד
-            st.markdown('<div class="ai-card">', unsafe_allow_html=True)
-    
-            st.markdown("### ✨ עוזר AI אישי")
-    
-            # כותרת עיצובית
-            st.markdown('<div class="ai-header">', unsafe_allow_html=True)
             st.markdown("""
-                <span class="material-symbols-outlined ai-icon">smart_toy</span>
-                <h4 style="margin:0;">עוזר ה-AI שלך</h4>
+            <div class="ai-card">
+
+                <div class="ai-header">
+                    <span class="material-symbols-outlined ai-icon">smart_toy</span>
+                    <h4>עוזר ה‑AI שלך</h4>
+                </div>
+    
+                <p class="ai-description">
+                    שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
+                </p>
+
             """, unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-    
-            # תיאור
-            st.markdown('<p class="ai-description">שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.</p>', unsafe_allow_html=True)
-    
-            # בחירת פרויקט + שאלה
-            st.markdown('<div style="margin-bottom:1rem;">', unsafe_allow_html=True)
-            a1, a2 = st.columns([1, 2])
-            sel_p = a1.selectbox(
-                "פרויקט",
-                ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
-                label_visibility="collapsed",
-                key="ai_p"
-            )
-            q_in = a2.text_input(
-                "שאלה",
-                placeholder="מה תרצי לדעת?",
-                label_visibility="collapsed",
-                key="ai_i"
-            )
-            st.markdown('</div>', unsafe_allow_html=True)
+
+        # בחירת פרויקט
+        sel_p = st.selectbox(
+            "",
+            ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
+            key="ai_p"
+        )
+
+        # שדה שאלה
+        q_in = st.text_area(
+            "",
+            placeholder="איך אוכל לעזור?",
+            key="ai_i",
+            height=130
+        )
+
+        # כפתור שליחה עגול
+        st.markdown("""
+            <div class="ai-send-btn">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     
             # כפתור שליחה
             st.markdown('<div style="position:relative;">', unsafe_allow_html=True)
