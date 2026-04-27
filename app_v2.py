@@ -539,8 +539,6 @@ else:
                 st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
 
-                            
-    
         # ============================
         #      עוזר אישי AI — ורוד
         # ============================
@@ -607,7 +605,9 @@ else:
             if st.session_state.get("ai_response"):
                 st.info(st.session_state.ai_response)
 
-
+                               
+    
+        
 
 
 
