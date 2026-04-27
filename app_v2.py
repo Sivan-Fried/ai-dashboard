@@ -492,11 +492,11 @@ else:
                     )
             else:
                 st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
-    
-        # --- עוזר אישי AI ---  (בלוק עצמאי, לא בתוך המשימות)
+
 
         # --- עוזר אישי AI ---  (בלוק עצמאי, לא בתוך המשימות)
 
+        # CSS לנראות
         st.markdown("""
         <style>
         .ai-box {
@@ -536,6 +536,7 @@ else:
         </style>
         """, unsafe_allow_html=True)
         
+        # כרטיס
         st.markdown('<div class="ai-box">', unsafe_allow_html=True)
         
         st.markdown('<p class="ai-title">🤖 עוזר ה‑AI שלך</p>', unsafe_allow_html=True)
@@ -556,6 +557,7 @@ else:
             height=130
         )
         
+        # כפתור עיצובי
         st.markdown('<div class="ai-send">←</div>', unsafe_allow_html=True)
         
         st.markdown('</div>', unsafe_allow_html=True)
@@ -631,6 +633,7 @@ else:
         # הצגת תשובה
         if st.session_state.ai_response:
             st.info(st.session_state.ai_response)
+
 
 
         # ── פרויקטים לדיווח ─────────────────────────────────
