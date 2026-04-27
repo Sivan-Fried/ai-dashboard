@@ -491,21 +491,30 @@ else:
                     )
             else:
                 st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
-    
-        # --- עוזר אישי AI ---
+
+
+    # --- עוזר אישי AI ---
+    with st.container(border=True):   # ← זה נשאר, אבל אנחנו צובעים אותו ורוד
         st.markdown("""
-        <div class="ai-card">
-    
-            <div class="ai-header">
-                <span class="material-symbols-outlined ai-icon">smart_toy</span>
-                <h4>עוזר ה‑AI שלך</h4>
-            </div>
-    
-            <p class="ai-description">
-               שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
-            </p>
+        <style>
+        div[data-testid="stVerticalBlockBorderWrapper"] {
+            background-color: #FADCE6 !important;   /* ← הופך את המלבן הלבן לוורוד */
+            border-radius: 20px !important;
+            padding: 2rem !important;
+        }
+        </style>
+        
+        <div class="ai-header">
+            <span class="material-symbols-outlined ai-icon">smart_toy</span>
+            <h4>עוזר ה‑AI שלך</h4>
+        </div>
+        
+        <p class="ai-description">
+            שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
+        </p>
         """, unsafe_allow_html=True)
-    
+
+       
         sel_p = st.selectbox(
             "",
             ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
