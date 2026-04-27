@@ -537,7 +537,27 @@ else:
                     )
             else:
                 st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
-    
+
+        st.markdown("""
+        <div style="
+            background:#FADCE6;
+            padding:24px;
+            border-radius:20px;
+            box-shadow:0 8px 22px rgba(225,200,210,0.35);
+            direction:rtl;
+            text-align:right;
+            margin-bottom:20px;
+        ">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <span class="material-symbols-rounded" style="font-size:26px;color:#6f5861;">smart_toy</span>
+                <h3 style="margin:0;color:#6f5861;">עוזר ה‑AI שלך</h3>
+            </div>
+            <p style="color:#6f5861;opacity:0.85;margin-top:-5px;">
+                שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
     
         # ============================
         #      עוזר אישי AI — ורוד
