@@ -3,6 +3,31 @@ import urllib.parse
 import pandas as pd
 import datetime
 
+st.markdown("""
+<style>
+.ai-header {
+    background-color: #ffb6c1;
+    padding: 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ai-header h4 {
+    margin: 0;
+    color: white;
+    font-size: 20px;
+}
+
+.ai-description {
+    margin-top: 10px;
+    color: #444;
+    font-size: 16px;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # דמה של נתונים כדי לבדוק את הממשק בלי לגעת בקוד המקורי
 projects = pd.DataFrame([
     {"project_name": "AnalystCustomers", "project_type": "אנליזה", "status": "ירוק"},
