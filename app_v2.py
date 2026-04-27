@@ -482,14 +482,14 @@ else:
     
 
         #אזור עוזר אישי AI
-        # אזור AI — בלי קונטיינר לבן מסביב
-        st.markdown("""
-        <div class="ai-card">
+            # אזור AI — בלי קונטיינר לבן מסביב
+            st.markdown("""
+            <div class="ai-card">
         
-            <div class="ai-header">
-                    <span class="material-symbols-outlined ai-icon">smart_toy</span>
-                    <h4>עוזר ה‑AI שלך</h4>
-            </div>
+                <div class="ai-header">
+                        <span class="material-symbols-outlined ai-icon">smart_toy</span>
+                        <h4>עוזר ה‑AI שלך</h4>
+                </div>
 
             <p class="ai-description">
                שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
