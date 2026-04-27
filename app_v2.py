@@ -545,7 +545,6 @@ else:
         #      עוזר אישי AI — ורוד
         # ============================
         
-        # כרטיס ורוד עצמאי שלא נדרס ע"י ה‑CSS הגלובלי
         st.markdown("""
         <div class="ai-card">
         
@@ -557,7 +556,6 @@ else:
             <p class="ai-description">
                 שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
             </p>
-        
         """, unsafe_allow_html=True)
         
         # בחירת פרויקט
@@ -575,7 +573,7 @@ else:
             height=130
         )
         
-        # כפתור צף (העיצוב שלו כבר מוגדר ב‑CSS שלך)
+        # כפתור צף
         st.markdown("""
             <div class="ai-send-btn">🚀</div>
         </div>
@@ -662,6 +660,7 @@ else:
         # הצגת תשובה
         if st.session_state.ai_response:
             st.info(st.session_state.ai_response)
+
 
 
         # ── פרויקטים לדיווח ─────────────────────────────────
