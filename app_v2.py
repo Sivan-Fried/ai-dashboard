@@ -494,21 +494,37 @@ else:
                 st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
     
         # --- עוזר אישי AI ---
-        st.markdown("", unsafe_allow_html=True)
-        with st.container(border=True):
+
+        html_ai = """
+        <div class="ai-card">
+            <div class="ai-header">
+                <span class="material-symbols-outlined ai-icon">smart_toy</span>
+                <h4>עוזר ה‑AI שלך</h4>
+            </div>
+            <p class="ai-description">
+                שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
+            </p>
+        </div>
+        """
+        
+        st.markdown(html_ai, unsafe_allow_html=True)
+
+        
+        #st.markdown("", unsafe_allow_html=True)
+        #with st.container(border=True):
     
-            st.markdown("""
-            <div class="ai-card">
+            #st.markdown("""
+            #<div class="ai-card">
     
-                <div class="ai-header">
-                    <span class="material-symbols-outlined ai-icon">smart_toy</span>
-                    <h4>עוזר ה‑AI שלך</h4>
-                </div>
+                #<div class="ai-header">
+                    #<span class="material-symbols-outlined ai-icon">smart_toy</span>
+                    #<h4>עוזר ה‑AI שלך</h4>
+                #</div>
     
-                <p class="ai-description">
-                   שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
-                </p>
-            """, unsafe_allow_html=True)
+                #<p class="ai-description">
+                   #שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
+                #</p>
+            #""", unsafe_allow_html=True)
     
             sel_p = st.selectbox(
                 "",
