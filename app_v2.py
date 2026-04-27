@@ -510,13 +510,14 @@ else:
                     </p>
                 """, unsafe_allow_html=True)
             
-                # כל האלמנטים האלו חייבים להיות *בתוך* הכרטיס
+                # בחירת פרויקט
                 sel_p = st.selectbox(
                     "",
                     ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
                     key="ai_p"
                 )
             
+                # שדה שאלה
                 q_in = st.text_area(
                     "",
                     placeholder="איך אוכל לעזור?",
@@ -524,12 +525,11 @@ else:
                     height=130
                 )
             
-                # כפתור שליחה בתוך הכרטיס
+                # כפתור שליחה
                 st.markdown("""
                     <div class="ai-send-btn">
                         <span class="material-symbols-outlined">arrow_back</span>
                     </div>
-            
                 </div> <!-- סגירת ai-card -->
                 """, unsafe_allow_html=True)
             
@@ -602,6 +602,7 @@ else:
             # הצגת תשובה
             if st.session_state.ai_response:
                 st.info(st.session_state.ai_response)
+
 
 
 
