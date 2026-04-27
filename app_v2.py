@@ -541,70 +541,51 @@ else:
         # ============================
         #      עוזר אישי AI — יציב
         # ============================
-
-        with st.container():
-            st.markdown("""
-            <style>
-            .ai-card {
-                background: #FADCE6;
-                border-radius: 22px;
-                padding: 24px;
-                box-shadow: 0px 8px 22px rgba(225,200,210,0.35);
-                direction: rtl;
-                text-align: right;
-                margin-bottom: 20px;
-            }
-            .ai-card h3 {
-                margin: 0 0 6px 0;
-                font-size: 20px;
-                font-weight: 700;
-                color: #6f5861;
-            }
-            .ai-card p {
-                margin: 0 0 16px 0;
-                font-size: 14px;
-                color: #6f5861;
-                opacity: 0.85;
-            }
+        # ============================
+        #      עוזר אישי AI — ורוד
+        # ============================
         
-            /* יישור אמיתי של הווידג'טים */
-            .ai-block textarea {
-                direction: rtl !important;
-                text-align: right !important;
-            }
-            .ai-block .stSelectbox > div > div {
-                direction: rtl !important;
-                text-align: right !important;
-                justify-content: flex-end !important;
-            }
-            .ai-block label {
-                text-align: right !important;
-                width: 100%;
-            }
-            </style>
-            """, unsafe_allow_html=True)
+        # כרטיס ורוד עצמאי שלא נדרס ע"י ה‑CSS הגלובלי
+        st.markdown("""
+        <div class="ai-card">
         
-            st.markdown('<div class="ai-card ai-block">', unsafe_allow_html=True)
+            <div class="ai-header">
+                <span class="material-symbols-rounded ai-icon">smart_toy</span>
+                <h3 style="margin:0;">עוזר ה‑AI שלך</h3>
+            </div>
         
-            st.markdown("<h3>🤖 עוזר ה‑AI שלך</h3>", unsafe_allow_html=True)
-            st.markdown("<p>שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.</p>", unsafe_allow_html=True)
+            <p class="ai-description">
+                שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
+            </p>
         
-            sel_p = st.selectbox(
-                "",
-                ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
-                key="ai_p"
-            )
+        """, unsafe_allow_html=True)
         
-            q_in = st.text_area(
-                "",
-                placeholder="איך אוכל לעזור?",
-                key="ai_i",
-                height=130
-            )
+        # בחירת פרויקט
+        sel_p = st.selectbox(
+            "",
+            ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
+            key="ai_p"
+        )
         
-            st.markdown("</div>", unsafe_allow_html=True)
+        # טקסט חופשי
+        q_in = st.text_area(
+            "",
+            placeholder="איך אוכל לעזור?",
+            key="ai_i",
+            height=130
+        )
         
-        # כפתור שליחה
+        # כפתור צף (העיצוב שלו כבר מוגדר ב‑CSS שלך)
+        st.markdown("""
+            <div class="ai-send-btn">🚀</div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        
+        # ============================
+        #      לוגיקת שליחה
+        # ============================
+        
         if st.button("שגר שאילתה 🚀", use_container_width=True):
             if q_in:
                 with st.spinner("מנתח..."):
@@ -642,7 +623,11 @@ else:
                             if k.startswith("sum_v4_") and v
                         ]) or "אין סיכומי פגישות"
         
-                        focus = f"התמקד בפרויקט: {sel_p}" if sel_p != "כללי - כל הפרויקטים" else "התייחס לכל הפרויקטים"
+                        focus = (
+                            f"התמקד בפרויקט: {sel_p}"
+                            if sel_p != "כללי - כל הפרויקטים"
+                            else "התייחס לכל הפרויקטים"
+                        )
         
                         prompt = f"""
         אתה עוזר AI בכיר לניהול פרויקטים. יש לך גישה לכל המידע הבא:
@@ -674,9 +659,9 @@ else:
                     except Exception as e:
                         st.session_state.ai_response = f"שגיאה: {str(e)}"
         
+        # הצגת תשובה
         if st.session_state.ai_response:
             st.info(st.session_state.ai_response)
-
 
 
         # ── פרויקטים לדיווח ─────────────────────────────────
