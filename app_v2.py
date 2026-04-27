@@ -604,10 +604,7 @@ else:
             # הצגת תשובה
             if st.session_state.get("ai_response"):
                 st.info(st.session_state.ai_response)
-
-                               
-    
-        
+           
 
 
 
