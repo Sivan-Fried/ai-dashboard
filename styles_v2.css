@@ -308,3 +308,86 @@ div[data-testid="stAlert"] h3 {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--primary-dark); }
+
+/* ============================
+   🎨 עיצוב רכיב ה-AI בלבד
+   ============================ */
+
+/* מעטפת הכרטיס */
+.ai-card {
+    background-color: #FADCE6;
+    padding: 2rem;
+    border-radius: 1.5rem;
+    box-shadow: 0px 10px 30px rgba(225,200,210,0.2);
+    max-width: 400px;
+    width: 100%;
+    margin: auto;
+}
+
+/* כותרת */
+.ai-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+/* טקסט תיאור */
+.ai-description {
+    font-size: 14px;
+    opacity: 0.8;
+    margin-bottom: 1.5rem;
+    text-align: right;
+}
+
+/* בחירת פרויקט */
+.ai-select {
+    width: 100%;
+    background: rgba(255,255,255,0.5);
+    border: none;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    text-align: right;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* טקסט-אזור */
+.ai-textarea {
+    width: 100%;
+    background: white;
+    border: none;
+    border-radius: 1rem;
+    padding: 1rem;
+    height: 130px;
+    resize: none;
+    text-align: right;
+    font-size: 14px;
+}
+
+/* כפתור שליחה */
+.ai-send-btn {
+    position: absolute;
+    left: 0.75rem;
+    bottom: 0.75rem;
+    width: 40px;
+    height: 40px;
+    background-color: #6f5861;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.ai-send-btn:hover {
+    transform: scale(1.05);
+}
+
+/* אייקונים */
+.ai-icon {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
