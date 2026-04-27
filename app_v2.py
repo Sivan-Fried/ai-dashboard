@@ -454,8 +454,7 @@ else:
     # עמודה ימנית
     # ══════════════════════════════════════════════════════
             # ============================
-
-            with st.container(border=True):
+        with st.container(border=True):
             
                 # עטיפה חיצונית לעיצוב בלבד
                 st.markdown('<div class="ai-card">', unsafe_allow_html=True)
@@ -568,6 +567,8 @@ else:
             if st.session_state.ai_response:
                 st.info(st.session_state.ai_response)
 
+
+            
 
 
 
