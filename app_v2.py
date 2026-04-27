@@ -498,29 +498,29 @@ else:
                 </p>
 
             """, unsafe_allow_html=True)
-
-        # בחירת פרויקט
-        sel_p = st.selectbox(
-            "",
-            ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
-            key="ai_p"
-        )
-
-        # שדה שאלה
-        q_in = st.text_area(
-            "",
-            placeholder="איך אוכל לעזור?",
-            key="ai_i",
-            height=130
-        )
-
-        # כפתור שליחה עגול
-        st.markdown("""
-            <div class="ai-send-btn">
-                <span class="material-symbols-outlined">arrow_back</span>
+    
+            # בחירת פרויקט
+            sel_p = st.selectbox(
+                "",
+                ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
+                key="ai_p"
+            )
+    
+            # שדה שאלה
+            q_in = st.text_area(
+                "",
+                placeholder="איך אוכל לעזור?",
+                key="ai_i",
+                height=130
+            )
+    
+            # כפתור שליחה עגול
+            st.markdown("""
+                <div class="ai-send-btn">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </div>
             </div>
-        </div>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
     
             # כפתור שליחה
             st.markdown('<div style="position:relative;">', unsafe_allow_html=True)
