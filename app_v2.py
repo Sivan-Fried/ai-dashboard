@@ -537,9 +537,7 @@ else:
 
 
     
-        #      עוזר אישי AI — מלא
-        # ============================
-        
+
         # ============================
         #      עוזר אישי AI — יציב
         # ============================
@@ -547,12 +545,15 @@ else:
         # --- CSS גלובלי ---
         st.markdown("""
         <style>
+        .ai-wrapper {
+            direction: rtl;
+            text-align: right;
+        }
         .ai-box {
             background-color: #FADCE6;
             padding: 22px;
             border-radius: 20px;
             box-shadow: 0px 8px 22px rgba(225,200,210,0.25);
-            direction: rtl;
             margin-bottom: 20px;
         }
         .ai-title {
@@ -568,6 +569,9 @@ else:
         }
         </style>
         """, unsafe_allow_html=True)
+        
+        # --- עטיפה שמכריחה יישור לימין ---
+        st.markdown('<div class="ai-wrapper">', unsafe_allow_html=True)
         
         # --- כרטיס ---
         st.markdown('<div class="ai-box">', unsafe_allow_html=True)
@@ -588,7 +592,8 @@ else:
             height=130
         )
         
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)  # סגירת ai-box
+        st.markdown('</div>', unsafe_allow_html=True)  # סגירת ai-wrapper
         
         # --- כפתור שליחה ---
         if st.button("שגר שאילתה 🚀", use_container_width=True):
@@ -662,6 +667,7 @@ else:
         # --- תשובה ---
         if st.session_state.ai_response:
             st.info(st.session_state.ai_response)
+
 
 
 
