@@ -470,7 +470,7 @@ else:
     
         # --- משימות ---
         with st.container(border=True):
-            st.markdown('<h3>📋 משימות חדשות באז'ור</h3>', unsafe_allow_html=True)
+            st.markdown('<h3>📋 משימות חדשות azure </h3>', unsafe_allow_html=True)
             tasks_data = get_azure_tasks()
             if tasks_data:
                 for t in tasks_data:
