@@ -572,7 +572,9 @@ else:
         
                             focus = f"התמקד בפרויקט: {sel_p}" if sel_p != "כללי - כל הפרויקטים" else "התייחס לכל הפרויקטים"
         
-                            prompt = f\"\"\"אתה עוזר AI בכיר לניהול פרויקטים. יש לך גישה לכל המידע הבא:
+                            prompt = (
+                                f"""אתה עוזר AI בכיר לניהול פרויקטים. יש לך גישה לכל המידע הבא:
+        
         
         📁 פרויקטים:
         {projects_summary}
@@ -592,13 +594,15 @@ else:
         {focus}
         שאלה: {q_in}
         
-        ענה בעברית עסקית, בצורה מעמיקה וממוקדת. אם רלוונטי — תצלב מידע בין מקורות שונים.\"\"\"
+        ענה בעברית עסקית, בצורה מעמיקה וממוקדת. אם רלוונטי — תצלב מידע בין מקורות שונים."""
+        )
         
-                            response = model.generate_content(prompt)
-                            st.session_state.ai_response = response.text
+        response = model.generate_content(prompt)
+        st.session_state.ai_response = response.text
         
-                        except Exception as e:
-                            st.session_state.ai_response = f"שגיאה: {str(e)}"
+           
+      except Exception as e:
+        st.session_state.ai_response = f"שגיאה: {str(e)}"
 
         
     # ══════════════════════════════════════════════════════
