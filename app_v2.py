@@ -448,6 +448,7 @@ else:
     # ══════════════════════════════════════════════════════
     # עמודה ימנית
     # ══════════════════════════════════════════════════════
+
     with col_right:
     
         # --- פרויקטים ---
@@ -479,6 +480,7 @@ else:
                     raw_date = f.get('System.CreatedDate', '')
                     fmt_date = f"{raw_date[8:10]}/{raw_date[5:7]} {raw_date[11:16]}" if raw_date else ""
                     t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_task)}/_workitems/edit/{t_id}"
+    
                     st.markdown(
                         f'<div class="record-row" style="white-space: nowrap;">'
                         f'<div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis;">'
@@ -491,68 +493,120 @@ else:
                     )
             else:
                 st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
-
-
-    # --- עוזר אישי AI ---
-    with st.container(border=True):   # ← זה נשאר, אבל אנחנו צובעים אותו ורוד
-        st.markdown("""
-        <style>
-        div[data-testid="stVerticalBlockBorderWrapper"] {
-            background-color: #FADCE6 !important;   /* ← הופך את המלבן הלבן לוורוד */
-            border-radius: 20px !important;
-            padding: 2rem !important;
-        }
-        </style>
-        
-        <div class="ai-header">
-            <span class="material-symbols-outlined ai-icon">smart_toy</span>
-            <h4>עוזר ה‑AI שלך</h4>
-        </div>
-        
-        <p class="ai-description">
-            שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
-        </p>
-        """, unsafe_allow_html=True)
-
-       
-        sel_p = st.selectbox(
-            "",
-            ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
-            key="ai_p"
-        )
     
-        q_in = st.text_area(
-            "",
-            placeholder="איך אוכל לעזור?",
-            key="ai_i",
-            height=130
-        )
+        # --- עוזר אישי AI ---
+        with st.container(border=True):
     
-        st.markdown("""
-            <div class="ai-send-btn">
-                <span class="material-symbols-outlined">arrow_back</span>
-            </div>
-        </div> <!-- סגירת ai-card -->
-        """, unsafe_allow_html=True)
+            # כרטיס ורוד
+            st.markdown("""
+            <div class="ai-card">
     
-        if st.button("שגר שאילתה 🚀", use_container_width=True):
-            if q_in:
-                with st.spinner("מנתח..."):
-                    try:
-                        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-                        model = genai.GenerativeModel('gemini-2.5-flash-lite')
+                <div class="ai-header">
+                    <span class="material-symbols-outlined ai-icon">smart_toy</span>
+                    <h4>עוזר ה‑AI שלך</h4>
+                </div>
     
-                        # ... הלוגיקה שלך ...
+                <p class="ai-description">
+                   שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
+                </p>
+            """, unsafe_allow_html=True)
     
-                    except Exception as e:
-                        st.session_state.ai_response = f"שגיאה: {str(e)}"
+            # בחירת פרויקט
+            sel_p = st.selectbox(
+                "",
+                ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
+                key="ai_p"
+            )
     
+            # שדה שאלה
+            q_in = st.text_area(
+                "",
+                placeholder="איך אוכל לעזור?",
+                key="ai_i",
+                height=130
+            )
+    
+            # כפתור שליחה עגול
+            st.markdown("""
+                <div class="ai-send-btn">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </div>
+            </div> <!-- סגירת ai-card -->
+            """, unsafe_allow_html=True)
+    
+            # לוגיקת שליחה
+            if st.button("שגר שאילתה 🚀", use_container_width=True):
+                if q_in:
+                    with st.spinner("מנתח..."):
+                        try:
+                            genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+                            model = genai.GenerativeModel('gemini-2.5-flash-lite')
+    
+                            projects_summary = "\n".join([
+                                f"- {r['project_name']}: סטטוס {r.get('status','לא ידוע')}, סוג {r.get('project_type','לא ידוע')}"
+                                for _, r in projects.iterrows()
+                            ])
+    
+                            meetings_today = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
+                            meetings_summary = "\n".join([
+                                f"- {r['meeting_title']} בשעה {fmt_time(r.get('start_time',''))}"
+                                for _, r in meetings_today.iterrows()
+                            ]) if not meetings_today.empty else "אין פגישות היום"
+    
+                            reminders_today2 = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
+                            reminders_summary = "\n".join([
+                                f"- {r['reminder_text']} ({r.get('project_name','כללי')})"
+                                for _, r in reminders_today2.iterrows()
+                            ]) if not reminders_today2.empty else "אין תזכורות"
+    
+                            tasks_summary = "\n".join([
+                                f"- {t.get('fields',{}).get('System.Title','')} ({t.get('fields',{}).get('System.TeamProject','')})"
+                                for t in (get_azure_tasks() or [])
+                            ]) or "אין משימות פתוחות"
+    
+                            fathom_summaries = "\n".join([
+                                f"- פגישה: {k.replace('sum_v4_','')}: {v[:200]}..."
+                                for k, v in st.session_state.items()
+                                if k.startswith("sum_v4_") and v
+                            ]) or "אין סיכומי פגישות"
+    
+                            focus = f"התמקד בפרויקט: {sel_p}" if sel_p != "כללי - כל הפרויקטים" else "התייחס לכל הפרויקטים"
+    
+                            prompt = f"""אתה עוזר AI בכיר לניהול פרויקטים. יש לך גישה לכל המידע הבא:
+    
+    📁 פרויקטים:
+    {projects_summary}
+    
+    📅 פגישות היום:
+    {meetings_summary}
+    
+    🔔 תזכורות היום:
+    {reminders_summary}
+    
+    📋 משימות פתוחות באז'ור:
+    {tasks_summary}
+    
+    📝 סיכומי פגישות אחרונים:
+    {fathom_summaries}
+    
+    {focus}
+    שאלה: {q_in}
+    
+    ענה בעברית עסקית, בצורה מעמיקה וממוקדת. אם רלוונטי — תצלב מידע בין מקורות שונים."""
+    
+                            response = model.generate_content(prompt)
+                            st.session_state.ai_response = response.text
+    
+                        except Exception as e:
+                            st.session_state.ai_response = f"שגיאה: {str(e)}"
+    
+        # הצגת תשובה
         if st.session_state.ai_response:
             st.info(st.session_state.ai_response)
     
-         
 
 
+    
         # ── פרויקטים לדיווח ─────────────────────────────────
         # ============================
         # 📌 פרויקטים לדיווח (priority.xlsx)
