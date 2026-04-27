@@ -2,6 +2,11 @@ import streamlit as st
 
 st.set_page_config(layout="wide")
 
+
+st.title("אני גרסת TEST_RIGHT_COL.PY מהשעה 20:15")
+st.write("אם את רואה את זה – זה הקובץ הנכון.")
+
+
 # CSS מלא שמייצר את הכרטיס הוורוד כמו בתמונה
 st.markdown("""
 <style>
