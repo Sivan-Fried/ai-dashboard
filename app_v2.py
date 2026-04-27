@@ -536,7 +536,7 @@ else:
                         unsafe_allow_html=True
                     )
             else:
-                st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True
+                st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
 
 
                             
@@ -544,71 +544,68 @@ else:
         # ============================
         #      עוזר אישי AI — ורוד
         # ============================
-    # ============================
-    #      עוזר אישי AI — ורוד
-    # ============================
-
-    st.markdown("""
-    <div style="
-        background:#FADCE6;
-        padding:24px;
-        border-radius:20px;
-        box-shadow:0 8px 22px rgba(225,200,210,0.35);
-        direction:rtl;
-        text-align:right;
-        margin-bottom:20px;
-    ">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-            <span class="material-symbols-rounded" style="font-size:26px;color:#6f5861;">smart_toy</span>
-            <h3 style="margin:0;color:#6f5861;">עוזר ה‑AI שלך</h3>
+    
+        st.markdown("""
+        <div style="
+            background:#FADCE6;
+            padding:24px;
+            border-radius:20px;
+            box-shadow:0 8px 22px rgba(225,200,210,0.35);
+            direction:rtl;
+            text-align:right;
+            margin-bottom:20px;
+        ">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <span class="material-symbols-rounded" style="font-size:26px;color:#6f5861;">smart_toy</span>
+                <h3 style="margin:0;color:#6f5861;">עוזר ה‑AI שלך</h3>
+            </div>
+        
+            <p style="color:#6f5861;opacity:0.85;margin-top:-5px;">
+                שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
+            </p>
         </div>
-    
-        <p style="color:#6f5861;opacity:0.85;margin-top:-5px;">
-            שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-        # בחירת פרויקט
-        sel_p = st.selectbox(
-            "",
-            ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
-            key="ai_p"
-        )
-    
-        # שדה קלט לשאלה
-        q_in = st.text_area(
-            "",
-            placeholder="איך אוכל לעזור?",
-            key="ai_i",
-            height=130
-        )
-    
-        # כפתור שליחה
-        send = st.button("שגר שאילתה 🚀", use_container_width=True)
-    
-        # לוגיקת שליחה מלאה
-        if send and q_in:
-            try:
-                # קריאה למודל ה‑AI שלך
-                full_prompt = f"פרויקט: {sel_p}\nשאלה: {q_in}"
-    
-                response = client.responses.create(
-                    model="gpt-4o-mini",
-                    input=full_prompt
-                )
-    
-                ai_text = response.output_text
-    
-                # שמירת התשובה ב-session_state
-                st.session_state.ai_response = ai_text
-    
-            except Exception as e:
-                st.session_state.ai_response = f"שגיאה: {e}"
-    
-        # הצגת תשובה
-        if st.session_state.get("ai_response"):
-            st.info(st.session_state.ai_response)
+        """, unsafe_allow_html=True)
+        
+            # בחירת פרויקט
+            sel_p = st.selectbox(
+                "",
+                ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
+                key="ai_p"
+            )
+        
+            # שדה קלט לשאלה
+            q_in = st.text_area(
+                "",
+                placeholder="איך אוכל לעזור?",
+                key="ai_i",
+                height=130
+            )
+        
+            # כפתור שליחה
+            send = st.button("שגר שאילתה 🚀", use_container_width=True)
+        
+            # לוגיקת שליחה מלאה
+            if send and q_in:
+                try:
+                    # קריאה למודל ה‑AI שלך
+                    full_prompt = f"פרויקט: {sel_p}\nשאלה: {q_in}"
+        
+                    response = client.responses.create(
+                        model="gpt-4o-mini",
+                        input=full_prompt
+                    )
+        
+                    ai_text = response.output_text
+        
+                    # שמירת התשובה ב-session_state
+                    st.session_state.ai_response = ai_text
+        
+                except Exception as e:
+                    st.session_state.ai_response = f"שגיאה: {e}"
+        
+            # הצגת תשובה
+            if st.session_state.get("ai_response"):
+                st.info(st.session_state.ai_response)
 
 
 
