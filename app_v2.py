@@ -494,29 +494,29 @@ else:
                 st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
     
             # --- עוזר אישי AI ---
+            # --- עוזר אישי AI ---
             with st.container(border=True):
             
-                html_ai = """
+                st.markdown("""
                 <div class="ai-card">
+            
                     <div class="ai-header">
                         <span class="material-symbols-outlined ai-icon">smart_toy</span>
                         <h4>עוזר ה‑AI שלך</h4>
                     </div>
+            
                     <p class="ai-description">
                         שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
                     </p>
-                </div>
-                """
-                st.markdown(html_ai, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
             
-                # בחירת פרויקט
+                # כל האלמנטים האלו חייבים להיות *בתוך* הכרטיס
                 sel_p = st.selectbox(
                     "",
                     ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
                     key="ai_p"
                 )
             
-                # שדה שאלה
                 q_in = st.text_area(
                     "",
                     placeholder="איך אוכל לעזור?",
@@ -524,11 +524,13 @@ else:
                     height=130
                 )
             
-                # כפתור שליחה
+                # כפתור שליחה בתוך הכרטיס
                 st.markdown("""
                     <div class="ai-send-btn">
                         <span class="material-symbols-outlined">arrow_back</span>
                     </div>
+            
+                </div> <!-- סגירת ai-card -->
                 """, unsafe_allow_html=True)
             
                 # לוגיקת שליחה
@@ -600,6 +602,7 @@ else:
             # הצגת תשובה
             if st.session_state.ai_response:
                 st.info(st.session_state.ai_response)
+
 
 
             
