@@ -491,102 +491,102 @@ else:
     # עמודה ימנית
     # ══════════════════════════════════════════════════════
     # ══════════════════════════════════════════════════════
-# עמודה ימנית
-# ══════════════════════════════════════════════════════
-with col_right:
-    
-    # --- פרויקטים ---
-    with st.container(border=True):
-        st.markdown("### 📁 פרויקטים")
-        with st.container(height=300, border=False):
-            for _, row in projects.iterrows():
-                p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
-                st.markdown(f'''
-                    <a href="{p_url}" target="_self" class="project-link">
-                        <div class="record-row">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <b>📂 {row["project_name"]}</b>
-                                <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
+    # עמודה ימנית
+    # ══════════════════════════════════════════════════════
+    with col_right:
+        
+        # --- פרויקטים ---
+        with st.container(border=True):
+            st.markdown("### 📁 פרויקטים")
+            with st.container(height=300, border=False):
+                for _, row in projects.iterrows():
+                    p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
+                    st.markdown(f'''
+                        <a href="{p_url}" target="_self" class="project-link">
+                            <div class="record-row">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <b>📂 {row["project_name"]}</b>
+                                    <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
+                                </div>
+                                <span style="color: #94a3b8; font-size: 22px; line-height: 1; flex-shrink: 0;">&#8250;</span>
                             </div>
-                            <span style="color: #94a3b8; font-size: 22px; line-height: 1; flex-shrink: 0;">&#8250;</span>
-                        </div>
-                    </a>
-                ''', unsafe_allow_html=True)
-
-    # --- משימות ---
-    with st.container(border=True):
-        st.markdown('<h3>📋 משימות חדשות azure </h3>', unsafe_allow_html=True)
-        tasks_data = get_azure_tasks()
-        if tasks_data:
-            for t in tasks_data:
-                f = t.get('fields', {})
-                t_id, t_title, p_task = t.get('id'), f.get('System.Title', ''), f.get('System.TeamProject', 'General')
-                raw_date = f.get('System.CreatedDate', '')
-                fmt_date = f"{raw_date[8:10]}/{raw_date[5:7]} {raw_date[11:16]}" if raw_date else ""
-                t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_task)}/_workitems/edit/{t_id}"
-
-                st.markdown(
-                    f'<div class="record-row" style="white-space: nowrap;">'
-                    f'<div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis;">'
-                    f'<a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: none; font-weight: 500;">🔗 {t_title}</a>'
-                    f'<span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">נוצר ב {fmt_date}</span>'
-                    f'</div>'
-                    f'<span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_task}</span>'
-                    f'</div>',
-                    unsafe_allow_html=True
-                )
-        else:
-            st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
-
-
-    # ============================
-    #      עוזר אישי AI — ורוד
-    # ============================
-
-    st.markdown("""
-    <div style="
-        background:#FADCE6;
-        padding:24px;
-        border-radius:20px;
-        box-shadow:0 8px 22px rgba(225,200,210,0.35);
-        direction:rtl;
-        text-align:right;
-        margin-bottom:20px;
-    ">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-            <span class="material-symbols-rounded" style="font-size:26px;color:#6f5861;">smart_toy</span>
-            <h3 style="margin:0;color:#6f5861;">עוזר ה‑AI שלך</h3>
-        </div>
-
-        <p style="color:#6f5861;opacity:0.85;margin-top:-5px;">
-            שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    sel_p = st.selectbox(
-        "",
-        ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
-        key="ai_p"
-    )
-
-    q_in = st.text_area(
-        "",
-        placeholder="איך אוכל לעזור?",
-        key="ai_i",
-        height=130
-    )
-
-    send = st.button("שגר שאילתה 🚀", use_container_width=True)
-
-    # לוגיקת שליחה (נשארת כמו שיש לך)
-    if send and q_in:
-        ...
+                        </a>
+                    ''', unsafe_allow_html=True)
     
-    # הצגת תשובה
-    if st.session_state.get("ai_response"):
-        st.info(st.session_state.ai_response)
-
+        # --- משימות ---
+        with st.container(border=True):
+            st.markdown('<h3>📋 משימות חדשות azure </h3>', unsafe_allow_html=True)
+            tasks_data = get_azure_tasks()
+            if tasks_data:
+                for t in tasks_data:
+                    f = t.get('fields', {})
+                    t_id, t_title, p_task = t.get('id'), f.get('System.Title', ''), f.get('System.TeamProject', 'General')
+                    raw_date = f.get('System.CreatedDate', '')
+                    fmt_date = f"{raw_date[8:10]}/{raw_date[5:7]} {raw_date[11:16]}" if raw_date else ""
+                    t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_task)}/_workitems/edit/{t_id}"
+    
+                    st.markdown(
+                        f'<div class="record-row" style="white-space: nowrap;">'
+                        f'<div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis;">'
+                        f'<a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: none; font-weight: 500;">🔗 {t_title}</a>'
+                        f'<span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">נוצר ב {fmt_date}</span>'
+                        f'</div>'
+                        f'<span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_task}</span>'
+                        f'</div>',
+                        unsafe_allow_html=True
+                    )
+            else:
+                st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
+    
+    
+        # ============================
+        #      עוזר אישי AI — ורוד
+        # ============================
+    
+        st.markdown("""
+        <div style="
+            background:#FADCE6;
+            padding:24px;
+            border-radius:20px;
+            box-shadow:0 8px 22px rgba(225,200,210,0.35);
+            direction:rtl;
+            text-align:right;
+            margin-bottom:20px;
+        ">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <span class="material-symbols-rounded" style="font-size:26px;color:#6f5861;">smart_toy</span>
+                <h3 style="margin:0;color:#6f5861;">עוזר ה‑AI שלך</h3>
+            </div>
+    
+            <p style="color:#6f5861;opacity:0.85;margin-top:-5px;">
+                שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+        sel_p = st.selectbox(
+            "",
+            ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
+            key="ai_p"
+        )
+    
+        q_in = st.text_area(
+            "",
+            placeholder="איך אוכל לעזור?",
+            key="ai_i",
+            height=130
+        )
+    
+        send = st.button("שגר שאילתה 🚀", use_container_width=True)
+    
+        # לוגיקת שליחה (נשארת כמו שיש לך)
+        if send and q_in:
+            ...
+        
+        # הצגת תשובה
+        if st.session_state.get("ai_response"):
+            st.info(st.session_state.ai_response)
+    
 
 
 
