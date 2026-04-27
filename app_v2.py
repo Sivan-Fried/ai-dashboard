@@ -560,7 +560,6 @@ if st.session_state.ai_response:
     st.info(st.session_state.ai_response)
 
 
-
         # ── פרויקטים לדיווח ─────────────────────────────────
         # ============================
         # 📌 פרויקטים לדיווח (priority.xlsx)
