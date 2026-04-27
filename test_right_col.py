@@ -1,74 +1,117 @@
 import streamlit as st
 
-# עיצוב בסיסי
-st.set_page_config(page_title="עוזר ה‑AI שלך", layout="wide")
+st.set_page_config(layout="centered")
 
-# CSS פנימי — Streamlit תמיד מרנדר אותו
+# CSS מלא שמייצר את העיצוב מהתמונה
 st.markdown("""
 <style>
+/* קונטיינר ורוד */
 .ai-box {
-    background-color: #ffe6f2;
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid #ffb6d5;
+    background-color: #FADCE6;
+    padding: 24px;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 400px;
+    margin: auto;
+    box-shadow: 0px 10px 30px rgba(225,200,210,0.25);
     direction: rtl;
+    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
+/* כותרת */
 .ai-header {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+    margin-bottom: 16px;
 }
 
 .ai-header h4 {
     margin: 0;
-    font-size: 22px;
-    color: #d63384;
+    font-size: 20px;
+    font-weight: 600;
+    color: #6f5861;
 }
 
+/* טקסט תיאור */
 .ai-description {
-    margin-top: 10px;
-    font-size: 16px;
-    color: #444;
+    font-size: 14px;
+    color: #6f5861;
+    opacity: 0.85;
+    margin-bottom: 20px;
+    text-align: right;
 }
 
-.ai-input {
-    margin-top: 20px;
+/* תיבת בחירה */
+select {
+    width: 100%;
+    background: rgba(255,255,255,0.6);
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 14px;
+    text-align: right;
+    outline: none;
 }
 
-button[kind="primary"] {
-    background-color: #ff66a3 !important;
-    color: white !important;
-    border-radius: 8px !important;
+/* טקסטבוקס */
+textarea {
+    width: 100%;
+    background: white;
+    border: none;
+    border-radius: 18px;
+    padding: 14px;
+    height: 120px;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+}
+
+/* כפתור עגול */
+.send-btn {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    width: 42px;
+    height: 42px;
+    background-color: #6f5861;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    cursor: pointer;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.15);
 }
 </style>
 """, unsafe_allow_html=True)
 
-# מבנה החלונית
-with st.container():
-    st.markdown('<div class="ai-box">', unsafe_allow_html=True)
+# HTML של הקומפוננטה
+st.markdown("""
+<div class="ai-box">
 
-    st.markdown("""
     <div class="ai-header">
-        <span style="font-size:28px;">🤖</span>
+        <span style="font-size:26px;">🤖</span>
         <h4>עוזר ה‑AI שלך</h4>
     </div>
-    """, unsafe_allow_html=True)
 
-    st.markdown("""
     <p class="ai-description">
-        דברי על הפרויקטים שלך או צרי משימה חדשה
+        שאל אותי כל דבר על הפרויקטים שלך או צור משימה חדשה.
     </p>
-    """, unsafe_allow_html=True)
 
-    # בחירה
-    option = st.selectbox("בחרי פרויקט", ["כללי - כל הפרויקטים", "פרויקט 1", "פרויקט 2"])
+    <div style="margin-bottom: 16px;">
+        <select>
+            <option>בחר פרויקט לניתוח...</option>
+            <option>מיתוג מחדש - Aura 2.0</option>
+            <option>קמפיין השקה חורף</option>
+        </select>
+    </div>
 
-    # שדה טקסט
-    user_input = st.text_input("איך אוכל לעזור?", "")
+    <div style="position: relative;">
+        <textarea placeholder="איך אוכל לעזור?"></textarea>
+        <div class="send-btn">←</div>
+    </div>
 
-    # כפתור
-    if st.button("שגרי שאילתה 🚀"):
-        st.success("הבקשה נשלחה!")
-
-    st.markdown('</div>', unsafe_allow_html=True)
+</div>
+""", unsafe_allow_html=True)
