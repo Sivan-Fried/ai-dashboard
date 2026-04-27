@@ -481,8 +481,9 @@ else:
                     st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)           
     
 
-            #אזור עוזר אישי AI
-            # אזור AI — בלי קונטיינר לבן מסביב
+        #אזור עוזר אישי AI
+        # אזור AI — בלי קונטיינר לבן מסביב
+         with col_right:
             st.markdown("""
             <div class="ai-card">
         
