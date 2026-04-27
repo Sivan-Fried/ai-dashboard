@@ -450,7 +450,7 @@ else:
     with col_right:
         with st.container(border=True):
              st.markdown("### 📁 פרויקטים")
-                with st.container(height=300, border=False):
+            with st.container(height=300, border=False):
                         for _, row in projects.iterrows():
                             p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
                             st.markdown(f'''
