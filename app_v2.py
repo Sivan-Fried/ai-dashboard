@@ -516,7 +516,7 @@ else:
                     key="ai_p"
                 )
         
-                q_in = st.text_area(
+            q_in = st.text_area(
                     "",
                     placeholder="איך אוכל לעזור?",
                     key="ai_i",
@@ -528,7 +528,7 @@ else:
                         <span class="material-symbols-outlined">arrow_back</span>
                     </div>
                 </div> <!-- סגירת ai-card -->
-                """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)    
     
             if st.button("שגר שאילתה 🚀", use_container_width=True):
                 if q_in:
