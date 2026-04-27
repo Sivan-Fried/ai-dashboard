@@ -493,7 +493,7 @@ else:
             else:
                 st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
     
-        # --- עוזר אישי AI ---
+            # --- עוזר אישי AI ---
 
             html_ai = """
             <div class="ai-card">
@@ -509,42 +509,26 @@ else:
             
             st.markdown(html_ai, unsafe_allow_html=True)
 
+         
+                sel_p = st.selectbox(
+                    "",
+                    ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
+                    key="ai_p"
+                )
         
-        #st.markdown("", unsafe_allow_html=True)
-        #with st.container(border=True):
-    
-            #st.markdown("""
-            #<div class="ai-card">
-    
-                #<div class="ai-header">
-                    #<span class="material-symbols-outlined ai-icon">smart_toy</span>
-                    #<h4>עוזר ה‑AI שלך</h4>
-                #</div>
-    
-                #<p class="ai-description">
-                   #שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.
-                #</p>
-            #""", unsafe_allow_html=True)
-    
-            sel_p = st.selectbox(
-                "",
-                ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
-                key="ai_p"
-            )
-    
-            q_in = st.text_area(
-                "",
-                placeholder="איך אוכל לעזור?",
-                key="ai_i",
-                height=130
-            )
-    
-            st.markdown("""
-                <div class="ai-send-btn">
-                    <span class="material-symbols-outlined">arrow_back</span>
-                </div>
-            </div> <!-- סגירת ai-card -->
-            """, unsafe_allow_html=True)
+                q_in = st.text_area(
+                    "",
+                    placeholder="איך אוכל לעזור?",
+                    key="ai_i",
+                    height=130
+                )
+        
+                st.markdown("""
+                    <div class="ai-send-btn">
+                        <span class="material-symbols-outlined">arrow_back</span>
+                    </div>
+                </div> <!-- סגירת ai-card -->
+                """, unsafe_allow_html=True)
     
             if st.button("שגר שאילתה 🚀", use_container_width=True):
                 if q_in:
