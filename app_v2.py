@@ -541,100 +541,96 @@ else:
         # ============================
         #      עוזר אישי AI — יציב
         # ============================
+           
+        with st.container(border=True):
         
-        # --- CSS גלובלי ---
-        st.markdown("""
-        <style>
-        .ai-wrapper {
-            direction: rtl;
-            text-align: right;
-        }
-        .ai-box {
-            background-color: #FADCE6;
-            padding: 22px;
-            border-radius: 20px;
-            box-shadow: 0px 8px 22px rgba(225,200,210,0.25);
-            margin-bottom: 20px;
-        }
-        .ai-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #6f5861;
-        }
-        .ai-desc {
-            font-size: 14px;
-            color: #6f5861;
-            opacity: 0.85;
-            margin-bottom: 12px;
-        }
-        </style>
-        """, unsafe_allow_html=True)
+            st.markdown("### 🤖 עוזר ה‑AI שלך")
         
-        # --- עטיפה שמכריחה יישור לימין ---
-        st.markdown('<div class="ai-wrapper">', unsafe_allow_html=True)
+            # CSS שמיישר את הווידג'טים עצמם
+            st.markdown("""
+            <style>
+            /* יישור טקסט בתוך ה-AI בלבד */
+            div[data-ai-block="true"] textarea {
+                direction: rtl !important;
+                text-align: right !important;
+            }
+            div[data-ai-block="true"] .stSelectbox > div > div {
+                direction: rtl !important;
+                text-align: right !important;
+                justify-content: flex-end !important;
+            }
+            div[data-ai-block="true"] label {
+                text-align: right !important;
+                width: 100%;
+            }
+            </style>
+            """, unsafe_allow_html=True)
         
-        # --- כרטיס ---
-        st.markdown('<div class="ai-box">', unsafe_allow_html=True)
+            # עטיפה שמאפשרת ל-CSS לתפוס רק כאן
+            with st.container():
+                st.markdown('<div data-ai-block="true">', unsafe_allow_html=True)
         
-        st.markdown('<div class="ai-title">🤖 עוזר ה‑AI שלך</div>', unsafe_allow_html=True)
-        st.markdown('<div class="ai-desc">שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.</div>', unsafe_allow_html=True)
+                st.markdown(
+                    '<p style="color:#6f5861; margin-top:-10px;">שאלי אותי כל דבר על הפרויקטים שלך או צרי משימה חדשה.</p>',
+                    unsafe_allow_html=True
+                )
         
-        sel_p = st.selectbox(
-            "",
-            ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
-            key="ai_p"
-        )
+                sel_p = st.selectbox(
+                    "",
+                    ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
+                    key="ai_p"
+                )
         
-        q_in = st.text_area(
-            "",
-            placeholder="איך אוכל לעזור?",
-            key="ai_i",
-            height=130
-        )
+                q_in = st.text_area(
+                    "",
+                    placeholder="איך אוכל לעזור?",
+                    key="ai_i",
+                    height=130
+                )
         
-        st.markdown('</div>', unsafe_allow_html=True)  # סגירת ai-box
-        st.markdown('</div>', unsafe_allow_html=True)  # סגירת ai-wrapper
+                st.markdown('</div>', unsafe_allow_html=True)
         
-        # --- כפתור שליחה ---
-        if st.button("שגר שאילתה 🚀", use_container_width=True):
-            if q_in:
-                with st.spinner("מנתח..."):
-                    try:
-                        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-                        model = genai.GenerativeModel('gemini-2.5-flash-lite')
+            # כפתור שליחה
+            if st.button("שגר שאילתה 🚀", use_container_width=True):
+                if q_in:
+                    with st.spinner("מנתח..."):
+                        try:
+                            genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+                            model = genai.GenerativeModel('gemini-2.5-flash-lite')
         
-                        # כל הלוגיקה שלך נשארת בדיוק כמו שהיא
-                        projects_summary = "\n".join([
-                            f"- {r['project_name']}: סטטוס {r.get('status','לא ידוע')}, סוג {r.get('project_type','לא ידוע')}"
-                            for _, r in projects.iterrows()
-                        ])
+                            projects_summary = "\n".join([
+                                f"- {r['project_name']}: סטטוס {r.get('status','לא ידוע')}, סוג {r.get('project_type','לא ידוע')}"
+                                for _, r in projects.iterrows()
+                            ])
         
-                        meetings_today = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-                        meetings_summary = "\n".join([
-                            f"- {r['meeting_title']} בשעה {fmt_time(r.get('start_time',''))}"
-                            for _, r in meetings_today.iterrows()
-                        ]) if not meetings_today.empty else "אין פגישות היום"
+                            meetings_today = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
+                            meetings_summary = "\n".join([
+                                f"- {r['meeting_title']} בשעה {fmt_time(r.get('start_time',''))}"
+                                for _, r in meetings_today.iterrows()
+                            ]) if not meetings_today.empty else "אין פגישות היום"
         
-                        reminders_today2 = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
-                        reminders_summary = "\n".join([
-                            f"- {r['reminder_text']} ({r.get('project_name','כללי')})"
-                            for _, r in reminders_today2.iterrows()
-                        ]) if not reminders_today2.empty else "אין תזכורות"
+                            reminders_today2 = st.session_state.rem_live[
+                                pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today
+                            ]
+                            reminders_summary = "\n".join([
+                                f"- {r['reminder_text']} ({r.get('project_name','כללי')})"
+                                for _, r in reminders_today2.iterrows()
+                            ]) if not reminders_today2.empty else "אין תזכורות"
         
-                        tasks_summary = "\n".join([
-                            f"- {t.get('fields',{}).get('System.Title','')} ({t.get('fields',{}).get('System.TeamProject','')})"
-                            for t in (get_azure_tasks() or [])
-                        ]) or "אין משימות פתוחות"
+                            tasks_summary = "\n".join([
+                                f"- {t.get('fields',{}).get('System.Title','')} ({t.get('fields',{}).get('System.TeamProject','')})"
+                                for t in (get_azure_tasks() or [])
+                            ]) or "אין משימות פתוחות"
         
-                        fathom_summaries = "\n".join([
-                            f"- פגישה: {k.replace('sum_v4_','')}: {v[:200]}..."
-                            for k, v in st.session_state.items()
-                            if k.startswith("sum_v4_") and v
-                        ]) or "אין סיכומי פגישות"
+                            fathom_summaries = "\n".join([
+                                f"- פגישה: {k.replace('sum_v4_','')}: {v[:200]}..."
+                                for k, v in st.session_state.items()
+                                if k.startswith("sum_v4_") and v
+                            ]) or "אין סיכומי פגישות"
         
-                        focus = f"התמקד בפרויקט: {sel_p}" if sel_p != "כללי - כל הפרויקטים" else "התייחס לכל הפרויקטים"
+                            focus = f"התמקד בפרויקט: {sel_p}" if sel_p != "כללי - כל הפרויקטים" else "התייחס לכל הפרויקטים"
         
-                        prompt = f"""
+                            prompt = f"""
         אתה עוזר AI בכיר לניהול פרויקטים. יש לך גישה לכל המידע הבא:
         
         📁 פרויקטים:
@@ -658,18 +654,14 @@ else:
         ענה בעברית עסקית, בצורה מעמיקה וממוקדת.
         """
         
-                        response = model.generate_content(prompt)
-                        st.session_state.ai_response = response.text
+                            response = model.generate_content(prompt)
+                            st.session_state.ai_response = response.text
         
-                    except Exception as e:
-                        st.session_state.ai_response = f"שגיאה: {str(e)}"
+                        except Exception as e:
+                            st.session_state.ai_response = f"שגיאה: {str(e)}"
         
-        # --- תשובה ---
-        if st.session_state.ai_response:
-            st.info(st.session_state.ai_response)
-
-
-
+            if st.session_state.ai_response:
+                st.info(st.session_state.ai_response)
 
 
 
