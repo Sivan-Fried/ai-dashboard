@@ -510,7 +510,7 @@ else:
             st.markdown(html_ai, unsafe_allow_html=True)
 
          
-                sel_p = st.selectbox(
+            sel_p = st.selectbox(
                     "",
                     ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
                     key="ai_p"
