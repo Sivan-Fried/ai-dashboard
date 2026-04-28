@@ -124,89 +124,113 @@ h3 {
 
 /* ── Daily Quote Section - Pink Background & White Border ── */
 /* ייבוא פונטים ואייקונים */
-/* ייבוא פונטים ואייקונים - קריטי לאייקון הספר */
-@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700&display=swap');
-@link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0";
+@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
 
+/* ביטול מרווחים מובנים של Streamlit */
+.main .block-container {
+    padding-top: 0rem !important;
+}
+
+/* Daily Quote - הקוד הסופי, הדק והצמוד */
 .quote-wrapper-outer {
     width: 100%;
-    background-color: #fdf2f8 !important;
-    margin-top: 10px !important; /* רווח קטן מהסרגל כדי שלא יעלה עליו */
-    padding: 15px 0px !important;
+    background-color: #fdf2f8 !important; /* הרקע הוורוד העדין */
+    padding: 10px !important; /* צמצום גובה מקסימלי */
     position: relative;
     overflow: hidden;
-    border-radius: 15px;
+    margin-bottom: 24px;
+    /* מרווח קטן מלמעלה כדי שייצמד מתחת לסרגל העליון */
+    margin-top: 10px !important; 
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 90px !important;
-    font-family: 'Assistant', sans-serif !important;
+    min-height: 100px !important; /* גובה מצומצם */
+    font-family: 'Assistant', sans-serif !important; /* פונט Assistant נקי */
 }
 
-/* הכתם הורוד המעורפל בצד (כמו בעיצוב Atmosphere) */
-.quote-wrapper-outer::after {
-    content: "";
+.watercolor-bg {
     position: absolute;
-    top: -20px;
-    right: -30px;
-    width: 150px;
-    height: 150px;
-    background: radial-gradient(circle, rgba(251,207,232,0.8) 0%, rgba(251,207,232,0) 70%);
-    border-radius: 50%;
+    top: -40px;
+    right: -40px;
+    width: 220px;
+    height: 220px;
+    opacity: 0.12;
     z-index: 1;
+}
+
+.watercolor-bg svg {
+    fill: #f472b6;
 }
 
 .quote-content-flat {
     text-align: center;
+    position: relative;
     z-index: 10;
+    max-width: 90%;
     width: 100%;
 }
 
 .quote-label {
     font-size: 10px !important;
     font-weight: 700 !important;
-    color: #db2777 !important;
-    letter-spacing: 0.15em;
+    color: #db2777 !important; /* ורוד בולט */
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
     margin-bottom: 4px !important;
     display: block;
-    text-transform: uppercase;
 }
 
 .quote-main-text {
-    font-size: 22px !important;
+    font-size: 20px !important; /* הקטנה דרסטית לפונט של כותרת משנה */
     font-weight: 700 !important;
-    color: #1e293b !important;
+    color: #1e293b !important; /* כחול כהה */
     line-height: 1.2 !important;
-    margin: 0 !important;
+    margin-bottom: 6px !important;
 }
 
 .quote-author-row {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 12px;
     margin-top: 4px;
 }
 
 .author-line {
-    width: 20px;
+    width: 30px;
     height: 1px;
-    background-color: #fbcfe8;
+    background-color: #fbcfe8; /* קו ורוד עדין */
 }
 
-.quote-author-name {
-    color: #94a3b8 !important;
-    font-size: 14px !important;
-    font-weight: 400;
+.quote-author-row span {
+    color: #94a3b8 !important; /* אפור עדין */
+    font-style: italic;
+    font-size: 13px !important;
 }
 
 .bottom-ornament {
-    margin-top: 6px;
+    margin-top: 12px;
     display: flex;
-    justify-content: center;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    gap: 15px;
+    opacity: 0.6; /* שקיפות עדינה */
 }
+
+.ornament-line {
+    height: 1px;
+    width: 50px;
+    background-color: #db2777;
+}
+
+/* האייקון - קטן וורוד */
+.bottom-ornament span {
+    font-family: 'Material Symbols Rounded' !important;
+    color: #db2777;
+    font-size: 18px;
+}
+
 
 /* ── KPI Cards ─────────────────────────────────────────── */
 /* ── New KPI Cards - Full & Final ──────────────────────────────── */
