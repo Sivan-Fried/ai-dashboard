@@ -122,11 +122,11 @@ h3 {
     box-shadow: var(--shadow-md) !important;
 }
 
-/* ── Daily Quote Section - Minimalist & Compact ──────────────── */
+/* ── Daily Quote Section - Pink Background & White Border ── */
 .quote-section {
     width: 100%;
-    background-color: #fdf2f8 !important;
-    padding: 30px 20px !important; /* צמצום משמעותי בגובה */
+    background-color: #fdf2f8 !important; /* הרקע הוורוד של כל האזור */
+    padding: 30px 20px !important;
     position: relative;
     overflow: hidden;
     border-radius: 24px;
@@ -142,7 +142,7 @@ h3 {
     right: -40px;
     width: 250px;
     height: 250px;
-    opacity: 0.1;
+    opacity: 0.12;
     z-index: 1;
 }
 
@@ -155,10 +155,11 @@ h3 {
 .quote-container {
     max-width: 800px;
     width: 100%;
-    background: white !important;
-    padding: 25px 40px !important; /* צמצום Padding פנימי */
+    background: transparent !important; /* ביטול המלבן הלבן */
+    padding: 25px 40px !important;
     border-radius: 20px !important;
-    box-shadow: 0 4px 15px rgba(244, 114, 182, 0.08) !important;
+    border: 2px solid #ffffff !important; /* המסגרת הלבנה שביקשת */
+    box-shadow: 0 4px 15px rgba(244, 114, 182, 0.05) !important;
     text-align: center;
     position: relative;
     z-index: 10;
@@ -172,36 +173,33 @@ h3 {
     text-transform: uppercase;
     letter-spacing: 0.2em;
     display: block;
-    margin-bottom: 12px; /* צמצום רווח */
+    margin-bottom: 12px;
 }
 
 .quote-hebrew {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
-    font-size: 26px !important; /* הקטנה קלה לאיזון */
+    font-size: 26px !important;
     font-weight: 700 !important;
     color: #1e293b !important;
     line-height: 1.3 !important;
     margin: 0 auto 8px auto !important;
 }
 
-.quote-author-name {
-    font-family: 'Plus Jakarta Sans', sans-serif !important;
-    font-size: 14px !important;
-    color: #94a3b8 !important;
+.quote-author-row {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
     margin-top: 10px;
+    color: #94a3b8 !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-size: 14px !important;
 }
 
-/* הקו המפריד לפני שם ההוגה - כמו בתמונה */
-.quote-author-name::before {
-    content: "";
+.author-line {
     width: 30px;
     height: 1px;
     background-color: #e2e8f0;
-    display: inline-block;
 }
 
 .quote-divider {
@@ -215,7 +213,7 @@ h3 {
 .divider-line {
     height: 1px;
     width: 30px;
-    background-color: #fce7f3;
+    background-color: rgba(251, 207, 232, 0.5);
 }
 
 .quote-divider span {
