@@ -124,30 +124,77 @@ h3 {
 
 
 /* ── KPI Cards ─────────────────────────────────────────── */
-.kpi-card {
-    background: var(--card-bg) !important;
-    padding: 18px 15px !important;
-    border-radius: var(--radius-md) !important;
-    text-align: center !important;
-    box-shadow: var(--shadow-sm) !important;
-    border: none !important;
-    transition: box-shadow 0.2s ease, transform 0.2s ease !important;
+/* ── New KPI Cards ─────────────────────────────────────── */
+.kpi-container {
+    background: #ffffff !important;
+    padding: 16px !important;
+    border-radius: 16px !important;
+    border: 1px solid #f8fafc !important;
+    box-shadow: 0px 4px 20px rgba(225, 200, 210, 0.12) !important;
+    transition: all 0.3s ease !important;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
 }
-.kpi-card:hover {
-    box-shadow: var(--shadow-md) !important;
-    transform: translateY(-1px) !important;
+
+.kpi-container:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0px 8px 25px rgba(225, 200, 210, 0.2) !important;
 }
-.kpi-card b {
-    font-size: 1.6rem !important;
-    color: var(--text-dark) !important;
-    display: block !important;
+
+.kpi-header {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 12px;
+}
+
+.kpi-icon-box {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.kpi-badge {
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+}
+
+.kpi-content {
+    text-align: right;
+}
+
+.kpi-label {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #64748b !important;
+    margin-bottom: 2px !important;
+}
+
+.kpi-value-row {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.kpi-number {
+    font-size: 24px !important;
     font-weight: 800 !important;
-    margin-top: 4px !important;
+    color: #0f172a !important;
+    letter-spacing: -0.02em !important;
 }
-.kpi-card span, .kpi-card div {
-    font-size: 0.8rem !important;
-    color: var(--text-light) !important;
-    font-weight: 500 !important;
+
+.kpi-unit {
+    font-size: 11px !important;
+    color: #94a3b8 !important;
 }
 
 /* ── Containers / כרטיסים ──────────────────────────────── */
