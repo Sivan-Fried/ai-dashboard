@@ -123,105 +123,86 @@ h3 {
 }
 
 /* ── Daily Quote Section - Pink Background & White Border ── */
-/* ── Daily Quote Section - Minimal, Outer Border 4px ─────── */
+/* ייבוא פונט Assistant לעברית נקייה */
+@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700&display=swap');
+
 .quote-wrapper-outer {
     width: 100%;
-    background-color: #fdf2f8 !important; /* רקע ורוד לכל האזור */
-    padding: 15px 20px !important; /* צמצום מרווח אנכי אנכי */
+    background-color: #fdf2f8 !important;
+    /* הצמדה למעלה - מבטל את הרווח של Streamlit */
+    margin-top: -65px !important; 
+    padding: 30px 20px !important;
     position: relative;
     overflow: hidden;
-    border-radius: 20px;
-    margin-bottom: 24px;
-    /* המסגרת הלבנה מוגדרת כאן - מסביב לכל האזור, בעובי 4px */
-    border: 4px solid #ffffff !important; 
+    border-bottom: 1px solid rgba(0,0,0,0.05); /* קו עדין מפריד למטה */
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 110px !important; /* גובה מינימלי מצומצם */
+    min-height: 180px !important;
+    font-family: 'Assistant', sans-serif !important;
 }
 
 .watercolor-shape {
     position: absolute;
-    top: -30px;
-    right: -30px;
-    width: 220px;
-    height: 220px;
-    opacity: 0.12;
+    top: 50%;
+    right: 5%;
+    transform: translateY(-50%);
+    width: 280px;
+    height: 280px;
+    opacity: 0.15;
     z-index: 1;
 }
 
-.watercolor-shape svg {
-    fill: #f472b6;
-}
-
 .quote-content-flat {
-    max-width: 800px;
-    width: 100%;
     text-align: center;
     position: relative;
     z-index: 10;
+    width: 100%;
 }
 
 .quote-label {
-    font-family: 'Plus Jakarta Sans', sans-serif !important;
-    font-size: 9px !important;
-    font-weight: 800 !important;
-    color: #db2777 !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #d63384 !important; /* ורוד של העיצוב */
     text-transform: uppercase;
-    letter-spacing: 0.15em;
-    margin-bottom: 8px !important;
+    letter-spacing: 0.2em;
+    margin-bottom: 15px !important;
     display: block;
 }
 
 .quote-main-text {
-    font-family: 'Plus Jakarta Sans', sans-serif !important;
-    font-size: 24px !important; /* גודל מאוזן */
+    font-size: 42px !important; /* גדול ומרשים כמו בעיצוב */
     font-weight: 700 !important;
-    color: #1e293b !important;
-    line-height: 1.2 !important;
-    margin: 0 auto 6px auto !important;
-    max-width: 85%;
+    color: #1a202c !important; /* כחול כהה עמוק */
+    line-height: 1.1 !important;
+    margin: 0 auto 15px auto !important;
 }
 
-.quote-author-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 4px;
-}
-
-.author-line {
-    width: 25px;
-    height: 1px;
-    background-color: #e2e8f0;
-}
-
-.quote-author-row span {
-    font-family: 'Plus Jakarta Sans', sans-serif !important;
-    font-size: 14px !important;
-    color: #94a3b8 !important;
+.quote-subtext {
+    font-size: 18px !important;
+    color: #718096 !important; /* אפור כחלחל */
     font-style: italic;
+    margin-top: 5px;
+    font-weight: 400;
 }
 
-.bottom-ornament {
-    margin-top: 15px;
+.quote-divider {
+    margin-top: 25px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 15px;
 }
 
-.ornament-line {
+.divider-line {
     height: 1px;
-    width: 30px;
-    background-color: rgba(251, 207, 232, 0.5);
+    width: 60px;
+    background-color: #fbb6ce;
 }
 
-.bottom-ornament span {
-    font-family: 'Material Symbols Rounded' !important;
-    color: #fbcfe8;
-    font-size: 18px;
+.material-symbols-rounded {
+    color: #d63384;
+    font-size: 22px;
 }
 
 /* ── KPI Cards ─────────────────────────────────────────── */
