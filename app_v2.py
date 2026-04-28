@@ -532,7 +532,7 @@ else:
     import pandas as pd
     import os
     
-    # --- 1. לוגיקת טעינת הנתונים (נשארת זהה) ---
+    # --- 1. לוגיקת טעינת הנתונים ---
     file_path = "inspirational_quotes.xlsx"
     quote_text = "המסע היחיד הוא זה שבפנים."
     quote_author = "לא ידוע"
@@ -548,99 +548,85 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
         except: pass
     
-    # --- 2. הזרקה אגרסיבית של Atmosphere לתוך Streamlit ---
-    # הקוד הזה מטפל בפונטים, בביטול השוליים הלבנים, ובמראה ה-Watercolor המדויק
+    # --- 2. הזרקה מסיבית של Atmosphere ---
+    # הקוד הזה כולל CSS שמוודא הצמדה מלאה לסרגל העליון ורינדור פונטים
     st.markdown(f"""
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&family=Noto+Serif+Hebrew:wght@300;400;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+    <style>
+        /* ביטול השוליים של סטרימליט כדי להיצמד לסרגל */
+        .main .block-container {{
+            padding-top: 0rem !important;
+            max-width: 100% !important;
+        }}
         
-        <style>
-            /* ביטול כל המרווחים של סטרימליט */
-            .main .block-container {{
-                padding: 0 !important;
-                max-width: 100% !important;
-            }}
-            [data-testid="stHeader"] {{
-                display: none;
-            }}
-            
-            /* עיצוב הציטוט בסגנון Atmosphere */
-            .atmosphere-section {{
-                width: 100%;
-                background-color: #ffffff;
-                background-image: 
-                    radial-gradient(circle at 20% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 50%),
-                    radial-gradient(circle at 80% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 50%),
-                    radial-gradient(circle at 50% 20%, rgba(249, 219, 229, 0.3) 0%, transparent 40%);
-                padding: 60px 20px;
-                text-align: center;
-                border-bottom: 1px solid #f0f1f1;
-                position: relative;
-                overflow: hidden;
-            }}
+        /* ייבוא פונטים ישירות לתוך הבלוק */
+        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&family=Noto+Serif+Hebrew:wght@600;700&display=swap');
     
-            .label-style {{
-                font-family: 'Plus Jakarta Sans', sans-serif;
-                font-size: 12px;
-                font-weight: 600;
-                color: #6f5861;
-                text-transform: uppercase;
-                letter-spacing: 0.2em;
-                display: block;
-                margin-bottom: 20px;
-            }}
+        .atmosphere-card {{
+            width: 100%;
+            background-color: #ffffff;
+            background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 40%), 
+                              radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 40%);
+            padding: 30px 15px;
+            text-align: center;
+            border-bottom: 1px solid #f1f5f9;
+            margin-top: 0px !important;
+        }}
     
-            .quote-style {{
-                font-family: 'Noto Serif Hebrew', serif;
-                font-size: clamp(24px, 5vw, 48px);
-                color: #1a1c1c;
-                line-height: 1.2;
-                font-weight: 700;
-                margin-bottom: 15px;
-                max-width: 900px;
-                margin-left: auto;
-                margin-right: auto;
-            }}
+        .daily-label {{
+            font-family: 'Assistant', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            color: #6f5861;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-bottom: 10px;
+            display: block;
+        }}
     
-            .author-style {{
-                font-family: 'Plus Jakarta Sans', sans-serif;
-                font-size: 18px;
-                color: #646566;
-                font-style: italic;
-                margin-bottom: 30px;
-            }}
+        .quote-main {{
+            font-family: 'Noto Serif Hebrew', serif;
+            font-size: 28px !important; /* גודל מוקטן ואלגנטי */
+            color: #1a1c1c;
+            font-weight: 700;
+            line-height: 1.3;
+            margin: 10px auto;
+            max-width: 800px;
+        }}
     
-            .ornament-row {{
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 15px;
-            }}
+        .quote-author-line {{
+            font-family: 'Assistant', sans-serif;
+            font-size: 14px;
+            color: #646566;
+            font-style: italic;
+            margin-bottom: 20px;
+        }}
     
-            .divider-line {{
-                height: 1px;
-                width: 50px;
-                background-color: #fadce6;
-            }}
+        .book-icon-divider {{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 10px;
+        }}
     
-            .material-symbols-outlined {{
-                color: #6f5861;
-                font-size: 24px;
-                opacity: 0.8;
-            }}
-        </style>
+        .line-separator {{
+            height: 1px;
+            width: 40px;
+            background-color: #fadce6;
+        }}
+    </style>
     
-        <section class="atmosphere-section">
-            <span class="label-style">Daily Quote</span>
-            <h1 class="quote-style">"{quote_text}"</h1>
-            <p class="author-style">— {quote_author} —</p>
-            <div class="ornament-row">
-                <div class="divider-line"></div>
-                <span class="material-symbols-outlined">auto_stories</span>
-                <div class="divider-line"></div>
-            </div>
-        </section>
+    <div class="atmosphere-card">
+        <span class="daily-label">Daily Quote</span>
+        <div class="quote-main">"{quote_text}"</div>
+        <div class="quote-author-line">— {quote_author} —</div>
+        <div class="book-icon-divider">
+            <div class="line-separator"></div>
+            <span style="font-size: 20px;">📖</span>
+            <div class="line-separator"></div>
+        </div>
+    </div>
     """, unsafe_allow_html=True)
-
 
 
     # ── KPIs ────────────────────────────────────────────────
