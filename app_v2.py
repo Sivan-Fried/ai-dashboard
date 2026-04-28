@@ -529,40 +529,33 @@ else:
 
     # ── Daily Quote Section Logic & Display ──────────────────────────
     # ── Daily Quote Section Logic & Display ──────────────────────────────────────────
-    # כאן נמצאת כל הלוגיקה המקורית שלך - שליפה מהאקסל בצורה תקינה
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
     quote_author = "ארתור אש"
     
+    # לוגיקת שליפה מהאקסל (לא נגעתי)
     try:
         if os.path.exists("inspirational_quotes.xlsx"):
             df_quotes = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
             if not df_quotes.empty:
-                # בוחר שורה רנדומלית
                 random_row = df_quotes.sample(n=1).iloc[0]
-                
-                # זיהוי עמודות לפי שם (גמיש)
                 q_cols = [c for c in df_quotes.columns if str(c).lower() in ['quote', 'ציטוט']]
                 a_cols = [c for c in df_quotes.columns if str(c).lower() in ['author', 'מחבר']]
-                
-                if q_cols:
-                    quote_text = str(random_row[q_cols[0]])
-                if a_cols:
-                    quote_author = str(random_row[a_cols[0]])
-    except Exception as e:
-        # במקרה של שגיאה בקובץ, נשארים עם ציטוט ברירת המחדל
+                if q_cols: quote_text = str(random_row[q_cols[0]])
+                if a_cols: quote_author = str(random_row[a_cols[0]])
+    except Exception:
         pass
     
-    # --- הזרקת ה-CSS החיצוני לתוך ה-HTML (כדי שהעיצוב יחזור לעבוד) ---
+    # טעינת ה-CSS החיצוני כפי שהוא
     with open("styles_v2.css", "r", encoding="utf-8") as f:
-        custom_css = f.read()
+        style_content = f.read()
     
-    # בניית ה-HTML המלא בדיוק לפי העיצוב המקורי שלך
+    # המבנה של הגרסה היציבה - בדיוק לפי ה-CSS ששלחת
     quote_html = f"""
     <style>
-        {custom_css}
-        body {{ background: transparent; margin: 0; padding: 0; overflow: hidden; }}
-        /* מנטרל מרווח פנימי בתוך ה-iframe כדי שההזזה למעלה תהיה אפקטיבית */
-        .quote-wrapper-outer {{ margin-top: 0 !important; }}
+    {style_content}
+    body {{ background: transparent; margin: 0; padding: 0; overflow: hidden; }}
+    /* איפוס מרג'ין למניעת כפילות בתוך ה-iframe */
+    .quote-wrapper-outer {{ margin-top: 0 !important; }}
     </style>
     
     <div class="quote-wrapper-outer">
@@ -588,19 +581,15 @@ else:
     </div>
     """
     
-    # הזרקת ה-CSS "האלים" שמושך את הכל למעלה - בלי לגעת בלוגיקה
+    # הזזה למעלה של הדיב בסטרימליט
     st.markdown("""
         <style>
-            /* מושך את בלוק הציטוט (הילד ה-3) למעלה על חשבון הרווח של ה-Header */
-            div[data-testid="stVerticalBlock"] > div:nth-child(3) {
-                margin-top: -75px !important;
-                position: relative;
-                z-index: 10;
-            }
+        div[data-testid="stVerticalBlock"] > div:nth-child(3) {
+            margin-top: -60px !important;
+        }
         </style>
     """, unsafe_allow_html=True)
     
-    # הצגת הקומפוננטה
     components.html(quote_html, height=180)
 
     # ── KPIs ────────────────────────────────────────────────
