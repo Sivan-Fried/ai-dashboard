@@ -528,7 +528,7 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    # --- Daily Quote Section (גרסה חסינת תקלות) ---
+    # --- Daily Quote Section (גרסה סופית ללא רווחים) ---
     import pandas as pd
     import os
     
@@ -547,44 +547,18 @@ else:
         except:
             pass
     
-    # שימוש ב-replace במקום f-string כדי למנוע את מריחת הטקסט על המסך
-    html_template = """
-    <div style="
-        position: relative;
-        top: -55px;
-        width: 100%;
-        background: #ffffff;
-        background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
-                          radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
-        border-bottom: 1px solid #f1f5f9;
-        padding: 25px 0;
-        text-align: center;
-        direction: rtl;
-        z-index: 5;
-        margin-bottom: -30px;
-    ">
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
-        
-        <div style="max-width: 900px; margin: 0 auto; padding: 0 20px;">
-            <span style="font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: 11px !important; font-weight: 700 !important; color: #6f5861 !important; text-transform: uppercase !important; letter-spacing: 0.25em !important; display: block !important; margin-bottom: 10px !important;">DAILY QUOTE</span>
-            
-            <div style="font-family: 'Noto Serif Hebrew', serif !important; font-size: 26px !important; color: #1a1c1c !important; line-height: 1.3 !important; margin: 0 0 8px 0 !important; font-weight: 700 !important;">
-                "QUOTE_HERE"
-            </div>
-            
-            <div style="font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: 15px !important; color: #646566 !important; font-style: italic !important; margin-bottom: 20px !important;">
-                &#8212; AUTHOR_HERE &#8212;
-            </div>
-            
-            <div style="display: flex !important; align-items: center !important; justify-content: center !important; gap: 15px !important;">
-                <div style="height: 1px !important; width: 45px !important; background-color: #fadce6 !important;"></div>
-                <span class="material-symbols-outlined" style="color: #6f5861 !important; font-size: 22px !important; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
-                <div style="height: 1px !important; width: 45px !important; background-color: #fadce6 !important;"></div>
-            </div>
-        </div>
-    </div>
-    <div style="height: 15px;"></div>
-    """
+    # הקוד מוצמד לשמאל כדי למנוע מסטרימליט לחשוב שזה בלוק טקסט
+    html_template = """<div style="position: relative; top: -55px; width: 100%; background: #ffffff; background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%); border-bottom: 1px solid #f1f5f9; padding: 25px 0; text-align: center; direction: rtl; z-index: 5; margin-bottom: -30px;">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+    <div style="max-width: 900px; margin: 0 auto; padding: 0 20px;">
+    <span style="font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: 11px !important; font-weight: 700 !important; color: #6f5861 !important; text-transform: uppercase !important; letter-spacing: 0.25em !important; display: block !important; margin-bottom: 10px !important;">DAILY QUOTE</span>
+    <div style="font-family: 'Noto Serif Hebrew', serif !important; font-size: 26px !important; color: #1a1c1c !important; line-height: 1.3 !important; margin: 0 0 8px 0 !important; font-weight: 700 !important;">"QUOTE_HERE"</div>
+    <div style="font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: 15px !important; color: #646566 !important; font-style: italic !important; margin-bottom: 20px !important;">&#8212; AUTHOR_HERE &#8212;</div>
+    <div style="display: flex !important; align-items: center !important; justify-content: center !important; gap: 15px !important;">
+    <div style="height: 1px !important; width: 45px !important; background-color: #fadce6 !important;"></div>
+    <span class="material-symbols-outlined" style="color: #6f5861 !important; font-size: 22px !important; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
+    <div style="height: 1px !important; width: 45px !important; background-color: #fadce6 !important;"></div>
+    </div></div></div><div style="height: 15px;"></div>"""
     
     final_html = html_template.replace("QUOTE_HERE", quote_text).replace("AUTHOR_HERE", quote_author)
     
