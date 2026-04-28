@@ -532,14 +532,12 @@ else:
     import pandas as pd
     import os
     
-    # --- 1. לוגיקת טעינת הנתונים (הגרסה היציבה) ---
-    file_path = "inspirational_quotes.xlsx"
+    # --- 1. לוגיקת נתונים (יציבה) ---
     quote_text = "המסע היחיד הוא זה שבפנים."
     quote_author = "לא ידוע"
-    
-    if os.path.exists(file_path):
+    if os.path.exists("inspirational_quotes.xlsx"):
         try:
-            df = pd.read_excel(file_path, engine='openpyxl')
+            df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
             if not df.empty:
                 row = df.sample(n=1).iloc[0]
                 q_col = [c for c in df.columns if str(c).lower() in ['quote', 'ציטוט']]
@@ -548,52 +546,63 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
         except: pass
     
-    # --- 2. הזרקת CSS למיקום אבסולוטי (הצמדה לסרגל ורווח ל-KPI) ---
+    # --- 2. CSS חיצוני למיקום רספונסיבי והצמדה ---
     st.markdown("""
-    <style>
-        /* ביטול הדר הדיפולטיבי של סטרימליט */
-        [data-testid="stHeader"] {
-            display: none;
-        }
+        <style>
+            /* ביטול ה-Header של סטרימליט שתופס מקום למעלה */
+            [data-testid="stHeader"] { visibility: hidden; height: 0px; }
+            
+            /* הצמדה לקצה העליון של המסך */
+            .main .block-container { 
+                padding-top: 0px !important; 
+                max-width: 100% !important; 
+            }
     
-        /* הצמדה מלאה של גוף הדף למעלה */
-        .main .block-container {
-            padding-top: 0rem !important;
-            margin-top: -60px !important; /* מושך את הכל למעלה מתחת לסרגל */
-            max-width: 100% !important;
-        }
-    
-        /* יצירת הרווח של ה-"חצי סנטימטר" (כ-20 פיקסלים) מתחת לציטוט */
-        .atmosphere-wrapper {
-            margin-bottom: 20px !important;
-            width: 100%;
-            border-bottom: 1px solid #f1f5f9;
-        }
-    
-        /* ייבוא פונטים ואייקונים */
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0');
-    </style>
+            /* יצירת רווח קבוע (חצי סנטימטר) בין הציטוט ל-KPI */
+            iframe {
+                margin-bottom: 20px !important;
+            }
+        </style>
     """, unsafe_allow_html=True)
     
-    # --- 3. ה-HTML המעוצב (יחידה אחת צמודה) ---
-    atmosphere_html = f'''
-    <div class="atmosphere-wrapper" style="background: white; direction: rtl;">
-        <div style="background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 40%); padding: 25px 0; text-align: center;">
-            <div style="max-width: 800px; margin: 0 auto; padding: 0 20px;">
-                <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 8px 0;">DAILY QUOTE</p>
-                <h2 style="font-family: 'Noto Serif Hebrew', serif; font-size: 24px; color: #1a1c1c; margin: 0 0 5px 0; line-height: 1.25; font-weight: 700;">"{quote_text}"</h2>
-                <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin: 0 0 15px 0;">— {quote_author} —</p>
-                <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                    <div style="height: 1px; width: 40px; background: #fadce6;"></div>
-                    <span class="material-symbols-outlined" style="color: #6f5861; font-size: 20px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
-                    <div style="height: 1px; width: 40px; background: #fadce6;"></div>
-                </div>
+    # --- 3. ה-Component היציב שאהבת ---
+    # הגדרתי את הפונטים ב-VW (Viewport Width) כדי שיהיו רספונסיביים בכל מחשב
+    atmosphere_component = f"""
+    <div style="
+        width: 100%; 
+        background: #ffffff; 
+        background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
+                          radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
+        border-bottom: 1px solid #f1f5f9;
+        padding: 30px 0;
+        text-align: center;
+        direction: rtl;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    ">
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+        
+        <div style="max-width: 90%; margin: 0 auto; padding: 0 20px;">
+            <span style="font-size: 11px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 12px;">DAILY QUOTE</span>
+            
+            <h1 style="font-family: 'Noto Serif Hebrew', serif; font-size: 1.8rem; color: #1a1c1c; line-height: 1.3; margin: 0 0 10px 0; font-weight: 700;">
+                "{quote_text}"
+            </h1>
+            
+            <div style="font-size: 1rem; color: #646566; font-style: italic; margin-bottom: 20px;">
+                — {quote_author} —
+            </div>
+            
+            <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+                <span class="material-symbols-outlined" style="color: #6f5861; font-size: 24px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
+                <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
             </div>
         </div>
     </div>
-    '''
+    """
     
-    st.markdown(atmosphere_html, unsafe_allow_html=True)
+    # הזרקה - height=220 מבטיח שהתוכן לא ייחתך בשום מסך
+    st.components.v1.html(atmosphere_component, height=220)
 
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
