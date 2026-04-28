@@ -532,7 +532,7 @@ else:
     import pandas as pd
     import os
     
-    # --- 1. לוגיקת טעינה ---
+    # --- 1. לוגיקת טעינת הנתונים (נשארת זהה) ---
     file_path = "inspirational_quotes.xlsx"
     quote_text = "המסע היחיד הוא זה שבפנים."
     quote_author = "לא ידוע"
@@ -548,81 +548,97 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
         except: pass
     
-    # --- 2. הזרקת ה-CSS וה-HTML כיחידה אחת חסינה ---
-    # שילבתי את הפונטים, התיקון לשוליים והעיצוב במקום אחד
+    # --- 2. הזרקה אגרסיבית של Atmosphere לתוך Streamlit ---
+    # הקוד הזה מטפל בפונטים, בביטול השוליים הלבנים, ובמראה ה-Watercolor המדויק
     st.markdown(f"""
-    <style>
-        /* מוחק את השוליים הלבנים של סטרימליט למעלה */
-        .main .block-container {{
-            padding-top: 0rem !important;
-            padding-left: 0rem !important;
-            padding-right: 0rem !important;
-            max-width: 100% !important;
-        }}
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&family=Noto+Serif+Hebrew:wght@300;400;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
         
-        /* ייבוא פונטים */
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&family=Noto+Serif+Hebrew:wght@400;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0');
+        <style>
+            /* ביטול כל המרווחים של סטרימליט */
+            .main .block-container {{
+                padding: 0 !important;
+                max-width: 100% !important;
+            }}
+            [data-testid="stHeader"] {{
+                display: none;
+            }}
+            
+            /* עיצוב הציטוט בסגנון Atmosphere */
+            .atmosphere-section {{
+                width: 100%;
+                background-color: #ffffff;
+                background-image: 
+                    radial-gradient(circle at 20% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 50%),
+                    radial-gradient(circle at 50% 20%, rgba(249, 219, 229, 0.3) 0%, transparent 40%);
+                padding: 60px 20px;
+                text-align: center;
+                border-bottom: 1px solid #f0f1f1;
+                position: relative;
+                overflow: hidden;
+            }}
     
-        .atmosphere-quote-card {{
-            width: 100%;
-            background-color: #ffffff;
-            background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 40%), 
-                              radial-gradient(circle at 85% 70%, rgba(227, 225, 236, 0.3) 0%, transparent 40%);
-            padding: 40px 20px;
-            text-align: center;
-            border-bottom: 1px solid #f1f5f9;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }}
+            .label-style {{
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-size: 12px;
+                font-weight: 600;
+                color: #6f5861;
+                text-transform: uppercase;
+                letter-spacing: 0.2em;
+                display: block;
+                margin-bottom: 20px;
+            }}
     
-        .quote-title {{
-            font-family: 'Noto Serif Hebrew', serif;
-            font-size: 36px;
-            color: #1a1c1c;
-            font-weight: 700;
-            margin: 15px 0;
-            line-height: 1.2;
-        }}
+            .quote-style {{
+                font-family: 'Noto Serif Hebrew', serif;
+                font-size: clamp(24px, 5vw, 48px);
+                color: #1a1c1c;
+                line-height: 1.2;
+                font-weight: 700;
+                margin-bottom: 15px;
+                max-width: 900px;
+                margin-left: auto;
+                margin-right: auto;
+            }}
     
-        .quote-label {{
-            font-size: 11px;
-            font-weight: 700;
-            color: #6f5861;
-            text-transform: uppercase;
-            letter-spacing: 0.25em;
-        }}
+            .author-style {{
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-size: 18px;
+                color: #646566;
+                font-style: italic;
+                margin-bottom: 30px;
+            }}
     
-        .quote-author {{
-            font-size: 16px;
-            color: #646566;
-            font-style: italic;
-            margin-bottom: 25px;
-        }}
+            .ornament-row {{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 15px;
+            }}
     
-        .ornament {{
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            opacity: 0.6;
-        }}
+            .divider-line {{
+                height: 1px;
+                width: 50px;
+                background-color: #fadce6;
+            }}
     
-        .line {{
-            height: 1px;
-            width: 50px;
-            background-color: #fadce6;
-        }}
-    </style>
+            .material-symbols-outlined {{
+                color: #6f5861;
+                font-size: 24px;
+                opacity: 0.8;
+            }}
+        </style>
     
-    <div class="atmosphere-quote-card">
-        <span class="quote-label">Daily Quote</span>
-        <div class="quote-title">"{quote_text}"</div>
-        <div class="quote-author">— {quote_author} —</div>
-        <div class="ornament">
-            <div class="line"></div>
-            <span class="material-symbols-outlined" style="color: #6f5861; font-size: 24px;">auto_stories</span>
-            <div class="line"></div>
-        </div>
-    </div>
+        <section class="atmosphere-section">
+            <span class="label-style">Daily Quote</span>
+            <h1 class="quote-style">"{quote_text}"</h1>
+            <p class="author-style">— {quote_author} —</p>
+            <div class="ornament-row">
+                <div class="divider-line"></div>
+                <span class="material-symbols-outlined">auto_stories</span>
+                <div class="divider-line"></div>
+            </div>
+        </section>
     """, unsafe_allow_html=True)
 
 
