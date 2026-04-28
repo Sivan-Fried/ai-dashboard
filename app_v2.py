@@ -590,9 +590,6 @@ else:
     
     st.markdown(html_content, unsafe_allow_html=True)
     
-    # --- 3. פקודת ההזרקה הסופית ---
-    st.markdown(html_layout, unsafe_allow_html=True)
-    
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
     k1, k2, k3, k4 = st.columns(4)
