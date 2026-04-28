@@ -532,49 +532,63 @@ else:
     import pandas as pd
     import os
     
-    # --- 1. לוגיקת טעינת הנתונים (השאירי כמו שסידרת) ---
+    # --- 1. לוגיקת טעינת הנתונים ---
     file_path = "inspirational_quotes.xlsx"
     quote_text = "המסע היחיד הוא זה שבפנים."
-    quote_author = "The only journey is the one within."
+    quote_author = "לא ידוע"
     
     if os.path.exists(file_path):
         try:
             df = pd.read_excel(file_path, engine='openpyxl')
             if not df.empty:
                 row = df.sample(n=1).iloc[0]
-                # חיפוש עמודות בעברית או אנגלית
                 q_col = [c for c in df.columns if str(c).lower() in ['quote', 'ציטוט']]
                 a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר', 'הוגה']]
                 if q_col: quote_text = str(row[q_col[0]])
                 if a_col: quote_author = str(row[a_col[0]])
-        except:
-            pass
+        except: pass
     
-    # --- 2. ייבוא פונטים ואייקונים מהעיצוב המקורי ---
-    st.markdown('<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&family=Noto+Serif+Hebrew:wght@400;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">', unsafe_allow_html=True)
+    # --- 2. CSS לביטול מרווחים והצמדה לתפריט העליון ---
+    st.markdown("""
+    <style>
+        /* ביטול המרווח שסטרימליט יוצר אוטומטית בראש הדף */
+        .stAppHeader {
+            background-color: white !important;
+        }
+        .main .block-container {
+            padding-top: 0rem !important;
+            padding-left: 0rem !important;
+            padding-right: 0rem !important;
+            max-width: 100% !important;
+        }
+        /* ייבוא הפונטים והאייקונים */
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&family=Noto+Serif+Hebrew:wght@400;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0');
+    </style>
+    """, unsafe_allow_html=True)
     
-    # --- 3. בניית ה-HTML במחרוזת אחת נקייה (בלי רווחים בתחילת שורה) ---
-    html_code = (
+    # --- 3. ה-HTML המעוצב בדיוק לפי Atmosphere ---
+    # שמתי את המקפים סביב המחבר והאייקון של הספר
+    html_output = (
         f'<div style="width: 100%; background-color: #ffffff; '
         f'background-image: radial-gradient(circle at 20% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 50%), '
         f'radial-gradient(circle at 80% 80%, rgba(227, 225, 236, 0.3) 0%, transparent 50%); '
-        f'padding: 25px 0; border-bottom: 1px solid #f1f5f9; text-align: center; '
-        f'font-family: \'Plus Jakarta Sans\', sans-serif; position: relative;">'
-        f'<div style="max-width: 800px; margin: 0 auto;">'
+        f'padding: 30px 0; border-bottom: 1px solid #f1f5f9; text-align: center; '
+        f'font-family: \'Plus Jakarta Sans\', sans-serif; margin-bottom: 30px;">'
+        f'<div style="max-width: 800px; margin: 0 auto; padding: 0 20px;">'
         f'<span style="font-size: 11px; font-weight: 700; color: #6f5861; text-transform: uppercase; '
-        f'letter-spacing: 0.15em; display: block; margin-bottom: 8px;">Daily Quote</span>'
-        f'<div style="font-family: \'Noto Serif Hebrew\', serif; font-size: 26px; color: #1a1c1c; '
-        f'line-height: 1.2; margin-bottom: 6px; font-weight: 700;">"{quote_text}"</div>'
-        f'<div style="font-size: 14px; color: #646566; font-style: italic; margin-bottom: 12px;">{quote_author}</div>'
-        f'<div style="display: flex; align-items: center; justify-content: center; gap: 10px; opacity: 0.4;">'
-        f'<div style="height: 1px; width: 30px; background-color: #fadce6;"></div>'
-        f'<span class="material-symbols-outlined" style="color: #6f5861; font-size: 18px;">auto_stories</span>'
-        f'<div style="height: 1px; width: 30px; background-color: #fadce6;"></div>'
+        f'letter-spacing: 0.2em; display: block; margin-bottom: 10px;">Daily Quote</span>'
+        f'<div style="font-family: \'Noto Serif Hebrew\', serif; font-size: 32px; color: #1a1c1c; '
+        f'line-height: 1.2; margin-bottom: 8px; font-weight: 700;">"{quote_text}"</div>'
+        f'<div style="font-size: 16px; color: #646566; font-style: italic; margin-bottom: 18px; font-family: \'Plus Jakarta Sans\', sans-serif;">'
+        f'— {quote_author} —</div>'
+        f'<div style="display: flex; align-items: center; justify-content: center; gap: 12px; opacity: 0.5;">'
+        f'<div style="height: 1px; width: 45px; background-color: #fadce6;"></div>'
+        f'<span class="material-symbols-outlined" style="color: #6f5861; font-size: 24px; display: inline-block; line-height: 1;">auto_stories</span>'
+        f'<div style="height: 1px; width: 45px; background-color: #fadce6;"></div>'
         f'</div></div></div>'
     )
     
-    # רינדור סופי
-    st.markdown(html_code, unsafe_allow_html=True)
+    st.markdown(html_output, unsafe_allow_html=True)
     
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
