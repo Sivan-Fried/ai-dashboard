@@ -528,57 +528,46 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    import streamlit as st
+    iimport streamlit as st
     import pandas as pd
     import os
     
-    # --- 1. לוגיקת טעינת הנתונים (עם תיקון לטעינת המחבר) ---
-    file_path = "inspirational_quotes.xlsx"
+    # --- 1. לוגיקת נתונים נקייה ---
     quote_text = "המסע היחיד הוא זה שבפנים."
     quote_author = "לא ידוע"
-    
-    if os.path.exists(file_path):
+    if os.path.exists("inspirational_quotes.xlsx"):
         try:
-            df = pd.read_excel(file_path, engine='openpyxl')
+            df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
             if not df.empty:
                 row = df.sample(n=1).iloc[0]
-                # חיפוש עמודות בצורה חכמה יותר
-                q_cols = [c for c in df.columns if str(c).lower() in ['quote', 'ציטוט', 'text']]
-                a_cols = [c for c in df.columns if str(c).lower() in ['author', 'מחבר', 'הוגה', 'שם']]
-                if q_cols: quote_text = str(row[q_cols[0]])
-                if a_cols: quote_author = str(row[a_cols[0]])
-        except:
-            pass
+                q_col = [c for c in df.columns if str(c).lower() in ['quote', 'ציטוט']]
+                a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר']]
+                if q_col: quote_text = str(row[q_col[0]])
+                if a_col: quote_author = str(row[a_col[0]])
+        except: pass
     
-    # --- 2. CSS להצמדה מלאה וביטול מרווחים ---
+    # --- 2. הזרקת ה-Atmosphere (בלי רווחים בתחילת שורה ב-HTML) ---
     st.markdown("""
     <style>
-        /* ביטול מרווחי המערכת של סטרימליט */
-        .main .block-container {
-            padding-top: 0rem !important;
-            padding-bottom: 0rem !important;
-            max-width: 100% !important;
-        }
-        header { visibility: hidden; }
-        
-        /* ייבוא פונטים ואייקונים */
+        /* הצמדה לסרגל וביטול מרווחים */
+        .main .block-container {padding-top: 0rem !important; max-width: 100% !important;}
+        header {visibility: hidden;}
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0');
     </style>
     """, unsafe_allow_html=True)
     
-    # --- 3. ה-HTML המהודק (בלי רווחים בתחילת שורות) ---
-    # צמצמתי פדינג ל-20px והקטנתי פונט ציטוט ל-22px
+    # בניית ה-HTML במחרוזת אחת שטוחה כדי למנוע שגיאות רינדור
     atmosphere_html = f'''
-    <div style="background: white; width: 100%; border-bottom: 1px solid #f1f5f9; margin: 0; padding: 0; direction: rtl;">
-    <div style="background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 40%); padding: 20px 0; text-align: center;">
-    <div style="max-width: 800px; margin: 0 auto; padding: 0 20px;">
-    <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 8px 0;">DAILY QUOTE</p>
-    <h2 style="font-family: 'Noto Serif Hebrew', serif; font-size: 22px; color: #1a1c1c; margin: 0 0 4px 0; line-height: 1.2; font-weight: 700;">"{quote_text}"</h2>
-    <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; color: #646566; font-style: italic; margin: 0 0 12px 0;">— {quote_author} —</p>
-    <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-    <div style="height: 1px; width: 35px; background: #fadce6;"></div>
-    <span class="material-symbols-outlined" style="color: #6f5861; font-size: 20px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
-    <div style="height: 1px; width: 35px; background: #fadce6;"></div>
+    <div style="background: white; width: 100%; border-bottom: 1px solid #f1f5f9; direction: rtl;">
+    <div style="background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 40%); padding: 15px 0; text-align: center;">
+    <div style="max-width: 800px; margin: 0 auto;">
+    <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 5px 0;">DAILY QUOTE</p>
+    <h2 style="font-family: 'Noto Serif Hebrew', serif; font-size: 20px; color: #1a1c1c; margin: 0 0 3px 0; line-height: 1.2; font-weight: 700;">"{quote_text}"</h2>
+    <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; color: #646566; font-style: italic; margin: 0 0 10px 0;">— {quote_author} —</p>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+    <div style="height: 1px; width: 30px; background: #fadce6;"></div>
+    <span class="material-symbols-outlined" style="color: #6f5861; font-size: 18px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
+    <div style="height: 1px; width: 30px; background: #fadce6;"></div>
     </div>
     </div>
     </div>
