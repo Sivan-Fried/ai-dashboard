@@ -561,65 +561,44 @@ else:
             st.error(f"Error reading file: {e}")
     
     # --- תצוגת HTML (במבנה שטוח וחסין שגיאות) ---
-    # ודאי ששמות המשתנים quote_text ו-quote_author מכילים את המידע מהאקסל
-    # --- לוגיקת טעינת הנתונים (נשארת כפי שסידרת) ---
-    # ודאי ש-quote_text ו-quote_author מכילים את המידע הנכון
+    import pandas as pd
+    import random
+    import os
     
-    # ייבוא פונטים ואייקונים בצורה גלובלית
+    # --- לוגיקת טעינה ---
+    file_path = "inspirational_quotes.xlsx"
+    quote_text = "המסע היחיד הוא זה שבפנים."
+    quote_author = "לא ידוע"
+    
+    if os.path.exists(file_path):
+        try:
+            df = pd.read_excel(file_path, engine='openpyxl')
+            if not df.empty:
+                row = df.sample(n=1).iloc[0]
+                q_col = [c for c in df.columns if str(c).lower() in ['quote', 'ציטוט']]
+                a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר', 'הוגה']]
+                if q_col: quote_text = str(row[q_col[0]])
+                if a_col: quote_author = str(row[a_col[0]])
+        except: pass
+    
+    # --- ייבוא פונטים ---
     st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0">', unsafe_allow_html=True)
     
-    quote_html = f"""
-    <div style="
-        width: 100%;
-        background-color: #fdf2f8;
-        background-image: radial-gradient(circle at right, rgba(251,207,232,0.6) 0%, rgba(251,207,232,0) 50%);
-        margin: 10px 0;
-        padding: 15px 0;
-        border-radius: 15px;
-        text-align: center;
-        font-family: 'Assistant', sans-serif;
-        position: relative;
-        border: 1px solid rgba(214, 51, 132, 0.05);
-    ">
-        <span style="
-            font-size: 10px;
-            font-weight: 700;
-            color: #db2777;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            display: block;
-            margin-bottom: 5px;
-        ">Daily Quote</span>
-        
-        <div style="
-            font-size: 22px;
-            font-weight: 700;
-            color: #1e293b;
-            line-height: 1.2;
-            margin-bottom: 5px;
-        ">"{quote_text}"</div>
-        
-        <div style="
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 8px;
-        ">
-            <div style="width: 20px; height: 1px; background-color: #fbcfe8;"></div>
-            <span style="color: #94a3b8; font-size: 14px; font-style: italic;">{quote_author}</span>
-            <div style="width: 20px; height: 1px; background-color: #fbcfe8;"></div>
-        </div>
-        
-        <div style="display: flex; justify-content: center; align-items: center; gap: 8px; opacity: 0.6;">
-            <div style="width: 40px; height: 1px; background-color: rgba(214, 51, 132, 0.2);"></div>
-            <span class="material-symbols-rounded" style="color: #db2777; font-size: 20px; display: inline-block;">auto_stories</span>
-            <div style="width: 40px; height: 1px; background-color: rgba(214, 51, 132, 0.2);"></div>
-        </div>
-    </div>
-    """
+    # --- ה-HTML בשורה אחת כדי למנוע את טעות ה-Markdown ---
+    # שימי לב: הכל צמוד לשמאל, בלי רווחים בתחילת שורה
+    html_string = f'<div style="width:100%; background-color:#fdf2f8; background-image:radial-gradient(circle at right, rgba(251,207,232,0.6) 0%, rgba(251,207,232,0) 50%); margin:10px 0; padding:12px 0; border-radius:15px; text-align:center; font-family:\'Assistant\', sans-serif; border:1px solid rgba(214,51,132,0.05);">'
+    html_string += f'<span style="font-size:10px; font-weight:700; color:#db2777; letter-spacing:0.1em; text-transform:uppercase; display:block; margin-bottom:2px;">Daily Quote</span>'
+    html_string += f'<div style="font-size:19px; font-weight:700; color:#1a202c; line-height:1.2; margin-bottom:4px;">"{quote_text}"</div>'
+    html_string += f'<div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:6px;">'
+    html_string += f'<div style="width:15px; height:1px; background-color:#fbcfe8;"></div>'
+    html_string += f'<span style="color:#718096; font-size:13px; font-style:italic;">{quote_author}</span>'
+    html_string += f'<div style="width:15px; height:1px; background-color:#fbcfe8;"></div></div>'
+    html_string += f'<div style="display:flex; justify-content:center; align-items:center; gap:8px; opacity:0.5;">'
+    html_string += f'<div style="width:30px; height:1px; background-color:rgba(214,51,132,0.2);"></div>'
+    html_string += f'<span class="material-symbols-rounded" style="color:#db2777; font-size:18px;">auto_stories</span>'
+    html_string += f'<div style="width:30px; height:1px; background-color:rgba(214,51,132,0.2);"></div></div></div>'
     
-    st.markdown(quote_html, unsafe_allow_html=True)
+    st.markdown(html_string, unsafe_allow_html=True)
 
     
     # ── KPIs ────────────────────────────────────────────────
