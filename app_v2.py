@@ -116,18 +116,18 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     import datetime
     from zoneinfo import ZoneInfo
     import streamlit.components.v1 as components
-
+    
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
     time_str = now.strftime("%H:%M")
     date_str = now.strftime("%d/%m/%Y")
-    
+
     # ניקוי מזג אוויר ותמונת פרופיל
     w_text_clean = re.sub(r'[^\x00-\x7F]+', '', w_text).strip().replace('C', '\u00b0C')
     profile_src = f"data:image/png;base64,{img_b64}" if img_b64 else ""
     unread = len(today_reminders)
     badge_display = 'flex' if unread > 0 else 'none'
 
-    # בניית ה-HTML של הנוטיפיקציות (בדיוק לפי העיצוב שלך)
+    # בניית ה-HTML של הנוטיפיקציות מהקוד הישן
     items_html = ""
     if today_reminders.empty:
         items_html = '<div class="sn-empty">אין תזכורות להיום 🎉</div>'
@@ -144,7 +144,6 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
                 </div>
             </div>"""
 
-    # הכנה להזרקה (ניקוי תווים בעייתיים ל-JS)
     items_js = items_html.replace('`', r'\`').replace('\\', '\\\\').replace('\n', '')
     profile_tag = f'<img class="tb-profile" src="{profile_src}"/>' if profile_src else '<div style="width:72px;height:72px;border-radius:50%;background:#FADCE6;"></div>'
 
@@ -152,25 +151,51 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
 <html dir="rtl">
 <head>
 <meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
   * {{ box-sizing:border-box; margin:0; padding:0; }}
-  body {{ background:transparent; font-family:sans-serif; overflow:hidden; height:110px; direction:rtl; }}
-  .topbar {{
-    background:white; border-radius:16px; border:1px solid #F4F4F5;
-    box-shadow:0 2px 20px rgba(225,200,210,0.2); display:flex;
-    align-items:center; justify-content:space-between; padding:16px 24px;
-    height:110px; position:relative; z-index:100;
+  body {{ 
+    font-family: 'Plus Jakarta Sans', sans-serif; 
+    background: transparent !important; 
+    overflow: hidden; 
+    height: 110px; 
+    direction: rtl; 
   }}
+
+  .topbar {{
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #F4F4F5;
+    box-shadow: 0 2px 20px rgba(225,200,210,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    height: 110px;
+    position: relative;
+    z-index: 100;
+  }}
+
+  /* צד ימין */
   .tb-right {{ display:flex; align-items:center; gap:12px; }}
-  .tb-profile {{ width:72px; height:72px; border-radius:50%; object-fit:cover; border:3px solid white; }}
+  .tb-profile {{ width:72px; height:72px; border-radius:50%; object-fit:cover; object-position:center 20%; border:3px solid white; box-shadow:0 2px 12px rgba(225,200,210,0.4); }}
   .tb-name {{ font-size:0.95rem; font-weight:700; color:#3f3f46; }}
-  .tb-role {{ font-size:0.75rem; color:#a1a1aa; }}
+  .tb-role {{ font-size:0.75rem; color:#a1a1aa; margin-top:2px; }}
+
+  /* ניווט מרכזי (החזרתי את כולם) */
   .tb-nav {{ display:flex; gap:4px; flex:1; justify-content:center; }}
-  .tb-nav span {{ font-size:0.82rem; padding:6px 14px; border-radius:20px; color:#71717A; cursor:pointer; }}
+  .tb-nav span {{ font-size:0.82rem; padding:6px 14px; border-radius:20px; color:#71717A; cursor:pointer; transition:all 0.2s; }}
+  .tb-nav span:hover {{ background:#fdf0f5; }}
   .tb-nav span.active {{ background:#FADCE6; color:#3f3f46; font-weight:600; }}
+
+  /* צד שמאל */
   .tb-left {{ display:flex; align-items:center; gap:12px; }}
+  .tb-divider {{ width:1px; height:28px; background:#F4F4F5; flex-shrink:0; }}
   .tb-brand {{ font-size:0.95rem; font-weight:800; color:#f0b8cb; }}
-  .bell-area {{ position:relative; cursor:pointer; display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; }}
+
+  /* פעמון */
+  .bell-area {{ position:relative; cursor:pointer; display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; transition:0.2s; }}
+  .bell-area:hover {{ background:#fdf0f5; }}
   .bell-badge {{
     position:absolute; top:2px; left:2px; background:#ef4444; color:white;
     border-radius:50%; min-width:18px; height:18px; font-size:0.62rem;
@@ -179,6 +204,7 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
 </style>
 </head>
 <body>
+
 <div class="topbar">
   <div class="tb-right">
     {profile_tag}
@@ -194,10 +220,26 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
       </svg>
     </div>
   </div>
-  <nav class="tb-nav"><span class="active">דשבורד</span><span>פרויקטים</span><span>פגישות</span></nav>
+
+  <nav class="tb-nav">
+    <span class="active">דשבורד</span>
+    <span>פרויקטים</span>
+    <span>פגישות</span>
+    <span>משימות</span>
+    <span>דוחות</span>
+  </nav>
+
   <div class="tb-left">
-    <div><div style="font-size:0.85rem;font-weight:700;">{time_str}</div><div style="font-size:0.68rem;color:#a1a1aa;">{date_str}</div></div>
-    <div style="width:1px; height:28px; background:#F4F4F5; margin:0 12px;"></div>
+    <div style="text-align:left;">
+      <div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{w_text_clean}</div>
+      <div style="font-size:0.68rem;color:#a1a1aa;">{w_city}</div>
+    </div>
+    <div class="tb-divider"></div>
+    <div style="text-align:left;">
+      <div style="font-size:0.85rem;font-weight:700;color:#3f3f46;">{time_str}</div>
+      <div style="font-size:0.68rem;color:#a1a1aa;">{date_str}</div>
+    </div>
+    <div class="tb-divider"></div>
     <div class="tb-brand">Dashboard AI</div>
   </div>
 </div>
@@ -207,7 +249,6 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
   window.addEventListener('load', function() {{
     var parentDoc = window.parent.document;
     
-    // ניקוי אלמנטים קודמים למניעת כפילויות בטעינה חוזרת
     var old = parentDoc.getElementById('sn-floating-dropdown');
     if (old) old.remove();
     var oldStyle = parentDoc.getElementById('sn-styles');
@@ -217,18 +258,18 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     style.id = 'sn-styles';
     style.textContent = `
       #sn-floating-dropdown {{
-        display:none; position:fixed; width:340px; background:white;
+        display:none; position:fixed; width:360px; background:white;
         border-radius:20px; box-shadow:0 10px 40px rgba(0,0,0,0.15);
         border:1px solid #fdf0f5; z-index:1000000; overflow:hidden;
-        direction:rtl; font-family:sans-serif;
+        direction:rtl; font-family: sans-serif;
       }}
-      .sn-header {{ padding:16px 20px; font-weight:700; border-bottom:1px solid #fdf0f5; color:#3f3f46; background:#fff; }}
+      .sn-header {{ padding:16px 20px; font-weight:700; border-bottom:1px solid #fdf0f5; color:#3f3f46; }}
       .sn-item {{ padding:14px 20px; display:flex; align-items:center; gap:14px; cursor:pointer; border-bottom:1px solid #fdf6f9; transition:0.15s; }}
       .sn-item:hover {{ background:#fdf6f9; }}
       .sn-dot {{ width:8px; height:8px; border-radius:50%; background:#FADCE6; }}
       .sn-text {{ font-size:0.85rem; color:#3f3f46; font-weight:500; }}
       .sn-proj {{ font-size:0.72rem; color:#a1a1aa; }}
-      .sn-empty {{ padding:24px 20px; text-align:center; color:#a1a1aa; }}
+      .sn-empty {{ padding:28px 20px; text-align:center; color:#a1a1aa; }}
     `;
     parentDoc.head.appendChild(style);
 
@@ -254,8 +295,7 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     if (isOpen) {{
       var iframe = window.frameElement;
       var rect = iframe.getBoundingClientRect();
-      // הצבת התפריט בדיוק מתחת לפעמון באופן אבסולוטי על דף האב
-      d.style.top = (rect.top + 80) + 'px';
+      d.style.top = (rect.top + 95) + 'px';
       d.style.left = (rect.left + 24) + 'px';
       d.style.display = 'block';
     }} else {{
