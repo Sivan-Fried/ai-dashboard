@@ -283,7 +283,7 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
   var isOpen = false;
 
   function toggleDropdown() {
-    isOpen = (isOpen === false) ? true : false;
+    if (isOpen) { isOpen = false; } else { isOpen = true; }
     var d = document.getElementById('notifDropdown');
     if (!d) return;
     
