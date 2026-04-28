@@ -134,7 +134,7 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
   .bell-wrap {{ position:relative; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; width:38px; height:38px; border-radius:50%; transition:background 0.2s; }}
   .bell-wrap:hover {{ background:#fdf0f5; }}
   .bell-badge {{ position:absolute; top:-3px; left:-3px; background:#ef4444; color:white; border-radius:50%; min-width:18px; height:18px; font-size:0.62rem; font-weight:800; display:{badge_display}; align-items:center; justify-content:center; border:2px solid white; padding:0 3px; }}
-  .notif-dropdown {{ display:none; position:absolute; top:50px; right:0; left:auto; width:360px; background:white; border-radius:20px; box-shadow:0 10px 40px rgba(225,200,210,0.35); border:1px solid #fdf0f5; z-index:9999; overflow:hidden; direction:rtl; }}
+  .notif-dropdown {{ display:none; position:fixed; top:80px; right:20px; left:auto; width:360px;
   @keyframes fadeIn {{ from {{ opacity:0; transform:translateY(-8px); }} to {{ opacity:1; transform:translateY(0); }} }}
   .notif-header {{ padding:16px 20px; font-weight:700; font-size:1rem; color:#3f3f46; border-bottom:1px solid #fdf0f5; }}
   .notif-item {{ padding:14px 20px; display:flex; align-items:center; gap:14px; cursor:pointer; border-bottom:1px solid #fdf6f9; transition:background 0.15s; }}
@@ -206,8 +206,18 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
   function toggleDropdown() {{
     isOpen = !isOpen;
     var d = document.getElementById('notifDropdown');
-    d.style.display = isOpen ? 'block' : 'none';
-    if (isOpen) d.style.animation = 'fadeIn 0.15s ease';
+    if (isOpen) {{
+      var bell = document.querySelector('.bell-wrap');
+      var rect = bell.getBoundingClientRect();
+      d.style.position = 'fixed';
+      d.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+      d.style.right = (window.innerWidth - rect.right) + 'px';
+      d.style.left = 'auto';
+      d.style.display = 'block';
+      d.style.animation = 'fadeIn 0.15s ease';
+    }} else {{
+      d.style.display = 'none';
+    }}
   }}
   function markRead(el) {{
     el.classList.add('read');
@@ -226,7 +236,7 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
   }});
 </script>
 </body>
-</html>""", height=500, scrolling=False)
+</html>""", height=110, scrolling=False)
 
 #סוף נסיון
 
