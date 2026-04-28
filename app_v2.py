@@ -282,34 +282,43 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
 <script>
   var isOpen = false;
 
-  function toggleDropdown() {
-    if (isOpen) { isOpen = false; } else { isOpen = true; }
+  function toggleDropdown() {{
+    // הכפלת הסוגריים מונעת מפייתון לנסות לפרש את ה-JS
+    if (isOpen) {{ 
+        isOpen = false; 
+    }} else {{ 
+        isOpen = true; 
+    }}
+
     var d = document.getElementById('notifDropdown');
     if (!d) return;
-    
-    if (isOpen) {
+
+    if (isOpen) {{
       d.style.display = 'block';
-      // שולח פקודה ל-Streamlit להגדיל את ה-iframe רק עכשיו
-      window.parent.postMessage({
+      // שימוש ב-postMessage כדי לשנות גובה דינמית
+      window.parent.postMessage({{
         type: 'streamlit:setFrameHeight',
         height: 500
-      }, '*');
-    } else {
+      }}, '*');
+    }} else {{
       d.style.display = 'none';
-      // מחזיר את הגובה המקורי כשהחלונית נסגרת
-      window.parent.postMessage({
+      window.parent.postMessage({{
         type: 'streamlit:setFrameHeight',
         height: 110
-      }, '*');
-    }
-  }
+      }}, '*');
+    }}
+  }}
 
   function markRead(el) {{
     el.classList.add('read');
     var unreadCount = document.querySelectorAll('.notif-item:not(.read)').length;
     var badge = document.getElementById('badge');
-    if (unreadCount === 0) badge.style.display = 'none';
-    else {{ badge.style.display = 'flex'; badge.textContent = unreadCount; }}
+    if (unreadCount === 0) {{ 
+        badge.style.display = 'none'; 
+    }} else {{ 
+        badge.style.display = 'flex'; 
+        badge.textContent = unreadCount; 
+    }}
   }}
 
   document.addEventListener('click', function(e) {{
@@ -317,7 +326,10 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
     var b = document.querySelector('.bell-area');
     if (isOpen && d && b && !d.contains(e.target) && !b.contains(e.target)) {{
       d.style.display = 'none';
-      document.body.style.height = '110px';
+      window.parent.postMessage({{
+        type: 'streamlit:setFrameHeight',
+        height: 110
+      }}, '*');
       isOpen = false;
     }}
   }});
