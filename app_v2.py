@@ -548,49 +548,60 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
         except: pass
     
-    # --- 2. CSS למיקום (שיטת ה-Negative Margin) ---
+    # --- 2. CSS להצמדה בלבד (בלי לגעת בתוכן) ---
     st.markdown("""
-    <style>
-        /* הצמדה לסרגל העליון */
-        .main .block-container {
-            padding-top: 0rem !important;
-            max-width: 100% !important;
-        }
-        
-        /* משיכת ה-Component למעלה כדי לבטל את הרווח הלבן מהסרגל */
-        [data-testid="stHtml"] {
-            margin-top: -50px !important; 
-        }
-    
-        /* משיכת ה-KPI למעלה כדי שייצמדו לציטוט */
-        [data-testid="stVerticalBlock"] > div:nth-child(2) {
-            margin-top: -30px !important;
-        }
-    
-        header { visibility: hidden; }
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0');
-    </style>
+        <style>
+            /* הצמדה לסרגל העליון */
+            .main .block-container { 
+                padding-top: 0rem !important; 
+                max-width: 100% !important; 
+            }
+            [data-testid="stHeader"] { display: none; }
+            
+            /* צמצום המרווח הלבן שסטרימליט שם בין אלמנטים */
+            div[data-testid="stVerticalBlock"] > div:has(iframe) {
+                margin-bottom: -30px !important;
+            }
+        </style>
     """, unsafe_allow_html=True)
     
-    # --- 3. ה-HTML המהודק (הגרסה שאהבת עם תיקון גודל) ---
-    atmosphere_html = f'''
-    <div style="background: white; width: 100%; border-bottom: 1px solid #f1f5f9; direction: rtl; margin: 0;">
-    <div style="background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 40%); padding: 15px 0; text-align: center;">
-    <div style="max-width: 800px; margin: 0 auto; padding: 0 20px;">
-    <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 5px 0;">DAILY QUOTE</p>
-    <h2 style="font-family: 'Noto Serif Hebrew', serif; font-size: 20px; color: #1a1c1c; margin: 0 0 3px 0; line-height: 1.2; font-weight: 700;">"{quote_text}"</h2>
-    <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; color: #646566; font-style: italic; margin: 0 0 10px 0;">— {quote_author} —</p>
-    <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-    <div style="height: 1px; width: 35px; background: #fadce6;"></div>
-    <span class="material-symbols-outlined" style="color: #6f5861; font-size: 18px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
-    <div style="height: 1px; width: 35px; background: #fadce6;"></div>
+    # --- 3. ה-Component שאהבת (בדיוק אותו עיצוב, פונטים ואייקון) ---
+    atmosphere_component = f"""
+    <div style="
+        width: 100%; 
+        background: #ffffff; 
+        background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
+                          radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
+        border-bottom: 1px solid #f1f5f9;
+        padding: 30px 0;
+        text-align: center;
+        direction: rtl;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    ">
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+        
+        <div style="max-width: 800px; margin: 0 auto; padding: 0 20px;">
+            <span style="font-size: 11px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 12px;">DAILY QUOTE</span>
+            
+            <h1 style="font-family: 'Noto Serif Hebrew', serif; font-size: 26px; color: #1a1c1c; line-height: 1.3; margin: 0 0 10px 0; font-weight: 700;">
+                "{quote_text}"
+            </h1>
+            
+            <div style="font-size: 16px; color: #646566; font-style: italic; margin-bottom: 25px;">
+                — {quote_author} —
+            </div>
+            
+            <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                <div style="height: 1px; width: 50px; background-color: #fadce6;"></div>
+                <span class="material-symbols-outlined" style="color: #6f5861; font-size: 24px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
+                <div style="height: 1px; width: 50px; background-color: #fadce6;"></div>
+            </div>
+        </div>
     </div>
-    </div>
-    </div>
-    </div>
-    '''
+    """
     
-    st.markdown(atmosphere_html, unsafe_allow_html=True)
+    # הזרקה עם גובה מוגדר כדי למנוע גלילה
+    st.components.v1.html(atmosphere_component, height=210)
 
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
