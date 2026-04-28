@@ -123,41 +123,40 @@ h3 {
 }
 
 /* ── Daily Quote Section - Pink Background & White Border ── */
-/* ── Daily Quote Section - Ultra Compact ────────────────── */
-.quote-section {
+/* ── Daily Quote Section - Minimalist Final ──────────────── */
+.quote-wrapper-outer {
     width: 100%;
-    background-color: #fdf2f8 !important; /* הרקע הוורוד הכללי */
-    padding: 15px 10px !important; /* צמצום גובה קיצוני */
+    background-color: #fdf2f8 !important; /* הרקע הוורוד העדין */
+    padding: 15px 20px !important; /* גובה מינימלי למניעת מריחה */
     position: relative;
     overflow: hidden;
     border-radius: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    /* המסגרת הלבנה - מקיפה את כל האזור הוורוד */
+    border: 2px solid #ffffff !important; 
     display: flex;
     justify-content: center;
     align-items: center;
+    min-height: 110px !important;
 }
 
 .watercolor-shape {
     position: absolute;
-    top: -30px;
-    right: -30px;
-    width: 200px;
-    height: 200px;
+    top: -20px;
+    right: -20px;
+    width: 180px;
+    height: 180px;
     opacity: 0.1;
     z-index: 1;
 }
 
 .watercolor-shape svg {
-    fill: #f472b6;
+    fill: #f472b6; /* צבע הכתם */
 }
 
-.quote-container {
-    max-width: 750px;
+.quote-content-flat {
+    max-width: 800px;
     width: 100%;
-    background: transparent !important; /* שקוף כדי למנוע כפל מלבנים */
-    padding: 15px 30px !important; /* צמצום רווח פנימי */
-    border-radius: 16px !important;
-    border: 1.5px solid #ffffff !important; /* המסגרת הלבנה הדקה */
     text-align: center;
     position: relative;
     z-index: 10;
@@ -170,35 +169,42 @@ h3 {
     color: #db2777 !important;
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    margin-bottom: 6px !important;
+    margin-bottom: 4px !important;
+    display: block;
 }
 
-.quote-hebrew {
+.quote-main-text {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
-    font-size: 22px !important; /* הקטנה נוספת של הטקסט לחסכון במקום */
+    font-size: 20px !important;
     font-weight: 700 !important;
     color: #1e293b !important;
     line-height: 1.2 !important;
-    margin-bottom: 4px !important;
+    margin: 0 auto 4px auto !important;
+    max-width: 85%;
 }
 
-.quote-author-row {
+.quote-author-line {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    color: #94a3b8 !important;
+    margin-top: 4px;
+}
+
+.author-name {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
     font-size: 13px !important;
+    color: #94a3b8 !important;
+    font-style: italic;
 }
 
-.author-line {
-    width: 20px;
+.horizontal-line {
+    width: 25px;
     height: 1px;
-    background-color: #e2e8f0;
+    background-color: #e2e8f0; /* הקו ליד שם ההוגה */
 }
 
-.quote-divider {
+.bottom-ornament {
     margin-top: 12px;
     display: flex;
     align-items: center;
@@ -206,16 +212,16 @@ h3 {
     gap: 10px;
 }
 
-.divider-line {
+.ornament-line {
     height: 1px;
-    width: 25px;
+    width: 30px;
     background-color: rgba(251, 207, 232, 0.4);
 }
 
-.quote-divider span {
+.bottom-ornament span {
     font-family: 'Material Symbols Rounded' !important;
     color: #fbcfe8;
-    font-size: 16px;
+    font-size: 18px;
 }
 
 /* ── KPI Cards ─────────────────────────────────────────── */
