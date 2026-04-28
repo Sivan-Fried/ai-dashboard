@@ -528,24 +528,29 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Daily Quote Section Logic & Display ──────────────────────────
+    import streamlit as st
     import streamlit.components.v1 as components
-
-    # --- לוגיקת נתונים ---
+    import pandas as pd
+    import os  # <--- זה מה שהיה חסר וגרם לשגיאה!
+    
+    # --- 1. לוגיקת נתונים חסינה ---
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
     quote_author = "ארתור אש"
     
-    if os.path.exists("inspirational_quotes.xlsx"):
-        try:
+    try:
+        if os.path.exists("inspirational_quotes.xlsx"):
             df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
             if not df.empty:
                 row = df.sample(n=1).iloc[0]
+                # בדיקה גמישה לשמות עמודות
                 q_col = [c for c in df.columns if str(c).lower() in ['quote', 'ציטוט']]
                 a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר']]
                 if q_col: quote_text = str(row[q_col[0]])
                 if a_col: quote_author = str(row[a_col[0]])
-        except: pass
+    except Exception:
+        pass # במקרה של תקלה בקובץ, נשתמש בציטוט ברירת המחדל
     
-    # --- העיצוב המקורי שאהבת ---
+    # --- 2. העיצוב המקורי שאהבת (בתוך HTML) ---
     html_code = f"""
     <div style="
         font-family: 'Plus Jakarta Sans', sans-serif;
@@ -578,28 +583,27 @@ else:
     </div>
     """
     
-    # תיקון המיקום: הסרגל מעל הציטוט והצמדה למעלה
+    # --- 3. הזרקת ה-CSS למיקום הסרגל (הסרגל מעל הציטוט) ---
     st.markdown("""
         <style>
-            /* 1. הופך את הסרגל העליון לשכבה העליונה ביותר */
+            /* הופך את הסרגל העליון לשכבה העליונה ביותר */
             iframe[title="streamlit.components.v1.html"]:first-of-type {
                 position: relative;
                 z-index: 100 !important;
             }
-            /* 2. מושך את הציטוט למעלה ומכניס אותו מתחת לסרגל */
-            .quote-container-trigger {
-                margin-top: -15px !important; /* החפיפה הקלה שביקשת */
+            /* מושך את הציטוט למעלה ומכניס אותו מתחת לסרגל ב-15 פיקסלים */
+            .quote-fix-container {
+                margin-top: -15px !important;
                 position: relative;
                 z-index: 1;
             }
         </style>
     """, unsafe_allow_html=True)
     
-    # הצגת הרכיב בתוך המיכל המתוקן
-    st.markdown('<div class="quote-container-trigger">', unsafe_allow_html=True)
-    components.html(html_code, height=180) # גובה מצומצם שלא תופס חצי מסך
+    # --- 4. תצוגה סופית ---
+    st.markdown('<div class="quote-fix-container">', unsafe_allow_html=True)
+    components.html(html_code, height=180) 
     st.markdown('</div>', unsafe_allow_html=True)
-
 
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
