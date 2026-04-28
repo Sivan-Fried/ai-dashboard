@@ -123,14 +123,15 @@ h3 {
 }
 
 /* ── Daily Quote Section - Pink Background & White Border ── */
+/* ── Daily Quote Section - Ultra Compact ────────────────── */
 .quote-section {
     width: 100%;
-    background-color: #fdf2f8 !important; /* הרקע הוורוד של כל האזור */
-    padding: 30px 20px !important;
+    background-color: #fdf2f8 !important; /* הרקע הוורוד הכללי */
+    padding: 15px 10px !important; /* צמצום גובה קיצוני */
     position: relative;
     overflow: hidden;
-    border-radius: 24px;
-    margin-bottom: 24px;
+    border-radius: 20px;
+    margin-bottom: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -138,28 +139,25 @@ h3 {
 
 .watercolor-shape {
     position: absolute;
-    top: -40px;
-    right: -40px;
-    width: 250px;
-    height: 250px;
-    opacity: 0.12;
+    top: -30px;
+    right: -30px;
+    width: 200px;
+    height: 200px;
+    opacity: 0.1;
     z-index: 1;
 }
 
 .watercolor-shape svg {
     fill: #f472b6;
-    width: 100%;
-    height: 100%;
 }
 
 .quote-container {
-    max-width: 800px;
+    max-width: 750px;
     width: 100%;
-    background: transparent !important; /* ביטול המלבן הלבן */
-    padding: 25px 40px !important;
-    border-radius: 20px !important;
-    border: 2px solid #ffffff !important; /* המסגרת הלבנה שביקשת */
-    box-shadow: 0 4px 15px rgba(244, 114, 182, 0.05) !important;
+    background: transparent !important; /* שקוף כדי למנוע כפל מלבנים */
+    padding: 15px 30px !important; /* צמצום רווח פנימי */
+    border-radius: 16px !important;
+    border: 1.5px solid #ffffff !important; /* המסגרת הלבנה הדקה */
     text-align: center;
     position: relative;
     z-index: 10;
@@ -167,61 +165,58 @@ h3 {
 
 .quote-label {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
-    font-size: 10px !important;
+    font-size: 9px !important;
     font-weight: 800 !important;
     color: #db2777 !important;
     text-transform: uppercase;
-    letter-spacing: 0.2em;
-    display: block;
-    margin-bottom: 12px;
+    letter-spacing: 0.15em;
+    margin-bottom: 6px !important;
 }
 
 .quote-hebrew {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
-    font-size: 26px !important;
+    font-size: 22px !important; /* הקטנה נוספת של הטקסט לחסכון במקום */
     font-weight: 700 !important;
     color: #1e293b !important;
-    line-height: 1.3 !important;
-    margin: 0 auto 8px auto !important;
+    line-height: 1.2 !important;
+    margin-bottom: 4px !important;
 }
 
 .quote-author-row {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    margin-top: 10px;
+    gap: 8px;
     color: #94a3b8 !important;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
-    font-size: 14px !important;
+    font-size: 13px !important;
 }
 
 .author-line {
-    width: 30px;
+    width: 20px;
     height: 1px;
     background-color: #e2e8f0;
 }
 
 .quote-divider {
-    margin-top: 20px;
+    margin-top: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
 }
 
 .divider-line {
     height: 1px;
-    width: 30px;
-    background-color: rgba(251, 207, 232, 0.5);
+    width: 25px;
+    background-color: rgba(251, 207, 232, 0.4);
 }
 
 .quote-divider span {
     font-family: 'Material Symbols Rounded' !important;
     color: #fbcfe8;
-    font-size: 18px;
+    font-size: 16px;
 }
-
 
 /* ── KPI Cards ─────────────────────────────────────────── */
 /* ── New KPI Cards - Full & Final ──────────────────────────────── */
