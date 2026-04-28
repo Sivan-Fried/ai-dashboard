@@ -117,17 +117,24 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     from zoneinfo import ZoneInfo
     import streamlit.components.v1 as components
     
+    # 1. הכנת נתוני זמן (ישראל)
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
     time_str = now.strftime("%H:%M")
     date_str = now.strftime("%d/%m/%Y")
 
-    # ניקוי נתוני מזג אוויר ותמונת פרופיל
+    # 2. ניקוי ועיבוד נתונים לסרגל
     w_text_clean = re.sub(r'[^\x00-\x7F]+', '', w_text).strip().replace('C', '\u00b0C')
     profile_src = f"data:image/png;base64,{img_b64}" if img_b64 else ""
-    unread = len(today_reminders)
-    badge_display = 'flex' if unread > 0 else 'none'
+    
+    # 3. לוגיקת הודעות שלא נקראו (עבור הפעמון)
+    if 'is_read' in today_reminders.columns:
+        unread_count = len(today_reminders[today_reminders['is_read'] == False])
+    else:
+        unread_count = len(today_reminders)
+    
+    badge_display = 'flex' if unread_count > 0 else 'none'
 
-    # בניית רשימת התראות (מהקוד הישן שעבד לך)
+    # 4. בניית ה-HTML של התראות (עם סטטוס קריאה)
     items_html = ""
     if today_reminders.empty:
         items_html = '<div class="sn-empty">אין תזכורות להיום 🎉</div>'
@@ -135,19 +142,26 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
         for _, row in today_reminders.iterrows():
             text = str(row.get("reminder_text", "")).replace('"', '&quot;').replace("'", "&#39;").replace("<", "&lt;")
             proj = str(row.get("project_name", "כללי")).replace('"', '&quot;').replace("'", "&#39;")
+            is_read = row.get("is_read", False)
+            
+            # עיצוב מותנה לנקרא/לא נקרא
+            item_class = "read" if is_read else "unread"
+            dot_html = '<div class="sn-dot"></div>' if not is_read else '<div class="sn-dot-empty"></div>'
+            
             items_html += f"""
-            <div class="sn-item">
-                <div class="sn-dot"></div>
-                <div>
+            <div class="sn-item {item_class}">
+                {dot_html}
+                <div style="flex:1;">
                     <div class="sn-text">{text}</div>
                     <div class="sn-proj">{proj}</div>
                 </div>
             </div>"""
 
-    # הכנת ה-HTML להזרקה ל-JS
+    # 5. הזרקת הנתונים ל-JavaScript
     items_js = items_html.replace('`', r'\`').replace('\\', '\\\\').replace('\n', '')
-    profile_tag = f'<img class="tb-profile" src="{profile_src}"/>' if profile_src else '<div style="width:72px;height:72px;border-radius:50%;background:#FADCE6;"></div>'
+    profile_tag = f'<img class="tb-profile" src="{profile_src}"/>' if profile_src else '<div style="width:72px;height:72px;border-radius:50%;background:#FADCE6;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;">S</div>'
 
+    # 6. רכיב ה-HTML המלא
     components.html(f"""<!DOCTYPE html>
 <html dir="rtl">
 <head>
@@ -163,6 +177,7 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     direction: rtl; 
   }}
 
+  /* מיכל הסרגל העליון */
   .topbar {{
     background: white;
     border-radius: 16px;
@@ -171,34 +186,20 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 24px;
+    padding: 0 24px;
     height: 110px;
     position: relative;
     z-index: 100;
   }}
 
-  /* צד ימין - פרופיל ופעמון */
+  /* צד ימין: פרופיל, שם ופעמון */
   .tb-right {{ display:flex; align-items:center; gap:12px; }}
   .tb-profile {{ width:72px; height:72px; border-radius:50%; object-fit:cover; border:3px solid white; box-shadow:0 2px 12px rgba(225,200,210,0.4); }}
+  .tb-info {{ display: flex; flex-direction: column; }}
   .tb-name {{ font-size:0.95rem; font-weight:700; color:#3f3f46; }}
   .tb-role {{ font-size:0.75rem; color:#a1a1aa; margin-top:2px; }}
 
-  /* ניווט מרכזי - כל הכפתורים שהיו לך */
-  .tb-nav {{ display:flex; gap:4px; flex:1; justify-content:center; }}
-  .tb-nav span {{ font-size:0.82rem; padding:6px 14px; border-radius:20px; color:#71717A; cursor:pointer; transition:all 0.2s; }}
-  .tb-nav span:hover {{ background:#fdf0f5; }}
-  .tb-nav span.active {{ background:#FADCE6; color:#3f3f46; font-weight:600; }}
-
-  /* צד שמאל - מזג אוויר, זמן ומותג */
-  .tb-left {{ display:flex; align-items:center; gap:12px; }}
-  .tb-divider {{ width:1px; height:28px; background:#F4F4F5; flex-shrink:0; }}
-  .tb-brand {{ font-size:0.95rem; font-weight:800; color:#f0b8cb; flex-shrink:0; }}
-
-  /* מזג אוויר */
-  .weather-wrap {{ display: flex; align-items: center; gap: 8px; text-align: left; }}
-  .temp-icon {{ color: #f0b8cb; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }}
-
-  /* פעמון נוטיפיקציות */
+  /* כפתור הפעמון */
   .bell-area {{ position:relative; cursor:pointer; display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; transition:0.2s; }}
   .bell-area:hover {{ background:#fdf0f5; }}
   .bell-badge {{
@@ -206,6 +207,25 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     border-radius:50%; min-width:18px; height:18px; font-size:0.62rem;
     display:{badge_display}; align-items:center; justify-content:center; border:2px solid white; z-index:10;
   }}
+
+  /* ניווט מרכזי */
+  .tb-nav {{ display:flex; gap:4px; flex:1; justify-content:center; }}
+  .tb-nav span {{ font-size:0.82rem; padding:8px 16px; border-radius:20px; color:#71717A; cursor:pointer; transition:0.2s; }}
+  .tb-nav span:hover {{ background:#fdf0f5; color:#3f3f46; }}
+  .tb-nav span.active {{ background:#FADCE6; color:#3f3f46; font-weight:600; }}
+
+  /* צד שמאל: מזג אוויר, זמן ולוגו */
+  .tb-left {{ display:flex; align-items:center; gap:16px; }}
+  .tb-divider {{ width:1px; height:28px; background:#F4F4F5; flex-shrink:0; }}
+  .tb-brand {{ font-size:0.95rem; font-weight:800; color:#f0b8cb; flex-shrink:0; letter-spacing: -0.5px; }}
+
+  /* מזג אוויר - יישור לימין */
+  .weather-wrap {{ display: flex; align-items: center; gap: 8px; text-align: right; }}
+  .temp-icon {{ color: #f0b8cb; flex-shrink: 0; }}
+  
+  /* זמן - יישור לימין (התיקון שביקשת) */
+  .time-wrap {{ text-align: right; min-width: 75px; }}
+
 </style>
 </head>
 <body>
@@ -213,12 +233,12 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
 <div class="topbar">
   <div class="tb-right">
     {profile_tag}
-    <div>
+    <div class="tb-info">
       <div class="tb-name">{greeting}, סיון</div>
       <div class="tb-role">מנהלת פרויקטים</div>
     </div>
     <div class="bell-area" id="bellBtn">
-      <span class="bell-badge" id="badge">{unread}</span>
+      <span class="bell-badge">{unread_count}</span>
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z"></path>
         <path d="M13.73 21C13.5542 21.3031 12 21.9965 10.27 21"></path>
@@ -241,55 +261,67 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
           <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path>
         </svg>
       </div>
-      <div style="text-align:left;">
-        <div style="font-size:0.82rem;font-weight:600;color:#3f3f46;white-space:nowrap;">{w_text_clean}</div>
-        <div style="font-size:0.68rem;color:#a1a1aa;white-space:nowrap;">{w_city}</div>
+      <div>
+        <div style="font-size:0.82rem;font-weight:600;color:#3f3f46;white-space:nowrap;text-align:right;">{w_text_clean}</div>
+        <div style="font-size:0.68rem;color:#a1a1aa;white-space:nowrap;text-align:right;">{w_city}</div>
       </div>
     </div>
+    
     <div class="tb-divider"></div>
-    <div style="text-align:left;">
+    
+    <div class="time-wrap">
       <div style="font-size:0.85rem;font-weight:700;color:#3f3f46;">{time_str}</div>
       <div style="font-size:0.68rem;color:#a1a1aa;">{date_str}</div>
     </div>
+    
     <div class="tb-divider"></div>
+    
     <div class="tb-brand">Dashboard AI</div>
   </div>
 </div>
 
 <script>
   var isOpen = false;
+  
   window.addEventListener('load', function() {{
     var parentDoc = window.parent.document;
     
+    // ניקוי אלמנטים קודמים למניעת כפילויות
     var old = parentDoc.getElementById('sn-floating-dropdown');
     if (old) old.remove();
     var oldStyle = parentDoc.getElementById('sn-styles');
     if (oldStyle) oldStyle.remove();
 
+    // הזרקת הסטייל לחלונית הצפה בדף האב
     var style = parentDoc.createElement('style');
     style.id = 'sn-styles';
     style.textContent = `
       #sn-floating-dropdown {{
         display:none; position:fixed; width:360px; background:white;
         border-radius:20px; box-shadow:0 10px 40px rgba(0,0,0,0.15);
-        border:1px solid #fdf0f5; z-index:1000000; overflow:hidden;
+        border:1px solid #fdf0f5; z-index:1000000; overflow-y:auto; max-height:450px;
         direction:rtl; font-family: sans-serif;
       }}
       .sn-header {{ padding:16px 20px; font-weight:700; border-bottom:1px solid #fdf0f5; color:#3f3f46; }}
       .sn-item {{ padding:14px 20px; display:flex; align-items:center; gap:14px; cursor:pointer; border-bottom:1px solid #fdf6f9; transition:0.15s; }}
       .sn-item:hover {{ background:#fdf6f9; }}
-      .sn-dot {{ width:8px; height:8px; border-radius:50%; background:#FADCE6; }}
-      .sn-text {{ font-size:0.85rem; color:#3f3f46; font-weight:500; }}
-      .sn-proj {{ font-size:0.72rem; color:#a1a1aa; }}
-      .sn-empty {{ padding:28px 20px; text-align:center; color:#a1a1aa; }}
+      .sn-item.read {{ opacity: 0.6; }}
+      .sn-item.unread {{ background: #fffcfd; }}
+      .sn-dot {{ width:8px; height:8px; border-radius:50%; background:#FADCE6; flex-shrink:0; }}
+      .sn-dot-empty {{ width:8px; height:8px; flex-shrink:0; }}
+      .sn-text {{ font-size:0.85rem; color:#3f3f46; font-weight:500; line-height:1.4; }}
+      .sn-proj {{ font-size:0.72rem; color:#a1a1aa; margin-top:2px; }}
+      .sn-empty {{ padding:30px 20px; text-align:center; color:#a1a1aa; font-size:0.9rem; }}
     `;
     parentDoc.head.appendChild(style);
 
+    // יצירת החלונית בדף האב
     var dropdown = parentDoc.createElement('div');
     dropdown.id = 'sn-floating-dropdown';
     dropdown.innerHTML = '<div class="sn-header">התראות להיום</div>' + `{items_js}`;
     parentDoc.body.appendChild(dropdown);
 
+    // סגירה בלחיצה בחוץ
     parentDoc.addEventListener('click', function(e) {{
       var d = parentDoc.getElementById('sn-floating-dropdown');
       if (isOpen && d && !d.contains(e.target)) {{
@@ -299,10 +331,12 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     }}, true);
   }});
 
+  // פתיחת החלונית בלחיצה על הפעמון
   document.getElementById('bellBtn').addEventListener('click', function(e) {{
     var parentDoc = window.parent.document;
     var d = parentDoc.getElementById('sn-floating-dropdown');
     if (!d) return;
+    
     isOpen = !isOpen;
     if (isOpen) {{
       var iframe = window.frameElement;
@@ -310,7 +344,7 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
       var bellRect = this.getBoundingClientRect();
       
       d.style.top = (rect.top + 95) + 'px';
-      // חישוב מיקום מיושר לפעמון (מפחיתים את רוחב התפריט כדי שייפתח שמאלה מהפעמון)
+      // מיקום מיושר לקו הפעמון (נפתח שמאלה מהפעמון)
       d.style.left = (rect.left + bellRect.left - 300) + 'px'; 
       d.style.display = 'block';
     }} else {{
