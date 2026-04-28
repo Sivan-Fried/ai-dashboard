@@ -561,26 +561,23 @@ else:
             st.error(f"Error reading file: {e}")
     
     # --- תצוגת HTML (במבנה שטוח וחסין שגיאות) ---
-    # --- לוגיקת טעינת הנתונים (השאירי את מה שעובד) ---
-    # ... (קוד האקסל שלך) ...
-    
-    quote_html = f"""<div class="quote-wrapper-outer">
+    # ודאי שאין רווחים בתחילת השורות בתוך ה-HTML
+    quote_html = f"""
+    <div class="quote-wrapper-outer">
     <div class="quote-content-flat">
-    <span class="quote-label">Daily Quote</span>
+    <span class="quote-label">DAILY QUOTE</span>
     <div class="quote-main-text">"{quote_text}"</div>
     <div class="quote-author-row">
     <div class="author-line"></div>
     <span>{quote_author}</span>
     <div class="author-line"></div>
     </div>
-    <div class="bottom-ornament">
-    <div class="ornament-line"></div>
-    <span class="material-symbols-rounded" style="color:#d63384; font-size:20px;">menu_book</span>
-    <div class="ornament-line"></div>
+    <div class="bottom-icon">
+    <span class="material-symbols-rounded" style="color:#d63384; font-size:14px;">menu_book</span>
     </div>
     </div>
-    </div>"""
-    
+    </div>
+    """
     st.markdown(quote_html, unsafe_allow_html=True)
         
     # ── KPIs ────────────────────────────────────────────────
