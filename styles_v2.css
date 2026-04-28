@@ -122,28 +122,27 @@ h3 {
     box-shadow: var(--shadow-md) !important;
 }
 
-/* ── Daily Quote Section ────────────────────────────────── */
+/* ── Daily Quote Section - Minimalist & Compact ──────────────── */
 .quote-section {
     width: 100%;
     background-color: #fdf2f8 !important;
-    padding: 60px 20px !important;
+    padding: 30px 20px !important; /* צמצום משמעותי בגובה */
     position: relative;
     overflow: hidden;
     border-radius: 24px;
-    margin-bottom: 32px;
+    margin-bottom: 24px;
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 1px solid rgba(244, 114, 182, 0.1);
 }
 
 .watercolor-shape {
     position: absolute;
-    top: -50px;
-    right: -50px;
-    width: 350px;
-    height: 350px;
-    opacity: 0.1; /* שקיפות עדינה מאוד */
+    top: -40px;
+    right: -40px;
+    width: 250px;
+    height: 250px;
+    opacity: 0.1;
     z-index: 1;
 }
 
@@ -156,7 +155,10 @@ h3 {
 .quote-container {
     max-width: 800px;
     width: 100%;
-    margin: 0 auto;
+    background: white !important;
+    padding: 25px 40px !important; /* צמצום Padding פנימי */
+    border-radius: 20px !important;
+    box-shadow: 0 4px 15px rgba(244, 114, 182, 0.08) !important;
     text-align: center;
     position: relative;
     z-index: 10;
@@ -164,50 +166,62 @@ h3 {
 
 .quote-label {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
-    font-size: 11px !important;
+    font-size: 10px !important;
     font-weight: 800 !important;
     color: #db2777 !important;
     text-transform: uppercase;
-    letter-spacing: 0.25em;
+    letter-spacing: 0.2em;
     display: block;
-    margin-bottom: 20px;
+    margin-bottom: 12px; /* צמצום רווח */
 }
 
 .quote-hebrew {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
-    font-size: 38px !important;
-    font-weight: 800 !important;
-    color: #0f172a !important;
-    line-height: 1.2 !important;
-    margin-bottom: 12px !important;
+    font-size: 26px !important; /* הקטנה קלה לאיזון */
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    line-height: 1.3 !important;
+    margin: 0 auto 8px auto !important;
 }
 
-.quote-subtext {
+.quote-author-name {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
-    font-size: 16px !important;
-    color: #64748b !important;
-    font-style: italic;
-    margin-top: 8px !important;
-}
-
-.quote-divider {
-    margin-top: 32px;
+    font-size: 14px !important;
+    color: #94a3b8 !important;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 16px;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* הקו המפריד לפני שם ההוגה - כמו בתמונה */
+.quote-author-name::before {
+    content: "";
+    width: 30px;
+    height: 1px;
+    background-color: #e2e8f0;
+    display: inline-block;
+}
+
+.quote-divider {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
 }
 
 .divider-line {
     height: 1px;
-    width: 40px;
-    background-color: rgba(249, 168, 212, 0.5);
+    width: 30px;
+    background-color: #fce7f3;
 }
 
 .quote-divider span {
     font-family: 'Material Symbols Rounded' !important;
-    color: #f9a8d4;
-    font-size: 22px;
+    color: #fbcfe8;
+    font-size: 18px;
 }
 
 
