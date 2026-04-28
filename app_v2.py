@@ -23,6 +23,23 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# 1. שחרור חסימות גובה (התיקון הקריטי)
+# הסבר: הקוד הזה אומר ל-Streamlit לא לחתוך אלמנטים שיוצאים מהגבולות שלהם (overflow: visible)
+st.markdown("""
+<style>
+    /* מאפשר לכל רכיב iframe בדף להציג תוכן מחוץ לגבולות התיבה שלו */
+    iframe {
+        overflow: visible !important;
+    }
+    /* מונע מהמיכלים של סטרימליט (עמודות ושורות) לחתוך את התפריט הנפתח */
+    [data-testid="stVerticalBlock"], 
+    [data-testid="stHorizontalBlock"], 
+    .element-container {
+        overflow: visible !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # טעינת פונטים — Material Symbols Rounded לאייקונים, Plus Jakarta Sans לטקסט
 st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
 st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" />', unsafe_allow_html=True)
@@ -31,7 +48,7 @@ st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fami
 with open("styles_v2.css", encoding="utf-8") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-#ai-card
+# ai-card עיצוב כרטיס ה-AI
 st.markdown("""
 <style>
 .ai-box {
@@ -54,6 +71,7 @@ st.markdown("""
     opacity: 0.85;
     margin-bottom: 16px;
 }
+/* כפתור השליחה הצף בתוך הכרטיס */
 .ai-send {
     background-color: #6f5861;
     color: white;
