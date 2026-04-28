@@ -154,6 +154,11 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
 
   <!-- ימין: פרופיל + פעמון -->
   <div class="tb-right">
+    {'<img class="tb-profile" src="' + profile_src + '"/>' if profile_src else '<div style="width:72px;height:72px;border-radius:50%;background:#FADCE6;"></div>'}
+    <div>
+      <div class="tb-name">{greeting}, סיון</div>
+      <div class="tb-role">מנהלת פרויקטים</div>
+    </div>
     <div style="position:relative;">
       <div class="bell-wrap" onclick="toggleDropdown()">
         <span class="bell-badge" id="badge">{unread}</span>
@@ -167,12 +172,8 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
         {items_js}
       </div>
     </div>
-    {'<img class="tb-profile" src="' + profile_src + '"/>' if profile_src else '<div style="width:72px;height:72px;border-radius:50%;background:#FADCE6;"></div>'}
-    <div>
-      <div class="tb-name">{greeting}, סיון</div>
-      <div class="tb-role">מנהלת פרויקטים</div>
-    </div>
   </div>
+        
 
   <!-- מרכז: ניווט -->
   <nav class="tb-nav">
@@ -225,7 +226,7 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
   }});
 </script>
 </body>
-</html>""", height=110, scrolling=False)
+</html>""", height=500, scrolling=False)
 
 #סוף נסיון
 
