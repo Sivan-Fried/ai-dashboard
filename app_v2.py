@@ -528,25 +528,48 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    # קריאת תוכן ה-CSS כדי להזריק אותו לתוך ה-iframe
-    with open("styles_v2.css", "r", encoding="utf-8") as f:
-        external_css = f.read()
-    
+    # ── Daily Quote Section Logic & Display ──────────────────────────────────────────
+    # כאן נמצאת כל הלוגיקה המקורית שלך - שליפה מהאקסל בצורה תקינה
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
     quote_author = "ארתור אש"
     
-    # ה-HTML שמזריק את ה-CSS ששנינו עמלנו עליו
+    try:
+        if os.path.exists("inspirational_quotes.xlsx"):
+            df_quotes = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
+            if not df_quotes.empty:
+                # בוחר שורה רנדומלית
+                random_row = df_quotes.sample(n=1).iloc[0]
+                
+                # זיהוי עמודות לפי שם (גמיש)
+                q_cols = [c for c in df_quotes.columns if str(c).lower() in ['quote', 'ציטוט']]
+                a_cols = [c for c in df_quotes.columns if str(c).lower() in ['author', 'מחבר']]
+                
+                if q_cols:
+                    quote_text = str(random_row[q_cols[0]])
+                if a_cols:
+                    quote_author = str(random_row[a_cols[0]])
+    except Exception as e:
+        # במקרה של שגיאה בקובץ, נשארים עם ציטוט ברירת המחדל
+        pass
+    
+    # --- הזרקת ה-CSS החיצוני לתוך ה-HTML (כדי שהעיצוב יחזור לעבוד) ---
+    with open("styles_v2.css", "r", encoding="utf-8") as f:
+        custom_css = f.read()
+    
+    # בניית ה-HTML המלא בדיוק לפי העיצוב המקורי שלך
     quote_html = f"""
     <style>
-        {external_css}
+        {custom_css}
         body {{ background: transparent; margin: 0; padding: 0; overflow: hidden; }}
-        /* תיקון קטן למקרה שהרקע לא מופיע ב-iframe */
-        .quote-wrapper-outer {{ margin-top: 0 !important; }} 
+        /* מנטרל מרווח פנימי בתוך ה-iframe כדי שההזזה למעלה תהיה אפקטיבית */
+        .quote-wrapper-outer {{ margin-top: 0 !important; }}
     </style>
     
     <div class="quote-wrapper-outer">
         <div class="watercolor-bg">
-            <svg viewBox="0 0 200 200"><path d="M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.6,90,-16.3,88.5,-0.9C87,14.6,81.4,29.1,73.6,42.4C65.8,55.7,55.8,67.7,43.2,75.1C30.6,82.5,15.3,85.2,0.4,84.5C-14.5,83.8,-29,79.7,-42.2,72.6C-55.3,65.5,-67.1,55.3,-75.4,42.6C-83.7,29.9,-88.4,14.9,-88.7,-0.2C-89,-15.3,-84.8,-30.7,-76.5,-43.4C-68.2,-56.1,-55.8,-66.1,-42,-73.4C-28.2,-80.7,-14.1,-85.4,0.3,-85.9C14.7,-86.4,29.4,-82.7,44.7,-76.4Z" transform="translate(100 100)" /></svg>
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <path d="M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.6,90,-16.3,88.5,-0.9C87,14.6,81.4,29.1,73.6,42.4C65.8,55.7,55.8,67.7,43.2,75.1C30.6,82.5,15.3,85.2,0.4,84.5C-14.5,83.8,-29,79.7,-42.2,72.6C-55.3,65.5,-67.1,55.3,-75.4,42.6C-83.7,29.9,-88.4,14.9,-88.7,-0.2C-89,-15.3,-84.8,-30.7,-76.5,-43.4C-68.2,-56.1,-55.8,-66.1,-42,-73.4C-28.2,-80.7,-14.1,-85.4,0.3,-85.9C14.7,-86.4,29.4,-82.7,44.7,-76.4Z" transform="translate(100 100)" />
+            </svg>
         </div>
         <div class="quote-content-flat">
             <span class="quote-label">DAILY QUOTE</span>
@@ -565,15 +588,19 @@ else:
     </div>
     """
     
-    # הזרקת התיקון שמעלה את הכל למעלה בדף הראשי
+    # הזרקת ה-CSS "האלים" שמושך את הכל למעלה - בלי לגעת בלוגיקה
     st.markdown("""
         <style>
-        div[data-testid="stVerticalBlock"] > div:nth-child(3) {
-            margin-top: -65px !important; /* מושך את ה-iframe למעלה */
-        }
+            /* מושך את בלוק הציטוט (הילד ה-3) למעלה על חשבון הרווח של ה-Header */
+            div[data-testid="stVerticalBlock"] > div:nth-child(3) {
+                margin-top: -75px !important;
+                position: relative;
+                z-index: 10;
+            }
         </style>
     """, unsafe_allow_html=True)
     
+    # הצגת הקומפוננטה
     components.html(quote_html, height=180)
 
     # ── KPIs ────────────────────────────────────────────────
