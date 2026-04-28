@@ -82,20 +82,30 @@ st.markdown("""
 # =========================================================
 # סרגל עליון + פעמון נוטיפיקציות — הכל ב-components.html אחד
 # =========================================================
+# =========================================================
+# סרגל עליון + פעמון נוטיפיקציות — הכל ב-components.html אחד
+# =========================================================
 def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
     import re
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
     time_str = now.strftime("%H:%M")
     date_str = now.strftime("%d/%m/%Y")
+
+    # ניקוי מזג אוויר
     w_text_clean = re.sub(r'[^\x00-\x7F]+', '', w_text).strip()
     w_text_clean = w_text_clean.replace('C', '\u00b0C')
+
+    # תמונת פרופיל
     profile_src = f"data:image/png;base64,{img_b64}" if img_b64 else ""
+
+    # badge
     unread = len(reminders_today)
     badge_display = 'flex' if unread > 0 else 'none'
 
+    # פריטי נוטיפיקציות
     items_html = ""
     if reminders_today.empty:
-        items_html = '<div style="padding:24px 16px;text-align:center;color:#a1a1aa;font-size:0.85rem;">אין תזכורות להיום</div>'
+        items_html = '<div class="notif-empty">אין תזכורות להיום</div>'
     else:
         for _, row in reminders_today.iterrows():
             text = str(row.get("reminder_text", "")).replace('"', '&quot;').replace("'", "&#39;").replace("<", "&lt;")
@@ -109,7 +119,11 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
                 <div class="notif-dot"></div>
             </div>"""
 
-    items_js = items_html.replace('`', r'\`').replace('\\', '\\\\')
+    # גובה דינמי
+    dropdown_h = 60 + len(reminders_today) * 72 if not reminders_today.empty else 80
+    iframe_h = 110 + dropdown_h
+
+    profile_tag = f'<img class="tb-profile" src="{profile_src}"/>' if profile_src else '<div style="width:72px;height:72px;border-radius:50%;background:#FADCE6;"></div>'
 
     components.html(f"""<!DOCTYPE html>
 <html dir="rtl">
@@ -118,50 +132,121 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
   * {{ box-sizing:border-box; margin:0; padding:0; }}
-  body {{ font-family:'Plus Jakarta Sans',sans-serif; background:transparent; overflow:visible; height:110px; direction:rtl; }}
-  .topbar {{ background:white; border-radius:16px; border:1px solid #F4F4F5; box-shadow:0 2px 20px rgba(225,200,210,0.2); display:flex; align-items:center; justify-content:space-between; padding:16px 24px; direction:rtl; }}
+  body {{
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: transparent;
+    overflow: visible;
+    height: 110px;
+    direction: rtl;
+  }}
+
+  /* סרגל */
+  .topbar {{
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #F4F4F5;
+    box-shadow: 0 2px 20px rgba(225,200,210,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    direction: rtl;
+  }}
+
+  /* ימין */
   .tb-right {{ display:flex; align-items:center; gap:12px; }}
   .tb-profile {{ width:72px; height:72px; border-radius:50%; object-fit:cover; object-position:center 20%; border:3px solid white; box-shadow:0 2px 12px rgba(225,200,210,0.4); }}
   .tb-name {{ font-size:0.95rem; font-weight:700; color:#3f3f46; }}
   .tb-role {{ font-size:0.75rem; color:#a1a1aa; margin-top:2px; }}
+
+  /* ניווט */
   .tb-nav {{ display:flex; gap:4px; flex:1; justify-content:center; }}
   .tb-nav span {{ font-size:0.82rem; padding:6px 14px; border-radius:20px; color:#71717A; cursor:pointer; transition:all 0.2s; }}
   .tb-nav span:hover {{ background:#fdf0f5; }}
   .tb-nav span.active {{ background:#FADCE6; color:#3f3f46; font-weight:600; }}
+
+  /* שמאל */
   .tb-left {{ display:flex; align-items:center; gap:12px; }}
-  .tb-divider {{ width:1px; height:28px; background:#F4F4F5; }}
+  .tb-divider {{ width:1px; height:28px; background:#F4F4F5; flex-shrink:0; }}
   .tb-brand {{ font-size:0.95rem; font-weight:800; color:#f0b8cb; }}
-  .bell-wrap {{ position:relative; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; width:38px; height:38px; border-radius:50%; transition:background 0.2s; }}
+
+  /* פעמון */
+  .bell-area {{ position:relative; }}
+  .bell-wrap {{
+    display: inline-flex; align-items:center; justify-content:center;
+    cursor: pointer; width:38px; height:38px;
+    border-radius: 50%; transition:background 0.2s;
+  }}
   .bell-wrap:hover {{ background:#fdf0f5; }}
-  .bell-badge {{ position:absolute; top:-3px; left:-3px; background:#ef4444; color:white; border-radius:50%; min-width:18px; height:18px; font-size:0.62rem; font-weight:800; display:{badge_display}; align-items:center; justify-content:center; border:2px solid white; padding:0 3px; }}
-  .notif-dropdown {{ display:none; position:absolute; top:80px; right:0; left:auto; width:360px;
-  @keyframes fadeIn {{ from {{ opacity:0; transform:translateY(-8px); }} to {{ opacity:1; transform:translateY(0); }} }}
-  .notif-header {{ padding:16px 20px; font-weight:700; font-size:1rem; color:#3f3f46; border-bottom:1px solid #fdf0f5; }}
-  .notif-item {{ padding:14px 20px; display:flex; align-items:center; gap:14px; cursor:pointer; border-bottom:1px solid #fdf6f9; transition:background 0.15s; }}
-  .notif-item:last-child {{ border-bottom:none; }}
-  .notif-item:hover {{ background:#fdf6f9; }}
-  .notif-item.read {{ opacity:0.45; }}
-  .notif-item.read .notif-dot {{ display:none; }}
+  .bell-badge {{
+    position: absolute; top:-3px; left:-3px;
+    background: #ef4444; color: white; border-radius: 50%;
+    min-width: 18px; height: 18px; font-size: 0.62rem; font-weight: 800;
+    display: {badge_display}; align-items: center; justify-content: center;
+    border: 2px solid white; padding: 0 3px; z-index: 2;
+  }}
+
+  /* dropdown */
+  .notif-dropdown {{
+    display: none;
+    position: absolute;
+    top: 48px;
+    right: 0;
+    left: auto;
+    width: 360px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(225,200,210,0.5);
+    border: 1px solid #fdf0f5;
+    z-index: 9999;
+    overflow: hidden;
+    direction: rtl;
+    animation: fadeIn 0.15s ease;
+  }}
+  @keyframes fadeIn {{
+    from {{ opacity:0; transform:translateY(-8px); }}
+    to   {{ opacity:1; transform:translateY(0); }}
+  }}
+  .notif-header {{
+    padding: 16px 20px;
+    font-weight: 700; font-size: 1rem;
+    color: #3f3f46;
+    border-bottom: 1px solid #fdf0f5;
+    background: white;
+  }}
+  .notif-item {{
+    padding: 14px 20px;
+    display: flex; align-items: center; gap: 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #fdf6f9;
+    transition: background 0.15s;
+  }}
+  .notif-item:last-child {{ border-bottom: none; }}
+  .notif-item:hover {{ background: #fdf6f9; }}
+  .notif-item.read {{ opacity: 0.45; }}
+  .notif-item.read .notif-dot {{ display: none; }}
   .notif-avatar {{ width:40px; height:40px; border-radius:50%; background:#FADCE6; flex-shrink:0; }}
   .notif-content {{ flex:1; }}
   .notif-text {{ font-size:0.85rem; color:#3f3f46; font-weight:500; line-height:1.4; }}
   .notif-proj {{ font-size:0.72rem; color:#a1a1aa; margin-top:3px; }}
   .notif-dot {{ width:8px; height:8px; border-radius:50%; background:#FADCE6; flex-shrink:0; }}
+  .notif-empty {{ padding:28px 20px; text-align:center; color:#a1a1aa; font-size:0.85rem; }}
 </style>
 </head>
 <body>
+
 <div class="topbar">
 
-  <!-- ימין: פרופיל + פעמון -->
+  <!-- ימין: פרופיל + ברכה + פעמון -->
   <div class="tb-right">
-    {'<img class="tb-profile" src="' + profile_src + '"/>' if profile_src else '<div style="width:72px;height:72px;border-radius:50%;background:#FADCE6;"></div>'}
+    {profile_tag}
     <div>
       <div class="tb-name">{greeting}, סיון</div>
       <div class="tb-role">מנהלת פרויקטים</div>
     </div>
-    <div style="position:relative;">
+    <div class="bell-area">
+      <span class="bell-badge" id="badge">{unread}</span>
       <div class="bell-wrap" onclick="toggleDropdown()">
-        <span class="bell-badge" id="badge">{unread}</span>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
           <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6981 21.5547 10.4458 21.3031 10.27 21" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -169,11 +254,10 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
       </div>
       <div class="notif-dropdown" id="notifDropdown">
         <div class="notif-header">התראות</div>
-        {items_js}
+        {items_html}
       </div>
     </div>
   </div>
-        
 
   <!-- מרכז: ניווט -->
   <nav class="tb-nav">
@@ -202,123 +286,44 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
 </div>
 
 <script>
-  <script>
   var isOpen = false;
-
-  window.addEventListener('load', function() {{
-    var parentDoc = window.parent.document;
-
-    // הסר dropdown ישן
-    var old = parentDoc.getElementById('sn-notif-dropdown');
-    if (old) old.remove();
-    var oldStyle = parentDoc.getElementById('sn-notif-style');
-    if (oldStyle) oldStyle.remove();
-
-    // CSS לdropdown בdocument הראשי
-    var style = parentDoc.createElement('style');
-    style.id = 'sn-notif-style';
-    style.textContent = `
-      #sn-notif-dropdown {{
-        display: none;
-        position: fixed;
-        width: 360px;
-        background: white;
-        border-radius: 20px;
-        box-shadow: 0 10px 40px rgba(225,200,210,0.5);
-        border: 1px solid #fdf0f5;
-        z-index: 999999;
-        overflow: hidden;
-        direction: rtl;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-      }}
-      @keyframes snFadeIn {{
-        from {{ opacity:0; transform:translateY(-8px); }}
-        to   {{ opacity:1; transform:translateY(0); }}
-      }}
-      #sn-notif-dropdown .notif-header {{
-        padding: 16px 20px;
-        font-weight: 700;
-        font-size: 1rem;
-        color: #3f3f46;
-        border-bottom: 1px solid #fdf0f5;
-        background: white;
-      }}
-      #sn-notif-dropdown .notif-item {{
-        padding: 14px 20px;
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        cursor: pointer;
-        border-bottom: 1px solid #fdf6f9;
-        transition: background 0.15s;
-      }}
-      #sn-notif-dropdown .notif-item:last-child {{ border-bottom: none; }}
-      #sn-notif-dropdown .notif-item:hover {{ background: #fdf6f9; }}
-      #sn-notif-dropdown .notif-item.read {{ opacity: 0.45; }}
-      #sn-notif-dropdown .notif-item.read .notif-dot {{ display: none; }}
-      #sn-notif-dropdown .notif-avatar {{
-        width: 40px; height: 40px;
-        border-radius: 50%;
-        background: #FADCE6;
-        flex-shrink: 0;
-      }}
-      #sn-notif-dropdown .notif-content {{ flex: 1; }}
-      #sn-notif-dropdown .notif-text {{ font-size: 0.85rem; color: #3f3f46; font-weight: 500; line-height: 1.4; }}
-      #sn-notif-dropdown .notif-proj {{ font-size: 0.72rem; color: #a1a1aa; margin-top: 3px; }}
-      #sn-notif-dropdown .notif-dot {{
-        width: 8px; height: 8px;
-        border-radius: 50%;
-        background: #FADCE6;
-        flex-shrink: 0;
-      }}
-      #sn-notif-dropdown .notif-empty {{
-        padding: 28px 20px;
-        text-align: center;
-        color: #a1a1aa;
-        font-size: 0.85rem;
-      }}
-    `;
-    parentDoc.head.appendChild(style);
-
-    // יצירת dropdown בdocument הראשי
-    var dropdown = parentDoc.createElement('div');
-    dropdown.id = 'sn-notif-dropdown';
-    dropdown.innerHTML = `
-      <div class="notif-header">התראות</div>
-      {items_js}
-    `;
-    parentDoc.body.appendChild(dropdown);
-
-    // סמן כנקרא
-    dropdown.querySelectorAll('.notif-item').forEach(function(item) {{
-      item.addEventListener('click', function() {{
-        item.classList.add('read');
-        var unreadCount = dropdown.querySelectorAll('.notif-item:not(.read)').length;
-        var badge = document.getElementById('badge');
-        if (unreadCount === 0) badge.style.display = 'none';
-        else {{ badge.style.display = 'flex'; badge.textContent = unreadCount; }}
-      }});
-    }});
-
-    // סגירה בלחיצה מחוץ
-    parentDoc.addEventListener('click', function(e) {{
-      var d = parentDoc.getElementById('sn-notif-dropdown');
-      if (d && d.style.display === 'block' && !d.contains(e.target)) {{
-        d.style.display = 'none';
-        isOpen = false;
-      }}
-    }}, true);
-  }});
 
   function toggleDropdown() {{
     isOpen = !isOpen;
     var d = document.getElementById('notifDropdown');
-    d.style.display = isOpen ? 'block' : 'none';
-    if (isOpen) d.style.animation = 'fadeIn 0.15s ease';
+    if (!d) return;
+    if (isOpen) {{
+      d.style.display = 'block';
+      d.style.animation = 'fadeIn 0.15s ease';
+      // הגדל את גובה ה-iframe כדי שהdropdown לא ייחתך
+      document.body.style.height = '{iframe_h}px';
+    }} else {{
+      d.style.display = 'none';
+      document.body.style.height = '110px';
+    }}
   }}
+
+  function markRead(el) {{
+    el.classList.add('read');
+    var unreadCount = document.querySelectorAll('.notif-item:not(.read)').length;
+    var badge = document.getElementById('badge');
+    if (unreadCount === 0) badge.style.display = 'none';
+    else {{ badge.style.display = 'flex'; badge.textContent = unreadCount; }}
+  }}
+
+  document.addEventListener('click', function(e) {{
+    var d = document.getElementById('notifDropdown');
+    var b = document.querySelector('.bell-area');
+    if (isOpen && d && b && !d.contains(e.target) && !b.contains(e.target)) {{
+      d.style.display = 'none';
+      document.body.style.height = '110px';
+      isOpen = false;
+    }}
+  }});
 </script>
+
 </body>
-""", height=110 + (len(reminders_today) * 72 + 80) if not reminders_today.empty else 110, scrolling=False)
+</html>""", height=110, scrolling=False)
 
 #סוף נסיון
 
