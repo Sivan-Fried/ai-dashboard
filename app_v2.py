@@ -551,10 +551,9 @@ else:
         </div>
         <div class="quote-container">
             <span class="quote-label">Daily Quote</span>
-            <div class="quote-text-wrapper">
-                <h1 class="quote-hebrew">"{quote_text}"</h1>
-                <p class="quote-subtext">{quote_author}</p>
-            </div>
+            <div class="quote-hebrew">"{quote_text}"</div>
+            <div class="quote-author-name">{quote_author}</div>
+            
             <div class="quote-divider">
                 <div class="divider-line"></div>
                 <span class="material-symbols-rounded">auto_stories</span>
