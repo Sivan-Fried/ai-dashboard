@@ -528,7 +528,7 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── KPIs ────────────────────────────────────────────────
-    # ── KPIs New Design ────────────────────────────────────────────────
+    # ── KPIs New Compact Design ───────────────────────────────────────────
     k1, k2, k3, k4 = st.columns(4)
     
     with k1:
@@ -537,10 +537,9 @@ else:
         <div class="kpi-container">
             <div class="kpi-header">
                 <div class="kpi-icon-box" style="background:#fef2f2;"><span class="material-symbols-rounded" style="color:#f87171;">warning</span></div>
-                <span class="kpi-badge" style="background:#fef2f2; color:#ef4444;">דורש טיפול</span>
+                <span class="kpi-badge" style="background:#fef2f2; color:#ef4444;">בסיכון</span>
             </div>
             <div class="kpi-content">
-                <div class="kpi-label">בסיכון</div>
                 <div class="kpi-value-row">
                     <span class="kpi-unit">פרויקטים</span>
                     <span class="kpi-number">{val}</span>
@@ -555,10 +554,9 @@ else:
         <div class="kpi-container">
             <div class="kpi-header">
                 <div class="kpi-icon-box" style="background:#eff6ff;"><span class="material-symbols-rounded" style="color:#60a5fa;">info</span></div>
-                <span class="kpi-badge" style="background:#eff6ff; color:#3b82f6;">בבדיקה</span>
+                <span class="kpi-badge" style="background:#eff6ff; color:#3b82f6;">במעקב</span>
             </div>
             <div class="kpi-content">
-                <div class="kpi-label">במעקב</div>
                 <div class="kpi-value-row">
                     <span class="kpi-unit">פרויקטים</span>
                     <span class="kpi-number">{val}</span>
@@ -573,10 +571,9 @@ else:
         <div class="kpi-container">
             <div class="kpi-header">
                 <div class="kpi-icon-box" style="background:#ecfdf5;"><span class="material-symbols-rounded" style="color:#34d399;">check_circle</span></div>
-                <span class="kpi-badge" style="background:#ecfdf5; color:#10b981;">בזמן</span>
+                <span class="kpi-badge" style="background:#ecfdf5; color:#10b981;">תקין</span>
             </div>
             <div class="kpi-content">
-                <div class="kpi-label">לפי התכנון</div>
                 <div class="kpi-value-row">
                     <span class="kpi-unit">פרויקטים</span>
                     <span class="kpi-number">{val}</span>
@@ -594,7 +591,6 @@ else:
                 <span class="kpi-badge" style="background:#f8fafc; color:#64748b;">כללי</span>
             </div>
             <div class="kpi-content">
-                <div class="kpi-label">סה"כ פרויקטים</div>
                 <div class="kpi-value-row">
                     <span class="kpi-unit">פעילים</span>
                     <span class="kpi-number">{val}</span>
