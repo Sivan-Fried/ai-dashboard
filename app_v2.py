@@ -332,13 +332,8 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
     }}
   }});
 </script>
-
 </body>
 </html>""", height=110, scrolling=False)
-
-</body>
-# בשורה האחרונה של הפונקציה
-}, height=110, scrolling=False)
 
 #סוף נסיון
 
