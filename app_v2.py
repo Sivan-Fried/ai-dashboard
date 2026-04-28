@@ -532,81 +532,46 @@ else:
     import pandas as pd
     import os
     
-    # --- 1. הגדרות CSS גלובליות (להצמדה לתפריט וייבוא פונטים) ---
-    st.markdown("""
-    <style>
-        /* ביטול מרווחים מובנים של סטרימליט בראש הדף */
-        .block-container {
-            padding-top: 0rem !important;
-            padding-bottom: 0rem !important;
-            max-width: 100% !important;
-        }
-        
-        /* ייבוא פונטים ואייקונים מהעיצוב המקורי */
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&family=Noto+Serif+Hebrew:wght@400;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0');
+    # --- 1. CSS וייבוא פונטים ---
+    st.markdown('<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&family=Noto+Serif+Hebrew:wght@400;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">', unsafe_allow_html=True)
+    st.markdown('<style>.block-container {padding-top: 0rem !important; max-width: 100% !important;}</style>', unsafe_allow_html=True)
     
-        /* הבטחת תצוגת האייקון */
-        .material-symbols-outlined {
-            font-family: 'Material Symbols Outlined' !important;
-            display: inline-block;
-            line-height: 1;
-        }
-    </style>
-    """, unsafe_allow_html=True)
-    
-    # --- 2. לוגיקת טעינת הנתונים מהאקסל ---
+    # --- 2. לוגיקת טעינה ---
     file_path = "inspirational_quotes.xlsx"
     quote_text = "המסע היחיד הוא זה שבפנים."
-    quote_author = "The only journey is the one within."
+    quote_author = "לא ידוע"
     
     if os.path.exists(file_path):
         try:
             df = pd.read_excel(file_path, engine='openpyxl')
             if not df.empty:
                 row = df.sample(n=1).iloc[0]
-                # זיהוי עמודות לפי שם
                 q_col = [c for c in df.columns if str(c).lower() in ['quote', 'ציטוט']]
                 a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר', 'הוגה']]
                 if q_col: quote_text = str(row[q_col[0]])
                 if a_col: quote_author = str(row[a_col[0]])
-        except:
-            pass
+        except: pass
     
-    # --- 3. בניית ה-HTML הסופי (נצמד, פונטים נכונים, מקפים ואייקון) ---
-    # שימוש ב-Full Width Background בדיוק לפי Atmosphere
-    quote_html = f"""
-    <div style="background-color: #ffffff; width: 100%; border-bottom: 1px solid #f1f5f9; position: relative; overflow: hidden; margin-top: 0;">
-        <div style="background: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 40%), radial-gradient(circle at 85% 70%, rgba(227, 225, 236, 0.3) 0%, transparent 40%); padding: 35px 20px; text-align: center;">
-            
-            <div style="max-width: 800px; margin: 0 auto; position: relative; z-index: 2;">
-                <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.2em; display: block; margin-bottom: 10px;">Daily Quote</span>
-                
-                <h1 style="font-family: 'Noto Serif Hebrew', serif; font-size: 34px; color: #1a1c1c; line-height: 1.25; margin: 0 0 8px 0; font-weight: 700;">
-                    "{quote_text}"
-                </h1>
-                
-                <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #646566; font-style: italic; margin-bottom: 20px;">
-                    — {quote_author} —
-                </div>
-                
-                <div style="display: flex; align-items: center; justify-content: center; gap: 12px; opacity: 0.6;">
-                    <div style="height: 1px; width: 45px; background-color: #fadce6;"></div>
-                    <span class="material-symbols-outlined" style="color: #6f5861; font-size: 22px;">auto_stories</span>
-                    <div style="height: 1px; width: 45px; background-color: #fadce6;"></div>
-                </div>
-            </div>
-            
-            <div style="position: absolute; top: -40px; right: -20px; width: 250px; height: 250px; opacity: 0.05; z-index: 1;">
-                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <path fill="#6f5861" d="M44.7,-76.4C58.1,-69.2,69.2,-58.1,76.4,-44.7C83.7,-31.4,87,-15.7,86.2,-0.4C85.4,14.8,80.5,29.7,72,42.9C63.5,56.1,51.4,67.7,37.3,74.5C23.2,81.4,7,83.4,-8.8,81.9C-24.6,80.4,-40,75.4,-53.4,66.6C-66.8,57.8,-78.2,45.2,-83.4,30.6C-88.6,16,-87.6,-0.6,-83.1,-15.8C-78.6,-31,-70.7,-44.8,-59.6,-53.6C-48.5,-62.4,-34.2,-66.2,-20.5,-73C-6.8,-79.8,6.3,-89.6,20.5,-89.6C34.7,-89.6,44.7,-76.4Z" transform="translate(100 100)" />
-                </svg>
-            </div>
-        </div>
-    </div>
-    """
+    # --- 3. ה-HTML המזוקק (ללא רווחים בתחילת שורה שיגרמו לשגיאה) ---
+    html_string = f'<div style="background-color: #ffffff; width: 100%; border-bottom: 1px solid #f1f5f9; position: relative; overflow: hidden; margin-top: 0;">'
+    html_string += f'<div style="background: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 40%), radial-gradient(circle at 85% 70%, rgba(227, 225, 236, 0.3) 0%, transparent 40%); padding: 35px 20px; text-align: center;">'
+    html_string += f'<div style="max-width: 800px; margin: 0 auto; position: relative; z-index: 2;">'
+    html_string += f'<span style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 11px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.2em; display: block; margin-bottom: 10px;">Daily Quote</span>'
+    html_string += f'<h1 style="font-family: \'Noto Serif Hebrew\', serif; font-size: 34px; color: #1a1c1c; line-height: 1.25; margin: 0 0 8px 0; font-weight: 700;">"{quote_text}"</h1>'
+    html_string += f'<div style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 15px; color: #646566; font-style: italic; margin-bottom: 20px;">— {quote_author} —</div>'
+    html_string += f'<div style="display: flex; align-items: center; justify-content: center; gap: 12px; opacity: 0.6;">'
+    html_string += f'<div style="height: 1px; width: 45px; background-color: #fadce6;"></div>'
+    html_string += f'<span class="material-symbols-outlined" style="color: #6f5861; font-size: 22px;">auto_stories</span>'
+    html_string += f'<div style="height: 1px; width: 45px; background-color: #fadce6;"></div>'
+    html_string += f'</div></div>'
+    html_string += f'<div style="position: absolute; top: -40px; right: -20px; width: 250px; height: 250px; opacity: 0.05; z-index: 1;">'
+    html_string += f'<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path fill="#6f5861" d="M44.7,-76.4C58.1,-69.2,69.2,-58.1,76.4,-44.7C83.7,-31.4,87,-15.7,86.2,-0.4C85.4,14.8,80.5,29.7,72,42.9C63.5,56.1,51.4,67.7,37.3,74.5C23.2,81.4,7,83.4,-8.8,81.9C-24.6,80.4,-40,75.4,-53.4,66.6C-66.8,57.8,-78.2,45.2,-83.4,30.6C-88.6,16,-87.6,-0.6,-83.1,-15.8C-78.6,-31,-70.7,-44.8,-59.6,-53.6C-48.5,-62.4,-34.2,-66.2,-20.5,-73C-6.8,-79.8,6.3,-89.6,20.5,-89.6C34.7,-89.6,44.7,-76.4Z" transform="translate(100 100)" /></svg>'
+    html_string += f'</div></div></div>'
     
-    st.markdown(quote_html, unsafe_allow_html=True)
-    
+    st.markdown(html_string, unsafe_allow_html=True)
+
+
+
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
     k1, k2, k3, k4 = st.columns(4)
