@@ -528,7 +528,7 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    iimport streamlit as st
+    import streamlit as st
     import pandas as pd
     import os
     
