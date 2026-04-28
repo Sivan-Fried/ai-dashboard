@@ -527,31 +527,38 @@ else:
     
     st.markdown("<br>", unsafe_allow_html=True)
 
-    #הוספת משפט השראה יומי
-    # ── משיכת נתונים מהאקסל ──────────────────────────────────────
+    # ── Daily Quote Section Logic & Display ──────────────────────────
     import pandas as pd
     import random
     import os
     
-    # ── טעינת הציטוט מהקובץ ──────────────────────────────────────
+    # הגדרת נתיב הקובץ
     file_path = "inspirational_quotes.xlsx"
     
-    # ברירת מחדל למקרה של תקלה
+    # ערכי ברירת מחדל (יופיעו רק אם יש תקלה בטעינה)
     quote_text = "המסע היחיד הוא זה שבפנים."
     quote_author = "לא ידוע"
     
+    # מנגנון טעינה בטוח
     if os.path.exists(file_path):
         try:
-            quotes_df = pd.read_excel(file_path)
-            if not quotes_df.empty and 'quote' in quotes_df.columns and 'author' in quotes_df.columns:
+            # טעינת האקסל
+            quotes_df = pd.read_excel(file_path, engine='openpyxl')
+            
+            # וידוא שהקובץ לא ריק ושהעמודות קיימות (quote ו-author)
+            if not quotes_df.empty:
+                # בחירת שורה אקראית
                 random_row = quotes_df.sample(n=1).iloc[0]
-                quote_text = str(random_row['quote'])
-                quote_author = str(random_row['author'])
+                
+                # שליפת נתונים - שימוש ב-.get מטפל במקרה של שמות עמודות לא תואמים
+                quote_text = str(random_row.get('quote', quote_text))
+                quote_author = str(random_row.get('author', quote_author))
         except Exception as e:
-            print(f"Error reading quotes file: {e}")
-
-    # ── תצוגת ה-HTML (מבנה של מסגרת חיצונית בלבד) ────────────────
-    quote_html = f"""
+            # הדפסה ללוגים של השרת בלבד למקרה של שגיאה טכנית
+            print(f"Quote loading error: {e}")
+    
+    # רינדור ה-HTML
+    st.markdown(f"""
     <div class="quote-wrapper-outer">
         <div class="watercolor-shape">
             <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
@@ -562,9 +569,10 @@ else:
         <div class="quote-content-flat">
             <span class="quote-label">Daily Quote</span>
             <div class="quote-main-text">"{quote_text}"</div>
+            
             <div class="quote-author-line">
-                 <span class="author-name">{quote_author}</span>
                  <div class="horizontal-line"></div>
+                 <span class="author-name">{quote_author}</span>
             </div>
             
             <div class="bottom-ornament">
@@ -574,33 +582,7 @@ else:
             </div>
         </div>
     </div>
-    """
-    st.markdown(quote_html, unsafe_allow_html=True)
-    
-    # ── תצוגת ה-HTML (גובה מינימלי ומבנה נקי) ─────────────────────
-    quote_content = f"""
-    <div class="quote-section">
-        <div class="watercolor-shape">
-            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                <path d="M44.7,-76.4C58.1,-69.2,69.2,-58.1,76.4,-44.7C83.7,-31.4,87,-15.7,86.2,-0.4C85.4,14.8,80.5,29.7,72,42.9C63.5,56.1,51.4,67.7,37.3,74.5C23.2,81.4,7,83.4,-8.8,81.9C-24.6,80.4,-40,75.4,-53.4,66.6C-66.8,57.8,-78.2,45.2,-83.4,30.6C-88.6,16,-87.6,-0.6,-83.1,-15.8C-78.6,-31,-70.7,-44.8,-59.6,-53.6C-48.5,-62.4,-34.2,-66.2,-20.5,-73C-6.8,-79.8,6.3,-89.6,20.5,-89.6C34.7,-89.6,44.7,-76.4Z" transform="translate(100 100)"></path>
-            </svg>
-        </div>
-        <div class="quote-container">
-            <span class="quote-label">Daily Quote</span>
-            <div class="quote-hebrew">"{quote_text}"</div>
-            <div class="quote-author-row">
-                <div class="author-line"></div>
-                <span>{quote_author}</span>
-            </div>
-            <div class="quote-divider">
-                <div class="divider-line"></div>
-                <span class="material-symbols-rounded">auto_stories</span>
-                <div class="divider-line"></div>
-            </div>
-        </div>
-    </div>
-    """
-    st.markdown(quote_content, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
         
     
     # ── KPIs ────────────────────────────────────────────────
