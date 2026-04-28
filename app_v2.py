@@ -117,64 +117,101 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     from zoneinfo import ZoneInfo
     import streamlit.components.v1 as components
     
+    # הגדרות זמן ותאריך
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
     time_str = now.strftime("%H:%M")
     date_str = now.strftime("%d/%m/%Y")
 
+    # ניקוי טקסט מזג אוויר ותווים מיוחדים
     w_text_clean = re.sub(r'[^\x00-\x7F]+', '', w_text).strip().replace('C', '\u00b0C')
     profile_src = f"data:image/png;base64,{img_b64}" if img_b64 else ""
     
-    # חישוב באדג' ראשוני
-    unread_count = len(today_reminders[today_reminders['is_read'] == False]) if 'is_read' in today_reminders.columns else len(today_reminders)
+    # חישוב כמות הודעות שלא נקראו לבאדג'
+    if 'is_read' in today_reminders.columns:
+        unread_count = len(today_reminders[today_reminders['is_read'] == False])
+    else:
+        unread_count = len(today_reminders)
+    
     badge_display = 'flex' if unread_count > 0 else 'none'
 
+    # בניית רשימת התראות עם טיפול מלא בתווים (מניעת קריסת HTML)
     items_html = ""
     if today_reminders.empty:
         items_html = '<div class="sn-empty">אין תזכורות להיום 🎉</div>'
     else:
         for _, row in today_reminders.iterrows():
-            text = str(row.get("reminder_text", "")).replace('"', '&quot;').replace("'", "&#39;")
+            # טיפול בתווים מיוחדים בטקסט כדי שלא ישברו את ה-JS
+            text = str(row.get("reminder_text", "")).replace('"', '&quot;').replace("'", "&#39;").replace("<", "&lt;").replace(">", "&gt;")
             proj = str(row.get("project_name", "כללי")).replace('"', '&quot;').replace("'", "&#39;")
+            
             is_read = row.get("is_read", False)
             read_class = "read" if is_read else "unread"
             
             items_html += f"""
             <div class="sn-item {read_class}" onclick="this.classList.add('read'); updateBadge();">
                 <div class="sn-dot"></div>
-                <div>
+                <div style="flex:1;">
                     <div class="sn-text">{text}</div>
                     <div class="sn-proj">{proj}</div>
                 </div>
             </div>"""
 
+    # הפיכת ה-HTML למחרוזת בטוחה עבור JavaScript
     items_js = items_html.replace('`', r'\`').replace('\\', '\\\\').replace('\n', '')
 
     components.html(f"""<!DOCTYPE html>
 <html dir="rtl">
 <head>
 <meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
-  * {{ box-sizing:border-box; margin:0; padding:0; font-family: sans-serif; }}
-  body {{ background: transparent !important; overflow: hidden; height: 110px; direction: rtl; }}
-  .topbar {{ 
-    background: white; border-radius: 16px; border: 1px solid #F4F4F5;
-    box-shadow: 0 2px 20px rgba(225,200,210,0.2); display: flex;
-    align-items: center; justify-content: space-between; padding: 0 24px;
-    height: 100px; position: relative; z-index: 100;
+  * {{ box-sizing:border-box; margin:0; padding:0; }}
+  body {{ 
+    font-family: 'Plus Jakarta Sans', sans-serif; 
+    background: transparent !important; 
+    overflow: hidden; 
+    height: 110px; 
+    direction: rtl; 
   }}
-  .tb-right, .tb-left {{ display:flex; align-items:center; gap:12px; }}
-  .tb-profile {{ width:72px; height:72px; border-radius:50%; object-fit:cover; border:3px solid white; box-shadow:0 2px 12px rgba(0,0,0,0.1); }}
+  
+  .topbar {{ 
+    background: white; 
+    border-radius: 16px; 
+    border: 1px solid #F4F4F5;
+    box-shadow: 0 2px 20px rgba(225,200,210,0.2); 
+    display: flex;
+    align-items: center; 
+    justify-content: space-between; 
+    padding: 0 24px;
+    height: 100px; 
+    position: relative; 
+    z-index: 100;
+  }}
+
+  /* צד ימין - פרופיל ופעמון */
+  .tb-right {{ display:flex; align-items:center; gap:16px; }}
+  .tb-profile {{ width:72px; height:72px; border-radius:50%; object-fit:cover; border:3px solid white; box-shadow:0 2px 12px rgba(225,200,210,0.4); }}
+  .tb-name {{ font-size:0.95rem; font-weight:700; color:#3f3f46; }}
+  .tb-role {{ font-size:0.75rem; color:#a1a1aa; }}
+
+  /* ניווט מרכזי */
   .tb-nav {{ display:flex; gap:4px; flex:1; justify-content:center; }}
   .tb-nav span {{ font-size:0.82rem; padding:8px 16px; border-radius:20px; color:#71717A; cursor:pointer; }}
   .tb-nav span.active {{ background:#FADCE6; color:#3f3f46; font-weight:600; }}
-  .tb-divider {{ width:1px; height:28px; background:#F4F4F5; }}
-  .bell-area {{ position:relative; cursor:pointer; width:40px; height:40px; display:flex; align-items:center; justify-content:center; }}
+
+  /* צד שמאל - מזג אוויר וזמן */
+  .tb-left {{ display:flex; align-items:center; gap:16px; }}
+  .tb-divider {{ width:1px; height:28px; background:#F4F4F5; flex-shrink:0; }}
+  .weather-wrap {{ display: flex; align-items: center; gap: 8px; text-align: right; }}
+  .time-wrap {{ text-align: right; min-width: 75px; }}
+  
+  /* פעמון ובאדג' */
+  .bell-area {{ position:relative; cursor:pointer; display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; }}
   .bell-badge {{ 
     position:absolute; top:2px; left:2px; background:#ef4444; color:white;
     border-radius:50%; min-width:18px; height:18px; font-size:0.62rem;
-    display:{badge_display}; align-items:center; justify-content:center; border:2px solid white;
+    display:{badge_display}; align-items:center; justify-content:center; border:2px solid white; font-weight:bold;
   }}
-  .align-right {{ text-align: right; }}
 </style>
 </head>
 <body>
@@ -182,8 +219,8 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
   <div class="tb-right">
     <img class="tb-profile" src="{profile_src}"/>
     <div>
-        <div style="font-weight:700; color:#3f3f46;">{greeting}, סיון</div>
-        <div style="font-size:0.75rem; color:#a1a1aa;">מנהלת פרויקטים</div>
+        <div class="tb-name">{greeting}, סיון</div>
+        <div class="tb-role">מנהלת פרויקטים</div>
     </div>
     <div class="bell-area" id="bellBtn">
       <span class="bell-badge" id="badge">{unread_count}</span>
@@ -193,26 +230,45 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
       </svg>
     </div>
   </div>
-  <nav class="tb-nav"><span class="active">דשבורד</span><span>פרויקטים</span><span>פגישות</span><span>משימות</span></nav>
+
+  <nav class="tb-nav">
+    <span class="active">דשבורד</span>
+    <span>פרויקטים</span>
+    <span>פגישות</span>
+    <span>משימות</span>
+    <span>דוחות</span>
+  </nav>
+
   <div class="tb-left">
-    <div class="align-right">
-      <div style="font-size:0.82rem; font-weight:600;">{w_text_clean}</div>
-      <div style="font-size:0.68rem; color:#a1a1aa;">{w_city}</div>
+    <div class="weather-wrap">
+      <div style="color:#f0b8cb;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path>
+        </svg>
+      </div>
+      <div>
+        <div style="font-size:0.82rem; font-weight:600; color:#3f3f46;">{w_text_clean}</div>
+        <div style="font-size:0.68rem; color:#a1a1aa;">{w_city}</div>
+      </div>
     </div>
+    
     <div class="tb-divider"></div>
-    <div class="align-right">
-      <div style="font-size:0.85rem; font-weight:700;">{time_str}</div>
+    
+    <div class="time-wrap">
+      <div style="font-size:0.85rem; font-weight:700; color:#3f3f46;">{time_str}</div>
       <div style="font-size:0.68rem; color:#a1a1aa;">{date_str}</div>
     </div>
+    
     <div class="tb-divider"></div>
-    <div style="font-weight:800; color:#f0b8cb;">Dashboard AI</div>
+    
+    <div style="font-size:0.95rem; font-weight:800; color:#f0b8cb;">Dashboard AI</div>
   </div>
 </div>
 
 <script>
   var isOpen = false;
   
-  // פונקציה לעדכון הבאדג' (בדיוק כמו בקוד הקודם שלך)
+  // פונקציה לעדכון הבאדג' בזמן אמת בלחיצה
   function updateBadge() {{
     var parentDoc = window.parent.document;
     var d = parentDoc.getElementById('sn-floating-dropdown');
@@ -225,33 +281,39 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
   window.addEventListener('load', function() {{
     var parentDoc = window.parent.document;
     
+    // ניקוי אלמנטים קודמים
     var old = parentDoc.getElementById('sn-floating-dropdown'); if (old) old.remove();
     var oldStyle = parentDoc.getElementById('sn-styles'); if (oldStyle) oldStyle.remove();
 
+    // הזרקת הסטייל לחלונית הצפה
     var style = parentDoc.createElement('style');
     style.id = 'sn-styles';
     style.textContent = `
       #sn-floating-dropdown {{
-        display:none; position:fixed; width:340px; background:white;
-        border-radius:15px; box-shadow:0 10px 35px rgba(0,0,0,0.15);
-        z-index:999999; direction:rtl; overflow:hidden; border:1px solid #f0f0f0;
+        display:none; position:fixed; width:360px; background:white;
+        border-radius:20px; box-shadow:0 10px 40px rgba(0,0,0,0.15);
+        border:1px solid #fdf0f5; z-index:1000000; overflow-y:auto; max-height:450px;
+        direction:rtl; font-family: sans-serif;
       }}
-      .sn-header {{ padding:15px; font-weight:bold; background:#fafafa; border-bottom:1px solid #eee; }}
-      .sn-item {{ padding:12px 15px; display:flex; align-items:center; gap:10px; border-bottom:1px solid #f9f9f9; cursor:pointer; }}
-      .sn-item.read {{ opacity:0.5; }}
+      .sn-header {{ padding:16px 20px; font-weight:700; border-bottom:1px solid #fdf0f5; color:#3f3f46; }}
+      .sn-item {{ padding:14px 20px; display:flex; align-items:center; gap:14px; cursor:pointer; border-bottom:1px solid #fdf6f9; transition:0.15s; }}
+      .sn-item:hover {{ background:#fdf6f9; }}
+      .sn-item.read {{ opacity: 0.5; }}
       .sn-item.read .sn-dot {{ background:#cbd5e1 !important; }}
-      .sn-dot {{ width:9px; height:9px; border-radius:50%; background:#FADCE6; flex-shrink:0; }}
-      .sn-text {{ font-size:0.85rem; color:#333; font-weight:500; }}
-      .sn-proj {{ font-size:0.75rem; color:#999; }}
+      .sn-dot {{ width:8px; height:8px; border-radius:50%; background:#FADCE6; flex-shrink:0; }}
+      .sn-text {{ font-size:0.85rem; color:#3f3f46; font-weight:500; line-height:1.4; }}
+      .sn-proj {{ font-size:0.72rem; color:#a1a1aa; margin-top:2px; }}
+      .sn-empty {{ padding:30px 20px; text-align:center; color:#a1a1aa; font-size:0.9rem; }}
     `;
     parentDoc.head.appendChild(style);
 
+    // יצירת אלמנט הדרופדאון
     var dropdown = parentDoc.createElement('div');
     dropdown.id = 'sn-floating-dropdown';
     dropdown.innerHTML = '<div class="sn-header">התראות להיום</div>' + `{items_js}`;
     parentDoc.body.appendChild(dropdown);
 
-    // --- התיקון לגלילה (מבוסס על הקוד ששלחת) ---
+    // עדכון מיקום בגלילה - כדי שהחלונית לא תברח
     parentDoc.addEventListener('scroll', function() {{
       var d = parentDoc.getElementById('sn-floating-dropdown');
       if (d && d.style.display === 'block') {{
@@ -261,22 +323,27 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
       }}
     }}, true);
 
+    // סגירה בלחיצה בחוץ
     parentDoc.addEventListener('click', function(e) {{
       var d = parentDoc.getElementById('sn-floating-dropdown');
       if (isOpen && d && !d.contains(e.target)) {{ d.style.display = 'none'; isOpen = false; }}
     }}, true);
   }});
 
+  // לוגיקת פתיחה/סגירה של הפעמון
   document.getElementById('bellBtn').addEventListener('click', function(e) {{
     var parentDoc = window.parent.document;
     var d = parentDoc.getElementById('sn-floating-dropdown');
+    if (!d) return;
+    
     isOpen = !isOpen;
     if (isOpen) {{
       var iframe = window.frameElement;
       var rect = iframe.getBoundingClientRect();
       var bellRect = this.getBoundingClientRect();
+      
       d.style.top = (rect.bottom + 8) + 'px';
-      d.style.left = (rect.left + bellRect.left - 280) + 'px';
+      d.style.left = (rect.left + bellRect.left - 300) + 'px';
       d.style.display = 'block';
     }} else {{ d.style.display = 'none'; }}
     e.stopPropagation();
