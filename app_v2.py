@@ -283,19 +283,17 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
   var isOpen = false;
 
   function toggleDropdown() {{
-    // הכפלת הסוגריים מונעת מפייתון לנסות לפרש את ה-JS
-    if (isOpen) {{ 
-        isOpen = false; 
-    }} else {{ 
-        isOpen = true; 
+    if (isOpen) {{
+      isOpen = false;
+    }} else {{
+      isOpen = true;
     }}
-
+    
     var d = document.getElementById('notifDropdown');
     if (!d) return;
-
+    
     if (isOpen) {{
       d.style.display = 'block';
-      // שימוש ב-postMessage כדי לשנות גובה דינמית
       window.parent.postMessage({{
         type: 'streamlit:setFrameHeight',
         height: 500
@@ -313,11 +311,11 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
     el.classList.add('read');
     var unreadCount = document.querySelectorAll('.notif-item:not(.read)').length;
     var badge = document.getElementById('badge');
-    if (unreadCount === 0) {{ 
-        badge.style.display = 'none'; 
-    }} else {{ 
-        badge.style.display = 'flex'; 
-        badge.textContent = unreadCount; 
+    if (unreadCount === 0) {{
+      badge.style.display = 'none';
+    }} else {{
+      badge.style.display = 'flex';
+      badge.textContent = unreadCount;
     }}
   }}
 
@@ -334,6 +332,9 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
     }}
   }});
 </script>
+
+</body>
+</html>""", height=110, scrolling=False)
 
 </body>
 # בשורה האחרונה של הפונקציה
