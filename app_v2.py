@@ -531,9 +531,9 @@ else:
     import streamlit as st
     import streamlit.components.v1 as components
     import pandas as pd
-    import os  # <--- זה מה שהיה חסר וגרם לשגיאה!
+    import os
     
-    # --- 1. לוגיקת נתונים חסינה ---
+    # --- 1. נתונים ---
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
     quote_author = "ארתור אש"
     
@@ -542,15 +542,13 @@ else:
             df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
             if not df.empty:
                 row = df.sample(n=1).iloc[0]
-                # בדיקה גמישה לשמות עמודות
                 q_col = [c for c in df.columns if str(c).lower() in ['quote', 'ציטוט']]
                 a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר']]
                 if q_col: quote_text = str(row[q_col[0]])
                 if a_col: quote_author = str(row[a_col[0]])
-    except Exception:
-        pass # במקרה של תקלה בקובץ, נשתמש בציטוט ברירת המחדל
+    except: pass
     
-    # --- 2. העיצוב המקורי שאהבת (בתוך HTML) ---
+    # --- 2. העיצוב שאהבת (בלי שינויים!) ---
     html_code = f"""
     <div style="
         font-family: 'Plus Jakarta Sans', sans-serif;
@@ -564,17 +562,9 @@ else:
         margin: 0;
     ">
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
-        
         <span style="font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 8px;">DAILY QUOTE</span>
-        
-        <div style="font-family: 'Noto Serif Hebrew', serif; font-size: 24px; color: #1a1c1c; line-height: 1.3; margin-bottom: 8px; font-weight: 700;">
-            "{quote_text}"
-        </div>
-        
-        <div style="font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
-            &#8212; {quote_author} &#8212;
-        </div>
-        
+        <div style="font-family: 'Noto Serif Hebrew', serif; font-size: 24px; color: #1a1c1c; line-height: 1.3; margin-bottom: 8px; font-weight: 700;">"{quote_text}"</div>
+        <div style="font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">&#8212; {quote_author} &#8212;</div>
         <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
             <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
             <span class="material-symbols-outlined" style="color: #6f5861; font-size: 20px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
@@ -583,27 +573,32 @@ else:
     </div>
     """
     
-    # --- 3. הזרקת ה-CSS למיקום הסרגל (הסרגל מעל הציטוט) ---
+    # --- 3. התיקון הקריטי למיקום (CSS "אלים" לתוך המערכת) ---
     st.markdown("""
         <style>
-            /* הופך את הסרגל העליון לשכבה העליונה ביותר */
+            /* הופך את הסרגל העליון ל-Top Layer */
             iframe[title="streamlit.components.v1.html"]:first-of-type {
-                position: relative;
-                z-index: 100 !important;
+                position: relative !important;
+                z-index: 9999 !important;
             }
-            /* מושך את הציטוט למעלה ומכניס אותו מתחת לסרגל ב-15 פיקסלים */
-            .quote-fix-container {
+    
+            /* מוצא את ה-iframe של הציטוט ומצמיד אותו למעלה בכוח */
+            /* זה מה שגורם לסרגל לעלות עליו טיפה */
+            div[data-testid="stHtml"] + div iframe[title="streamlit.components.v1.html"] {
                 margin-top: -15px !important;
-                position: relative;
-                z-index: 1;
+                position: relative !important;
+                z-index: 1 !important;
+            }
+            
+            /* ביטול מרווחים מובנים של סטרימליט בין אלמנטים */
+            [data-testid="stVerticalBlock"] > div {
+                gap: 0rem !important;
             }
         </style>
     """, unsafe_allow_html=True)
     
-    # --- 4. תצוגה סופית ---
-    st.markdown('<div class="quote-fix-container">', unsafe_allow_html=True)
-    components.html(html_code, height=180) 
-    st.markdown('</div>', unsafe_allow_html=True)
+    # --- 4. הצגה ---
+    components.html(html_code, height=185)
 
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
