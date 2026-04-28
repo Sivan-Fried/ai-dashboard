@@ -122,6 +122,94 @@ h3 {
     box-shadow: var(--shadow-md) !important;
 }
 
+/* ── Daily Quote Section ────────────────────────────────── */
+.quote-section {
+    width: 100%;
+    background-color: #fdf2f8 !important; /* גוון ורדרד עדין כרקע */
+    padding: 40px 20px !important;
+    position: relative;
+    overflow: hidden;
+    border-radius: 24px;
+    margin-bottom: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.watercolor-shape {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 300px;
+    height: 300px;
+    opacity: 0.15;
+    fill: #f472b6; /* צבע ה-Primary של הצורה */
+    z-index: 1;
+}
+
+.quote-container {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    z-index: 10;
+}
+
+.quote-label {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    color: #db2777 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    display: block;
+    margin-bottom: 16px;
+}
+
+.quote-text-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.quote-hebrew {
+    font-family: 'Plus Jakarta Sans', sans-serif !important; /* נשתמש בפונט הפרויקט */
+    font-size: 32px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    line-height: 1.3 !important;
+    margin: 0 !important;
+}
+
+.quote-subtext {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-size: 16px !important;
+    color: #64748b !important;
+    font-style: italic;
+    margin: 0 !important;
+}
+
+.quote-divider {
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.divider-line {
+    height: 1px;
+    width: 48px;
+    background-color: #fbcfe8;
+}
+
+.quote-divider span {
+    font-family: 'Material Symbols Rounded' !important;
+    color: #f9a8d4;
+    font-size: 20px;
+}
+
+
 
 /* ── KPI Cards ─────────────────────────────────────────── */
 /* ── New KPI Cards - Full & Final ──────────────────────────────── */
