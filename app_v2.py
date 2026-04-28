@@ -533,10 +533,9 @@ else:
     import pandas as pd
     import os
     
-    # --- 1. נתונים ---
+    # --- 1. נתונים (נשאר אותו דבר) ---
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
     quote_author = "ארתור אש"
-    
     try:
         if os.path.exists("inspirational_quotes.xlsx"):
             df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
@@ -548,19 +547,9 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # --- 2. העיצוב שאהבת (בלי שינויים!) ---
-    html_code = f"""
-    <div style="
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        background: #ffffff;
-        background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
-                          radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
-        border-bottom: 1px solid #f1f5f9;
-        padding: 20px;
-        text-align: center;
-        direction: rtl;
-        margin: 0;
-    ">
+    # --- 2. העיצוב המקורי שאהבת (מוכן להזרקה) ---
+    html_design = f"""
+    <div style="font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%); border-bottom: 1px solid #f1f5f9; padding: 20px; text-align: center; direction: rtl; margin: 0;">
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
         <span style="font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 8px;">DAILY QUOTE</span>
         <div style="font-family: 'Noto Serif Hebrew', serif; font-size: 24px; color: #1a1c1c; line-height: 1.3; margin-bottom: 8px; font-weight: 700;">"{quote_text}"</div>
@@ -573,32 +562,31 @@ else:
     </div>
     """
     
-    # --- 3. התיקון הקריטי למיקום (CSS "אלים" לתוך המערכת) ---
+    # --- 3. הזרקת ה-CSS לשינוי מבנה הדף (הסרגל עולה על הציטוט) ---
     st.markdown("""
-        <style>
-            /* הופך את הסרגל העליון ל-Top Layer */
-            iframe[title="streamlit.components.v1.html"]:first-of-type {
-                position: relative !important;
-                z-index: 9999 !important;
-            }
+    <style>
+        /* מזהה את המיכל של הציטוט (האלמנט השני בבלוק) ומושך אותו למעלה בכוח */
+        [data-testid="stVerticalBlock"] > div:nth-child(2) {
+            margin-top: -30px !important; /* הגדלתי כדי שתראי תזוזה ודאית */
+            position: relative !important;
+            z-index: 1 !important;
+        }
     
-            /* מוצא את ה-iframe של הציטוט ומצמיד אותו למעלה בכוח */
-            /* זה מה שגורם לסרגל לעלות עליו טיפה */
-            div[data-testid="stHtml"] + div iframe[title="streamlit.components.v1.html"] {
-                margin-top: -15px !important;
-                position: relative !important;
-                z-index: 1 !important;
-            }
-            
-            /* ביטול מרווחים מובנים של סטרימליט בין אלמנטים */
-            [data-testid="stVerticalBlock"] > div {
-                gap: 0rem !important;
-            }
-        </style>
+        /* מוודא שהסרגל העליון (האלמנט הראשון) תמיד יהיה מעל הכל */
+        [data-testid="stVerticalBlock"] > div:nth-child(1) {
+            position: relative !important;
+            z-index: 999 !important;
+        }
+        
+        /* ביטול מרווחים לבנים של המערכת */
+        .st-emotion-cache-1kyx0t1, .st-emotion-cache-16idsys {
+            gap: 0px !important;
+        }
+    </style>
     """, unsafe_allow_html=True)
     
-    # --- 4. הצגה ---
-    components.html(html_code, height=185)
+    # --- 4. ביצוע ---
+    components.html(html_design, height=180)
 
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
