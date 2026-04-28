@@ -528,15 +528,82 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── KPIs ────────────────────────────────────────────────
+    # ── KPIs New Design ────────────────────────────────────────────────
     k1, k2, k3, k4 = st.columns(4)
-    with k1: st.markdown(f'<div class="kpi-card">בסיכון 🔴<br><b>{len(projects[projects["status"]=="אדום"])}</b></div>', unsafe_allow_html=True)
-    with k2: st.markdown(f'<div class="kpi-card">במעקב 🟡<br><b>{len(projects[projects["status"]=="צהוב"])}</b></div>', unsafe_allow_html=True)
-    with k3: st.markdown(f'<div class="kpi-card">תקין 🟢<br><b>{len(projects[projects["status"]=="ירוק"])}</b></div>', unsafe_allow_html=True)
-    with k4: st.markdown(f'<div class="kpi-card">סה"כ פרויקטים<br><b>{len(projects)}</b></div>', unsafe_allow_html=True)
-
+    
+    with k1:
+        val = len(projects[projects["status"]=="אדום"])
+        st.markdown(f'''
+        <div class="kpi-container">
+            <div class="kpi-header">
+                <div class="kpi-icon-box" style="background:#fef2f2;"><span class="material-symbols-rounded" style="color:#f87171;">warning</span></div>
+                <span class="kpi-badge" style="background:#fef2f2; color:#ef4444;">דורש טיפול</span>
+            </div>
+            <div class="kpi-content">
+                <div class="kpi-label">בסיכון</div>
+                <div class="kpi-value-row">
+                    <span class="kpi-unit">פרויקטים</span>
+                    <span class="kpi-number">{val}</span>
+                </div>
+            </div>
+        </div>
+        ''', unsafe_allow_html=True)
+    
+    with k2:
+        val = len(projects[projects["status"]=="צהוב"])
+        st.markdown(f'''
+        <div class="kpi-container">
+            <div class="kpi-header">
+                <div class="kpi-icon-box" style="background:#eff6ff;"><span class="material-symbols-rounded" style="color:#60a5fa;">info</span></div>
+                <span class="kpi-badge" style="background:#eff6ff; color:#3b82f6;">בבדיקה</span>
+            </div>
+            <div class="kpi-content">
+                <div class="kpi-label">במעקב</div>
+                <div class="kpi-value-row">
+                    <span class="kpi-unit">פרויקטים</span>
+                    <span class="kpi-number">{val}</span>
+                </div>
+            </div>
+        </div>
+        ''', unsafe_allow_html=True)
+    
+    with k3:
+        val = len(projects[projects["status"]=="ירוק"])
+        st.markdown(f'''
+        <div class="kpi-container">
+            <div class="kpi-header">
+                <div class="kpi-icon-box" style="background:#ecfdf5;"><span class="material-symbols-rounded" style="color:#34d399;">check_circle</span></div>
+                <span class="kpi-badge" style="background:#ecfdf5; color:#10b981;">בזמן</span>
+            </div>
+            <div class="kpi-content">
+                <div class="kpi-label">לפי התכנון</div>
+                <div class="kpi-value-row">
+                    <span class="kpi-unit">פרויקטים</span>
+                    <span class="kpi-number">{val}</span>
+                </div>
+            </div>
+        </div>
+        ''', unsafe_allow_html=True)
+    
+    with k4:
+        val = len(projects)
+        st.markdown(f'''
+        <div class="kpi-container">
+            <div class="kpi-header">
+                <div class="kpi-icon-box" style="background:#f8fafc;"><span class="material-symbols-rounded" style="color:#94a3b8;">folder</span></div>
+                <span class="kpi-badge" style="background:#f8fafc; color:#64748b;">כללי</span>
+            </div>
+            <div class="kpi-content">
+                <div class="kpi-label">סה"כ פרויקטים</div>
+                <div class="kpi-value-row">
+                    <span class="kpi-unit">פעילים</span>
+                    <span class="kpi-number">{val}</span>
+                </div>
+            </div>
+        </div>
+        ''', unsafe_allow_html=True)
+    
     st.markdown("<br>", unsafe_allow_html=True)
-
-    col_right, col_left = st.columns([1, 1])
 
 
     # ══════════════════════════════════════════════════════
