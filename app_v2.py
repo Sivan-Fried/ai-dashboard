@@ -119,6 +119,7 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
 
     profile_tag = f'<img class="tb-profile" src="{profile_src}"/>' if profile_src else '<div style="width:72px;height:72px;border-radius:50%;background:#FADCE6;"></div>'
 
+    # הקוד שמתחיל כאן מחליף את ה-components.html הקיים שלך
     components.html(f"""<!DOCTYPE html>
 <html dir="rtl">
 <head>
@@ -126,12 +127,14 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
   * {{ box-sizing:border-box; margin:0; padding:0; }}
-  body {{
+  
+  /* הסבר: שינינו את overflow ל-visible כדי שהתפריט יוכל "לצאת" מגבולות הסרגל */
+  html, body {{
     font-family: 'Plus Jakarta Sans', sans-serif;
     background: transparent;
-    overflow: visible;
-    height: 110px;
+    overflow: visible !important; 
     direction: rtl;
+    margin: 0;
   }}
 
   /* סרגל */
@@ -145,6 +148,10 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
     justify-content: space-between;
     padding: 16px 24px;
     direction: rtl;
+    position: relative;
+    z-index: 10;
+    /* הסבר: הוספנו overflow visible גם כאן כדי שהתפריט לא ייחתך על ידי הסרגל עצמו */
+    overflow: visible !important;
   }}
 
   /* ימין */
@@ -165,7 +172,7 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
   .tb-brand {{ font-size:0.95rem; font-weight:800; color:#f0b8cb; }}
 
   /* פעמון */
-  .bell-area {{ position:relative; }}
+  .bell-area {{ position:relative; overflow: visible; }}
   .bell-wrap {{
     display: inline-flex; align-items:center; justify-content:center;
     cursor: pointer; width:38px; height:38px;
@@ -180,58 +187,40 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
     border: 2px solid white; padding: 0 3px; z-index: 2;
   }}
 
-  /* dropdown */
+  /* dropdown - הסבר: העלנו את ה-z-index לערך מקסימלי */
   .notif-dropdown {{
     display: none;
     position: absolute;
-    top: 48px;
+    top: 55px;
     right: 0;
-    left: auto;
     width: 360px;
     background: white;
     border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(225,200,210,0.5);
-    border: 1px solid #fdf0f5;
-    z-index: 9999;
-    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    border: 1px solid #F4F4F5;
+    z-index: 999999;
     direction: rtl;
     animation: fadeIn 0.15s ease;
+    overflow: hidden; /* כאן זה בסדר, כדי שהפריטים בתוך הרשימה לא יגלשו ממנה */
   }}
+  
   @keyframes fadeIn {{
     from {{ opacity:0; transform:translateY(-8px); }}
     to   {{ opacity:1; transform:translateY(0); }}
   }}
-  .notif-header {{
-    padding: 16px 20px;
-    font-weight: 700; font-size: 1rem;
-    color: #3f3f46;
-    border-bottom: 1px solid #fdf0f5;
-    background: white;
-  }}
-  .notif-item {{
-    padding: 14px 20px;
-    display: flex; align-items: center; gap: 14px;
-    cursor: pointer;
-    border-bottom: 1px solid #fdf6f9;
-    transition: background 0.15s;
-  }}
-  .notif-item:last-child {{ border-bottom: none; }}
+  
+  .notif-header {{ padding: 16px 20px; font-weight: 700; font-size: 1rem; color: #3f3f46; border-bottom: 1px solid #fdf0f5; }}
+  .notif-item {{ padding: 14px 20px; display: flex; align-items: center; gap: 14px; cursor: pointer; border-bottom: 1px solid #fdf6f9; transition: background 0.15s; }}
   .notif-item:hover {{ background: #fdf6f9; }}
-  .notif-item.read {{ opacity: 0.45; }}
-  .notif-item.read .notif-dot {{ display: none; }}
-  .notif-avatar {{ width:40px; height:40px; border-radius:50%; background:#FADCE6; flex-shrink:0; }}
   .notif-content {{ flex:1; }}
   .notif-text {{ font-size:0.85rem; color:#3f3f46; font-weight:500; line-height:1.4; }}
   .notif-proj {{ font-size:0.72rem; color:#a1a1aa; margin-top:3px; }}
-  .notif-dot {{ width:8px; height:8px; border-radius:50%; background:#FADCE6; flex-shrink:0; }}
   .notif-empty {{ padding:28px 20px; text-align:center; color:#a1a1aa; font-size:0.85rem; }}
 </style>
 </head>
 <body>
 
 <div class="topbar">
-
-  <!-- ימין: פרופיל + ברכה + פעמון -->
   <div class="tb-right">
     {profile_tag}
     <div>
@@ -253,7 +242,6 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
     </div>
   </div>
 
-  <!-- מרכז: ניווט -->
   <nav class="tb-nav">
     <span class="active">דשבורד</span>
     <span>פרויקטים</span>
@@ -262,7 +250,6 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
     <span>דוחות</span>
   </nav>
 
-  <!-- שמאל: מזג אוויר + שעה + שם -->
   <div class="tb-left">
     <div>
       <div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{w_text_clean}</div>
@@ -276,65 +263,58 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
     <div class="tb-divider"></div>
     <div class="tb-brand">Dashboard AI</div>
   </div>
-
 </div>
 
 <script>
   var isOpen = false;
 
+  // הסבר: פונקציה לשליחת הודעה לסטרימליט לשנות גובה
+  function sendHeight(h) {{
+    window.parent.postMessage({{
+      type: 'streamlit:setFrameHeight',
+      height: h
+    }}, '*');
+  }}
+
   function toggleDropdown() {{
-    if (isOpen) {{
-      isOpen = false;
-    }} else {{
-      isOpen = true;
-    }}
-    
     var d = document.getElementById('notifDropdown');
     if (!d) return;
-    
-    if (isOpen) {{
+
+    if (!isOpen) {{
       d.style.display = 'block';
-      window.parent.postMessage({{
-        type: 'streamlit:setFrameHeight',
-        height: 500
-      }}, '*');
+      isOpen = true;
+      // הסבר: מגדילים את גובה ה-iframe ל-500 כדי שהתפריט יופיע
+      sendHeight(500);
     }} else {{
       d.style.display = 'none';
-      window.parent.postMessage({{
-        type: 'streamlit:setFrameHeight',
-        height: 110
-      }}, '*');
+      isOpen = false;
+      // הסבר: מחזירים לגובה המקורי של הסרגל
+      sendHeight(110);
     }}
   }}
 
-  function markRead(el) {{
-    el.classList.add('read');
-    var unreadCount = document.querySelectorAll('.notif-item:not(.read)').length;
-    var badge = document.getElementById('badge');
-    if (unreadCount === 0) {{
-      badge.style.display = 'none';
-    }} else {{
-      badge.style.display = 'flex';
-      badge.textContent = unreadCount;
-    }}
-  }}
-
+  // הסבר: סגירה בלחיצה מחוץ לתפריט
   document.addEventListener('click', function(e) {{
     var d = document.getElementById('notifDropdown');
     var b = document.querySelector('.bell-area');
     if (isOpen && d && b && !d.contains(e.target) && !b.contains(e.target)) {{
       d.style.display = 'none';
-      window.parent.postMessage({{
-        type: 'streamlit:setFrameHeight',
-        height: 110
-      }}, '*');
       isOpen = false;
+      sendHeight(110);
     }}
   }});
+
+  function markRead(el) {{
+    el.classList.add('read');
+    var badge = document.getElementById('badge');
+    var count = parseInt(badge.textContent) - 1;
+    if (count <= 0) badge.style.display = 'none';
+    else badge.textContent = count;
+  }}
 </script>
 </body>
 </html>""", height=110, scrolling=False)
-
+    
 #סוף נסיון
 
 
