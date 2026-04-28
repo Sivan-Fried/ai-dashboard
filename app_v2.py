@@ -542,7 +542,8 @@ else:
         quote_author = "The only journey is the one within."
     
     # תצוגת ה-HTML
-    quote_html = f"""
+    # ── Quote Section Display ──────────────────────────────────
+    quote_content = f"""
     <div class="quote-section">
         <div class="watercolor-shape">
             <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
@@ -552,8 +553,10 @@ else:
         <div class="quote-container">
             <span class="quote-label">Daily Quote</span>
             <div class="quote-hebrew">"{quote_text}"</div>
-            <div class="quote-author-name">{quote_author}</div>
-            
+            <div class="quote-author-row">
+                <span>{quote_author}</span>
+                <div class="author-line"></div>
+            </div>
             <div class="quote-divider">
                 <div class="divider-line"></div>
                 <span class="material-symbols-rounded">auto_stories</span>
@@ -562,7 +565,7 @@ else:
         </div>
     </div>
     """
-    st.markdown(quote_html, unsafe_allow_html=True)
+    st.markdown(quote_content, unsafe_allow_html=True)
 
 
     # ── KPIs ────────────────────────────────────────────────
