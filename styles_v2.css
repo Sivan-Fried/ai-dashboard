@@ -124,19 +124,19 @@ h3 {
 
 
 /* ── KPI Cards ─────────────────────────────────────────── */
-/* ── New KPI Cards ─────────────────────────────────────── */
-/* ── Updated KPI Cards (Compact & Stable) ────────────────── */
+/* ── New KPI Cards - Full & Final ──────────────────────────────── */
 .kpi-container {
     background: #ffffff !important;
-    padding: 12px 16px !important; /* צמצום מ-16 ל-12 בגובה */
+    padding: 10px 16px !important;
     border-radius: 16px !important;
     border: 1px solid #f8fafc !important;
     box-shadow: 0px 4px 20px rgba(225, 200, 210, 0.12) !important;
     transition: all 0.3s ease !important;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     height: 100%;
-    min-height: 115px !important; /* גובה מינימלי למניעת קפיצות */
+    min-height: 90px !important;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
 }
 
@@ -149,35 +149,44 @@ h3 {
     display: flex;
     flex-direction: row-reverse;
     justify-content: space-between;
-    align-items: center; /* שינוי מ-start ל-center חוסך מקום אנכי */
-    margin-bottom: 8px !important; /* צמצום מ-12 ל-8 */
+    align-items: center;
+    margin-bottom: 8px !important;
 }
 
 .kpi-icon-box {
-    width: 32px; /* צמצום מ-36 */
-    height: 32px; /* צמצום מ-36 */
+    width: 32px;
+    height: 32px;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
+/* הגדרת האייקונים בתוך התיבה - חובה עבור הרינדור */
+.kpi-icon-box span {
+    font-family: 'Material Symbols Rounded' !important;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 20px !important;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+}
+
 .kpi-badge {
-    padding: 2px 10px; /* צמצום מ-4/12 ל-2/10 */
+    padding: 2px 10px;
     border-radius: 999px;
-    font-size: 10px !important; /* צמצום מ-11 */
+    font-size: 11px !important;
     font-weight: 700 !important;
 }
 
 .kpi-content {
     text-align: right;
-}
-
-.kpi-label {
-    font-size: 12px !important; /* צמצום מ-13 */
-    font-weight: 600 !important;
-    color: #64748b !important;
-    margin-bottom: 1px !important; /* צמצום מ-2 */
 }
 
 .kpi-value-row {
@@ -188,7 +197,7 @@ h3 {
 }
 
 .kpi-number {
-    font-size: 22px !important; /* צמצום מ-24 */
+    font-size: 24px !important;
     font-weight: 800 !important;
     color: #0f172a !important;
     letter-spacing: -0.02em !important;
@@ -196,7 +205,7 @@ h3 {
 }
 
 .kpi-unit {
-    font-size: 10px !important; /* צמצום מ-11 */
+    font-size: 11px !important;
     color: #94a3b8 !important;
 }
 
