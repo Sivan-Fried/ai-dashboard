@@ -561,24 +561,21 @@ else:
             st.error(f"Error reading file: {e}")
     
     # --- תצוגת HTML (במבנה שטוח וחסין שגיאות) ---
-    # שימי לב: אין כאן כפילויות, רק מבנה אחד נקי ومסודר ללא רווחים בתחילת השורה.
-    # שיניתי גם את האייקון ל'menu_book' כפי שמופיע בעיצוב.
+    # --- לוגיקת טעינת הנתונים (השאירי את מה שעובד) ---
+    # ... (קוד האקסל שלך) ...
+    
     quote_html = f"""<div class="quote-wrapper-outer">
-    <div class="watercolor-shape">
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-    <path d="M44.7,-76.4C58.1,-69.2,69.2,-58.1,76.4,-44.7C83.7,-31.4,87,-15.7,86.2,-0.4C85.4,14.8,80.5,29.7,72,42.9C63.5,56.1,51.4,67.7,37.3,74.5C23.2,81.4,7,83.4,-8.8,81.9C-24.6,80.4,-40,75.4,-53.4,66.6C-66.8,57.8,-78.2,45.2,-83.4,30.6C-88.6,16,-87.6,-0.6,-83.1,-15.8C-78.6,-31,-70.7,-44.8,-59.6,-53.6C-48.5,-62.4,-34.2,-66.2,-20.5,-73C-6.8,-79.8,6.3,-89.6,20.5,-89.6C34.7,-89.6,44.7,-76.4Z" transform="translate(100 100)"></path>
-    </svg>
-    </div>
     <div class="quote-content-flat">
     <span class="quote-label">Daily Quote</span>
     <div class="quote-main-text">"{quote_text}"</div>
     <div class="quote-author-row">
     <div class="author-line"></div>
     <span>{quote_author}</span>
+    <div class="author-line"></div>
     </div>
     <div class="bottom-ornament">
     <div class="ornament-line"></div>
-    <span class="material-symbols-rounded">menu_book</span>
+    <span class="material-symbols-rounded" style="color:#d63384; font-size:20px;">menu_book</span>
     <div class="ornament-line"></div>
     </div>
     </div>
