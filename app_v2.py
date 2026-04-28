@@ -533,8 +533,10 @@ else:
     import os
 
     # 1. טעינת נתונים
-    quote_text = "המסע היחיד הוא זה שבפנים."
-    quote_author = "לא ידוע"
+    q# --- 1. לוגיקת הנתונים (מחוץ לבלוק ה-HTML כדי למנוע שגיאות) ---
+    quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
+    quote_author = "ארתור אש"
+    
     if os.path.exists("inspirational_quotes.xlsx"):
         try:
             df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
@@ -544,45 +546,50 @@ else:
                 a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר']]
                 if q_col: quote_text = str(row[q_col[0]])
                 if a_col: quote_author = str(row[a_col[0]])
-        except: pass
-
-    # 2. הזרקה ישירה עם מיקום יחסי (מונע את ה"היעלמות" מתחת לסרגל)
-    st.markdown(f"""
-        <div style="
-            position: relative;
-            top: -55px; /* מזיז את הרכיב למעלה בעדינות */
-            width: 100%;
-            background: #ffffff;
-            background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
-                              radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
-            border-bottom: 1px solid #f1f5f9;
-            padding: 25px 0;
-            text-align: center;
-            direction: rtl;
-            z-index: 5; /* מוודא שהוא לא נבלע */
-            margin-bottom: -30px; /* מקזז את התפיסה של המקום המקורי כדי שה-KPI יעלו */
-        ">
-            <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+        except:
+            pass
+    
+    # --- 2. בניית המחרוזת בנפרד (מונע את השגיאה שהצגת) ---
+    html_layout = f"""
+    <div style="
+        position: relative;
+        top: -55px;
+        width: 100%;
+        background: #ffffff;
+        background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
+                          radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
+        border-bottom: 1px solid #f1f5f9;
+        padding: 25px 0;
+        text-align: center;
+        direction: rtl;
+        z-index: 5;
+        margin-bottom: -30px;
+    ">
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+        
+        <div style="max-width: 900px; margin: 0 auto; padding: 0 20px;">
+            <span style="font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: 11px !important; font-weight: 700 !important; color: #6f5861 !important; text-transform: uppercase !important; letter-spacing: 0.25em !important; display: block !important; margin-bottom: 10px !important;">DAILY QUOTE</span>
             
-            <div style="max-width: 900px; margin: 0 auto; padding: 0 20px;">
-                <span style="font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: 11px !important; font-weight: 700 !important; color: #6f5861 !important; text-transform: uppercase !important; letter-spacing: 0.25em !important; display: block !important; margin-bottom: 10px !important;">DAILY QUOTE</span>
-                
-                <div style="font-family: 'Noto Serif Hebrew', serif !important; font-size: 26px !important; color: #1a1c1c !important; line-height: 1.3 !important; margin: 0 0 8px 0 !important; font-weight: 700 !important;">
-                    "{quote_text}"
-                </div>
-                
-                <div style="font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: 15px !important; color: #646566 !important; font-style: italic !important; margin-bottom: 20px !important;">
-                    &#8212; {quote_author} &#8212;
-                </div>
-                
-                <div style="display: flex !important; align-items: center !important; justify-content: center !important; gap: 15px !important;">
-                    <div style="height: 1px !important; width: 45px !important; background-color: #fadce6 !important;"></div>
-                    <span class="material-symbols-outlined" style="color: #6f5861 !important; font-size: 22px !important; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
-                    <div style="height: 1px !important; width: 45px !important; background-color: #fadce6 !important;"></div>
-                </div>
+            <div style="font-family: 'Noto Serif Hebrew', serif !important; font-size: 26px !important; color: #1a1c1c !important; line-height: 1.3 !important; margin: 0 0 8px 0 !important; font-weight: 700 !important;">
+                "{quote_text}"
+            </div>
+            
+            <div style="font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: 15px !important; color: #646566 !important; font-style: italic !important; margin-bottom: 20px !important;">
+                &#8212; {quote_author} &#8212;
+            </div>
+            
+            <div style="display: flex !important; align-items: center !important; justify-content: center !important; gap: 15px !important;">
+                <div style="height: 1px !important; width: 45px !important; background-color: #fadce6 !important;"></div>
+                <span class="material-symbols-outlined" style="color: #6f5861 !important; font-size: 22px !important; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
+                <div style="height: 1px !important; width: 45px !important; background-color: #fadce6 !important;"></div>
             </div>
         </div>
-        <div style="height: 15px;"></div> """, unsafe_allow_html=True)
+    </div>
+    <div style="height: 15px;"></div>
+    """
+    
+    # --- 3. פקודת ההזרקה הסופית ---
+    st.markdown(html_layout, unsafe_allow_html=True)
     
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
