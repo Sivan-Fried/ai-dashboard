@@ -317,7 +317,7 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
 </script>
 
 </body>
-</html>""", height=110, scrolling=False)
+</html>""", height=500, scrolling=False)
 
 #סוף נסיון
 
