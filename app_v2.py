@@ -529,61 +529,87 @@ else:
 
     # ── Daily Quote Section Logic & Display ──────────────────────────
     # ── Daily Quote Section ──────────────────────────────────────────
-    # --- 1. נתונים ---
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
     quote_author = "ארתור אש"
-    try:
-        if os.path.exists("inspirational_quotes.xlsx"):
-            df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
-            if not df.empty:
-                row = df.sample(n=1).iloc[0]
-                q_col = [c for c in df.columns if str(c).lower() in ['quote', 'ציטוט']]
-                a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר']]
-                if q_col: quote_text = str(row[q_col[0]])
-                if a_col: quote_author = str(row[a_col[0]])
-    except: pass
     
-    # --- 2. עיצוב הציטוט (מבוסס על ה-CSS החיצוני שלך) ---
+    # ה-HTML כולל את ה-CSS בתוכו כדי שה-iframe יכיר אותו
     html_design = f"""
-    <div class="quote-wrapper-outer" style="margin:0 !important; border-bottom: 1px solid #f1f5f9;">
-        <div class="quote-content-flat">
-            <span class="quote-label">DAILY QUOTE</span>
-            <div class="quote-main-text">"{quote_text}"</div>
-            <div class="quote-author-row">
-                <div class="author-line"></div>
-                <span>{quote_author}</span>
-                <div class="author-line"></div>
-            </div>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap');
+        
+        body {{
+            margin: 0;
+            padding: 0;
+            background-color: transparent;
+            font-family: 'Assistant', sans-serif;
+            direction: rtl;
+        }}
+        
+        .quote-wrapper-outer {{
+            width: 100%;
+            background-color: #fdf2f8; /* ורוד עדין */
+            padding: 20px;
+            text-align: center;
+            border-radius: 20px; /* מעוגל כמו בתמונה שרצית */
+        }}
+
+        .quote-label {{
+            font-size: 11px;
+            font-weight: 700;
+            color: #db2777;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-bottom: 8px;
+            display: block;
+        }}
+
+        .quote-main-text {{
+            font-size: 22px;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1.3;
+            margin-bottom: 10px;
+        }}
+
+        .quote-author-row {{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: #94a3b8;
+            font-style: italic;
+            font-size: 14px;
+        }}
+
+        .author-line {{
+            width: 30px;
+            height: 1px;
+            background-color: #fbcfe8;
+        }}
+    </style>
+
+    <div class="quote-wrapper-outer">
+        <span class="quote-label">DAILY QUOTE</span>
+        <div class="quote-main-text">"{quote_text}"</div>
+        <div class="quote-author-row">
+            <div class="author-line"></div>
+            <span>{quote_author}</span>
+            <div class="author-line"></div>
         </div>
     </div>
     """
 
-    # --- 3. הזרקת ה-CSS ה"חודר" (החלק הכי חשוב) ---
+    # הזרקת ה-CSS להזזה למעלה (בתוך דף ה-Streamlit הראשי)
     st.markdown("""
-    <style>
-        /* 1. מבטל את הרווח המובנה של סטרימליט בין הסרגל לציטוט */
-        [data-testid="stVerticalBlock"] > div:nth-child(2) {
-            margin-bottom: -55px !important;
-            z-index: 999;
-            position: relative;
-        }
-
-        /* 2. תופס את ה-iframe של הציטוט ומושך אותו למעלה */
-        div[data-testid="stVerticalBlock"] > div:nth-child(3) iframe {
-            margin-top: -55px !important;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* 3. מוודא שה-Header (ה-iframe הראשון) לא נחתך מלמעלה */
-        div[data-testid="stVerticalBlock"] > div:nth-child(2) iframe {
-            overflow: visible !important;
-        }
-    </style>
+        <style>
+            /* מצמצם את הרווח הלבן הענק שרואים בתמונה */
+            div[data-testid="stVerticalBlock"] > div:nth-child(3) {
+                margin-top: -40px !important;
+            }
+        </style>
     """, unsafe_allow_html=True)
-    
-    # --- 4. רינדור ---
-    components.html(html_design, height=140)
+
+    components.html(html_design, height=160)
 
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
