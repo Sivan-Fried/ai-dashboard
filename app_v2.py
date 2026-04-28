@@ -528,12 +528,7 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    import streamlit as st
-    import streamlit.components.v1 as components
-    import pandas as pd
-    import os
-    
-    # --- 1. נתונים ---
+       # --- 1. נתונים ---
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
     quote_author = "ארתור אש"
     try:
@@ -547,54 +542,47 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # --- 2. העיצוב המקורי שאהבת ---
+    # --- 2. עיצוב הציטוט (מבוסס על ה-CSS החיצוני שלך) ---
     html_design = f"""
-    <div style="font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%); border-bottom: 1px solid #f1f5f9; padding: 20px; text-align: center; direction: rtl; margin: 0;">
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
-        <span style="font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 8px;">DAILY QUOTE</span>
-        <div style="font-family: 'Noto Serif Hebrew', serif; font-size: 24px; color: #1a1c1c; line-height: 1.3; margin-bottom: 8px; font-weight: 700;">"{quote_text}"</div>
-        <div style="font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">&#8212; {quote_author} &#8212;</div>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
-            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
-            <span class="material-symbols-outlined" style="color: #6f5861; font-size: 20px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
-            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+    <div class="quote-wrapper-outer" style="margin:0 !important; border-bottom: 1px solid #f1f5f9;">
+        <div class="quote-content-flat">
+            <span class="quote-label">DAILY QUOTE</span>
+            <div class="quote-main-text">"{quote_text}"</div>
+            <div class="quote-author-row">
+                <div class="author-line"></div>
+                <span>{quote_author}</span>
+                <div class="author-line"></div>
+            </div>
         </div>
     </div>
     """
-    
-    # --- 3. הזרקת CSS "חודר iFrames" ---
+
+    # --- 3. הזרקת ה-CSS ה"חודר" (החלק הכי חשוב) ---
     st.markdown("""
     <style>
-        /* ביטול המרווח הלבן של סטרימליט בראש הדף */
-        .block-container {
-            padding-top: 0rem !important;
+        /* 1. מבטל את הרווח המובנה של סטרימליט בין הסרגל לציטוט */
+        [data-testid="stVerticalBlock"] > div:nth-child(2) {
+            margin-bottom: -55px !important;
+            z-index: 999;
+            position: relative;
         }
-    
-        /* מציאת כל המיכלים של האלמנטים וביטול הרווחים ביניהם */
-        [data-testid="stVerticalBlock"] > div {
-            gap: 0px !important;
-            margin-bottom: 0px !important;
-            padding-bottom: 0px !important;
-        }
-    
-        /* התיקון המהותי: משיכת ה-iFrame השני (הציטוט) למעלה */
-        /* אנחנו פונים ישירות למבנה ה-DOM של סטרימליט */
-        div[data-testid="stVerticalBlock"] > div:nth-child(2) iframe {
-            margin-top: -35px !important; /* הזזה ודאית של הציטוט לתוך הסרגל */
+
+        /* 2. תופס את ה-iframe של הציטוט ומושך אותו למעלה */
+        div[data-testid="stVerticalBlock"] > div:nth-child(3) iframe {
+            margin-top: -55px !important;
             position: relative;
             z-index: 1;
         }
-    
-        /* מוודא שהסרגל (ה-iFrame הראשון) יהיה מעליו */
-        div[data-testid="stVerticalBlock"] > div:nth-child(1) iframe {
-            z-index: 999 !important;
-            position: relative;
+
+        /* 3. מוודא שה-Header (ה-iframe הראשון) לא נחתך מלמעלה */
+        div[data-testid="stVerticalBlock"] > div:nth-child(2) iframe {
+            overflow: visible !important;
         }
     </style>
     """, unsafe_allow_html=True)
     
-    # --- 4. ביצוע ---
-    components.html(html_design, height=180)
+    # --- 4. רינדור ---
+    components.html(html_design, height=140)
 
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
