@@ -44,23 +44,23 @@
 
 /* ── CSS Variables ─────────────────────────────────────── */
 :root {
-    --primary:        #FADCE6;
-    --primary-dark:   #f0b8cb;
-    --secondary:      #71717A;
-    --tertiary:       #F4F4F5;
-    --neutral:        #FFFFFF;
-    --text-main:      #71717A;
-    --text-dark:      #3f3f46;
-    --text-light:     #a1a1aa;
-    --bg:             #F4F4F5;
-    --card-bg:        #FFFFFF;
-    --shadow-sm:      0 1px 4px rgba(0,0,0,0.06);
-    --shadow-md:      0 4px 16px rgba(0,0,0,0.08);
-    --shadow-lg:      0 8px 30px rgba(0,0,0,0.10);
-    --radius-sm:      8px;
-    --radius-md:      14px;
-    --radius-lg:      20px;
-    --border-accent:  #FADCE6;
+    --primary:         #FADCE6;
+    --primary-dark:    #f0b8cb;
+    --secondary:       #71717A;
+    --tertiary:        #F4F4F5;
+    --neutral:         #FFFFFF;
+    --text-main:       #71717A;
+    --text-dark:       #3f3f46;
+    --text-light:      #a1a1aa;
+    --bg:              #F4F4F5;
+    --card-bg:         #FFFFFF;
+    --shadow-sm:       0 1px 4px rgba(0,0,0,0.06);
+    --shadow-md:       0 4px 16px rgba(0,0,0,0.08);
+    --shadow-lg:       0 8px 30px rgba(0,0,0,0.10);
+    --radius-sm:       8px;
+    --radius-md:       14px;
+    --radius-lg:       20px;
+    --border-accent:   #FADCE6;
 }
 
 /* ── בסיס ──────────────────────────────────────────────── */
@@ -391,3 +391,33 @@ div[data-testid="stAlert"] h3 {
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
+/* ============================
+   📍 תיקון פינצטה: נוטיפיקציות
+   ============================ */
+
+/* מוודא שהסרגל וצד ימין שלו לא יחתכו תוכן צף */
+.tb-right, .bell-area {
+    position: relative !important;
+    overflow: visible !important;
+}
+
+/* תיקון החלונית שתצוף מעל הדשבורד */
+.notif-dropdown {
+    position: absolute !important;
+    top: 50px !important; /* מרחק מהפעמון */
+    left: 0 !important;
+    z-index: 10001 !important;
+    background: white !important;
+    box-shadow: var(--shadow-lg) !important;
+    border-radius: var(--radius-md) !important;
+    border: 1px solid var(--tertiary) !important;
+    width: 280px !important;
+    max-height: 400px !important;
+    overflow-y: auto !important;
+}
+
+/* ודוא שהקונטיינר הכללי של הסרגל (אם יש) מאפשר הצפה */
+div:has(> .tb-right) {
+    overflow: visible !important;
+    z-index: 9999 !important;
+}
