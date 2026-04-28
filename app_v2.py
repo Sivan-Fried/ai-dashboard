@@ -124,16 +124,10 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     w_text_clean = re.sub(r'[^\x00-\x7F]+', '', w_text).strip().replace('C', '\u00b0C')
     profile_src = f"data:image/png;base64,{img_b64}" if img_b64 else ""
     
-    # חישוב באדג' - תומך בכל שם עמודה (is_read או status)
-    status_col = 'is_read' if 'is_read' in today_reminders.columns else ('status' if 'status' in today_reminders.columns else None)
-    if status_col:
-        unread_count = len(today_reminders[today_reminders[status_col].isin([False, 0, '0', 'unread'])])
-    else:
-        unread_count = len(today_reminders)
-    
+    # חישוב באדג' ראשוני
+    unread_count = len(today_reminders[today_reminders['is_read'] == False]) if 'is_read' in today_reminders.columns else len(today_reminders)
     badge_display = 'flex' if unread_count > 0 else 'none'
 
-    # בניית ה-HTML של ההתראות - כאן הקישור לסטטוס!
     items_html = ""
     if today_reminders.empty:
         items_html = '<div class="sn-empty">אין תזכורות להיום 🎉</div>'
@@ -141,74 +135,93 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
         for _, row in today_reminders.iterrows():
             text = str(row.get("reminder_text", "")).replace('"', '&quot;').replace("'", "&#39;")
             proj = str(row.get("project_name", "כללי")).replace('"', '&quot;').replace("'", "&#39;")
-            
-            # זיהוי סטטוס קריאה
-            val = row.get('is_read', row.get('status', False))
-            is_read = val in [True, 1, '1', 'read']
-            
-            item_class = "read" if is_read else "unread"
-            dot_html = '<div class="sn-dot"></div>' if not is_read else '<div class="sn-dot-empty"></div>'
+            is_read = row.get("is_read", False)
+            read_class = "read" if is_read else "unread"
             
             items_html += f"""
-            <div class="sn-item {item_class}">
-                {dot_html}
-                <div style="flex:1;">
+            <div class="sn-item {read_class}" onclick="this.classList.add('read'); updateBadge();">
+                <div class="sn-dot"></div>
+                <div>
                     <div class="sn-text">{text}</div>
                     <div class="sn-proj">{proj}</div>
                 </div>
             </div>"""
 
     items_js = items_html.replace('`', r'\`').replace('\\', '\\\\').replace('\n', '')
-    profile_tag = f'<img class="tb-profile" src="{profile_src}"/>' if profile_src else '<div style="width:72px;height:72px;border-radius:50%;background:#FADCE6;"></div>'
 
     components.html(f"""<!DOCTYPE html>
 <html dir="rtl">
 <head>
 <meta charset="utf-8"/>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
-  * {{ box-sizing:border-box; margin:0; padding:0; }}
-  body {{ font-family: 'Plus Jakarta Sans', sans-serif; background: transparent !important; overflow: hidden; height: 110px; direction: rtl; }}
-  .topbar {{ background: white; border-radius: 16px; border: 1px solid #F4F4F5; box-shadow: 0 2px 20px rgba(225,200,210,0.2); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; height: 110px; position: relative; z-index: 100; }}
-  .tb-right {{ display:flex; align-items:center; gap:12px; }}
-  .tb-profile {{ width:72px; height:72px; border-radius:50%; object-fit:cover; border:3px solid white; box-shadow:0 2px 12px rgba(225,200,210,0.4); }}
-  .tb-name {{ font-size:0.95rem; font-weight:700; color:#3f3f46; }}
-  .tb-role {{ font-size:0.75rem; color:#a1a1aa; }}
+  * {{ box-sizing:border-box; margin:0; padding:0; font-family: sans-serif; }}
+  body {{ background: transparent !important; overflow: hidden; height: 110px; direction: rtl; }}
+  .topbar {{ 
+    background: white; border-radius: 16px; border: 1px solid #F4F4F5;
+    box-shadow: 0 2px 20px rgba(225,200,210,0.2); display: flex;
+    align-items: center; justify-content: space-between; padding: 0 24px;
+    height: 100px; position: relative; z-index: 100;
+  }}
+  .tb-right, .tb-left {{ display:flex; align-items:center; gap:12px; }}
+  .tb-profile {{ width:72px; height:72px; border-radius:50%; object-fit:cover; border:3px solid white; box-shadow:0 2px 12px rgba(0,0,0,0.1); }}
   .tb-nav {{ display:flex; gap:4px; flex:1; justify-content:center; }}
   .tb-nav span {{ font-size:0.82rem; padding:8px 16px; border-radius:20px; color:#71717A; cursor:pointer; }}
   .tb-nav span.active {{ background:#FADCE6; color:#3f3f46; font-weight:600; }}
-  .tb-left {{ display:flex; align-items:center; gap:16px; }}
-  .tb-divider {{ width:1px; height:28px; background:#F4F4F5; flex-shrink:0; }}
-  .time-wrap {{ text-align: right; min-width: 75px; }}
-  .bell-area {{ position:relative; cursor:pointer; display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; }}
-  .bell-badge {{ position:absolute; top:2px; left:2px; background:#ef4444; color:white; border-radius:50%; min-width:18px; height:18px; font-size:0.62rem; display:{badge_display}; align-items:center; justify-content:center; border:2px solid white; }}
+  .tb-divider {{ width:1px; height:28px; background:#F4F4F5; }}
+  .bell-area {{ position:relative; cursor:pointer; width:40px; height:40px; display:flex; align-items:center; justify-content:center; }}
+  .bell-badge {{ 
+    position:absolute; top:2px; left:2px; background:#ef4444; color:white;
+    border-radius:50%; min-width:18px; height:18px; font-size:0.62rem;
+    display:{badge_display}; align-items:center; justify-content:center; border:2px solid white;
+  }}
+  .align-right {{ text-align: right; }}
 </style>
 </head>
 <body>
 <div class="topbar">
   <div class="tb-right">
-    {profile_tag}
-    <div><div class="tb-name">{greeting}, סיון</div><div class="tb-role">מנהלת פרויקטים</div></div>
+    <img class="tb-profile" src="{profile_src}"/>
+    <div>
+        <div style="font-weight:700; color:#3f3f46;">{greeting}, סיון</div>
+        <div style="font-size:0.75rem; color:#a1a1aa;">מנהלת פרויקטים</div>
+    </div>
     <div class="bell-area" id="bellBtn">
-      <span class="bell-badge">{unread_count}</span>
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z"></path><path d="M13.73 21C13.5542 21.3031 12 21.9965 10.27 21"></path></svg>
+      <span class="bell-badge" id="badge">{unread_count}</span>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z"></path>
+        <path d="M13.73 21C13.5542 21.3031 12 21.9965 10.27 21"></path>
+      </svg>
     </div>
   </div>
-  <nav class="tb-nav"><span class="active">דשבורד</span><span>פרויקטים</span><span>פגישות</span><span>משימות</span><span>דוחות</span></nav>
+  <nav class="tb-nav"><span class="active">דשבורד</span><span>פרויקטים</span><span>פגישות</span><span>משימות</span></nav>
   <div class="tb-left">
-    <div style="display:flex; align-items:center; gap:8px;">
-        <div style="color:#f0b8cb;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path></svg></div>
-        <div style="text-align:right;"><div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{w_text_clean}</div><div style="font-size:0.68rem;color:#a1a1aa;">{w_city}</div></div>
+    <div class="align-right">
+      <div style="font-size:0.82rem; font-weight:600;">{w_text_clean}</div>
+      <div style="font-size:0.68rem; color:#a1a1aa;">{w_city}</div>
     </div>
     <div class="tb-divider"></div>
-    <div class="time-wrap"><div style="font-size:0.85rem;font-weight:700;color:#3f3f46;">{time_str}</div><div style="font-size:0.68rem;color:#a1a1aa;">{date_str}</div></div>
+    <div class="align-right">
+      <div style="font-size:0.85rem; font-weight:700;">{time_str}</div>
+      <div style="font-size:0.68rem; color:#a1a1aa;">{date_str}</div>
+    </div>
     <div class="tb-divider"></div>
-    <div style="font-size:0.95rem;font-weight:800;color:#f0b8cb;">Dashboard AI</div>
+    <div style="font-weight:800; color:#f0b8cb;">Dashboard AI</div>
   </div>
 </div>
 
 <script>
   var isOpen = false;
+  
+  // פונקציה לעדכון הבאדג' (בדיוק כמו בקוד הקודם שלך)
+  function updateBadge() {{
+    var parentDoc = window.parent.document;
+    var d = parentDoc.getElementById('sn-floating-dropdown');
+    var unreadCount = d.querySelectorAll('.sn-item:not(.read)').length;
+    var badge = document.getElementById('badge');
+    if (unreadCount === 0) badge.style.display = 'none';
+    else {{ badge.style.display = 'flex'; badge.textContent = unreadCount; }}
+  }}
+
   window.addEventListener('load', function() {{
     var parentDoc = window.parent.document;
     
@@ -219,19 +232,17 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     style.id = 'sn-styles';
     style.textContent = `
       #sn-floating-dropdown {{
-        display:none; position:absolute; width:360px; background:white;
-        border-radius:20px; box-shadow:0 10px 40px rgba(0,0,0,0.15);
-        border:1px solid #fdf0f5; z-index:1000000; overflow-y:auto; max-height:450px;
-        direction:rtl; font-family: sans-serif;
+        display:none; position:fixed; width:340px; background:white;
+        border-radius:15px; box-shadow:0 10px 35px rgba(0,0,0,0.15);
+        z-index:999999; direction:rtl; overflow:hidden; border:1px solid #f0f0f0;
       }}
-      .sn-header {{ padding:16px 20px; font-weight:700; border-bottom:1px solid #fdf0f5; color:#3f3f46; }}
-      .sn-item {{ padding:14px 20px; display:flex; align-items:center; gap:14px; cursor:pointer; border-bottom:1px solid #fdf6f9; }}
-      .sn-item.read {{ opacity: 0.5; background: #fafafa; }}
-      .sn-item.unread {{ background: #fff; }}
-      .sn-dot {{ width:8px; height:8px; border-radius:50%; background:#FADCE6; flex-shrink:0; }}
-      .sn-dot-empty {{ width:8px; height:8px; flex-shrink:0; }}
-      .sn-text {{ font-size:0.85rem; color:#3f3f46; font-weight:500; }}
-      .sn-proj {{ font-size:0.72rem; color:#a1a1aa; }}
+      .sn-header {{ padding:15px; font-weight:bold; background:#fafafa; border-bottom:1px solid #eee; }}
+      .sn-item {{ padding:12px 15px; display:flex; align-items:center; gap:10px; border-bottom:1px solid #f9f9f9; cursor:pointer; }}
+      .sn-item.read {{ opacity:0.5; }}
+      .sn-item.read .sn-dot {{ background:#cbd5e1 !important; }}
+      .sn-dot {{ width:9px; height:9px; border-radius:50%; background:#FADCE6; flex-shrink:0; }}
+      .sn-text {{ font-size:0.85rem; color:#333; font-weight:500; }}
+      .sn-proj {{ font-size:0.75rem; color:#999; }}
     `;
     parentDoc.head.appendChild(style);
 
@@ -239,6 +250,16 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     dropdown.id = 'sn-floating-dropdown';
     dropdown.innerHTML = '<div class="sn-header">התראות להיום</div>' + `{items_js}`;
     parentDoc.body.appendChild(dropdown);
+
+    // --- התיקון לגלילה (מבוסס על הקוד ששלחת) ---
+    parentDoc.addEventListener('scroll', function() {{
+      var d = parentDoc.getElementById('sn-floating-dropdown');
+      if (d && d.style.display === 'block') {{
+        var iframe = window.frameElement;
+        var rect = iframe.getBoundingClientRect();
+        d.style.top = (rect.bottom + 8) + 'px';
+      }}
+    }}, true);
 
     parentDoc.addEventListener('click', function(e) {{
       var d = parentDoc.getElementById('sn-floating-dropdown');
@@ -249,26 +270,20 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
   document.getElementById('bellBtn').addEventListener('click', function(e) {{
     var parentDoc = window.parent.document;
     var d = parentDoc.getElementById('sn-floating-dropdown');
-    if (!d) return;
-    
     isOpen = !isOpen;
     if (isOpen) {{
       var iframe = window.frameElement;
       var rect = iframe.getBoundingClientRect();
       var bellRect = this.getBoundingClientRect();
-      
-      // שינוי קריטי: חישוב המיקום כולל הגלילה הנוכחית של הדף
-      var scrollTop = parentDoc.documentElement.scrollTop || parentDoc.body.scrollTop;
-      
-      d.style.top = (rect.top + scrollTop + 95) + 'px';
-      d.style.left = (rect.left + bellRect.left - 300) + 'px'; 
+      d.style.top = (rect.bottom + 8) + 'px';
+      d.style.left = (rect.left + bellRect.left - 280) + 'px';
       d.style.display = 'block';
     }} else {{ d.style.display = 'none'; }}
     e.stopPropagation();
   }});
 </script>
 </body>
-</html>""", height=110, scrolling=False)
+</html>""", height=110)
 #סוף נסיון
 
 
