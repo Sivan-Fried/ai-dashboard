@@ -134,13 +134,12 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     
     badge_display = 'flex' if unread_count > 0 else 'none'
 
-    # בניית רשימת התראות עם טיפול מלא בתווים (מניעת קריסת HTML)
+    # בניית רשימת התראות עם טיפול בתווים מיוחדים
     items_html = ""
     if today_reminders.empty:
         items_html = '<div class="sn-empty">אין תזכורות להיום 🎉</div>'
     else:
         for _, row in today_reminders.iterrows():
-            # טיפול בתווים מיוחדים בטקסט כדי שלא ישברו את ה-JS
             text = str(row.get("reminder_text", "")).replace('"', '&quot;').replace("'", "&#39;").replace("<", "&lt;").replace(">", "&gt;")
             proj = str(row.get("project_name", "כללי")).replace('"', '&quot;').replace("'", "&#39;")
             
@@ -156,7 +155,6 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
                 </div>
             </div>"""
 
-    # הפיכת ה-HTML למחרוזת בטוחה עבור JavaScript
     items_js = items_html.replace('`', r'\`').replace('\\', '\\\\').replace('\n', '')
 
     components.html(f"""<!DOCTYPE html>
@@ -188,7 +186,7 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     z-index: 100;
   }}
 
-  /* צד ימין - פרופיל ופעמון */
+  /* צד ימין */
   .tb-right {{ display:flex; align-items:center; gap:16px; }}
   .tb-profile {{ width:72px; height:72px; border-radius:50%; object-fit:cover; border:3px solid white; box-shadow:0 2px 12px rgba(225,200,210,0.4); }}
   .tb-name {{ font-size:0.95rem; font-weight:700; color:#3f3f46; }}
@@ -196,17 +194,26 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
 
   /* ניווט מרכזי */
   .tb-nav {{ display:flex; gap:4px; flex:1; justify-content:center; }}
-  .tb-nav span {{ font-size:0.82rem; padding:8px 16px; border-radius:20px; color:#71717A; cursor:pointer; }}
+  .tb-nav span {{ 
+    font-size:0.82rem; 
+    padding:8px 16px; 
+    border-radius:20px; 
+    color:#71717A; 
+    cursor:pointer; 
+    transition: all 0.2s ease;
+  }}
+  .tb-nav span:hover {{ background: #FDF2F7; color: #3f3f46; }}
   .tb-nav span.active {{ background:#FADCE6; color:#3f3f46; font-weight:600; }}
 
-  /* צד שמאל - מזג אוויר וזמן */
+  /* צד שמאל */
   .tb-left {{ display:flex; align-items:center; gap:16px; }}
   .tb-divider {{ width:1px; height:28px; background:#F4F4F5; flex-shrink:0; }}
   .weather-wrap {{ display: flex; align-items: center; gap: 8px; text-align: right; }}
   .time-wrap {{ text-align: right; min-width: 75px; }}
   
-  /* פעמון ובאדג' */
-  .bell-area {{ position:relative; cursor:pointer; display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; }}
+  /* פעמון */
+  .bell-area {{ position:relative; cursor:pointer; display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; transition: background 0.2s; }}
+  .bell-area:hover {{ background: #FDF2F7; }}
   .bell-badge {{ 
     position:absolute; top:2px; left:2px; background:#ef4444; color:white;
     border-radius:50%; min-width:18px; height:18px; font-size:0.62rem;
@@ -251,16 +258,12 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
         <div style="font-size:0.68rem; color:#a1a1aa;">{w_city}</div>
       </div>
     </div>
-    
     <div class="tb-divider"></div>
-    
     <div class="time-wrap">
       <div style="font-size:0.85rem; font-weight:700; color:#3f3f46;">{time_str}</div>
       <div style="font-size:0.68rem; color:#a1a1aa;">{date_str}</div>
     </div>
-    
     <div class="tb-divider"></div>
-    
     <div style="font-size:0.95rem; font-weight:800; color:#f0b8cb;">Dashboard AI</div>
   </div>
 </div>
@@ -268,7 +271,6 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
 <script>
   var isOpen = false;
   
-  // פונקציה לעדכון הבאדג' בזמן אמת בלחיצה
   function updateBadge() {{
     var parentDoc = window.parent.document;
     var d = parentDoc.getElementById('sn-floating-dropdown');
@@ -281,11 +283,9 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
   window.addEventListener('load', function() {{
     var parentDoc = window.parent.document;
     
-    // ניקוי אלמנטים קודמים
     var old = parentDoc.getElementById('sn-floating-dropdown'); if (old) old.remove();
     var oldStyle = parentDoc.getElementById('sn-styles'); if (oldStyle) oldStyle.remove();
 
-    // הזרקת הסטייל לחלונית הצפה
     var style = parentDoc.createElement('style');
     style.id = 'sn-styles';
     style.textContent = `
@@ -303,17 +303,14 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
       .sn-dot {{ width:8px; height:8px; border-radius:50%; background:#FADCE6; flex-shrink:0; }}
       .sn-text {{ font-size:0.85rem; color:#3f3f46; font-weight:500; line-height:1.4; }}
       .sn-proj {{ font-size:0.72rem; color:#a1a1aa; margin-top:2px; }}
-      .sn-empty {{ padding:30px 20px; text-align:center; color:#a1a1aa; font-size:0.9rem; }}
     `;
     parentDoc.head.appendChild(style);
 
-    // יצירת אלמנט הדרופדאון
     var dropdown = parentDoc.createElement('div');
     dropdown.id = 'sn-floating-dropdown';
     dropdown.innerHTML = '<div class="sn-header">התראות להיום</div>' + `{items_js}`;
     parentDoc.body.appendChild(dropdown);
 
-    // עדכון מיקום בגלילה - כדי שהחלונית לא תברח
     parentDoc.addEventListener('scroll', function() {{
       var d = parentDoc.getElementById('sn-floating-dropdown');
       if (d && d.style.display === 'block') {{
@@ -323,25 +320,20 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
       }}
     }}, true);
 
-    // סגירה בלחיצה בחוץ
     parentDoc.addEventListener('click', function(e) {{
       var d = parentDoc.getElementById('sn-floating-dropdown');
       if (isOpen && d && !d.contains(e.target)) {{ d.style.display = 'none'; isOpen = false; }}
     }}, true);
   }});
 
-  // לוגיקת פתיחה/סגירה של הפעמון
   document.getElementById('bellBtn').addEventListener('click', function(e) {{
     var parentDoc = window.parent.document;
     var d = parentDoc.getElementById('sn-floating-dropdown');
-    if (!d) return;
-    
     isOpen = !isOpen;
     if (isOpen) {{
       var iframe = window.frameElement;
       var rect = iframe.getBoundingClientRect();
       var bellRect = this.getBoundingClientRect();
-      
       d.style.top = (rect.bottom + 8) + 'px';
       d.style.left = (rect.left + bellRect.left - 300) + 'px';
       d.style.display = 'block';
