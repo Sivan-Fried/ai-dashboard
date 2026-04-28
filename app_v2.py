@@ -532,49 +532,69 @@ else:
     import pandas as pd
     import os
     
-    # --- 1. לוגיקת נתונים נקייה ---
+    # --- 1. לוגיקת טעינת הנתונים (משופרת למניעת היעלמות מחבר) ---
+    file_path = "inspirational_quotes.xlsx"
     quote_text = "המסע היחיד הוא זה שבפנים."
     quote_author = "לא ידוע"
-    if os.path.exists("inspirational_quotes.xlsx"):
+    
+    if os.path.exists(file_path):
         try:
-            df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
+            df = pd.read_excel(file_path, engine='openpyxl')
             if not df.empty:
                 row = df.sample(n=1).iloc[0]
+                # מיפוי עמודות גמיש
                 q_col = [c for c in df.columns if str(c).lower() in ['quote', 'ציטוט']]
-                a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר']]
+                a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר', 'הוגה']]
                 if q_col: quote_text = str(row[q_col[0]])
                 if a_col: quote_author = str(row[a_col[0]])
-        except: pass
+        except:
+            pass
     
-    # --- 2. הזרקת ה-Atmosphere (בלי רווחים בתחילת שורה ב-HTML) ---
+    # --- 2. ניקוי מרווחים להצמדה לסרגל ---
     st.markdown("""
-    <style>
-        /* הצמדה לסרגל וביטול מרווחים */
-        .main .block-container {padding-top: 0rem !important; max-width: 100% !important;}
-        header {visibility: hidden;}
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0');
-    </style>
+        <style>
+            .main .block-container { padding-top: 0rem !important; padding-bottom: 0rem !important; max-width: 100% !important; }
+            [data-testid="stHeader"] { display: none; }
+        </style>
     """, unsafe_allow_html=True)
     
-    # בניית ה-HTML במחרוזת אחת שטוחה כדי למנוע שגיאות רינדור
-    atmosphere_html = f'''
-    <div style="background: white; width: 100%; border-bottom: 1px solid #f1f5f9; direction: rtl;">
-    <div style="background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 40%); padding: 15px 0; text-align: center;">
-    <div style="max-width: 800px; margin: 0 auto;">
-    <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 5px 0;">DAILY QUOTE</p>
-    <h2 style="font-family: 'Noto Serif Hebrew', serif; font-size: 20px; color: #1a1c1c; margin: 0 0 3px 0; line-height: 1.2; font-weight: 700;">"{quote_text}"</h2>
-    <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; color: #646566; font-style: italic; margin: 0 0 10px 0;">— {quote_author} —</p>
-    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-    <div style="height: 1px; width: 30px; background: #fadce6;"></div>
-    <span class="material-symbols-outlined" style="color: #6f5861; font-size: 18px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
-    <div style="height: 1px; width: 30px; background: #fadce6;"></div>
+    # --- 3. בניית ה-Component (מהודק, קטן יותר, אייקון מקורי) ---
+    atmosphere_component = f"""
+    <div style="
+        width: 100%; 
+        background: #ffffff; 
+        background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 40%), 
+                          radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.3) 0%, transparent 40%);
+        border-bottom: 1px solid #f1f5f9;
+        padding: 20px 0;
+        text-align: center;
+        direction: rtl;
+        margin: 0;
+    ">
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+        
+        <div style="max-width: 800px; margin: 0 auto; padding: 0 20px;">
+            <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.2em; display: block; margin-bottom: 8px;">DAILY QUOTE</span>
+            
+            <h1 style="font-family: 'Noto Serif Hebrew', serif; font-size: 22px; color: #1a1c1c; line-height: 1.25; margin: 0 0 6px 0; font-weight: 700;">
+                "{quote_text}"
+            </h1>
+            
+            <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px; display: block;">
+                — {quote_author} —
+            </div>
+            
+            <div style="display: flex; align-items: center; justify-content: center; gap: 12px; height: 24px;">
+                <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+                <span class="material-symbols-outlined" style="color: #6f5861; font-size: 20px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
+                <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+            </div>
+        </div>
     </div>
-    </div>
-    </div>
-    </div>
-    '''
+    """
     
-    st.markdown(atmosphere_html, unsafe_allow_html=True)
+    # הזרקה עם גובה מוקטן משמעותית כדי למנוע שטחים לבנים
+    st.components.v1.html(atmosphere_component, height=180)
 
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
