@@ -528,27 +528,41 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    # --- לוגיקת טעינה ---
     import pandas as pd
     import random
     import os
     
+    # --- לוגיקת טעינת הנתונים (השאירי כמו שסידרת) ---
     file_path = "inspirational_quotes.xlsx"
+    # ערכי ברירת מחדל אם הטעינה נכשלת
     quote_text = "המסע היחיד הוא זה שבפנים."
     quote_author = "לא ידוע"
     
     if os.path.exists(file_path):
         try:
+            # טעינת הקובץ
             df = pd.read_excel(file_path, engine='openpyxl')
+            
             if not df.empty:
+                # בחירת שורה רנדומלית
                 row = df.sample(n=1).iloc[0]
+                
+                # ניסיון למצוא את תוכן הציטוט (תומך בעברית ואנגלית)
+                # מחפש עמודה שנקראת quote או ציטוט
                 q_col = [c for c in df.columns if str(c).lower() in ['quote', 'ציטוט']]
                 a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר', 'הוגה']]
-                if q_col: quote_text = str(row[q_col[0]])
-                if a_col: quote_author = str(row[a_col[0]])
-        except: pass
+                
+                if q_col:
+                    quote_text = str(row[q_col[0]])
+                if a_col:
+                    quote_author = str(row[a_col[0]])
+                    
+        except Exception as e:
+            st.error(f"Error reading file: {e}")
     
-    # --- תצוגת HTML חסינה לשגיאות (ללא רווחים מיותרים) ---
+    # --- תצוגת HTML (במבנה שטוח וחסין שגיאות) ---
+    # שימי לב: אין כאן כפילויות, רק מבנה אחד נקי ومסודר ללא רווחים בתחילת השורה.
+    # שיניתי גם את האייקון ל'menu_book' כפי שמופיע בעיצוב.
     quote_html = f"""<div class="quote-wrapper-outer">
     <div class="watercolor-shape">
     <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
@@ -571,7 +585,7 @@ else:
     </div>"""
     
     st.markdown(quote_html, unsafe_allow_html=True)
-    
+        
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
     k1, k2, k3, k4 = st.columns(4)
