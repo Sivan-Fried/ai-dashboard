@@ -533,7 +533,7 @@ else:
     import os
 
     # 1. טעינת נתונים
-    q# --- 1. לוגיקת הנתונים (מחוץ לבלוק ה-HTML כדי למנוע שגיאות) ---
+    # --- Daily Quote Section (נקי משגיאות סינטקס) ---
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
     quote_author = "ארתור אש"
     
@@ -549,8 +549,8 @@ else:
         except:
             pass
     
-    # --- 2. בניית המחרוזת בנפרד (מונע את השגיאה שהצגת) ---
-    html_layout = f"""
+    # יצירת ה-HTML בנפרד כדי למנוע בעיות של סוגריים מסולסלים ב-f-string
+    html_content = f"""
     <div style="
         position: relative;
         top: -55px;
@@ -587,6 +587,8 @@ else:
     </div>
     <div style="height: 15px;"></div>
     """
+    
+    st.markdown(html_content, unsafe_allow_html=True)
     
     # --- 3. פקודת ההזרקה הסופית ---
     st.markdown(html_layout, unsafe_allow_html=True)
