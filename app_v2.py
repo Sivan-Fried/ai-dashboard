@@ -528,33 +528,42 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    # ── Daily Quote Section Logic & Display ──────────────────────────────────────────
+    # ── Daily Quote Section ──────────────────────────────────────────────────────
+    # לוגיקה מלאה לשליפה מהאקסל
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
     quote_author = "ארתור אש"
     
-    # לוגיקת שליפה מהאקסל (לא נגעתי)
     try:
         if os.path.exists("inspirational_quotes.xlsx"):
             df_quotes = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
             if not df_quotes.empty:
                 random_row = df_quotes.sample(n=1).iloc[0]
+                # זיהוי עמודות
                 q_cols = [c for c in df_quotes.columns if str(c).lower() in ['quote', 'ציטוט']]
                 a_cols = [c for c in df_quotes.columns if str(c).lower() in ['author', 'מחבר']]
-                if q_cols: quote_text = str(random_row[q_cols[0]])
-                if a_cols: quote_author = str(random_row[a_cols[0]])
+                if q_cols:
+                    quote_text = str(random_row[q_cols[0]])
+                if a_cols:
+                    quote_author = str(random_row[a_cols[0]])
     except Exception:
         pass
     
-    # טעינת ה-CSS החיצוני כפי שהוא
+    # קריאת ה-CSS החיצוני כפי שהוא
     with open("styles_v2.css", "r", encoding="utf-8") as f:
-        style_content = f.read()
+        external_css_content = f.read()
     
-    # המבנה של הגרסה היציבה - בדיוק לפי ה-CSS ששלחת
-    quote_html = f"""
+    # ה-HTML המלא בגרסה היציבה - כולל ה-Watercolor והעיטורים
+    full_quote_html = f"""
     <style>
-    {style_content}
-    body {{ background: transparent; margin: 0; padding: 0; overflow: hidden; }}
-    /* איפוס מרג'ין למניעת כפילות בתוך ה-iframe */
+    {external_css_content}
+    body {{
+        background: transparent !important;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        direction: rtl;
+    }}
+    /* מנטרל מרג'ין עליון בתוך ה-iframe כדי לאפשר הצמדה */
     .quote-wrapper-outer {{ margin-top: 0 !important; }}
     </style>
     
@@ -581,16 +590,19 @@ else:
     </div>
     """
     
-    # הזזה למעלה של הדיב בסטרימליט
+    # הזרקת ה-CSS להצמדה למעלה בסטרימליט
     st.markdown("""
-        <style>
+    <style>
         div[data-testid="stVerticalBlock"] > div:nth-child(3) {
-            margin-top: -60px !important;
+            margin-top: -65px !important;
+            position: relative;
+            z-index: 1000;
         }
-        </style>
+    </style>
     """, unsafe_allow_html=True)
     
-    components.html(quote_html, height=180)
+    # רינדור הציטוט
+    components.html(full_quote_html, height=180)
 
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
