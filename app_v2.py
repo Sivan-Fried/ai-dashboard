@@ -528,12 +528,10 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    # ── Daily Quote Section ──────────────────────────
+    # --- Daily Quote Section (גרסה חסינת תקלות) ---
     import pandas as pd
     import os
-
-    # 1. טעינת נתונים
-    # --- Daily Quote Section (נקי משגיאות סינטקס) ---
+    
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
     quote_author = "ארתור אש"
     
@@ -549,8 +547,8 @@ else:
         except:
             pass
     
-    # יצירת ה-HTML בנפרד כדי למנוע בעיות של סוגריים מסולסלים ב-f-string
-    html_content = f"""
+    # שימוש ב-replace במקום f-string כדי למנוע את מריחת הטקסט על המסך
+    html_template = """
     <div style="
         position: relative;
         top: -55px;
@@ -571,11 +569,11 @@ else:
             <span style="font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: 11px !important; font-weight: 700 !important; color: #6f5861 !important; text-transform: uppercase !important; letter-spacing: 0.25em !important; display: block !important; margin-bottom: 10px !important;">DAILY QUOTE</span>
             
             <div style="font-family: 'Noto Serif Hebrew', serif !important; font-size: 26px !important; color: #1a1c1c !important; line-height: 1.3 !important; margin: 0 0 8px 0 !important; font-weight: 700 !important;">
-                "{quote_text}"
+                "QUOTE_HERE"
             </div>
             
             <div style="font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: 15px !important; color: #646566 !important; font-style: italic !important; margin-bottom: 20px !important;">
-                &#8212; {quote_author} &#8212;
+                &#8212; AUTHOR_HERE &#8212;
             </div>
             
             <div style="display: flex !important; align-items: center !important; justify-content: center !important; gap: 15px !important;">
@@ -588,7 +586,9 @@ else:
     <div style="height: 15px;"></div>
     """
     
-    st.markdown(html_content, unsafe_allow_html=True)
+    final_html = html_template.replace("QUOTE_HERE", quote_text).replace("AUTHOR_HERE", quote_author)
+    
+    st.markdown(final_html, unsafe_allow_html=True)
     
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
