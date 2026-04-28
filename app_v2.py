@@ -531,7 +531,7 @@ else:
     import pandas as pd
     import os
 
-    # 1. טעינת נתונים (חסינה למחבר)
+    # 1. טעינת נתונים
     quote_text = "המסע היחיד הוא זה שבפנים."
     quote_author = "לא ידוע"
     if os.path.exists("inspirational_quotes.xlsx"):
@@ -545,48 +545,45 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
         except: pass
 
-    # 2. הזרקה ישירה (בלי iframe!) - זה הפתרון למיקום ולמחבר
+    # 2. הזרקה ישירה עם הגנה מוחלטת על העיצוב (Inline Styles)
     st.markdown(f"""
-        <style>
-            /* משיכה אגרסיבית למעלה שתעבוד בכל מחשב */
-            .quote-outer-wrapper {{
-                margin-top: -65px !important; /* מושך את הציטוט אל מתחת לסרגל */
-                margin-bottom: 25px !important; /* רווח חצי סנטימטר ל-KPI */
-                width: 100%;
-                background: #ffffff;
-                border-bottom: 1px solid #f1f5f9;
-                direction: rtl;
-                z-index: 99;
-                position: relative;
-            }}
-            .quote-inner-content {{
-                background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
-                                  radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
-                padding: 25px 0;
-                text-align: center;
-            }}
-        </style>
-
-        <div class="quote-outer-wrapper">
-            <div class="quote-inner-content">
-                <div style="max-width: 900px; margin: 0 auto; padding: 0 20px;">
-                    <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 8px;">DAILY QUOTE</span>
-                    <h2 style="font-family: 'Noto Serif Hebrew', serif; font-size: 24px; color: #1a1c1c; line-height: 1.3; margin: 0 0 5px 0; font-weight: 700; border: none;">
-                        "{quote_text}"
-                    </h2>
-                    <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
-                        &#8212; {quote_author} &#8212;
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
-                        <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
-                        <span class="material-symbols-outlined" style="color: #6f5861; font-size: 20px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
-                        <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
-                    </div>
+        <div style="
+            margin-top: -65px !important; 
+            margin-bottom: 25px !important; 
+            width: 100%; 
+            background: #ffffff; 
+            background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
+                              radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
+            border-bottom: 1px solid #f1f5f9;
+            padding: 25px 0;
+            text-align: center;
+            direction: rtl;
+            position: relative;
+            z-index: 99;
+        ">
+            <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+            
+            <div style="max-width: 900px; margin: 0 auto; padding: 0 20px; border: none;">
+                <span style="font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: 11px !important; font-weight: 700 !important; color: #6f5861 !important; text-transform: uppercase !important; letter-spacing: 0.25em !important; display: block !important; margin-bottom: 10px !important; border: none !important;">DAILY QUOTE</span>
+                
+                <div style="font-family: 'Noto Serif Hebrew', serif !important; font-size: 26px !important; color: #1a1c1c !important; line-height: 1.3 !important; margin: 0 0 8px 0 !important; font-weight: 700 !important; border: none !important;">
+                    "{quote_text}"
+                </div>
+                
+                <div style="font-family: 'Plus Jakarta Sans', sans-serif !important; font-size: 15px !important; color: #646566 !important; font-style: italic !important; margin-bottom: 20px !important; border: none !important;">
+                    &#8212; {quote_author} &#8212;
+                </div>
+                
+                <div style="display: flex !important; align-items: center !important; justify-content: center !important; gap: 15px !important; border: none !important;">
+                    <div style="height: 1px !important; width: 45px !important; background-color: #fadce6 !important; border: none !important;"></div>
+                    <span class="material-symbols-outlined" style="color: #6f5861 !important; font-size: 22px !important; font-family: 'Material Symbols Outlined' !important; border: none !important;">auto_stories</span>
+                    <div style="height: 1px !important; width: 45px !important; background-color: #fadce6 !important; border: none !important;"></div>
                 </div>
             </div>
         </div>
     """, unsafe_allow_html=True)
 
+    
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
     k1, k2, k3, k4 = st.columns(4)
