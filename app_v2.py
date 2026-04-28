@@ -528,37 +528,36 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Daily Quote Section Logic & Display ──────────────────────────
+    # ── Quote Section Display Logic ───────────────────────────────
     import pandas as pd
     import random
     import os
     
-    # הגדרת נתיב הקובץ
+    # ודאי שהקובץ inspirational_quotes.xlsx נמצא בתיקיית הפרויקט
     file_path = "inspirational_quotes.xlsx"
     
-    # ערכי ברירת מחדל (יופיעו רק אם יש תקלה בטעינה)
+    # ברירת מחדל למקרה של תקלה בטעינת הקובץ
     quote_text = "המסע היחיד הוא זה שבפנים."
     quote_author = "לא ידוע"
     
     # מנגנון טעינה בטוח
     if os.path.exists(file_path):
         try:
-            # טעינת האקסל
             quotes_df = pd.read_excel(file_path, engine='openpyxl')
-            
-            # וידוא שהקובץ לא ריק ושהעמודות קיימות (quote ו-author)
             if not quotes_df.empty:
-                # בחירת שורה אקראית
+                # בחירת שורה רנדומלית
                 random_row = quotes_df.sample(n=1).iloc[0]
                 
-                # שליפת נתונים - שימוש ב-.get מטפל במקרה של שמות עמודות לא תואמים
+                # וידוא ששמות העמודות באקסל תואמים בדיוק: quote ו-author
                 quote_text = str(random_row.get('quote', quote_text))
                 quote_author = str(random_row.get('author', quote_author))
         except Exception as e:
-            # הדפסה ללוגים של השרת בלבד למקרה של שגיאה טכנית
-            print(f"Quote loading error: {e}")
+            # הדפסה ללוגים בלבד במקרה של שגיאה בטעינת הקובץ
+            print(f"Error loading inspirational quotes: {e}")
     
-    # רינדור ה-HTML
-    st.markdown(f"""
+    # ── ה-HTML המעודכן, נקי מכפילויות ועם הפרדה ברורה ─────────────────
+    # שימי לב: אין כאן כפילויות, רק מבנה אחד נקי ומסודר.
+    quote_content = f"""
     <div class="quote-wrapper-outer">
         <div class="watercolor-shape">
             <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
@@ -568,11 +567,12 @@ else:
         
         <div class="quote-content-flat">
             <span class="quote-label">Daily Quote</span>
+            
             <div class="quote-main-text">"{quote_text}"</div>
             
-            <div class="quote-author-line">
-                 <div class="horizontal-line"></div>
-                 <span class="author-name">{quote_author}</span>
+            <div class="quote-author-row">
+                <span>{quote_author}</span>
+                <div class="author-line"></div>
             </div>
             
             <div class="bottom-ornament">
@@ -582,8 +582,9 @@ else:
             </div>
         </div>
     </div>
-    """, unsafe_allow_html=True)
-        
+    """
+    st.markdown(quote_content, unsafe_allow_html=True)
+            
     
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
