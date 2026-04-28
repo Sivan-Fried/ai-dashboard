@@ -93,12 +93,14 @@ st.markdown("""
     
 # --- כאן מתחיל התוכן של הדשבורד הישן שלך ---
 # =========================================================
-#ניסיון להוסיף סרגל עליון
 # =========================================================
-# סרגל עליון + פעמון נוטיפיקציות — הכל ב-components.html אחד
+# סרגל עליון + פעמון נוטיפיקציות — גרסה מתוקנת (ללא חיתוך)
 # =========================================================
 def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
     import re
+    import datetime
+    from zoneinfo import ZoneInfo
+    
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
     time_str = now.strftime("%H:%M")
     date_str = now.strftime("%d/%m/%Y")
@@ -131,13 +133,9 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
                 <div class="notif-dot"></div>
             </div>"""
 
-    # גובה דינמי
-    dropdown_h = 60 + len(reminders_today) * 72 if not reminders_today.empty else 80
-    iframe_h = 110 + dropdown_h
-
     profile_tag = f'<img class="tb-profile" src="{profile_src}"/>' if profile_src else '<div style="width:72px;height:72px;border-radius:50%;background:#FADCE6;"></div>'
 
-    # הקוד שמתחיל כאן מחליף את ה-components.html הקיים שלך
+    # כאן מתחילה הזרקת ה-HTML לסטרימליט
     components.html(f"""<!DOCTYPE html>
 <html dir="rtl">
 <head>
@@ -146,16 +144,17 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
 <style>
   * {{ box-sizing:border-box; margin:0; padding:0; }}
   
-  /* הסבר: שינינו את overflow ל-visible כדי שהתפריט יוכל "לצאת" מגבולות הסרגל */
+  /* תיקון: הגדרת גובה גדול ושקיפות כדי שהתפריט לא ייחתך */
   html, body {{
     font-family: 'Plus Jakarta Sans', sans-serif;
-    background: transparent;
-    overflow: visible !important; 
+    background: transparent !important;
+    overflow: visible !important;
+    height: 500px !important;
     direction: rtl;
     margin: 0;
   }}
 
-  /* סרגל */
+  /* סרגל עליון */
   .topbar {{
     background: white;
     border-radius: 16px;
@@ -165,31 +164,30 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
     align-items: center;
     justify-content: space-between;
     padding: 16px 24px;
-    direction: rtl;
+    height: 110px; /* גובה קבוע לסרגל עצמו */
     position: relative;
-    z-index: 10;
-    /* הסבר: הוספנו overflow visible גם כאן כדי שהתפריט לא ייחתך על ידי הסרגל עצמו */
+    z-index: 100;
     overflow: visible !important;
   }}
 
-  /* ימין */
+  /* צד ימין: פרופיל ופרטים */
   .tb-right {{ display:flex; align-items:center; gap:12px; }}
   .tb-profile {{ width:72px; height:72px; border-radius:50%; object-fit:cover; object-position:center 20%; border:3px solid white; box-shadow:0 2px 12px rgba(225,200,210,0.4); }}
   .tb-name {{ font-size:0.95rem; font-weight:700; color:#3f3f46; }}
   .tb-role {{ font-size:0.75rem; color:#a1a1aa; margin-top:2px; }}
 
-  /* ניווט */
+  /* ניווט מרכזי */
   .tb-nav {{ display:flex; gap:4px; flex:1; justify-content:center; }}
   .tb-nav span {{ font-size:0.82rem; padding:6px 14px; border-radius:20px; color:#71717A; cursor:pointer; transition:all 0.2s; }}
   .tb-nav span:hover {{ background:#fdf0f5; }}
   .tb-nav span.active {{ background:#FADCE6; color:#3f3f46; font-weight:600; }}
 
-  /* שמאל */
+  /* צד שמאל: מותג ומזג אוויר */
   .tb-left {{ display:flex; align-items:center; gap:12px; }}
   .tb-divider {{ width:1px; height:28px; background:#F4F4F5; flex-shrink:0; }}
   .tb-brand {{ font-size:0.95rem; font-weight:800; color:#f0b8cb; }}
 
-  /* פעמון */
+  /* אזור הפעמון */
   .bell-area {{ position:relative; overflow: visible; }}
   .bell-wrap {{
     display: inline-flex; align-items:center; justify-content:center;
@@ -205,34 +203,37 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
     border: 2px solid white; padding: 0 3px; z-index: 2;
   }}
 
-  /* dropdown - הסבר: העלנו את ה-z-index לערך מקסימלי */
+  /* תפריט נוטיפיקציות נפתח */
   .notif-dropdown {{
     display: none;
     position: absolute;
-    top: 55px;
+    top: 60px;
     right: 0;
     width: 360px;
     background: white;
     border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-    border: 1px solid #F4F4F5;
-    z-index: 999999;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    border: 1px solid #fdf0f5;
+    z-index: 9999;
+    overflow: hidden;
     direction: rtl;
     animation: fadeIn 0.15s ease;
-    overflow: hidden; /* כאן זה בסדר, כדי שהפריטים בתוך הרשימה לא יגלשו ממנה */
   }}
-  
   @keyframes fadeIn {{
     from {{ opacity:0; transform:translateY(-8px); }}
     to   {{ opacity:1; transform:translateY(0); }}
   }}
-  
-  .notif-header {{ padding: 16px 20px; font-weight: 700; font-size: 1rem; color: #3f3f46; border-bottom: 1px solid #fdf0f5; }}
+  .notif-header {{ padding: 16px 20px; font-weight: 700; font-size: 1rem; color: #3f3f46; border-bottom: 1px solid #fdf0f5; background: white; }}
   .notif-item {{ padding: 14px 20px; display: flex; align-items: center; gap: 14px; cursor: pointer; border-bottom: 1px solid #fdf6f9; transition: background 0.15s; }}
+  .notif-item:last-child {{ border-bottom: none; }}
   .notif-item:hover {{ background: #fdf6f9; }}
+  .notif-item.read {{ opacity: 0.45; }}
+  .notif-item.read .notif-dot {{ display: none; }}
+  .notif-avatar {{ width:40px; height:40px; border-radius:50%; background:#FADCE6; flex-shrink:0; }}
   .notif-content {{ flex:1; }}
   .notif-text {{ font-size:0.85rem; color:#3f3f46; font-weight:500; line-height:1.4; }}
   .notif-proj {{ font-size:0.72rem; color:#a1a1aa; margin-top:3px; }}
+  .notif-dot {{ width:8px; height:8px; border-radius:50%; background:#FADCE6; flex-shrink:0; }}
   .notif-empty {{ padding:28px 20px; text-align:center; color:#a1a1aa; font-size:0.85rem; }}
 </style>
 </head>
@@ -286,52 +287,39 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
 <script>
   var isOpen = false;
 
-  // הסבר: פונקציה לשליחת הודעה לסטרימליט לשנות גובה
-  function sendHeight(h) {{
-    window.parent.postMessage({{
-      type: 'streamlit:setFrameHeight',
-      height: h
-    }}, '*');
-  }}
-
+  // פתיחה וסגירה של התפריט (מכיוון שהגובה מראש 500, אין חיתוך)
   function toggleDropdown() {{
     var d = document.getElementById('notifDropdown');
     if (!d) return;
-
-    if (!isOpen) {{
-      d.style.display = 'block';
-      isOpen = true;
-      // הסבר: מגדילים את גובה ה-iframe ל-500 כדי שהתפריט יופיע
-      sendHeight(500);
-    }} else {{
-      d.style.display = 'none';
-      isOpen = false;
-      // הסבר: מחזירים לגובה המקורי של הסרגל
-      sendHeight(110);
-    }}
+    isOpen = !isOpen;
+    d.style.display = isOpen ? 'block' : 'none';
   }}
 
-  // הסבר: סגירה בלחיצה מחוץ לתפריט
+  // סגירה בלחיצה בחוץ
   document.addEventListener('click', function(e) {{
     var d = document.getElementById('notifDropdown');
     var b = document.querySelector('.bell-area');
     if (isOpen && d && b && !d.contains(e.target) && !b.contains(e.target)) {{
       d.style.display = 'none';
       isOpen = false;
-      sendHeight(110);
     }}
   }});
 
+  // סימון כנקרא
   function markRead(el) {{
     el.classList.add('read');
     var badge = document.getElementById('badge');
-    var count = parseInt(badge.textContent) - 1;
-    if (count <= 0) badge.style.display = 'none';
-    else badge.textContent = count;
+    var currentCount = parseInt(badge.textContent);
+    if (currentCount > 0) {{
+        badge.textContent = currentCount - 1;
+        if (currentCount - 1 === 0) badge.style.display = 'none';
+    }}
   }}
 </script>
 </body>
-</html>""", height=110, scrolling=False)
+</html>""", height=500, scrolling=False)
+
+# סוף הפונקציה
     
 #סוף נסיון
 
