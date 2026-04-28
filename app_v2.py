@@ -561,25 +561,27 @@ else:
             st.error(f"Error reading file: {e}")
     
     # --- תצוגת HTML (במבנה שטוח וחסין שגיאות) ---
-    # ודאי שאין רווחים בתחילת השורות בתוך ה-HTML
+    # ודאי ששמות המשתנים quote_text ו-quote_author מכילים את המידע מהאקסל
     quote_html = f"""
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0" />
     <div class="quote-wrapper-outer">
-    <div class="quote-content-flat">
-    <span class="quote-label">DAILY QUOTE</span>
-    <div class="quote-main-text">"{quote_text}"</div>
-    <div class="quote-author-row">
-    <div class="author-line"></div>
-    <span>{quote_author}</span>
-    <div class="author-line"></div>
-    </div>
-    <div class="bottom-icon">
-    <span class="material-symbols-rounded" style="color:#d63384; font-size:14px;">menu_book</span>
-    </div>
-    </div>
+        <div class="quote-content-flat">
+            <span class="quote-label">Daily Quote</span>
+            <div class="quote-main-text">"{quote_text}"</div>
+            <div class="quote-author-row">
+                <div class="author-line"></div>
+                <span class="quote-author-name">{quote_author}</span>
+                <div class="author-line"></div>
+            </div>
+            <div class="bottom-ornament">
+                <span class="material-symbols-rounded" style="color:#f472b6; font-size:18px;">auto_stories</span>
+            </div>
+        </div>
     </div>
     """
     st.markdown(quote_html, unsafe_allow_html=True)
-        
+
+    
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
     k1, k2, k3, k4 = st.columns(4)
