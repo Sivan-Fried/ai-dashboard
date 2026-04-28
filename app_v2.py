@@ -521,11 +521,22 @@ else:
     greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
 
     # ⭐ סרגל עליון + פעמון משולבים ⭐
+    # 1. סינון ההתראות להיום
     today_reminders = st.session_state.rem_live[
         pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today
-    ]
+    ].copy() # הוספנו copy כדי שנוכל לשנות את העמודה בביטחון
+    
+    # 2. התיקון הקריטי: מוודאים שיש עמודה בשם is_read שהפונקציה מכירה
+    # אם יש לך עמודה בשם status או read_status, תשני את השם 'status' למטה למה שיש לך
+    if 'status' in today_reminders.columns:
+        today_reminders['is_read'] = today_reminders['status'].apply(lambda x: x in [True, 1, 'read'])
+    elif 'is_read' not in today_reminders.columns:
+        # אם בכלל אין עמודה כזו, ניצור אחת כברירת מחדל (הכל לא נקרא)
+        today_reminders['is_read'] = False
+    
+    # 3. קריאה לפונקציה
     render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders)
-
+    
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── KPIs ────────────────────────────────────────────────
