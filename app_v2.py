@@ -121,13 +121,13 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     time_str = now.strftime("%H:%M")
     date_str = now.strftime("%d/%m/%Y")
 
-    # ניקוי מזג אוויר ותמונת פרופיל
+    # ניקוי נתוני מזג אוויר ותמונת פרופיל
     w_text_clean = re.sub(r'[^\x00-\x7F]+', '', w_text).strip().replace('C', '\u00b0C')
     profile_src = f"data:image/png;base64,{img_b64}" if img_b64 else ""
     unread = len(today_reminders)
     badge_display = 'flex' if unread > 0 else 'none'
 
-    # בניית ה-HTML של הנוטיפיקציות מהקוד הישן
+    # בניית רשימת התראות (מהקוד הישן שעבד לך)
     items_html = ""
     if today_reminders.empty:
         items_html = '<div class="sn-empty">אין תזכורות להיום 🎉</div>'
@@ -144,6 +144,7 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
                 </div>
             </div>"""
 
+    # הכנת ה-HTML להזרקה ל-JS
     items_js = items_html.replace('`', r'\`').replace('\\', '\\\\').replace('\n', '')
     profile_tag = f'<img class="tb-profile" src="{profile_src}"/>' if profile_src else '<div style="width:72px;height:72px;border-radius:50%;background:#FADCE6;"></div>'
 
@@ -176,24 +177,28 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     z-index: 100;
   }}
 
-  /* צד ימין */
+  /* צד ימין - פרופיל ופעמון */
   .tb-right {{ display:flex; align-items:center; gap:12px; }}
-  .tb-profile {{ width:72px; height:72px; border-radius:50%; object-fit:cover; object-position:center 20%; border:3px solid white; box-shadow:0 2px 12px rgba(225,200,210,0.4); }}
+  .tb-profile {{ width:72px; height:72px; border-radius:50%; object-fit:cover; border:3px solid white; box-shadow:0 2px 12px rgba(225,200,210,0.4); }}
   .tb-name {{ font-size:0.95rem; font-weight:700; color:#3f3f46; }}
   .tb-role {{ font-size:0.75rem; color:#a1a1aa; margin-top:2px; }}
 
-  /* ניווט מרכזי (החזרתי את כולם) */
+  /* ניווט מרכזי - כל הכפתורים שהיו לך */
   .tb-nav {{ display:flex; gap:4px; flex:1; justify-content:center; }}
   .tb-nav span {{ font-size:0.82rem; padding:6px 14px; border-radius:20px; color:#71717A; cursor:pointer; transition:all 0.2s; }}
   .tb-nav span:hover {{ background:#fdf0f5; }}
   .tb-nav span.active {{ background:#FADCE6; color:#3f3f46; font-weight:600; }}
 
-  /* צד שמאל */
+  /* צד שמאל - מזג אוויר, זמן ומותג */
   .tb-left {{ display:flex; align-items:center; gap:12px; }}
   .tb-divider {{ width:1px; height:28px; background:#F4F4F5; flex-shrink:0; }}
-  .tb-brand {{ font-size:0.95rem; font-weight:800; color:#f0b8cb; }}
+  .tb-brand {{ font-size:0.95rem; font-weight:800; color:#f0b8cb; flex-shrink:0; }}
 
-  /* פעמון */
+  /* מזג אוויר */
+  .weather-wrap {{ display: flex; align-items: center; gap: 8px; text-align: left; }}
+  .temp-icon {{ color: #f0b8cb; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }}
+
+  /* פעמון נוטיפיקציות */
   .bell-area {{ position:relative; cursor:pointer; display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; transition:0.2s; }}
   .bell-area:hover {{ background:#fdf0f5; }}
   .bell-badge {{
@@ -230,9 +235,16 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
   </nav>
 
   <div class="tb-left">
-    <div style="text-align:left;">
-      <div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{w_text_clean}</div>
-      <div style="font-size:0.68rem;color:#a1a1aa;">{w_city}</div>
+    <div class="weather-wrap">
+      <div class="temp-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path>
+        </svg>
+      </div>
+      <div style="text-align:left;">
+        <div style="font-size:0.82rem;font-weight:600;color:#3f3f46;white-space:nowrap;">{w_text_clean}</div>
+        <div style="font-size:0.68rem;color:#a1a1aa;white-space:nowrap;">{w_city}</div>
+      </div>
     </div>
     <div class="tb-divider"></div>
     <div style="text-align:left;">
@@ -295,8 +307,11 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     if (isOpen) {{
       var iframe = window.frameElement;
       var rect = iframe.getBoundingClientRect();
+      var bellRect = this.getBoundingClientRect();
+      
       d.style.top = (rect.top + 95) + 'px';
-      d.style.left = (rect.left + 24) + 'px';
+      // חישוב מיקום מיושר לפעמון (מפחיתים את רוחב התפריט כדי שייפתח שמאלה מהפעמון)
+      d.style.left = (rect.left + bellRect.left - 300) + 'px'; 
       d.style.display = 'block';
     }} else {{
       d.style.display = 'none';
