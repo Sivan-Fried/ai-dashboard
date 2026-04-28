@@ -562,23 +562,63 @@ else:
     
     # --- תצוגת HTML (במבנה שטוח וחסין שגיאות) ---
     # ודאי ששמות המשתנים quote_text ו-quote_author מכילים את המידע מהאקסל
+    # --- לוגיקת טעינת הנתונים (נשארת כפי שסידרת) ---
+    # ודאי ש-quote_text ו-quote_author מכילים את המידע הנכון
+    
+    # ייבוא פונטים ואייקונים בצורה גלובלית
+    st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0">', unsafe_allow_html=True)
+    
     quote_html = f"""
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0" />
-    <div class="quote-wrapper-outer">
-        <div class="quote-content-flat">
-            <span class="quote-label">Daily Quote</span>
-            <div class="quote-main-text">"{quote_text}"</div>
-            <div class="quote-author-row">
-                <div class="author-line"></div>
-                <span class="quote-author-name">{quote_author}</span>
-                <div class="author-line"></div>
-            </div>
-            <div class="bottom-ornament">
-                <span class="material-symbols-rounded" style="color:#f472b6; font-size:18px;">auto_stories</span>
-            </div>
+    <div style="
+        width: 100%;
+        background-color: #fdf2f8;
+        background-image: radial-gradient(circle at right, rgba(251,207,232,0.6) 0%, rgba(251,207,232,0) 50%);
+        margin: 10px 0;
+        padding: 15px 0;
+        border-radius: 15px;
+        text-align: center;
+        font-family: 'Assistant', sans-serif;
+        position: relative;
+        border: 1px solid rgba(214, 51, 132, 0.05);
+    ">
+        <span style="
+            font-size: 10px;
+            font-weight: 700;
+            color: #db2777;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 5px;
+        ">Daily Quote</span>
+        
+        <div style="
+            font-size: 22px;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1.2;
+            margin-bottom: 5px;
+        ">"{quote_text}"</div>
+        
+        <div style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        ">
+            <div style="width: 20px; height: 1px; background-color: #fbcfe8;"></div>
+            <span style="color: #94a3b8; font-size: 14px; font-style: italic;">{quote_author}</span>
+            <div style="width: 20px; height: 1px; background-color: #fbcfe8;"></div>
+        </div>
+        
+        <div style="display: flex; justify-content: center; align-items: center; gap: 8px; opacity: 0.6;">
+            <div style="width: 40px; height: 1px; background-color: rgba(214, 51, 132, 0.2);"></div>
+            <span class="material-symbols-rounded" style="color: #db2777; font-size: 20px; display: inline-block;">auto_stories</span>
+            <div style="width: 40px; height: 1px; background-color: rgba(214, 51, 132, 0.2);"></div>
         </div>
     </div>
     """
+    
     st.markdown(quote_html, unsafe_allow_html=True)
 
     
