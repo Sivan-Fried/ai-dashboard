@@ -532,54 +532,57 @@ else:
     import pandas as pd
     import os
     
-    # --- 1. לוגיקת נתונים חסינה ---
+    # --- 1. לוגיקת טעינת הנתונים (הגרסה היציבה) ---
+    file_path = "inspirational_quotes.xlsx"
     quote_text = "המסע היחיד הוא זה שבפנים."
     quote_author = "לא ידוע"
-    if os.path.exists("inspirational_quotes.xlsx"):
+    
+    if os.path.exists(file_path):
         try:
-            df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
+            df = pd.read_excel(file_path, engine='openpyxl')
             if not df.empty:
                 row = df.sample(n=1).iloc[0]
-                # מיפוי עמודות סופר-גמיש
-                q_col = [c for c in df.columns if str(c).lower() in ['quote', 'ציטוט', 'text']]
-                a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר', 'הוגה', 'שם']]
+                q_col = [c for c in df.columns if str(c).lower() in ['quote', 'ציטוט']]
+                a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר', 'הוגה']]
                 if q_col: quote_text = str(row[q_col[0]])
                 if a_col: quote_author = str(row[a_col[0]])
         except: pass
     
-    # --- 2. CSS אגרסיבי להצמדה (הציטוט לסרגל וה-KPI לציטוט) ---
+    # --- 2. CSS למיקום (שיטת ה-Negative Margin) ---
     st.markdown("""
     <style>
-        /* 1. הצמדה לסרגל העליון */
+        /* הצמדה לסרגל העליון */
         .main .block-container {
             padding-top: 0rem !important;
-            padding-bottom: 0rem !important;
             max-width: 100% !important;
         }
-        [data-testid="stHeader"] { display: none; }
         
-        /* 2. הצמדת ה-KPI (ביטול המרווח בין הציטוט למה שמתחתיו) */
-        [data-testid="stVerticalBlock"] > div {
-            gap: 0rem !important;
+        /* משיכת ה-Component למעלה כדי לבטל את הרווח הלבן מהסרגל */
+        [data-testid="stHtml"] {
+            margin-top: -50px !important; 
         }
-        
-        /* 3. ייבוא פונטים ואייקונים */
+    
+        /* משיכת ה-KPI למעלה כדי שייצמדו לציטוט */
+        [data-testid="stVerticalBlock"] > div:nth-child(2) {
+            margin-top: -30px !important;
+        }
+    
+        header { visibility: hidden; }
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0');
     </style>
     """, unsafe_allow_html=True)
     
-    # --- 3. ה-HTML המהודק ---
-    # שים לב: padding נמוך (15px) וגובה קומפוננט נמוך (155px) להצמדה מקסימלית
+    # --- 3. ה-HTML המהודק (הגרסה שאהבת עם תיקון גודל) ---
     atmosphere_html = f'''
     <div style="background: white; width: 100%; border-bottom: 1px solid #f1f5f9; direction: rtl; margin: 0;">
     <div style="background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 40%); padding: 15px 0; text-align: center;">
     <div style="max-width: 800px; margin: 0 auto; padding: 0 20px;">
     <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 5px 0;">DAILY QUOTE</p>
     <h2 style="font-family: 'Noto Serif Hebrew', serif; font-size: 20px; color: #1a1c1c; margin: 0 0 3px 0; line-height: 1.2; font-weight: 700;">"{quote_text}"</h2>
-    <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; color: #646566; font-style: italic; margin-bottom: 10px; display: block;">— {quote_author} —</div>
-    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; height: 20px;">
+    <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; color: #646566; font-style: italic; margin: 0 0 10px 0;">— {quote_author} —</p>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
     <div style="height: 1px; width: 35px; background: #fadce6;"></div>
-    <span class="material-symbols-outlined" style="color: #6f5861; font-size: 18px; font-family: 'Material Symbols Outlined' !important; display: inline-block; line-height: 1;">auto_stories</span>
+    <span class="material-symbols-outlined" style="color: #6f5861; font-size: 18px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
     <div style="height: 1px; width: 35px; background: #fadce6;"></div>
     </div>
     </div>
@@ -587,7 +590,7 @@ else:
     </div>
     '''
     
-    st.components.v1.html(atmosphere_html, height=155)
+    st.markdown(atmosphere_html, unsafe_allow_html=True)
 
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
