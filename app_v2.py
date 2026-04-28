@@ -282,20 +282,27 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
 <script>
   var isOpen = false;
 
-  function toggleDropdown() {{
+  function toggleDropdown() {
     isOpen = !isOpen;
     var d = document.getElementById('notifDropdown');
     if (!d) return;
-    if (isOpen) {{
+    
+    if (isOpen) {
       d.style.display = 'block';
-      d.style.animation = 'fadeIn 0.15s ease';
-      // הגדל את גובה ה-iframe כדי שהdropdown לא ייחתך
-      document.body.style.height = '{iframe_h}px';
-    }} else {{
+      // שולח פקודה ל-Streamlit להגדיל את ה-iframe רק עכשיו
+      window.parent.postMessage({
+        type: 'streamlit:setFrameHeight',
+        height: 500
+      }, '*');
+    } else {
       d.style.display = 'none';
-      document.body.style.height = '110px';
-    }}
-  }}
+      // מחזיר את הגובה המקורי כשהחלונית נסגרת
+      window.parent.postMessage({
+        type: 'streamlit:setFrameHeight',
+        height: 110
+      }, '*');
+    }
+  }
 
   function markRead(el) {{
     el.classList.add('read');
@@ -317,7 +324,8 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
 </script>
 
 </body>
-</html>""", height=110, scrolling=False)
+# בשורה האחרונה של הפונקציה
+}, height=110, scrolling=False)
 
 #סוף נסיון
 
