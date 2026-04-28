@@ -532,7 +532,7 @@ else:
     import pandas as pd
     import os
     
-    # --- 1. לוגיקה לטעינת הנתונים ---
+    # 1. לוגיקת טעינת הנתונים
     file_path = "inspirational_quotes.xlsx"
     quote_text = "המסע היחיד הוא זה שבפנים."
     quote_author = "לא ידוע"
@@ -548,50 +548,35 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
         except: pass
     
-    # --- 2. הזרקה מסיבית שתתקן את המיקום ואת המראה ---
-    st.markdown("""
-    <style>
-        /* דריסה מוחלטת של מרווחי סטרימליט בראש הדף */
-        .main .block-container {
-            padding-top: 0px !important;
-            padding-left: 0px !important;
-            padding-right: 0px !important;
-            max-width: 100% !important;
-        }
-        /* הסרת כותרת סטרימליט המובנית */
-        header {visibility: hidden;}
-        #MainMenu {visibility: hidden;}
-    </style>
-    """, unsafe_allow_html=True)
+    # 2. הזרקת CSS לביטול המרווח העליון
+    st.markdown("""<style>
+    .main .block-container {padding-top: 0px !important; padding-left: 0px !important; padding-right: 0px !important; max-width: 100% !important;}
+    header {visibility: hidden;}
+    </style>""", unsafe_allow_html=True)
     
-    # --- 3. ה-HTML המעוצב (יחידה אחת סגורה) ---
-    # שימי לב: הכל בתוך 'st.write' כדי שזה יישאר צמוד לסרגל
-    atmosphere_html = f"""
-    <div style="background: white; width: 100%; border-bottom: 1px solid #eee; margin: 0; padding: 0;">
-        <div style="background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 40%); padding: 25px 0; text-align: center; font-family: sans-serif;">
-            
-            <div style="max-width: 700px; margin: 0 auto; padding: 0 20px;">
-                <p style="font-size: 10px; font-weight: bold; color: #db2777; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 10px 0;">DAILY QUOTE</p>
-                
-                <h2 style="font-family: serif; font-size: 24px; color: #1a1c1c; margin: 0 0 5px 0; line-height: 1.3; font-weight: 700;">"{quote_text}"</h2>
-                
-                <p style="font-size: 14px; color: #666; font-style: italic; margin: 0 0 15px 0;">— {quote_author} —</p>
-                
-                <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                    <div style="height: 1px; width: 30px; background: #fadce6;"></div>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#db2777" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                    </svg>
-                    <div style="height: 1px; width: 30px; background: #fadce6;"></div>
-                </div>
-            </div>
-            
-        </div>
+    # 3. ה-HTML המלא (בלי רווחים בתחילת שורות למניעת שגיאת תצוגה)
+    atmosphere_html = f'''
+    <div style="background: white; width: 100%; border-bottom: 1px solid #f1f5f9; margin: 0; padding: 0; direction: rtl;">
+    <div style="background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 40%); padding: 30px 0; text-align: center;">
+    <div style="max-width: 800px; margin: 0 auto; padding: 0 20px;">
+    <p style="font-family: sans-serif; font-size: 11px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 10px 0;">DAILY QUOTE</p>
+    <h2 style="font-family: serif; font-size: 28px; color: #1a1c1c; margin: 0 0 8px 0; line-height: 1.3; font-weight: 700;">"{quote_text}"</h2>
+    <p style="font-family: sans-serif; font-size: 15px; color: #646566; font-style: italic; margin: 0 0 20px 0;">— {quote_author} —</p>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+    <div style="height: 1px; width: 40px; background: #fadce6;"></div>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6f5861" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+    </svg>
+    <div style="height: 1px; width: 40px; background: #fadce6;"></div>
     </div>
-    """
+    </div>
+    </div>
+    </div>
+    '''
     
     st.markdown(atmosphere_html, unsafe_allow_html=True)
+
 
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
