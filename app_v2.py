@@ -528,11 +528,9 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    # --- Daily Quote Section - המרה למבנה דק וחופף ---
-    import pandas as pd
-    import os
-    
-    # 1. טעינת נתונים
+    import streamlit.components.v1 as components
+
+    # --- לוגיקת נתונים ---
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
     quote_author = "ארתור אש"
     
@@ -547,40 +545,60 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
         except: pass
     
-    # 2. הזרקת ה-HTML עם ה-Classes מה-CSS שלך + תיקוני המיקום שביקשת
-    st.markdown(f"""
-        <div class="quote-wrapper-outer" style="
-            margin-top: -15px !important; 
-            min-height: unset !important; 
-            height: 85px !important; 
-            padding: 5px !important;
-            border-bottom: 1px solid #eee;
-            z-index: 1;
-        ">
-            <div class="quote-content-flat">
-                <div class="quote-main-text" style="font-size: 18px !important; margin-bottom: 2px !important;">
-                    "{quote_text}"
-                </div>
-                <div class="quote-author-row">
-                    <div class="author-line"></div>
-                    <span>{quote_author}</span>
-                    <div class="author-line"></div>
-                </div>
-            </div>
+    # --- העיצוב המקורי שאהבת ---
+    html_code = f"""
+    <div style="
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background: #ffffff;
+        background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
+                          radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
+        border-bottom: 1px solid #f1f5f9;
+        padding: 20px;
+        text-align: center;
+        direction: rtl;
+        margin: 0;
+    ">
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+        
+        <span style="font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 8px;">DAILY QUOTE</span>
+        
+        <div style="font-family: 'Noto Serif Hebrew', serif; font-size: 24px; color: #1a1c1c; line-height: 1.3; margin-bottom: 8px; font-weight: 700;">
+            "{quote_text}"
         </div>
-        <div style="height: 10px;"></div>
-    """, unsafe_allow_html=True)
+        
+        <div style="font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
+            &#8212; {quote_author} &#8212;
+        </div>
+        
+        <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+            <span class="material-symbols-outlined" style="color: #6f5861; font-size: 20px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
+            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+        </div>
+    </div>
+    """
     
-    # 3. תיקון ה-Z-Index של הסרגל העליון (כדי שיעלה על הציטוט)
+    # תיקון המיקום: הסרגל מעל הציטוט והצמדה למעלה
     st.markdown("""
         <style>
-            /* מאתר את ה-iframe של הסרגל העליון ונותן לו עדיפות */
-            iframe[title="streamlit.components.v1.html"] {
+            /* 1. הופך את הסרגל העליון לשכבה העליונה ביותר */
+            iframe[title="streamlit.components.v1.html"]:first-of-type {
                 position: relative;
-                z-index: 999 !important;
+                z-index: 100 !important;
+            }
+            /* 2. מושך את הציטוט למעלה ומכניס אותו מתחת לסרגל */
+            .quote-container-trigger {
+                margin-top: -15px !important; /* החפיפה הקלה שביקשת */
+                position: relative;
+                z-index: 1;
             }
         </style>
     """, unsafe_allow_html=True)
+    
+    # הצגת הרכיב בתוך המיכל המתוקן
+    st.markdown('<div class="quote-container-trigger">', unsafe_allow_html=True)
+    components.html(html_code, height=180) # גובה מצומצם שלא תופס חצי מסך
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
     # ── KPIs ────────────────────────────────────────────────
