@@ -528,7 +528,8 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Daily Quote Section Logic & Display ──────────────────────────
-       # --- 1. נתונים ---
+    # ── Daily Quote Section ──────────────────────────────────────────
+    # --- 1. נתונים ---
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
     quote_author = "ארתור אש"
     try:
