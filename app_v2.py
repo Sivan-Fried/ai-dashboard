@@ -318,7 +318,7 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
   }}
 </script>
 </body>
-""", height=110 + (len(reminders_today) * 72 + 80) if not reminders_today.empty else 110, scrolling=False))
+""", height=110 + (len(reminders_today) * 72 + 80) if not reminders_today.empty else 110, scrolling=False)
 
 #סוף נסיון
 
