@@ -111,14 +111,28 @@ except Exception as e:
     st.error(f"שגיאה בטעינת קבצים: {e}"); st.stop()
 
 today = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).date()
-def render_notification_bell(reminders_today):
-    unread = len(reminders_today)
+def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
+    import re
+    import datetime
+    from zoneinfo import ZoneInfo
+    import streamlit.components.v1 as components
 
+    now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
+    time_str = now.strftime("%H:%M")
+    date_str = now.strftime("%d/%m/%Y")
+    
+    # ניקוי מזג אוויר ותמונת פרופיל
+    w_text_clean = re.sub(r'[^\x00-\x7F]+', '', w_text).strip().replace('C', '\u00b0C')
+    profile_src = f"data:image/png;base64,{img_b64}" if img_b64 else ""
+    unread = len(today_reminders)
+    badge_display = 'flex' if unread > 0 else 'none'
+
+    # בניית ה-HTML של הנוטיפיקציות (בדיוק לפי העיצוב שלך)
     items_html = ""
-    if reminders_today.empty:
+    if today_reminders.empty:
         items_html = '<div class="sn-empty">אין תזכורות להיום 🎉</div>'
     else:
-        for _, row in reminders_today.iterrows():
+        for _, row in today_reminders.iterrows():
             text = str(row.get("reminder_text", "")).replace('"', '&quot;').replace("'", "&#39;").replace("<", "&lt;")
             proj = str(row.get("project_name", "כללי")).replace('"', '&quot;').replace("'", "&#39;")
             items_html += f"""
@@ -130,47 +144,70 @@ def render_notification_bell(reminders_today):
                 </div>
             </div>"""
 
-    items_js = items_html.replace('`', r'\`').replace('\\', '\\\\')
+    # הכנה להזרקה (ניקוי תווים בעייתיים ל-JS)
+    items_js = items_html.replace('`', r'\`').replace('\\', '\\\\').replace('\n', '')
+    profile_tag = f'<img class="tb-profile" src="{profile_src}"/>' if profile_src else '<div style="width:72px;height:72px;border-radius:50%;background:#FADCE6;"></div>'
 
     components.html(f"""<!DOCTYPE html>
-<html>
+<html dir="rtl">
 <head>
+<meta charset="utf-8"/>
 <style>
-  * {{ box-sizing:border-box; margin:0; padding:0; font-family:'Segoe UI',Arial,sans-serif; }}
-  body {{
-    background:transparent; display:flex; justify-content:flex-start;
-    align-items:center; height:60px; overflow:hidden; padding:4px;
+  * {{ box-sizing:border-box; margin:0; padding:0; }}
+  body {{ background:transparent; font-family:sans-serif; overflow:hidden; height:110px; direction:rtl; }}
+  .topbar {{
+    background:white; border-radius:16px; border:1px solid #F4F4F5;
+    box-shadow:0 2px 20px rgba(225,200,210,0.2); display:flex;
+    align-items:center; justify-content:space-between; padding:16px 24px;
+    height:110px; position:relative; z-index:100;
   }}
-  .bell-wrap {{ position:relative; display:inline-block; }}
-  .bell-btn {{
-    background:white; border:1px solid #e2e8f0; border-radius:50%;
-    width:42px; height:42px; font-size:1.2rem; cursor:pointer;
-    box-shadow:0 2px 8px rgba(0,0,0,0.08);
-    display:flex; align-items:center; justify-content:center;
-    transition:all 0.2s; outline:none;
-  }}
-  .bell-btn:hover {{ background:#f0f9ff; }}
-  .badge {{
-    position:absolute; top:-5px; left:-5px;
-    background:#ef4444; color:white; border-radius:50%;
-    min-width:18px; height:18px; font-size:0.65rem; font-weight:800;
-    display:{'flex' if unread > 0 else 'none'};
-    align-items:center; justify-content:center;
-    border:2px solid white; z-index:10; padding:0 3px;
+  .tb-right {{ display:flex; align-items:center; gap:12px; }}
+  .tb-profile {{ width:72px; height:72px; border-radius:50%; object-fit:cover; border:3px solid white; }}
+  .tb-name {{ font-size:0.95rem; font-weight:700; color:#3f3f46; }}
+  .tb-role {{ font-size:0.75rem; color:#a1a1aa; }}
+  .tb-nav {{ display:flex; gap:4px; flex:1; justify-content:center; }}
+  .tb-nav span {{ font-size:0.82rem; padding:6px 14px; border-radius:20px; color:#71717A; cursor:pointer; }}
+  .tb-nav span.active {{ background:#FADCE6; color:#3f3f46; font-weight:600; }}
+  .tb-left {{ display:flex; align-items:center; gap:12px; }}
+  .tb-brand {{ font-size:0.95rem; font-weight:800; color:#f0b8cb; }}
+  .bell-area {{ position:relative; cursor:pointer; display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; }}
+  .bell-badge {{
+    position:absolute; top:2px; left:2px; background:#ef4444; color:white;
+    border-radius:50%; min-width:18px; height:18px; font-size:0.62rem;
+    display:{badge_display}; align-items:center; justify-content:center; border:2px solid white; z-index:10;
   }}
 </style>
 </head>
 <body>
-  <div class="bell-wrap">
-    <span class="badge" id="badge">{unread}</span>
-    <button class="bell-btn" id="bellBtn">🔔</button>
+<div class="topbar">
+  <div class="tb-right">
+    {profile_tag}
+    <div>
+      <div class="tb-name">{greeting}, סיון</div>
+      <div class="tb-role">מנהלת פרויקטים</div>
+    </div>
+    <div class="bell-area" id="bellBtn">
+      <span class="bell-badge" id="badge">{unread}</span>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z"></path>
+        <path d="M13.73 21C13.5542 21.3031 12 21.9965 10.27 21"></path>
+      </svg>
+    </div>
   </div>
+  <nav class="tb-nav"><span class="active">דשבורד</span><span>פרויקטים</span><span>פגישות</span></nav>
+  <div class="tb-left">
+    <div><div style="font-size:0.85rem;font-weight:700;">{time_str}</div><div style="font-size:0.68rem;color:#a1a1aa;">{date_str}</div></div>
+    <div style="width:1px; height:28px; background:#F4F4F5; margin:0 12px;"></div>
+    <div class="tb-brand">Dashboard AI</div>
+  </div>
+</div>
+
 <script>
   var isOpen = false;
-
   window.addEventListener('load', function() {{
     var parentDoc = window.parent.document;
-
+    
+    // ניקוי אלמנטים קודמים למניעת כפילויות בטעינה חוזרת
     var old = parentDoc.getElementById('sn-floating-dropdown');
     if (old) old.remove();
     var oldStyle = parentDoc.getElementById('sn-styles');
@@ -180,95 +217,55 @@ def render_notification_bell(reminders_today):
     style.id = 'sn-styles';
     style.textContent = `
       #sn-floating-dropdown {{
-        display:none; position:fixed; width:320px; background:white;
-        border-radius:14px; box-shadow:0 8px 30px rgba(0,0,0,0.18);
-        border:1px solid #edf2f7; z-index:999999; overflow:hidden;
-        direction:rtl; font-family:'Segoe UI',Arial,sans-serif;
+        display:none; position:fixed; width:340px; background:white;
+        border-radius:20px; box-shadow:0 10px 40px rgba(0,0,0,0.15);
+        border:1px solid #fdf0f5; z-index:1000000; overflow:hidden;
+        direction:rtl; font-family:sans-serif;
       }}
-      @keyframes snFadeIn {{
-        from {{ opacity:0; transform:translateY(-8px); }}
-        to   {{ opacity:1; transform:translateY(0); }}
-      }}
-      .sn-header {{
-        padding:13px 16px; font-weight:700; font-size:0.95rem;
-        color:#1f2a44; border-bottom:1px solid #f1f5f9; background:#f8fafc;
-      }}
-      .sn-item {{
-        padding:12px 16px; display:flex; align-items:center; gap:10px;
-        cursor:pointer; border-bottom:1px solid #f8fafc; transition:background 0.15s;
-      }}
-      .sn-item:last-child {{ border-bottom:none; }}
-      .sn-item:hover {{ background:#f0f9ff; }}
-      .sn-item.read {{ opacity:0.4; }}
-      .sn-item.read .sn-dot {{ background:#cbd5e1 !important; }}
-      .sn-dot {{ width:9px; height:9px; border-radius:50%; background:#4facfe; flex-shrink:0; }}
-      .sn-text {{ font-size:0.83rem; color:#1e293b; font-weight:500; }}
-      .sn-proj {{ font-size:0.73rem; color:#94a3b8; margin-top:2px; }}
-      .sn-empty {{ padding:24px 16px; text-align:center; color:#94a3b8; font-size:0.85rem; }}
+      .sn-header {{ padding:16px 20px; font-weight:700; border-bottom:1px solid #fdf0f5; color:#3f3f46; background:#fff; }}
+      .sn-item {{ padding:14px 20px; display:flex; align-items:center; gap:14px; cursor:pointer; border-bottom:1px solid #fdf6f9; transition:0.15s; }}
+      .sn-item:hover {{ background:#fdf6f9; }}
+      .sn-dot {{ width:8px; height:8px; border-radius:50%; background:#FADCE6; }}
+      .sn-text {{ font-size:0.85rem; color:#3f3f46; font-weight:500; }}
+      .sn-proj {{ font-size:0.72rem; color:#a1a1aa; }}
+      .sn-empty {{ padding:24px 20px; text-align:center; color:#a1a1aa; }}
     `;
     parentDoc.head.appendChild(style);
 
     var dropdown = parentDoc.createElement('div');
     dropdown.id = 'sn-floating-dropdown';
-    dropdown.innerHTML = `
-      <div class="sn-header">🔔 התזכורות שלך להיום</div>
-      {items_js}
-    `;
+    dropdown.innerHTML = '<div class="sn-header">התראות להיום</div>' + `{items_js}`;
     parentDoc.body.appendChild(dropdown);
-
-    dropdown.querySelectorAll('.sn-item').forEach(function(item) {{
-      item.addEventListener('click', function() {{
-        item.classList.add('read');
-        var unreadCount = dropdown.querySelectorAll('.sn-item:not(.read)').length;
-        var badge = document.getElementById('badge');
-        if (unreadCount === 0) badge.style.display = 'none';
-        else {{ badge.style.display = 'flex'; badge.textContent = unreadCount; }}
-      }});
-    }});
 
     parentDoc.addEventListener('click', function(e) {{
       var d = parentDoc.getElementById('sn-floating-dropdown');
-      if (d && d.style.display === 'block' && !d.contains(e.target)) {{
+      if (isOpen && d && !d.contains(e.target)) {{
         d.style.display = 'none';
         isOpen = false;
       }}
     }}, true);
-
-    // עדכון מיקום בגלילה — כך החלונית נשארת מתחת לפעמון
-    parentDoc.addEventListener('scroll', function() {{
-      var d = parentDoc.getElementById('sn-floating-dropdown');
-      if (d && d.style.display === 'block') {{
-        var iframe = window.frameElement;
-        var rect   = iframe.getBoundingClientRect();
-        d.style.top   = (rect.bottom + 8) + 'px';
-        d.style.right = (parentDoc.documentElement.clientWidth - rect.right) + 'px';
-      }}
-    }}, true);
   }});
 
-  document.getElementById('bellBtn').addEventListener('click', function() {{
+  document.getElementById('bellBtn').addEventListener('click', function(e) {{
     var parentDoc = window.parent.document;
     var d = parentDoc.getElementById('sn-floating-dropdown');
     if (!d) return;
     isOpen = !isOpen;
     if (isOpen) {{
       var iframe = window.frameElement;
-      var rect   = iframe.getBoundingClientRect();
-      d.style.position  = 'fixed';
-      d.style.top       = (rect.bottom + 8) + 'px';
-      d.style.right     = (parentDoc.documentElement.clientWidth - rect.right) + 'px';
-      d.style.left      = 'auto';
-      d.style.animation = 'snFadeIn 0.15s ease';
-      d.style.display   = 'block';
+      var rect = iframe.getBoundingClientRect();
+      // הצבת התפריט בדיוק מתחת לפעמון באופן אבסולוטי על דף האב
+      d.style.top = (rect.top + 80) + 'px';
+      d.style.left = (rect.left + 24) + 'px';
+      d.style.display = 'block';
     }} else {{
       d.style.display = 'none';
     }}
+    e.stopPropagation();
   }});
 </script>
 </body>
-</html>""", height=60, scrolling=False)
-
-    
+</html>""", height=110, scrolling=False)
 #סוף נסיון
 
 
