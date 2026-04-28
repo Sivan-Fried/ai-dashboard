@@ -123,91 +123,77 @@ h3 {
 }
 
 /* ── Daily Quote Section - Pink Background & White Border ── */
-/* ייבוא פונט Assistant למראה מודרני ונקי */
-@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700&display=swap');
+/* ייבוא פונטים ואייקונים */
+@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
 
-/* ביטול המרווחים המובנים של Streamlit בחלק העליון */
+/* איפוס המרווח העליון של דף ה-Streamlit */
 .main .block-container {
     padding-top: 0rem !important;
-    padding-bottom: 0rem !important;
 }
 
 .quote-wrapper-outer {
-    width: 100vw;
-    margin-left: calc(-50vw + 50%); /* מתיחה לכל רוחב המסך */
+    width: 100%;
     background-color: #fdf2f8 !important;
-    margin-top: -85px !important; /* משיכה אגרסיבית למעלה להצמדה */
-    padding: 40px 20px 20px 20px !important;
-    position: relative;
-    border-bottom: 1px solid #fce7f3;
+    margin-top: -85px !important; /* הצמדה לסרגל */
+    padding: 10px 0px !important; /* דק מאוד */
+    border-bottom: 1px solid rgba(214, 51, 132, 0.05);
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 160px !important;
+    min-height: 70px !important; 
     font-family: 'Assistant', sans-serif !important;
 }
 
 .quote-content-flat {
     text-align: center;
-    z-index: 10;
     width: 100%;
 }
 
 .quote-label {
-    font-size: 12px !important;
+    font-size: 9px !important;
     font-weight: 700 !important;
-    color: #d63384 !important;
-    text-transform: uppercase;
-    letter-spacing: 0.25em;
-    margin-bottom: 12px !important;
+    color: #db2777 !important;
+    letter-spacing: 0.1em;
+    margin-bottom: 2px !important;
     display: block;
+    opacity: 0.8;
 }
 
 .quote-main-text {
-    font-size: 38px !important; /* הגדלה למראה יוקרתי */
+    font-size: 18px !important; /* פונט קטן ואלגנטי */
     font-weight: 700 !important;
     color: #1a202c !important;
     line-height: 1.1 !important;
-    margin: 0 auto 8px auto !important;
-    letter-spacing: -0.02em;
+    margin: 0 !important;
 }
 
 .quote-author-row {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    margin-top: 4px;
+    gap: 8px;
+    margin-top: 2px;
 }
 
 .author-line {
-    width: 40px;
+    width: 15px;
     height: 1px;
     background-color: #f9a8d4;
 }
 
 .quote-author-row span {
     color: #718096 !important;
-    font-size: 17px !important;
-    font-weight: 300;
+    font-size: 12px !important;
 }
 
-/* עיצוב ה-Icon התחתון שיהיה עדין כמו בעיצוב */
-.bottom-ornament {
-    margin-top: 15px;
+.bottom-icon {
+    margin-top: 4px;
     display: flex;
-    align-items: center;
     justify-content: center;
-    gap: 15px;
     opacity: 0.4;
 }
 
-.ornament-line {
-    height: 1px;
-    width: 50px;
-    background-color: #d63384;
-}
 
 /* ── KPI Cards ─────────────────────────────────────────── */
 /* ── New KPI Cards - Full & Final ──────────────────────────────── */
