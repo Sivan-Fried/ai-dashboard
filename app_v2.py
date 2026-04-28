@@ -79,68 +79,153 @@ st.markdown("""
 # =========================================================
 # סרגל עליון — פרופיל + ניווט + מזג אוויר + שעה + פעמון
 # =========================================================
-def render_topbar(img_b64, w_text, w_city, greeting):
+# =========================================================
+# סרגל עליון + פעמון נוטיפיקציות — הכל ב-components.html אחד
+# =========================================================
+def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
     import re
     now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
     time_str = now.strftime("%H:%M")
     date_str = now.strftime("%d/%m/%Y")
-    # ניקוי אמוג'י ממזג האוויר + הוספת סימן מעלות
     w_text_clean = re.sub(r'[^\x00-\x7F]+', '', w_text).strip()
     w_text_clean = w_text_clean.replace('C', '\u00b0C')
-    # תמונת פרופיל
-    profile_tag = f'<img src="data:image/png;base64,{img_b64}" style="width:82px;height:82px;border-radius:50%;object-fit:cover;object-position:center 20%;border:4px solid white;box-shadow:0 2px 12px rgba(225,200,210,0.4);"/>' if img_b64 else ""
+    profile_src = f"data:image/png;base64,{img_b64}" if img_b64 else ""
+    unread = len(reminders_today)
+    badge_display = 'flex' if unread > 0 else 'none'
 
-    # מבנה הסרגל
-    html = '<div style="background:white;border-radius:16px;border:1px solid #F4F4F5;box-shadow:0 2px 20px rgba(225,200,210,0.2);display:flex;align-items:center;justify-content:space-between;padding:20px 24px;direction:rtl;font-family:sans-serif;margin-bottom:20px;margin-top:-60px;">'
+    items_html = ""
+    if reminders_today.empty:
+        items_html = '<div style="padding:24px 16px;text-align:center;color:#a1a1aa;font-size:0.85rem;">אין תזכורות להיום</div>'
+    else:
+        for _, row in reminders_today.iterrows():
+            text = str(row.get("reminder_text", "")).replace('"', '&quot;').replace("'", "&#39;").replace("<", "&lt;")
+            proj = str(row.get("project_name", "כללי")).replace('"', '&quot;').replace("'", "&#39;")
+            items_html += f"""<div class="notif-item" onclick="markRead(this)">
+                <div class="notif-avatar"></div>
+                <div class="notif-content">
+                    <div class="notif-text">{text}</div>
+                    <div class="notif-proj">{proj}</div>
+                </div>
+                <div class="notif-dot"></div>
+            </div>"""
 
-    # ימין: פרופיל + ברכה
-    html += '<div style="display:flex;align-items:center;gap:10px;">'
-    html += profile_tag
-    html += '<div>'
-    html += f'<div style="font-size:1rem;font-weight:700;color:#3f3f46;">{greeting}, סיון</div>'
-    html += '<div style="font-size:0.8rem;color:#a1a1aa;">מנהלת פרויקטים</div>'
-    html += '</div></div>'
+    items_js = items_html.replace('`', r'\`').replace('\\', '\\\\')
 
-    # מרכז: ניווט
-    html += '<nav style="display:flex;gap:4px;flex:1;justify-content:center;">'
-    html += '<span style="font-size:0.82rem;font-weight:600;padding:6px 14px;border-radius:20px;background:#FADCE6;color:#3f3f46;">דשבורד</span>'
-    html += '<span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">פרויקטים</span>'
-    html += '<span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">פגישות</span>'
-    html += '<span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">משימות</span>'
-    html += '<span style="font-size:0.82rem;padding:6px 14px;border-radius:20px;color:#71717A;">דוחות</span>'
-    html += '</nav>'
+    components.html(f"""<!DOCTYPE html>
+<html dir="rtl">
+<head>
+<meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  * {{ box-sizing:border-box; margin:0; padding:0; }}
+  body {{ font-family:'Plus Jakarta Sans',sans-serif; background:transparent; overflow:visible; height:110px; direction:rtl; }}
+  .topbar {{ background:white; border-radius:16px; border:1px solid #F4F4F5; box-shadow:0 2px 20px rgba(225,200,210,0.2); display:flex; align-items:center; justify-content:space-between; padding:16px 24px; direction:rtl; }}
+  .tb-right {{ display:flex; align-items:center; gap:12px; }}
+  .tb-profile {{ width:72px; height:72px; border-radius:50%; object-fit:cover; object-position:center 20%; border:3px solid white; box-shadow:0 2px 12px rgba(225,200,210,0.4); }}
+  .tb-name {{ font-size:0.95rem; font-weight:700; color:#3f3f46; }}
+  .tb-role {{ font-size:0.75rem; color:#a1a1aa; margin-top:2px; }}
+  .tb-nav {{ display:flex; gap:4px; flex:1; justify-content:center; }}
+  .tb-nav span {{ font-size:0.82rem; padding:6px 14px; border-radius:20px; color:#71717A; cursor:pointer; transition:all 0.2s; }}
+  .tb-nav span:hover {{ background:#fdf0f5; }}
+  .tb-nav span.active {{ background:#FADCE6; color:#3f3f46; font-weight:600; }}
+  .tb-left {{ display:flex; align-items:center; gap:12px; }}
+  .tb-divider {{ width:1px; height:28px; background:#F4F4F5; }}
+  .tb-brand {{ font-size:0.95rem; font-weight:800; color:#f0b8cb; }}
+  .bell-wrap {{ position:relative; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; width:38px; height:38px; border-radius:50%; transition:background 0.2s; }}
+  .bell-wrap:hover {{ background:#fdf0f5; }}
+  .bell-badge {{ position:absolute; top:-3px; left:-3px; background:#ef4444; color:white; border-radius:50%; min-width:18px; height:18px; font-size:0.62rem; font-weight:800; display:{badge_display}; align-items:center; justify-content:center; border:2px solid white; padding:0 3px; }}
+  .notif-dropdown {{ display:none; position:absolute; top:50px; right:0; left:auto; width:360px; background:white; border-radius:20px; box-shadow:0 10px 40px rgba(225,200,210,0.35); border:1px solid #fdf0f5; z-index:9999; overflow:hidden; direction:rtl; }}
+  @keyframes fadeIn {{ from {{ opacity:0; transform:translateY(-8px); }} to {{ opacity:1; transform:translateY(0); }} }}
+  .notif-header {{ padding:16px 20px; font-weight:700; font-size:1rem; color:#3f3f46; border-bottom:1px solid #fdf0f5; }}
+  .notif-item {{ padding:14px 20px; display:flex; align-items:center; gap:14px; cursor:pointer; border-bottom:1px solid #fdf6f9; transition:background 0.15s; }}
+  .notif-item:last-child {{ border-bottom:none; }}
+  .notif-item:hover {{ background:#fdf6f9; }}
+  .notif-item.read {{ opacity:0.45; }}
+  .notif-item.read .notif-dot {{ display:none; }}
+  .notif-avatar {{ width:40px; height:40px; border-radius:50%; background:#FADCE6; flex-shrink:0; }}
+  .notif-content {{ flex:1; }}
+  .notif-text {{ font-size:0.85rem; color:#3f3f46; font-weight:500; line-height:1.4; }}
+  .notif-proj {{ font-size:0.72rem; color:#a1a1aa; margin-top:3px; }}
+  .notif-dot {{ width:8px; height:8px; border-radius:50%; background:#FADCE6; flex-shrink:0; }}
+</style>
+</head>
+<body>
+<div class="topbar">
 
-    # שמאל: מזג אוויר + שעה + שם + פעמון
-    html += '<div style="display:flex;align-items:center;gap:12px;">'
+  <!-- ימין: פרופיל + פעמון -->
+  <div class="tb-right">
+    <div style="position:relative;">
+      <div class="bell-wrap" onclick="toggleDropdown()">
+        <span class="bell-badge" id="badge">{unread}</span>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6981 21.5547 10.4458 21.3031 10.27 21" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="notif-dropdown" id="notifDropdown">
+        <div class="notif-header">התראות</div>
+        {items_js}
+      </div>
+    </div>
+    {'<img class="tb-profile" src="' + profile_src + '"/>' if profile_src else '<div style="width:72px;height:72px;border-radius:50%;background:#FADCE6;"></div>'}
+    <div>
+      <div class="tb-name">{greeting}, סיון</div>
+      <div class="tb-role">מנהלת פרויקטים</div>
+    </div>
+  </div>
 
-    # אייקון טמפרטורה + מזג אוויר
-    html += '<div style="display:flex;align-items:center;gap:6px;">'
-    html += '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 11V5C12 3.34315 13.3431 2 15 2C16.6569 2 18 3.34315 18 5V11M12 11C10.3431 11 9 12.3431 9 14C9 15.6569 10.3431 17 12 17C13.6569 17 15 15.6569 15 14C15 12.3431 13.6569 11 12 11Z" stroke="#a1a1aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-    html += f'<div style="text-align:right;"><div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{w_text_clean}</div><div style="font-size:0.68rem;color:#a1a1aa;">{w_city}</div></div>'
-    html += '</div>'
+  <!-- מרכז: ניווט -->
+  <nav class="tb-nav">
+    <span class="active">דשבורד</span>
+    <span>פרויקטים</span>
+    <span>פגישות</span>
+    <span>משימות</span>
+    <span>דוחות</span>
+  </nav>
 
-    html += '<div style="width:1px;height:28px;background:#F4F4F5;"></div>'
+  <!-- שמאל: מזג אוויר + שעה + שם -->
+  <div class="tb-left">
+    <div>
+      <div style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{w_text_clean}</div>
+      <div style="font-size:0.68rem;color:#a1a1aa;">{w_city}</div>
+    </div>
+    <div class="tb-divider"></div>
+    <div>
+      <div style="font-size:0.85rem;font-weight:700;color:#3f3f46;">{time_str}</div>
+      <div style="font-size:0.68rem;color:#a1a1aa;">{date_str}</div>
+    </div>
+    <div class="tb-divider"></div>
+    <div class="tb-brand">Dashboard AI</div>
+  </div>
 
-    # שעה ותאריך
-    html += f'<div style="text-align:right;"><div style="font-size:0.85rem;font-weight:700;color:#3f3f46;">{time_str}</div><div style="font-size:0.68rem;color:#a1a1aa;">{date_str}</div></div>'
+</div>
 
-    html += '<div style="width:1px;height:28px;background:#F4F4F5;"></div>'
-
-    # שם הדשבורד
-    html += '<div style="font-size:1rem;font-weight:800;color:#f0b8cb;">Dashboard AI</div>'
-
-    html += '<div style="width:1px;height:28px;background:#F4F4F5;"></div>'
-
-    # אייקון פעמון SVG
-    html += '<div id="topbar-bell" style="position:relative;display:inline-block;cursor:pointer;" onclick="document.getElementById(\'bellBtn\').click()">'
-    html += '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6981 21.5547 10.4458 21.3031 10.27 21" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-    html += '</div>'
-
-    html += '</div>'
-    html += '</div>'
-
-    st.markdown(html, unsafe_allow_html=True)
-
+<script>
+  var isOpen = false;
+  function toggleDropdown() {{
+    isOpen = !isOpen;
+    var d = document.getElementById('notifDropdown');
+    d.style.display = isOpen ? 'block' : 'none';
+    if (isOpen) d.style.animation = 'fadeIn 0.15s ease';
+  }}
+  function markRead(el) {{
+    el.classList.add('read');
+    var unreadCount = document.querySelectorAll('.notif-item:not(.read)').length;
+    var badge = document.getElementById('badge');
+    if (unreadCount === 0) badge.style.display = 'none';
+    else {{ badge.style.display = 'flex'; badge.textContent = unreadCount; }}
+  }}
+  document.addEventListener('click', function(e) {{
+    var d = document.getElementById('notifDropdown');
+    var b = document.querySelector('.bell-wrap');
+    if (isOpen && d && b && !d.contains(e.target) && !b.contains(e.target)) {{
+      d.style.display = 'none';
+      isOpen = false;
+    }}
+  }});
+</script>
+</body>
+</html>""", height=110, scrolling=False)
 
 #סוף נסיון
 
@@ -253,163 +338,6 @@ except Exception as e:
     st.error(f"שגיאה בטעינת קבצים: {e}"); st.stop()
 
 today = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).date()
-
-def render_notification_bell(reminders_today):
-    unread = len(reminders_today)
-
-    items_html = ""
-    if reminders_today.empty:
-        items_html = '<div class="sn-empty">אין תזכורות להיום 🎉</div>'
-    else:
-        for _, row in reminders_today.iterrows():
-            text = str(row.get("reminder_text", "")).replace('"', '&quot;').replace("'", "&#39;").replace("<", "&lt;")
-            proj = str(row.get("project_name", "כללי")).replace('"', '&quot;').replace("'", "&#39;")
-            items_html += f"""
-            <div class="sn-item">
-                <div class="sn-dot"></div>
-                <div>
-                    <div class="sn-text">{text}</div>
-                    <div class="sn-proj">{proj}</div>
-                </div>
-            </div>"""
-
-    items_js = items_html.replace('`', r'\`').replace('\\', '\\\\')
-
-    components.html(f"""<!DOCTYPE html>
-<html>
-<head>
-<style>
-  * {{ box-sizing:border-box; margin:0; padding:0; font-family:'Segoe UI',Arial,sans-serif; }}
-  body {{
-    background:transparent; display:flex; justify-content:flex-start;
-    align-items:center; height:60px; overflow:hidden; padding:4px;
-  }}
-  .bell-wrap {{ position:relative; display:inline-block; }}
-  .bell-btn {{
-    background:white; border:1px solid #e2e8f0; border-radius:50%;
-    width:42px; height:42px; font-size:1.2rem; cursor:pointer;
-    box-shadow:0 2px 8px rgba(0,0,0,0.08);
-    display:flex; align-items:center; justify-content:center;
-    transition:all 0.2s; outline:none;
-  }}
-  .bell-btn:hover {{ background:#f0f9ff; }}
-  .badge {{
-    position:absolute; top:-5px; left:-5px;
-    background:#ef4444; color:white; border-radius:50%;
-    min-width:18px; height:18px; font-size:0.65rem; font-weight:800;
-    display:{'flex' if unread > 0 else 'none'};
-    align-items:center; justify-content:center;
-    border:2px solid white; z-index:10; padding:0 3px;
-  }}
-</style>
-</head>
-<body>
-  <div class="bell-wrap">
-    <span class="badge" id="badge">{unread}</span>
-    <button class="bell-btn" id="bellBtn">🔔</button>
-  </div>
-<script>
-  var isOpen = false;
-
-  window.addEventListener('load', function() {{
-    var parentDoc = window.parent.document;
-
-    var old = parentDoc.getElementById('sn-floating-dropdown');
-    if (old) old.remove();
-    var oldStyle = parentDoc.getElementById('sn-styles');
-    if (oldStyle) oldStyle.remove();
-
-    var style = parentDoc.createElement('style');
-    style.id = 'sn-styles';
-    style.textContent = `
-      #sn-floating-dropdown {{
-        display:none; position:fixed; width:320px; background:white;
-        border-radius:14px; box-shadow:0 8px 30px rgba(0,0,0,0.18);
-        border:1px solid #edf2f7; z-index:999999; overflow:hidden;
-        direction:rtl; font-family:'Segoe UI',Arial,sans-serif;
-      }}
-      @keyframes snFadeIn {{
-        from {{ opacity:0; transform:translateY(-8px); }}
-        to   {{ opacity:1; transform:translateY(0); }}
-      }}
-      .sn-header {{
-        padding:13px 16px; font-weight:700; font-size:0.95rem;
-        color:#1f2a44; border-bottom:1px solid #f1f5f9; background:#f8fafc;
-      }}
-      .sn-item {{
-        padding:12px 16px; display:flex; align-items:center; gap:10px;
-        cursor:pointer; border-bottom:1px solid #f8fafc; transition:background 0.15s;
-      }}
-      .sn-item:last-child {{ border-bottom:none; }}
-      .sn-item:hover {{ background:#f0f9ff; }}
-      .sn-item.read {{ opacity:0.4; }}
-      .sn-item.read .sn-dot {{ background:#cbd5e1 !important; }}
-      .sn-dot {{ width:9px; height:9px; border-radius:50%; background:#4facfe; flex-shrink:0; }}
-      .sn-text {{ font-size:0.83rem; color:#1e293b; font-weight:500; }}
-      .sn-proj {{ font-size:0.73rem; color:#94a3b8; margin-top:2px; }}
-      .sn-empty {{ padding:24px 16px; text-align:center; color:#94a3b8; font-size:0.85rem; }}
-    `;
-    parentDoc.head.appendChild(style);
-
-    var dropdown = parentDoc.createElement('div');
-    dropdown.id = 'sn-floating-dropdown';
-    dropdown.innerHTML = `
-      <div class="sn-header">🔔 התזכורות שלך להיום</div>
-      {items_js}
-    `;
-    parentDoc.body.appendChild(dropdown);
-
-    dropdown.querySelectorAll('.sn-item').forEach(function(item) {{
-      item.addEventListener('click', function() {{
-        item.classList.add('read');
-        var unreadCount = dropdown.querySelectorAll('.sn-item:not(.read)').length;
-        var badge = document.getElementById('badge');
-        if (unreadCount === 0) badge.style.display = 'none';
-        else {{ badge.style.display = 'flex'; badge.textContent = unreadCount; }}
-      }});
-    }});
-
-    parentDoc.addEventListener('click', function(e) {{
-      var d = parentDoc.getElementById('sn-floating-dropdown');
-      if (d && d.style.display === 'block' && !d.contains(e.target)) {{
-        d.style.display = 'none';
-        isOpen = false;
-      }}
-    }}, true);
-
-    // עדכון מיקום בגלילה — כך החלונית נשארת מתחת לפעמון
-    parentDoc.addEventListener('scroll', function() {{
-      var d = parentDoc.getElementById('sn-floating-dropdown');
-      if (d && d.style.display === 'block') {{
-        var iframe = window.frameElement;
-        var rect   = iframe.getBoundingClientRect();
-        d.style.top   = (rect.bottom + 8) + 'px';
-        d.style.right = (parentDoc.documentElement.clientWidth - rect.right) + 'px';
-      }}
-    }}, true);
-  }});
-
-  document.getElementById('bellBtn').addEventListener('click', function() {{
-    var parentDoc = window.parent.document;
-    var d = parentDoc.getElementById('sn-floating-dropdown');
-    if (!d) return;
-    isOpen = !isOpen;
-    if (isOpen) {{
-      var iframe = window.frameElement;
-      var rect   = iframe.getBoundingClientRect();
-      d.style.position  = 'fixed';
-      d.style.top       = (rect.bottom + 8) + 'px';
-      d.style.right     = (parentDoc.documentElement.clientWidth - rect.right) + 'px';
-      d.style.left      = 'auto';
-      d.style.animation = 'snFadeIn 0.15s ease';
-      d.style.display   = 'block';
-    }} else {{
-      d.style.display = 'none';
-    }}
-  }});
-</script>
-</body>
-</html>""", height=60, scrolling=False)
 
 # =========================================================
 # 3. ניהול ניווט ו-Session State
