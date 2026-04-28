@@ -532,7 +532,7 @@ else:
     import pandas as pd
     import os
     
-    # --- 1. לוגיקת טעינת הנתונים (נשארת ללא שינוי) ---
+    # --- 1. לוגיקת טעינת הנתונים (עם תיקון לטעינת המחבר) ---
     file_path = "inspirational_quotes.xlsx"
     quote_text = "המסע היחיד הוא זה שבפנים."
     quote_author = "לא ידוע"
@@ -542,62 +542,50 @@ else:
             df = pd.read_excel(file_path, engine='openpyxl')
             if not df.empty:
                 row = df.sample(n=1).iloc[0]
-                q_col = [c for c in df.columns if str(c).lower() in ['quote', 'ציטוט']]
-                a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר', 'הוגה']]
-                if q_col: quote_text = str(row[q_col[0]])
-                if a_col: quote_author = str(row[a_col[0]])
-        except: pass
+                # חיפוש עמודות בצורה חכמה יותר
+                q_cols = [c for c in df.columns if str(c).lower() in ['quote', 'ציטוט', 'text']]
+                a_cols = [c for c in df.columns if str(c).lower() in ['author', 'מחבר', 'הוגה', 'שם']]
+                if q_cols: quote_text = str(row[q_cols[0]])
+                if a_cols: quote_author = str(row[a_cols[0]])
+        except:
+            pass
     
-    # --- 2. ניקוי המרווחים של סטרימליט ---
+    # --- 2. CSS להצמדה מלאה וביטול מרווחים ---
     st.markdown("""
-        <style>
-            .main .block-container { padding: 0 !important; max-width: 100% !important; }
-            header { visibility: hidden; }
-        </style>
+    <style>
+        /* ביטול מרווחי המערכת של סטרימליט */
+        .main .block-container {
+            padding-top: 0rem !important;
+            padding-bottom: 0rem !important;
+            max-width: 100% !important;
+        }
+        header { visibility: hidden; }
+        
+        /* ייבוא פונטים ואייקונים */
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0');
+    </style>
     """, unsafe_allow_html=True)
     
-    # --- 3. בניית ה-Atmosphere Card (הפעם בתוך Component סגור) ---
-    # שימי לב: השתמשתי ב-Noto Serif Hebrew וב-Plus Jakarta Sans המקוריים
-    atmosphere_component = f"""
-    <div style="
-        width: 100%; 
-        background: #ffffff; 
-        background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
-                          radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
-        border-bottom: 1px solid #f1f5f9;
-        padding: 40px 0;
-        text-align: center;
-        direction: rtl;
-        font-family: 'Plus Jakarta Sans', 'Assistant', sans-serif;
-    ">
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&display=swap" rel="stylesheet">
-        
-        <div style="max-width: 800px; margin: 0 auto; padding: 0 20px;">
-            <span style="font-size: 11px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 12px;">DAILY QUOTE</span>
-            
-            <h1 style="font-family: 'Noto Serif Hebrew', serif; font-size: 32px; color: #1a1c1c; line-height: 1.3; margin: 0 0 10px 0; font-weight: 700;">
-                "{quote_text}"
-            </h1>
-            
-            <div style="font-size: 16px; color: #646566; font-style: italic; margin-bottom: 25px;">
-                — {quote_author} —
-            </div>
-            
-            <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
-                <div style="height: 1px; width: 50px; background-color: #fadce6;"></div>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6f5861" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                </svg>
-                <div style="height: 1px; width: 50px; background-color: #fadce6;"></div>
-            </div>
-        </div>
+    # --- 3. ה-HTML המהודק (בלי רווחים בתחילת שורות) ---
+    # צמצמתי פדינג ל-20px והקטנתי פונט ציטוט ל-22px
+    atmosphere_html = f'''
+    <div style="background: white; width: 100%; border-bottom: 1px solid #f1f5f9; margin: 0; padding: 0; direction: rtl;">
+    <div style="background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 40%); padding: 20px 0; text-align: center;">
+    <div style="max-width: 800px; margin: 0 auto; padding: 0 20px;">
+    <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 8px 0;">DAILY QUOTE</p>
+    <h2 style="font-family: 'Noto Serif Hebrew', serif; font-size: 22px; color: #1a1c1c; margin: 0 0 4px 0; line-height: 1.2; font-weight: 700;">"{quote_text}"</h2>
+    <p style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; color: #646566; font-style: italic; margin: 0 0 12px 0;">— {quote_author} —</p>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+    <div style="height: 1px; width: 35px; background: #fadce6;"></div>
+    <span class="material-symbols-outlined" style="color: #6f5861; font-size: 20px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
+    <div style="height: 1px; width: 35px; background: #fadce6;"></div>
     </div>
-    """
+    </div>
+    </div>
+    </div>
+    '''
     
-    # הזרקה סופית
-    st.components.v1.html(atmosphere_component, height=250)
-
+    st.markdown(atmosphere_html, unsafe_allow_html=True)
 
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
