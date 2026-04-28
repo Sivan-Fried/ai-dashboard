@@ -202,38 +202,133 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, reminders_today):
 </div>
 
 <script>
+  <script>
   var isOpen = false;
+
+  window.addEventListener('load', function() {{
+    var parentDoc = window.parent.document;
+
+    // הסר dropdown ישן
+    var old = parentDoc.getElementById('sn-notif-dropdown');
+    if (old) old.remove();
+    var oldStyle = parentDoc.getElementById('sn-notif-style');
+    if (oldStyle) oldStyle.remove();
+
+    // CSS לdropdown בdocument הראשי
+    var style = parentDoc.createElement('style');
+    style.id = 'sn-notif-style';
+    style.textContent = `
+      #sn-notif-dropdown {{
+        display: none;
+        position: fixed;
+        width: 360px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(225,200,210,0.5);
+        border: 1px solid #fdf0f5;
+        z-index: 999999;
+        overflow: hidden;
+        direction: rtl;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+      }}
+      @keyframes snFadeIn {{
+        from {{ opacity:0; transform:translateY(-8px); }}
+        to   {{ opacity:1; transform:translateY(0); }}
+      }}
+      #sn-notif-dropdown .notif-header {{
+        padding: 16px 20px;
+        font-weight: 700;
+        font-size: 1rem;
+        color: #3f3f46;
+        border-bottom: 1px solid #fdf0f5;
+        background: white;
+      }}
+      #sn-notif-dropdown .notif-item {{
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        cursor: pointer;
+        border-bottom: 1px solid #fdf6f9;
+        transition: background 0.15s;
+      }}
+      #sn-notif-dropdown .notif-item:last-child {{ border-bottom: none; }}
+      #sn-notif-dropdown .notif-item:hover {{ background: #fdf6f9; }}
+      #sn-notif-dropdown .notif-item.read {{ opacity: 0.45; }}
+      #sn-notif-dropdown .notif-item.read .notif-dot {{ display: none; }}
+      #sn-notif-dropdown .notif-avatar {{
+        width: 40px; height: 40px;
+        border-radius: 50%;
+        background: #FADCE6;
+        flex-shrink: 0;
+      }}
+      #sn-notif-dropdown .notif-content {{ flex: 1; }}
+      #sn-notif-dropdown .notif-text {{ font-size: 0.85rem; color: #3f3f46; font-weight: 500; line-height: 1.4; }}
+      #sn-notif-dropdown .notif-proj {{ font-size: 0.72rem; color: #a1a1aa; margin-top: 3px; }}
+      #sn-notif-dropdown .notif-dot {{
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: #FADCE6;
+        flex-shrink: 0;
+      }}
+      #sn-notif-dropdown .notif-empty {{
+        padding: 28px 20px;
+        text-align: center;
+        color: #a1a1aa;
+        font-size: 0.85rem;
+      }}
+    `;
+    parentDoc.head.appendChild(style);
+
+    // יצירת dropdown בdocument הראשי
+    var dropdown = parentDoc.createElement('div');
+    dropdown.id = 'sn-notif-dropdown';
+    dropdown.innerHTML = `
+      <div class="notif-header">התראות</div>
+      {items_js}
+    `;
+    parentDoc.body.appendChild(dropdown);
+
+    // סמן כנקרא
+    dropdown.querySelectorAll('.notif-item').forEach(function(item) {{
+      item.addEventListener('click', function() {{
+        item.classList.add('read');
+        var unreadCount = dropdown.querySelectorAll('.notif-item:not(.read)').length;
+        var badge = document.getElementById('badge');
+        if (unreadCount === 0) badge.style.display = 'none';
+        else {{ badge.style.display = 'flex'; badge.textContent = unreadCount; }}
+      }});
+    }});
+
+    // סגירה בלחיצה מחוץ
+    parentDoc.addEventListener('click', function(e) {{
+      var d = parentDoc.getElementById('sn-notif-dropdown');
+      if (d && d.style.display === 'block' && !d.contains(e.target)) {{
+        d.style.display = 'none';
+        isOpen = false;
+      }}
+    }}, true);
+  }});
+
   function toggleDropdown() {{
+    var parentDoc = window.parent.document;
+    var d = parentDoc.getElementById('sn-notif-dropdown');
+    if (!d) return;
     isOpen = !isOpen;
-    var d = document.getElementById('notifDropdown');
     if (isOpen) {{
+      var iframe = window.frameElement;
       var bell = document.querySelector('.bell-wrap');
-      var rect = bell.getBoundingClientRect();
-      d.style.position = 'fixed';
-      d.style.top = (rect.bottom + window.scrollY + 8) + 'px';
-      d.style.right = (window.innerWidth - rect.right) + 'px';
+      var iRect = iframe.getBoundingClientRect();
+      var bRect = bell.getBoundingClientRect();
+      d.style.top = (iRect.top + bRect.bottom + 8) + 'px';
+      d.style.right = (parentDoc.documentElement.clientWidth - iRect.left - bRect.right) + 'px';
       d.style.left = 'auto';
       d.style.display = 'block';
-      d.style.animation = 'fadeIn 0.15s ease';
+      d.style.animation = 'snFadeIn 0.15s ease';
     }} else {{
       d.style.display = 'none';
     }}
   }}
-  function markRead(el) {{
-    el.classList.add('read');
-    var unreadCount = document.querySelectorAll('.notif-item:not(.read)').length;
-    var badge = document.getElementById('badge');
-    if (unreadCount === 0) badge.style.display = 'none';
-    else {{ badge.style.display = 'flex'; badge.textContent = unreadCount; }}
-  }}
-  document.addEventListener('click', function(e) {{
-    var d = document.getElementById('notifDropdown');
-    var b = document.querySelector('.bell-wrap');
-    if (isOpen && d && b && !d.contains(e.target) && !b.contains(e.target)) {{
-      d.style.display = 'none';
-      isOpen = false;
-    }}
-  }});
 </script>
 </body>
 </html>""", height=110, scrolling=False)
