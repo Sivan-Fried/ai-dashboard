@@ -528,88 +528,53 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    # ── Daily Quote Section ──────────────────────────────────────────
+    # קריאת תוכן ה-CSS כדי להזריק אותו לתוך ה-iframe
+    with open("styles_v2.css", "r", encoding="utf-8") as f:
+        external_css = f.read()
+    
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
     quote_author = "ארתור אש"
     
-    # ה-HTML כולל את ה-CSS בתוכו כדי שה-iframe יכיר אותו
-    html_design = f"""
+    # ה-HTML שמזריק את ה-CSS ששנינו עמלנו עליו
+    quote_html = f"""
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap');
-        
-        body {{
-            margin: 0;
-            padding: 0;
-            background-color: transparent;
-            font-family: 'Assistant', sans-serif;
-            direction: rtl;
-        }}
-        
-        .quote-wrapper-outer {{
-            width: 100%;
-            background-color: #fdf2f8; /* ורוד עדין */
-            padding: 20px;
-            text-align: center;
-            border-radius: 20px; /* מעוגל כמו בתמונה שרצית */
-        }}
-
-        .quote-label {{
-            font-size: 11px;
-            font-weight: 700;
-            color: #db2777;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-            margin-bottom: 8px;
-            display: block;
-        }}
-
-        .quote-main-text {{
-            font-size: 22px;
-            font-weight: 700;
-            color: #1e293b;
-            line-height: 1.3;
-            margin-bottom: 10px;
-        }}
-
-        .quote-author-row {{
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            color: #94a3b8;
-            font-style: italic;
-            font-size: 14px;
-        }}
-
-        .author-line {{
-            width: 30px;
-            height: 1px;
-            background-color: #fbcfe8;
-        }}
+        {external_css}
+        body {{ background: transparent; margin: 0; padding: 0; overflow: hidden; }}
+        /* תיקון קטן למקרה שהרקע לא מופיע ב-iframe */
+        .quote-wrapper-outer {{ margin-top: 0 !important; }} 
     </style>
-
+    
     <div class="quote-wrapper-outer">
-        <span class="quote-label">DAILY QUOTE</span>
-        <div class="quote-main-text">"{quote_text}"</div>
-        <div class="quote-author-row">
-            <div class="author-line"></div>
-            <span>{quote_author}</span>
-            <div class="author-line"></div>
+        <div class="watercolor-bg">
+            <svg viewBox="0 0 200 200"><path d="M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.6,90,-16.3,88.5,-0.9C87,14.6,81.4,29.1,73.6,42.4C65.8,55.7,55.8,67.7,43.2,75.1C30.6,82.5,15.3,85.2,0.4,84.5C-14.5,83.8,-29,79.7,-42.2,72.6C-55.3,65.5,-67.1,55.3,-75.4,42.6C-83.7,29.9,-88.4,14.9,-88.7,-0.2C-89,-15.3,-84.8,-30.7,-76.5,-43.4C-68.2,-56.1,-55.8,-66.1,-42,-73.4C-28.2,-80.7,-14.1,-85.4,0.3,-85.9C14.7,-86.4,29.4,-82.7,44.7,-76.4Z" transform="translate(100 100)" /></svg>
+        </div>
+        <div class="quote-content-flat">
+            <span class="quote-label">DAILY QUOTE</span>
+            <div class="quote-main-text">"{quote_text}"</div>
+            <div class="quote-author-row">
+                <div class="author-line"></div>
+                <span>{quote_author}</span>
+                <div class="author-line"></div>
+            </div>
+            <div class="bottom-ornament">
+                <div class="ornament-line"></div>
+                <span class="material-symbols-rounded">favorite</span>
+                <div class="ornament-line"></div>
+            </div>
         </div>
     </div>
     """
-
-    # הזרקת ה-CSS להזזה למעלה (בתוך דף ה-Streamlit הראשי)
+    
+    # הזרקת התיקון שמעלה את הכל למעלה בדף הראשי
     st.markdown("""
         <style>
-            /* מצמצם את הרווח הלבן הענק שרואים בתמונה */
-            div[data-testid="stVerticalBlock"] > div:nth-child(3) {
-                margin-top: -40px !important;
-            }
+        div[data-testid="stVerticalBlock"] > div:nth-child(3) {
+            margin-top: -65px !important; /* מושך את ה-iframe למעלה */
+        }
         </style>
     """, unsafe_allow_html=True)
-
-    components.html(html_design, height=160)
+    
+    components.html(quote_html, height=180)
 
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
