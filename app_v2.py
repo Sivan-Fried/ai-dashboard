@@ -528,67 +528,63 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    import streamlit as st
     import pandas as pd
+    import random
     import os
     
-    # --- 1. לוגיקת טעינת הנתונים ---
+    # --- לוגיקת טעינה ---
     file_path = "inspirational_quotes.xlsx"
+    # ערכי ברירת מחדל
     quote_text = "המסע היחיד הוא זה שבפנים."
     quote_author = "לא ידוע"
     
     if os.path.exists(file_path):
         try:
+            # טעינת קובץ האקסל
             df = pd.read_excel(file_path, engine='openpyxl')
             if not df.empty:
-                row = df.sample(n=1).iloc[0]
+                # בחירת שורה רנדומלית
+                random_row = df.sample(n=1).iloc[0]
+                
+                # חיפוש עמודות (תומך בעברית ואנגלית)
                 q_col = [c for c in df.columns if str(c).lower() in ['quote', 'ציטוט']]
                 a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר', 'הוגה']]
-                if q_col: quote_text = str(row[q_col[0]])
-                if a_col: quote_author = str(row[a_col[0]])
-        except: pass
+                
+                if q_col:
+                    quote_text = str(random_row[q_col[0]])
+                if a_col:
+                    quote_author = str(random_row[a_col[0]])
+        except Exception as e:
+            # אם יש שגיאה, נשתמש בערכי הגיבוי
+            st.error(f"Error loading quotes: {e}")
     
-    # --- 2. CSS לביטול מרווחים והצמדה לתפריט העליון ---
-    st.markdown("""
-    <style>
-        /* ביטול המרווח שסטרימליט יוצר אוטומטית בראש הדף */
-        .stAppHeader {
-            background-color: white !important;
-        }
-        .main .block-container {
-            padding-top: 0rem !important;
-            padding-left: 0rem !important;
-            padding-right: 0rem !important;
-            max-width: 100% !important;
-        }
-        /* ייבוא הפונטים והאייקונים */
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&family=Noto+Serif+Hebrew:wght@400;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0');
-    </style>
-    """, unsafe_allow_html=True)
-    
-    # --- 3. ה-HTML המעוצב בדיוק לפי Atmosphere ---
-    # שמתי את המקפים סביב המחבר והאייקון של הספר
-    html_output = (
-        f'<div style="width: 100%; background-color: #ffffff; '
-        f'background-image: radial-gradient(circle at 20% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 50%), '
-        f'radial-gradient(circle at 80% 80%, rgba(227, 225, 236, 0.3) 0%, transparent 50%); '
-        f'padding: 30px 0; border-bottom: 1px solid #f1f5f9; text-align: center; '
-        f'font-family: \'Plus Jakarta Sans\', sans-serif; margin-bottom: 30px;">'
-        f'<div style="max-width: 800px; margin: 0 auto; padding: 0 20px;">'
-        f'<span style="font-size: 11px; font-weight: 700; color: #6f5861; text-transform: uppercase; '
-        f'letter-spacing: 0.2em; display: block; margin-bottom: 10px;">Daily Quote</span>'
-        f'<div style="font-family: \'Noto Serif Hebrew\', serif; font-size: 32px; color: #1a1c1c; '
-        f'line-height: 1.2; margin-bottom: 8px; font-weight: 700;">"{quote_text}"</div>'
-        f'<div style="font-size: 16px; color: #646566; font-style: italic; margin-bottom: 18px; font-family: \'Plus Jakarta Sans\', sans-serif;">'
-        f'— {quote_author} —</div>'
-        f'<div style="display: flex; align-items: center; justify-content: center; gap: 12px; opacity: 0.5;">'
-        f'<div style="height: 1px; width: 45px; background-color: #fadce6;"></div>'
-        f'<span class="material-symbols-outlined" style="color: #6f5861; font-size: 24px; display: inline-block; line-height: 1;">auto_stories</span>'
-        f'<div style="height: 1px; width: 45px; background-color: #fadce6;"></div>'
-        f'</div></div></div>'
-    )
-    
-    st.markdown(html_output, unsafe_allow_html=True)
+    # --- תצוגת HTML חסינה ודקה ---
+    # שימי לב: אין כאן רווחים בתחילת שורה בתוך הגרשיים
+    raw_html = f"""
+    <div class="quote-wrapper-outer">
+        <div class="watercolor-bg">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <path d="M44.7,-76.4C58.1,-69.2,69.2,-58.1,76.4,-44.7C83.7,-31.4,87,-15.7,86.2,-0.4C85.4,14.8,80.5,29.7,72,42.9C63.5,56.1,51.4,67.7,37.3,74.5C23.2,81.4,7,83.4,-8.8,81.9C-24.6,80.4,-40,75.4,-53.4,66.6C-66.8,57.8,-78.2,45.2,-83.4,30.6C-88.6,16,-87.6,-0.6,-83.1,-15.8C-78.6,-31,-70.7,-44.8,-59.6,-53.6C-48.5,-62.4,-34.2,-66.2,-20.5,-73C-6.8,-79.8,6.3,-89.6,20.5,-89.6C34.7,-89.6,44.7,-76.4Z" transform="translate(100 100)"></path>
+            </svg>
+        </div>
+        <div class="quote-content-flat">
+            <span class="quote-label">DAILY QUOTE</span>
+            <div class="quote-main-text">"{quote_text}"</div>
+            <div class="quote-author-row">
+                <div class="author-line"></div>
+                <span>— {quote_author} —</span>
+                <div class="author-line"></div>
+            </div>
+            <div class="bottom-ornament">
+                <div class="ornament-line"></div>
+                <span class="material-symbols-rounded">auto_stories</span>
+                <div class="ornament-line"></div>
+            </div>
+        </div>
+    </div>
+    """
+    # פקודת הרינדור הבטוחה
+    st.markdown(raw_html, unsafe_allow_html=True)
     
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
