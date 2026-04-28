@@ -123,102 +123,90 @@ h3 {
 }
 
 /* ── Daily Quote Section - Pink Background & White Border ── */
-/* ייבוא פונטAssistant Google לעברית נקייה */
-@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap');
+/* ייבוא פונט Assistant למראה מודרני ונקי */
+@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700&display=swap');
 
-/* ── Daily Quote Section - Thick Border & Compact ─────── */
+/* ביטול המרווחים המובנים של Streamlit בחלק העליון */
+.main .block-container {
+    padding-top: 0rem !important;
+    padding-bottom: 0rem !important;
+}
+
 .quote-wrapper-outer {
-    width: 100%;
-    background-color: #fdf2f8 !important; /* הרקע הוורוד העדין */
-    padding: 20px 10px !important; /* צמצום מרווח אנכי */
+    width: 100vw;
+    margin-left: calc(-50vw + 50%); /* מתיחה לכל רוחב המסך */
+    background-color: #fdf2f8 !important;
+    margin-top: -85px !important; /* משיכה אגרסיבית למעלה להצמדה */
+    padding: 40px 20px 20px 20px !important;
     position: relative;
-    overflow: hidden;
-    border-radius: 20px;
-    margin-bottom: 24px;
-    /* מסגרת לבנה עבה וברורה מסביב לכל האזור, בעובי 5px */
-    border: 5px solid #ffffff !important; 
+    border-bottom: 1px solid #fce7f3;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 120px !important;
+    min-height: 160px !important;
     font-family: 'Assistant', sans-serif !important;
-}
-
-.watercolor-shape {
-    position: absolute;
-    top: -30px;
-    right: -30px;
-    width: 220px;
-    height: 220px;
-    opacity: 0.12;
-    z-index: 1;
-}
-
-.watercolor-shape svg {
-    fill: #f472b6;
 }
 
 .quote-content-flat {
     text-align: center;
-    position: relative;
     z-index: 10;
     width: 100%;
 }
 
 .quote-label {
-    font-size: 10px !important;
+    font-size: 12px !important;
     font-weight: 700 !important;
-    color: #db2777 !important;
+    color: #d63384 !important;
     text-transform: uppercase;
-    letter-spacing: 0.2em;
-    margin-bottom: 6px !important;
+    letter-spacing: 0.25em;
+    margin-bottom: 12px !important;
     display: block;
 }
 
 .quote-main-text {
-    font-size: 26px !important; /* הקטנה קלה כדי שייכנס בשורה אחת */
+    font-size: 38px !important; /* הגדלה למראה יוקרתי */
     font-weight: 700 !important;
-    color: #1e293b !important;
-    line-height: 1.3 !important;
-    margin: 0 auto 6px auto !important;
-    max-width: 90%;
+    color: #1a202c !important;
+    line-height: 1.1 !important;
+    margin: 0 auto 8px auto !important;
+    letter-spacing: -0.02em;
 }
 
 .quote-author-row {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    margin-top: 6px;
-    color: #94a3b8 !important;
-    font-style: italic;
-    font-size: 14px !important;
+    gap: 12px;
+    margin-top: 4px;
 }
 
 .author-line {
-    width: 30px;
+    width: 40px;
     height: 1px;
-    background-color: #e2e8f0;
+    background-color: #f9a8d4;
 }
 
+.quote-author-row span {
+    color: #718096 !important;
+    font-size: 17px !important;
+    font-weight: 300;
+}
+
+/* עיצוב ה-Icon התחתון שיהיה עדין כמו בעיצוב */
 .bottom-ornament {
     margin-top: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 15px;
+    opacity: 0.4;
 }
 
 .ornament-line {
     height: 1px;
-    width: 40px;
-    background-color: rgba(251, 207, 232, 0.5);
-}
-
-.material-symbols-rounded {
-    color: #fbcfe8;
-    font-size: 18px;
+    width: 50px;
+    background-color: #d63384;
 }
 
 /* ── KPI Cards ─────────────────────────────────────────── */
