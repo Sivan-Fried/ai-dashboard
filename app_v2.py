@@ -528,11 +528,10 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    import streamlit as st
     import pandas as pd
     import os
-    
-    # --- 1. טעינת נתונים (עם הגנה על המחבר) ---
+
+    # 1. טעינת נתונים (חסינה למחבר)
     quote_text = "המסע היחיד הוא זה שבפנים."
     quote_author = "לא ידוע"
     if os.path.exists("inspirational_quotes.xlsx"):
@@ -545,56 +544,48 @@ else:
                 if q_col: quote_text = str(row[q_col[0]])
                 if a_col: quote_author = str(row[a_col[0]])
         except: pass
-    
-    # --- 2. CSS גלובלי להצמדה (בלי לנחש) ---
-    st.markdown("""
+
+    # 2. הזרקה ישירה (בלי iframe!) - זה הפתרון למיקום ולמחבר
+    st.markdown(f"""
         <style>
-            /* ביטול מוחלט של הרווח העליון בסטרימליט */
-            [data-testid="stHeader"] { visibility: hidden; height: 0; }
-            .main .block-container { 
-                padding-top: 0px !important; 
-                margin-top: -45px !important; /* זה מה שמצמיד לסרגל */
-            }
-            /* רווח של חצי סנטימטר בין הציטוט ל-KPI */
-            iframe[title="st.column"] { margin-bottom: 20px !important; }
+            /* משיכה אגרסיבית למעלה שתעבוד בכל מחשב */
+            .quote-outer-wrapper {{
+                margin-top: -65px !important; /* מושך את הציטוט אל מתחת לסרגל */
+                margin-bottom: 25px !important; /* רווח חצי סנטימטר ל-KPI */
+                width: 100%;
+                background: #ffffff;
+                border-bottom: 1px solid #f1f5f9;
+                direction: rtl;
+                z-index: 99;
+                position: relative;
+            }}
+            .quote-inner-content {{
+                background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
+                                  radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
+                padding: 25px 0;
+                text-align: center;
+            }}
         </style>
-    """, unsafe_allow_html=True)
-    
-    # --- 3. ה-Component היציב (מבוסס על הגרסה שאהבת) ---
-    atmosphere_content = f"""
-    <div style="
-        width: 100%; 
-        background: #ffffff; 
-        background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
-                          radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
-        border-bottom: 1px solid #f1f5f9;
-        padding: 25px 0;
-        text-align: center;
-        direction: rtl;
-    ">
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
-        
-        <div style="max-width: 900px; margin: 0 auto; padding: 0 20px;">
-            <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 10px;">DAILY QUOTE</span>
-            
-            <h1 style="font-family: 'Noto Serif Hebrew', serif; font-size: 26px; color: #1a1c1c; line-height: 1.3; margin: 0 0 8px 0; font-weight: 700;">
-                "{quote_text}"
-            </h1>
-            
-            <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: #646566; font-style: italic; margin-bottom: 20px;">
-                <span style="display: inline-block;">&#8212; {quote_author} &#8212;</span>
-            </div>
-            
-            <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
-                <div style="height: 1px; width: 45px; background-color: #fadce6;"></div>
-                <span class="material-symbols-outlined" style="color: #6f5861; font-size: 22px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
-                <div style="height: 1px; width: 45px; background-color: #fadce6;"></div>
+
+        <div class="quote-outer-wrapper">
+            <div class="quote-inner-content">
+                <div style="max-width: 900px; margin: 0 auto; padding: 0 20px;">
+                    <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 8px;">DAILY QUOTE</span>
+                    <h2 style="font-family: 'Noto Serif Hebrew', serif; font-size: 24px; color: #1a1c1c; line-height: 1.3; margin: 0 0 5px 0; font-weight: 700; border: none;">
+                        "{quote_text}"
+                    </h2>
+                    <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
+                        &#8212; {quote_author} &#8212;
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+                        <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+                        <span class="material-symbols-outlined" style="color: #6f5861; font-size: 20px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
+                        <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    """
-    
-    st.components.v1.html(atmosphere_content, height=210)
+    """, unsafe_allow_html=True)
 
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
