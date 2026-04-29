@@ -558,42 +558,44 @@ else:
     except: pass
 
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
-   # 1. עיצוב עדין שלא משבש את שאר הדף
+   # 1. הגדרת העיצוב והפונטים (CSS)
     st.markdown("""
         <style>
-            /* איפוס עדין של מרווח עליון בלבד, בלי לגעת בשאר הבלוקים */
+            /* הצמדת התוכן למעלה מבלי לשבור את שאר הדף */
             .block-container { 
-                padding-top: 1.5rem !important; 
+                padding-top: 0rem !important; 
             }
             
-            /* הגדרת הסרגל העליון כעליון */
+            /* הבטחת עליונות הסרגל העליון של סטרימליט */
             header[data-testid="stHeader"] { 
                 z-index: 100 !important; 
+                background: white !important;
             }
     
-            /* תיבת הציטוט - ללא margin שלילי שמשבש את הדף */
-            .quote-container {
+            /* תיבת הציטוט - העלאה למעלה מבלי להסתיר את הסרגל */
+            .quote-box-final {
+                margin-top: -65px !important; /* העלאה עדינה שלא משבשת את האזורים האחרים */
                 background: #ffffff;
                 background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                                   radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
                 border-bottom: 1px solid #f1f5f9;
-                padding: 20px;
+                padding: 20px 15px;
                 text-align: center;
                 direction: rtl;
+                position: relative;
+                z-index: 1 !important; /* מוודא שהציטוט יהיה *מתחת* לסרגל במקרה של חפיפה */
                 width: 100%;
-                margin-bottom: 20px;
             }
     
-            .main-text {
+            .quote-main-text {
                 font-family: 'Noto Serif Hebrew', serif !important;
                 font-size: 24px !important;
                 color: #1a1c1c !important;
                 font-weight: 700 !important;
                 line-height: 1.3;
-                margin: 10px 0;
+                margin: 8px 0;
             }
     
-            /* הבטחת טעינת האייקון */
             .material-symbols-outlined {
                 font-family: 'Material Symbols Outlined' !important;
                 vertical-align: middle;
@@ -602,11 +604,11 @@ else:
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 2. הצגת הציטוט (שימוש ב-unsafe_allow_html=True בסוף מבטיח שלא יודפס קוד)
+    # 2. הצגת הציטוט (שימוש במשתנה בתוך markdown למניעת הדפסת קוד)
     st.markdown(f"""
-        <div class="quote-container">
+        <div class="quote-box-final">
             <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
-            <div class="main-text">"{quote_text}"</div>
+            <div class="quote-main-text">"{quote_text}"</div>
             <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
                 &#8212; {quote_author} &#8212;
             </div>
@@ -617,6 +619,9 @@ else:
             </div>
         </div>
     """, unsafe_allow_html=True)
+    
+    # הוספת מרווח בטיחות קטן כדי שה-KPIs לא יקפצו למעלה מדי
+    st.write("")
     
 
 
