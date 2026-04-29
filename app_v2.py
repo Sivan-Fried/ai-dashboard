@@ -588,7 +588,7 @@ else:
     
         .stApp .main .block-container {{
             padding-top: 0px !important;
-            margin-top: -5.5rem !important; 
+            margin-top: -5rem !important; 
         }}
     
         .premium-quote-box-refined {{
