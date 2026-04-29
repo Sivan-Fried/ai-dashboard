@@ -594,6 +594,11 @@ else:
         </div>
     </div>
     """
+
+    # 4. הצגה בתוך הדיב עם ה-ID הייחודי
+    st.markdown('<div id="quote-wrapper">', unsafe_allow_html=True)
+    components.html(html_design, height=160)
+    st.markdown('</div>', unsafe_allow_html=True)
     
     # 4. הצגה בתוך הדיב עם ה-ID הייחודי
     st.markdown(f'<div id="quote-wrapper">{html_design}</div>', unsafe_allow_html=True)
