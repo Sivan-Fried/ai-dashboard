@@ -558,32 +558,33 @@ else:
     except: pass
 
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
-   # 1. הגדרת העיצוב והפונטים (CSS)
+   # 1. הגדרת השכבות והעיצוב (CSS)
     st.markdown("""
         <style>
-            /* הצמדת התוכן למעלה מבלי לשבור את שאר הדף */
+            /* איפוס מרווחים בראש הדף */
             .block-container { 
                 padding-top: 0rem !important; 
             }
             
-            /* הבטחת עליונות הסרגל העליון של סטרימליט */
+            /* הפיכת הסרגל הלבן של סטרימליט לשכבה הכי עליונה בדף */
             header[data-testid="stHeader"] { 
-                z-index: 100 !important; 
-                background: white !important;
+                z-index: 999999 !important; 
+                background-color: white !important;
+                height: 3.5rem !important;
             }
     
-            /* תיבת הציטוט - העלאה למעלה מבלי להסתיר את הסרגל */
-            .quote-box-final {
-                margin-top: -65px !important; /* העלאה עדינה שלא משבשת את האזורים האחרים */
+            /* תיבת הציטוט - העלאה למעלה ושליחה לרקע */
+            .custom-quote-box {
+                margin-top: -105px !important; /* המשיכה למעלה */
                 background: #ffffff;
                 background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                                   radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
                 border-bottom: 1px solid #f1f5f9;
-                padding: 20px 15px;
+                padding: 25px 20px;
                 text-align: center;
                 direction: rtl;
                 position: relative;
-                z-index: 1 !important; /* מוודא שהציטוט יהיה *מתחת* לסרגל במקרה של חפיפה */
+                z-index: 1 !important; /* שכבה נמוכה - תמיד תהיה מתחת לסרגל */
                 width: 100%;
             }
     
@@ -596,17 +597,19 @@ else:
                 margin: 8px 0;
             }
     
+            /* הבטחת טעינת האייקון של הספר */
             .material-symbols-outlined {
                 font-family: 'Material Symbols Outlined' !important;
                 vertical-align: middle;
+                display: inline-block;
             }
         </style>
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 2. הצגת הציטוט (שימוש במשתנה בתוך markdown למניעת הדפסת קוד)
+    # 2. הצגת הציטוט (שימוש ב-f-string בטוח)
     st.markdown(f"""
-        <div class="quote-box-final">
+        <div class="custom-quote-box">
             <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
             <div class="quote-main-text">"{quote_text}"</div>
             <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
@@ -620,8 +623,8 @@ else:
         </div>
     """, unsafe_allow_html=True)
     
-    # הוספת מרווח בטיחות קטן כדי שה-KPIs לא יקפצו למעלה מדי
-    st.write("")
+    # מרווח בטיחות קטן כדי שהמשך הדשבורד לא ייפגע
+    st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
     
 
 
