@@ -577,7 +577,6 @@ else:
     import pandas as pd
     import os
     import datetime
-
     
     # 1. לוגיקה של שליפת הנתונים
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
@@ -593,7 +592,7 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. העיצוב המקורי + תיקון הסרגל + המרכאות ברקע
+    # 2. העיצוב המקורי שלך (ללא שינוי) + תיקון מיקום הסרגל
     st.markdown("""
     <style>
         /* התיקון לסרגל - הופך אותו ללבן אטום וצף מעל הציטוט */
@@ -604,29 +603,30 @@ else:
         }
     
         /* איפוס המרווח העליון של הדף */
-        .main .block-container { 
-            padding-top: 1rem !important; 
+        .stApp .main .block-container { 
+            padding-top: 0rem !important; 
         }
     
-        /* תיבת הציטוט המקורית */
+        /* תיבת הציטוט המקורית שלך */
         .safe-quote-box {
             background: #ffffff;
             background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                               radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
             border-bottom: 1px solid #f1f5f9;
-            padding: 20px 80px; /* הוספת padding בצדדים למרכאות */
+            padding: 60px 80px 20px 80px; /* הוספנו padding עליון כדי שהטקסט לא יתחבא מתחת לסרגל */
             text-align: center;
             direction: rtl;
             position: relative;
             z-index: 1 !important;
             width: 100%;
+            margin-top: -60px; /* מושך את הקופסה למעלה עד הסוף */
         }
     
         /* המרכאות הגדולות והעדינות ברקע */
         .safe-quote-box::before {
             content: '“';
             position: absolute;
-            top: 20px;
+            top: 50px; /* הותאם למיקום החדש */
             right: 40px;
             font-size: 100px;
             color: #fadce6;
@@ -656,7 +656,7 @@ else:
             font-weight: 700 !important;
             line-height: 1.3;
             margin: 5px 0;
-            position: relative; /* כדי שהטקסט יהיה מעל המרכאות */
+            position: relative; 
             z-index: 2;
         }
     
@@ -668,7 +668,7 @@ else:
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 3. התוכן המקורי
+    # 3. התוכן המקורי (ללא שינוי)
     st.markdown(f"""
     <div class="safe-quote-box">
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
