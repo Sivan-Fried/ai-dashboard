@@ -558,68 +558,64 @@ else:
     except: pass
 
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
-    # 1. הגדרות CSS - טיפול אגרסיבי בסרגל ובשכבות
+    # 1. עיצוב ממוקד - ללא השפעה על שאר הדשבורד
     st.markdown("""
     <style>
-        /* הפיכת הסרגל הלבן לקיר אטום - הכרחי כדי שהציטוט לא ייראה דרכו */
+        /* 1. טיפול נקודתי בסרגל - הפיכתו לאטום לחלוטין וצף מעל הכל */
         header[data-testid="stHeader"] {
             background-color: white !important;
-            z-index: 1000000 !important; /* ערך מקסימלי */
+            z-index: 1000000 !important; /* מבטיח שהשעה והטמפרטורה יצופו מעל הכל */
             opacity: 1 !important;
-            visibility: visible !important;
-            height: 3.5rem !important;
         }
     
-        /* הסרת המרווחים שסטרימליט מייצר אוטומטית למעלה */
+        /* 2. איפוס רווח עליון מינימלי בלבד - לא מזיז אלמנטים אחרים */
         .main .block-container { 
-            padding-top: 0rem !important; 
+            padding-top: 1rem !important; 
         }
     
-        /* תיבת הציטוט - נשלחת לשכבה תחתונה */
-        .final-quote-card {
-            margin-top: -85px !important; /* המשיכה למעלה */
+        /* 3. תיבת הציטוט - שימוש ב-margin שלילי עדין */
+        .safe-quote-box {
+            margin-top: -60px !important; /* העלאה מבוקרת */
             background: #ffffff;
             background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                               radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
             border-bottom: 1px solid #f1f5f9;
-            padding: 30px 20px 20px 20px;
+            padding: 20px;
             text-align: center;
             direction: rtl;
             position: relative;
-            z-index: 1 !important; /* שכבה נמוכה מאוד */
+            z-index: 1 !important; /* מבטיח שהיא תמיד מתחת לסרגל */
             width: 100%;
         }
     
-        .q-main-text {
+        .q-text-final {
             font-family: 'Noto Serif Hebrew', serif !important;
             font-size: 24px !important;
             color: #1a1c1c !important;
             font-weight: 700 !important;
-            line-height: 1.4;
-            margin: 10px 0;
+            line-height: 1.3;
+            margin: 5px 0;
         }
     
-        /* האייקון של הספר */
         .material-symbols-outlined {
             font-family: 'Material Symbols Outlined' !important;
             vertical-align: middle;
-            display: inline-block;
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 2. הזרקת תוכן הציטוט (שימוש ב-f-string בטוח)
+    # 2. הצגת התוכן
     st.markdown(f"""
-    <div class="final-quote-card">
+    <div class="safe-quote-box">
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
-        <div class="q-main-text">"{quote_text}"</div>
-        <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
+        <div class="q-text-final">"{quote_text}"</div>
+        <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 10px;">
             &#8212; {quote_author} &#8212;
         </div>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
             <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
-            <span class="material-symbols-outlined" style="color: #6f5861; font-size: 24px;">auto_stories</span>
+            <span class="material-symbols-outlined" style="color: #6f5861; font-size: 22px;">auto_stories</span>
             <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
         </div>
     </div>
