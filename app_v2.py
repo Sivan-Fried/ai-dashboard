@@ -572,12 +572,12 @@ else:
     
     
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    # ── Daily Quote Section Logic & Display ──────────────────────────
+    # ── Daily Quote Section Logic & Display (Mini & Complete) ─────────────
     import streamlit as st
     import pandas as pd
     import os
     import datetime
-    from zoneinfo import ZoneInfo # חיוני לחישוב השעה
+    from zoneinfo import ZoneInfo
     
     # 1. לוגיקה של שליפת הנתונים
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
@@ -593,117 +593,113 @@ else:
                 a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר']]
                 if q_col: quote_text = str(row[q_col[0]])
                 if a_col: quote_author = str(row[a_col[0]])
-    except Exception as e:
-        st.error(f"שגיאה בטעינת הציטוט: {e}")
+    except Exception:
+        pass
     
-    # 2. ה-CSS המלא (כולל התיקון לסרגל והמרכאות)
+    # 2. ה-CSS המלא (גרסה מוקטנת אך עשירה)
     st.markdown("""
     <style>
-        /* הופך את הסרגל העליון ללבן אטום - הקומה הכי עליונה */
+        /* סרגל עליון לבן ואטום - תמיד מעל הכל */
         header[data-testid="stHeader"] {
             background-color: white !important;
             z-index: 1000000 !important;
             opacity: 1 !important;
-            height: 60px !important;
+            height: 45px !important;
         }
     
-        /* איפוס המרווח של סטרימליט בראש הדף */
         .stApp .main .block-container { 
             padding-top: 0px !important; 
             margin-top: 0px !important;
         }
     
-        /* תיבת הציטוט - העיצוב המלא */
+        /* תיבת הציטוט המוקטנת */
         .safe-quote-box {
-            margin-top: -60px !important; 
-            padding-top: 90px !important;
+            margin-top: -45px !important; 
+            padding-top: 55px !important; 
             background: #ffffff;
             background-image: 
-                radial-gradient(circle at 12% 40%, rgba(250, 220, 230, 0.4) 0%, transparent 40%), 
-                radial-gradient(circle at 88% 70%, rgba(227, 225, 236, 0.4) 0%, transparent 40%);
+                radial-gradient(circle at 10% 40%, rgba(250, 220, 230, 0.3) 0%, transparent 30%), 
+                radial-gradient(circle at 90% 70%, rgba(227, 225, 236, 0.3) 0%, transparent 30%);
             border-bottom: 1px solid #f1f5f9;
-            padding-bottom: 40px;
+            padding-bottom: 15px;
             text-align: center;
             direction: rtl;
             position: relative;
             z-index: 1 !important;
             width: 100%;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
         }
     
-        /* המרכאות הגדולות ברקע */
+        /* המרכאות הגרפיות (הוקטנו ב-50%) */
         .safe-quote-box::before {
             content: '“';
             position: absolute;
-            top: 80px;
-            right: 40px;
-            font-size: 100px;
+            top: 50px;
+            right: 25px;
+            font-size: 40px;
             color: #fadce6;
             font-family: 'serif';
-            line-height: 1;
             opacity: 0.5;
         }
     
         .safe-quote-box::after {
             content: '”';
             position: absolute;
-            bottom: 10px;
-            left: 40px;
-            font-size: 100px;
+            bottom: 5px;
+            left: 25px;
+            font-size: 40px;
             color: #fadce6;
             font-family: 'serif';
-            line-height: 1;
             opacity: 0.5;
         }
     
         .q-label {
             font-family: 'Plus Jakarta Sans', sans-serif !important;
-            font-size: 11px !important;
+            font-size: 8px !important;
             font-weight: 800 !important;
             color: #6f5861 !important;
             text-transform: uppercase !important;
-            letter-spacing: 0.35em !important;
+            letter-spacing: 0.25em !important;
             display: block !important;
-            margin-bottom: 15px !important;
+            margin-bottom: 4px !important;
         }
     
         .q-text-final {
             font-family: 'Noto Serif Hebrew', serif !important;
-            font-size: 32px !important;
+            font-size: 17px !important;
             color: #1a1c1c !important;
             font-weight: 700 !important;
-            line-height: 1.4 !important;
-            margin: 10px 100px !important;
+            line-height: 1.35 !important;
+            margin: 5px 60px !important;
             position: relative;
             z-index: 2;
         }
     
         .q-author-final {
             font-family: 'Plus Jakarta Sans', sans-serif !important;
-            font-size: 16px !important;
+            font-size: 11px !important;
             color: #525455 !important;
             font-style: italic !important;
-            margin-top: 15px !important;
-            margin-bottom: 25px !important;
-            font-weight: 500 !important;
+            margin-top: 4px !important;
+            margin-bottom: 8px !important;
         }
     
         .icon-wrapper {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 20px;
+            gap: 12px;
         }
     
         .divider-line {
-            height: 1.5px;
-            width: 80px;
+            height: 1px;
+            width: 40px;
             background-color: #fadce6;
         }
     
         .material-symbols-outlined {
             font-family: 'Material Symbols Outlined' !important;
-            font-size: 28px !important;
+            font-size: 18px !important;
             color: #6f5861 !important;
         }
     </style>
@@ -723,7 +719,7 @@ else:
         </div>
     </div>
     """, unsafe_allow_html=True)
-                        
+                            
 
 
     # ── KPIs ────────────────────────────────────────────────
