@@ -575,7 +575,7 @@ else:
     
         /* 3. תיבת הציטוט - שימוש ב-margin שלילי עדין */
         .safe-quote-box {
-            margin-top: -50px !important; /* העלאה מבוקרת */
+            margin-top: -47px !important; /* העלאה מבוקרת */
             background: #ffffff;
             background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                               radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
