@@ -572,18 +572,15 @@ else:
     
     
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    # ── Daily Quote Section Logic & Display (Mini & Spaced) ─────────────
+    # ── Daily Quote Section Logic & Display (Clean & Compact) ──────────
     import streamlit as st
     import pandas as pd
     import os
     import datetime
-    from zoneinfo import ZoneInfo
     
     # 1. לוגיקה של שליפת הנתונים
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
     quote_author = "ארתור אש"
-    today = datetime.date.today()
-    
     try:
         if os.path.exists("inspirational_quotes.xlsx"):
             df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
@@ -593,125 +590,93 @@ else:
                 a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר']]
                 if q_col: quote_text = str(row[q_col[0]])
                 if a_col: quote_author = str(row[a_col[0]])
-    except Exception:
-        pass
+    except: pass
     
-    # 2. ה-CSS המעודכן - דגש על ריווח (Spacing)
+    # 2. ה-CSS המדויק לביטול הרווח והחזרת הרקע
     st.markdown("""
     <style>
-        /* סרגל עליון */
+        /* הפיכת הסרגל ללבן אטום */
         header[data-testid="stHeader"] {
             background-color: white !important;
             z-index: 1000000 !important;
-            opacity: 1 !important;
-            height: 45px !important;
         }
     
+        /* ביטול הרווחים הלבנים של סטרימליט */
         .stApp .main .block-container { 
-            padding-top: 0px !important; 
+            padding-top: 30px !important; /* רווח מינימלי מהתקרה */
             margin-top: 0px !important;
         }
     
-        /* תיבת הציטוט */
+        /* תיבת הציטוט - ללא margin שלילי הפעם כדי למנוע את הבלגן */
         .safe-quote-box {
-            margin-top: -45px !important; 
-            padding-top: 60px !important; /* הגדלתי מעט את המרווח מהסרגל */
             background: #ffffff;
             background-image: 
-                radial-gradient(circle at 10% 40%, rgba(250, 220, 230, 0.3) 0%, transparent 30%), 
-                radial-gradient(circle at 90% 70%, rgba(227, 225, 236, 0.4) 0%, transparent 30%);
+                radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.25) 0%, transparent 40%), 
+                radial-gradient(circle at 85% 50%, rgba(227, 225, 236, 0.25) 0%, transparent 40%);
             border-bottom: 1px solid #f1f5f9;
-            padding-bottom: 25px; /* הוספתי מרווח למטה */
+            padding: 20px 0; /* צמצום משמעותי של הגובה */
             text-align: center;
             direction: rtl;
             position: relative;
-            z-index: 1 !important;
             width: 100%;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
         }
     
-        /* מרכאות */
-        .safe-quote-box::before {
-            content: '“';
-            position: absolute;
-            top: 55px;
-            right: 30px;
-            font-size: 45px;
-            color: #fadce6;
-            font-family: 'serif';
-            opacity: 0.4;
-        }
-    
-        .safe-quote-box::after {
-            content: '”';
-            position: absolute;
-            bottom: 15px;
-            left: 30px;
-            font-size: 45px;
-            color: #fadce6;
-            font-family: 'serif';
-            opacity: 0.4;
-        }
-    
-        /* כותרת DAILY QUOTE */
+        /* כותרת קטנה */
         .q-label {
             font-family: 'Plus Jakarta Sans', sans-serif !important;
-            font-size: 9px !important;
+            font-size: 8px !important;
             font-weight: 800 !important;
             color: #6f5861 !important;
             text-transform: uppercase !important;
-            letter-spacing: 0.3em !important;
+            letter-spacing: 0.2em !important;
             display: block !important;
-            margin-bottom: 12px !important; /* רווח גדול יותר מתחת לכותרת */
+            margin-bottom: 8px !important;
         }
     
-        /* הטקסט עצמו */
+        /* הטקסט המרכזי - גודל בינוני וקריא */
         .q-text-final {
             font-family: 'Noto Serif Hebrew', serif !important;
             font-size: 18px !important;
             color: #1a1c1c !important;
             font-weight: 700 !important;
-            line-height: 1.5 !important; /* הגדלתי ריווח בין שורות */
-            margin: 10px 80px !important; /* רווח גדול יותר מהצדדים */
-            position: relative;
-            z-index: 2;
+            line-height: 1.4 !important;
+            margin: 5px 15% !important;
         }
     
         /* שם המחבר */
         .q-author-final {
             font-family: 'Plus Jakarta Sans', sans-serif !important;
-            font-size: 12px !important;
+            font-size: 11px !important;
             color: #525455 !important;
             font-style: italic !important;
-            margin-top: 12px !important; /* רווח גדול יותר מעל המחבר */
-            margin-bottom: 18px !important; /* רווח גדול יותר מתחת למחבר */
+            margin-top: 8px !important;
+            margin-bottom: 12px !important;
         }
     
-        /* האייקון והקווים */
+        /* אייקון וקווים */
         .icon-wrapper {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
-            margin-top: 5px;
+            gap: 12px;
         }
     
         .divider-line {
             height: 1px;
-            width: 45px;
+            width: 40px;
             background-color: #fadce6;
         }
     
         .material-symbols-outlined {
             font-family: 'Material Symbols Outlined' !important;
-            font-size: 20px !important;
+            font-size: 18px !important;
             color: #6f5861 !important;
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 3. הצגת התוכן (HTML)
+    # 3. הצגת התוכן
     st.markdown(f"""
     <div class="safe-quote-box">
         <span class="q-label">DAILY QUOTE</span>
