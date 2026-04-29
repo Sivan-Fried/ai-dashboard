@@ -558,74 +558,76 @@ else:
     except: pass
 
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
-   # 1. הגדרת השכבות והעיצוב (CSS)
+    # 1. הגדרת העיצוב (CSS) - מבטיח שהסרגל תמיד יהיה מעל הציטוט
     st.markdown("""
-        <style>
-            /* איפוס מרווחים בראש הדף */
-            .block-container { 
-                padding-top: 0rem !important; 
-            }
-            
-            /* הפיכת הסרגל הלבן של סטרימליט לשכבה הכי עליונה בדף */
-            header[data-testid="stHeader"] { 
-                z-index: 999999 !important; 
-                background-color: white !important;
-                height: 3.5rem !important;
-            }
+    <style>
+        /* איפוס מרווחים בראש הדף */
+        .main .block-container { 
+            padding-top: 0rem !important; 
+        }
+        
+        /* הפיכת הסרגל הלבן לשכבה הכי עליונה בדף */
+        header[data-testid="stHeader"] {
+            z-index: 999 !important;
+            background-color: white !important;
+        }
     
-            /* תיבת הציטוט - העלאה למעלה ושליחה לרקע */
-            .custom-quote-box {
-                margin-top: -105px !important; /* המשיכה למעלה */
-                background: #ffffff;
-                background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
-                                  radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
-                border-bottom: 1px solid #f1f5f9;
-                padding: 25px 20px;
-                text-align: center;
-                direction: rtl;
-                position: relative;
-                z-index: 1 !important; /* שכבה נמוכה - תמיד תהיה מתחת לסרגל */
-                width: 100%;
-            }
+        /* עיצוב כרטיס הציטוט - נשלח לשכבה תחתונה */
+        .quote-box-final {
+            margin-top: -75px !important; /* העלאה למעלה בלי להסתיר את הסרגל */
+            background: #ffffff;
+            background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
+                              radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
+            border-bottom: 1px solid #f1f5f9;
+            padding: 25px 20px;
+            text-align: center;
+            direction: rtl;
+            position: relative;
+            z-index: 1 !important; /* שכבה נמוכה יותר מהסרגל */
+            width: 100%;
+        }
     
-            .quote-main-text {
-                font-family: 'Noto Serif Hebrew', serif !important;
-                font-size: 24px !important;
-                color: #1a1c1c !important;
-                font-weight: 700 !important;
-                line-height: 1.3;
-                margin: 8px 0;
-            }
+        .quote-text-style {
+            font-family: 'Noto Serif Hebrew', serif !important;
+            font-size: 24px !important;
+            color: #1a1c1c !important;
+            font-weight: 700 !important;
+            line-height: 1.4;
+            margin: 10px 0;
+        }
     
-            /* הבטחת טעינת האייקון של הספר */
-            .material-symbols-outlined {
-                font-family: 'Material Symbols Outlined' !important;
-                vertical-align: middle;
-                display: inline-block;
-            }
-        </style>
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
+        /* החזרת האייקון של הספר */
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined' !important;
+            vertical-align: middle;
+            display: inline-block;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 2. הצגת הציטוט (שימוש ב-f-string בטוח)
+    # 2. הצגת התוכן (HTML)
     st.markdown(f"""
-        <div class="custom-quote-box">
-            <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
-            <div class="quote-main-text">"{quote_text}"</div>
-            <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
-                &#8212; {quote_author} &#8212;
-            </div>
-            <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
-                <span class="material-symbols-outlined" style="color: #6f5861; font-size: 22px;">auto_stories</span>
-                <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
-            </div>
+    <div class="quote-box-final">
+        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
+        
+        <div class="quote-text-style">"{quote_text}"</div>
+        
+        <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
+            &#8212; {quote_author} &#8212;
         </div>
+        
+        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+            <span class="material-symbols-outlined" style="color: #6f5861; font-size: 24px;">auto_stories</span>
+            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+        </div>
+    </div>
     """, unsafe_allow_html=True)
     
-    # מרווח בטיחות קטן כדי שהמשך הדשבורד לא ייפגע
-    st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
-    
+    # מרווח בטיחות קטן כדי ששאר הדשבורד לא יקפוץ
+    st.write("")
+        
 
 
     # ── KPIs ────────────────────────────────────────────────
