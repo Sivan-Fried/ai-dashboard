@@ -586,36 +586,38 @@ else:
     except: pass
 
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
-    # 1. עיצוב ממוקד - ללא השפעה על שאר הדשבורד
     st.markdown("""
     <style>
-        /* 1. טיפול נקודתי בסרגל - הפיכתו לאטום לחלוטין וצף מעל הכל */
+        /* 1. הפיכת הסרגל ללבן אטום - הוא יהיה מעל הכל */
         header[data-testid="stHeader"] {
             background-color: white !important;
-            z-index: 1000000 !important; /* מבטיח שהשעה והטמפרטורה יצופו מעל הכל */
+            z-index: 1000000 !important;
             opacity: 1 !important;
+            height: 60px !important;
         }
-    
-        /* 2. איפוס רווח עליון מינימלי בלבד - לא מזיז אלמנטים אחרים */
+
+        /* 2. איפוס המרווח הלבן של הדף */
         .main .block-container { 
-            padding-top: 1rem !important; 
+            padding-top: 0px !important; 
+            margin-top: 0px !important;
         }
-    
-        /* 3. תיבת הציטוט - שימוש ב-margin שלילי עדין */
+
+        /* 3. הצמדת הציטוט למעלה ומשיכתו מתחת לסרגל הלבן */
         .safe-quote-box {
-            margin-top: -50px !important; /* העלאה מבוקרת */
+            margin-top: -60px !important; /* מושך את הוורוד לקצה העליון */
+            padding-top: 75px !important;  /* דוחף את הטקסט שייראה מתחת לסרגל הלבן */
             background: #ffffff;
             background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                               radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
             border-bottom: 1px solid #f1f5f9;
-            padding: 20px;
+            padding-bottom: 20px;
             text-align: center;
             direction: rtl;
             position: relative;
-            z-index: 1 !important; /* מבטיח שהיא תמיד מתחת לסרגל */
+            z-index: 1 !important; /* שכבה נמוכה יותר מהסרגל */
             width: 100%;
         }
-    
+
         .q-text-final {
             font-family: 'Noto Serif Hebrew', serif !important;
             font-size: 24px !important;
@@ -624,7 +626,7 @@ else:
             line-height: 1.3;
             margin: 5px 0;
         }
-    
+
         .material-symbols-outlined {
             font-family: 'Material Symbols Outlined' !important;
             vertical-align: middle;
