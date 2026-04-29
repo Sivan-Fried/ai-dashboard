@@ -576,9 +576,9 @@ else:
     import pandas as pd
     import os
     
-    # 1. לוגיקה של שליפת הנתונים (ללא שינוי)
-    quote_text = "לכו בביטחון במסלול החלומות שלכם, וחיו את החיים שדמיינתם"
-    quote_author = "הנרי דייוויד תורו"
+    # 1. לוגיקה של שליפת הנתונים
+    quote_text = "אל תיגרר על ידי הבעיות שלך, היה מובל על ידי החלומות שלך"
+    quote_author = "ראלף וולדו אמרסון"
     try:
         if os.path.exists("inspirational_quotes.xlsx"):
             df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
@@ -590,23 +590,26 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. CSS ממוקד לחיבור הרכיבים
+    # 2. ה-CSS המדויק לביטול המרווח האפור והצמדה לסרגל
     st.markdown("""
     <style>
-        /* הופך את הסרגל העליון ללבן ואטום */
+        /* 1. הפיכת הסרגל העליון ללבן נקי */
         header[data-testid="stHeader"] {
             background-color: white !important;
-            z-index: 99;
         }
     
-        /* איפוס המרווחים הכלליים של הדף */
+        /* 2. איפוס המרווחים של המכולה הראשית של סטרימליט */
+        [data-testid="stAppViewContainer"] > section:nth-child(2) > div:nth-child(1) {
+            padding-top: 0px !important;
+        }
+        
         .stApp .main .block-container {
             padding-top: 0px !important;
-            margin-top: 0px !important;
+            margin-top: -1.8rem !important; /* הערך המדויק לסגירת הפער האפור */
         }
     
-        /* המכולה הראשית של הציטוט */
-        .quote-fixed-final {
+        /* 3. תיבת הציטוט המנצחת מהתמונה האחרונה */
+        .dashboard-quote-box {
             background: #ffffff;
             background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 45%), 
                               radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.3) 0%, transparent 45%);
@@ -615,14 +618,12 @@ else:
             text-align: center;
             direction: rtl;
             position: relative;
-            
-            /* משיכה למעלה בדיוק במידה הנכונה כדי לסגור את הרווח מבלי להסתיר את הסרגל */
-            margin-top: -3.5rem !important; 
-            z-index: 1;
+            width: 100%;
+            box-sizing: border-box;
         }
     
-        /* מרכאות גדולות (100px) כמו שרצית */
-        .quote-fixed-final::before {
+        /* 4. מרכאות 100px */
+        .dashboard-quote-box::before {
             content: '“';
             position: absolute;
             top: 25px; right: 40px;
@@ -630,15 +631,16 @@ else:
             font-family: serif; opacity: 0.5; line-height: 1;
         }
     
-        .quote-fixed-final::after {
+        .dashboard-quote-box::after {
             content: '”';
             position: absolute;
-            bottom: 5px; left: 40px;
+            bottom: 0px; left: 40px;
             font-size: 100px; color: #fadce6;
             font-family: serif; opacity: 0.5; line-height: 1;
         }
     
-        .q-main-title {
+        /* 5. טקסט ופונטים */
+        .q-main {
             font-family: 'Noto Serif Hebrew', serif !important;
             font-size: 24px !important;
             color: #1a1c1c !important;
@@ -647,21 +649,23 @@ else:
             margin: 10px 12% !important;
         }
     
+        /* 6. תיקון האייקון (auto_stories) שלא יהפוך לטקסט */
         .material-symbols-outlined {
             font-family: 'Material Symbols Outlined' !important;
             color: #6f5861 !important;
             font-size: 22px !important;
-            vertical-align: middle;
+            display: inline-block;
+            line-height: 1;
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 3. HTML נקי ומסודר
+    # 3. ה-HTML המאוחד
     st.markdown(f"""
-    <div class="quote-fixed-final">
+    <div class="dashboard-quote-box">
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.2em; display: block;">DAILY QUOTE</span>
-        <div class="q-main-title">"{quote_text}"</div>
+        <div class="q-main">"{quote_text}"</div>
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; display: block; margin-bottom: 10px;">&#8212; {quote_author} &#8212;</span>
         <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 5px;">
             <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
@@ -670,7 +674,7 @@ else:
         </div>
     </div>
     """, unsafe_allow_html=True)
-                                                        
+                                                            
 
 
     # ── KPIs ────────────────────────────────────────────────
