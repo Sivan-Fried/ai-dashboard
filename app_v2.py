@@ -44,7 +44,7 @@ st.markdown("""
         
         /* התיקון הקריטי: הזזה אבסולוטית כלפי מעלה */
         position: relative !important;
-        top: -18px !important; /* ככל שתגדילי את המספר השלילי, זה יעלה יותר גבוה */
+        top: -10px !important; /* ככל שתגדילי את המספר השלילי, זה יעלה יותר גבוה */
         
         /* צמצום הפאדינג הפנימי כדי שהתיבה עצמה תהיה דקה יותר */
         padding: 25px 60px 10px 60px !important;
@@ -588,7 +588,7 @@ else:
     
         .stApp .main .block-container {{
             padding-top: 0px !important;
-            margin-top: -3rem !important; 
+            margin-top: -5.5rem !important; 
         }}
     
         .premium-quote-box-refined {{
