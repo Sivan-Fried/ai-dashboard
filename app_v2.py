@@ -24,24 +24,30 @@ st.set_page_config(
 )
 
 # הנה החלק החדש - תדביקי אותו בדיוק כאן, מתחת להגדרות הדף:
-st.components.v1.html("""
-    <script>
-        // הקוד הזה מחפש את הסרגל מחוץ ל"קופסה" של סטרימליט
-        const topBar = window.parent.document.querySelector('header[data-testid="stHeader"]');
-        if (topBar) {
-            topBar.style.backgroundColor = 'white';
-            topBar.style.position = 'fixed';
-            topBar.style.zIndex = '1000000';
-            topBar.style.display = 'block';
+st.set_page_config(
+    layout="wide",
+    page_title="Dashboard Sivan",
+    initial_sidebar_state="collapsed"
+)
+
+# הזרקה ישירה שאומרת לסרגל להיות לבן ולדף להתחיל ב-0
+st.markdown("""
+    <style>
+        /* 1. הסרגל העליון - לבן אטום וקבוע למעלה */
+        header[data-testid="stHeader"] {
+            background-color: white !important;
+            position: fixed !important;
+            z-index: 1000 !important;
+            height: 60px !important;
         }
-        
-        // ביטול הרווח הלבן במיכל הראשי
-        const mainContent = window.parent.document.querySelector('.stApp .main .block-container');
-        if (mainContent) {
-            mainContent.style.paddingTop = '0px';
+
+        /* 2. ביטול הרווח הלבן המובנה של הדף */
+        .stApp .main .block-container {
+            padding-top: 60px !important; /* משאיר מקום בדיוק לסרגל */
+            margin-top: 0px !important;
         }
-    </script>
-""", height=0)
+    </style>
+""", unsafe_allow_html=True)
 
 
 # 1. שחרור חסימות גובה (התיקון הקריטי)
