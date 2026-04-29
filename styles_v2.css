@@ -123,71 +123,44 @@ h3 {
 }
 
 
-/* 1. הגדרת הטופ-בר - השתלטות סופית */
-.stApp header[data-testid="stHeader"] {
-    background-color: white !important;
-    position: fixed !important;
-    z-index: 999999 !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    display: block !important;
-}
-
-.stApp header[data-testid="stHeader"] > div:first-child {
-    background-color: white !important;
-    opacity: 1 !important;
-}
-
-/* מוודא שהתוכן הפנימי של הטופ-בר לבן ולא שקוף */
-header[data-testid="stHeader"] {
+/* 1. השתלטות אגרסיבית על הטופ-בר (הסרגל העליון) */
+header, [data-testid="stHeader"], .st-emotion-cache-18ni7ap {
     background-color: white !important;
     position: fixed !important;
     z-index: 1000000 !important;
-    top: 0;
-    left: 0;
-    right: 0;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 60px !important;
     opacity: 1 !important;
+    display: block !important;
 }
 
+/* 2. איפוס רווחים מובנים של האפליקציה */
+.stApp .main .block-container, [data-testid="block-container"] {
+    padding-top: 0rem !important;
+    margin-top: 0rem !important;
+}
 
-/* 2. סידר הציטוט מתחת לטופ-בר */
-/* אנחנו נבטל את ה-margin-top החיובי ששם לך רווח לבן */
+/* 3. עיצוב הציטוט - דורס את כל ההגדרות הקודמות כדי למנוע סתירות */
 .quote-wrapper-outer {
-    width: 100%;
+    width: 100% !important;
     background-color: #fdf2f8 !important; 
-    padding: 10px !important;
-    position: relative;
-    overflow: hidden;
-    margin-bottom: 24px;
-    /* כאן הקסם: מושך את הוורוד למעלה ודוחף את הטקסט למטה */
-    margin-top: -65px !important; 
-    padding-top: 85px !important;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    position: relative !important;
+    z-index: 1 !important; /* מבטיח שהציטוט מתחת לסרגל */
+    
+    /* התיקון הקריטי למראה: */
+    margin-top: -60px !important; /* מושך את הוורוד עד למעלה */
+    padding-top: 80px !important;  /* דוחף את הטקסט DAILY QUOTE שייראה מתחת לשעה */
+    
+    margin-bottom: 24px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
     min-height: 120px !important;
-    font-family: 'Assistant', sans-serif !important;
-    z-index: 1 !important;
+    overflow: hidden;
 }
-
-/* ביטול המרווח המובנה של סטרימליט שיוצר פס לבן מעל הוורוד */
-[data-testid="block-container"] {
-    padding-top: 0rem !important;
-}
-
-/* ── Daily Quote Section - Pink Background & White Border ── */
-/* ייבוא פונטים ואייקונים */
-@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
-
-/* ביטול מרווחים מובנים של Streamlit */
-.main .block-container,
-[data-testid="block-container"],
-.block-container {
-    padding-top: 0rem !important;
-}
-
 
 
 /* Daily Quote - הקוד הסופי, הדק והצמוד */
