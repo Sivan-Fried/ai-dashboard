@@ -352,7 +352,7 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
   }});
 </script>
 </body>
-</html>""", height=80)
+</html>""", height=110)
 #סוף נסיון
 
 
