@@ -40,36 +40,36 @@ st.markdown("""
         margin-top: 0px !important;
     }
 
-    /* הגדרת תיבת הציטוט כאלמנט שמתחיל מתחת לסרגל */
+   st.markdown("""
+<style>
+    /* 1. השליטה על גובה כל האזור במסך */
+    .stApp .main .block-container {
+        padding-top: 0px !important;
+        margin-top: -6.0rem !important; /* ככל שהמינוס גדול יותר, זה עולה למעלה */
+    }
+
+    /* 2. השליטה על העיצוב של תיבת הציטוט */
     .safe-quote-box {
-        margin-top: -60px !important; /* מושך את הוורוד לקצה המסך */
-        padding-top: 75px !important;  /* דוחף את הטקסט מתחת לסרגל הלבן */
-        position: relative !important;
-        z-index: 1 !important; /* קומה נמוכה יותר מהסרגל */
         width: 100%;
         background: #ffffff;
         background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                           radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
         border-bottom: 1px solid #f1f5f9;
         text-align: center;
-        padding-bottom: 20px;
+        
+        /* פאדינג פנימי - שומר על ה"אווריריות" של העיצוב */
+        padding-top: 35px !important; 
+        padding-bottom: 15px !important;
+        
+        /* רווח מה-KPIs למטה */
+        margin-bottom: 10px !important; 
+        
+        position: relative !important;
+        z-index: 1 !important;
     }
-</style>
-""", unsafe_allow_html=True)
 
-
-# 1. שחרור חסימות גובה (התיקון הקריטי)
-# הסבר: הקוד הזה אומר ל-Streamlit לא לחתוך אלמנטים שיוצאים מהגבולות שלהם (overflow: visible)
-st.markdown("""
-<style>
-    /* מאפשר לכל רכיב iframe בדף להציג תוכן מחוץ לגבולות התיבה שלו */
-    iframe {
-        overflow: visible !important;
-    }
-    /* מונע מהמיכלים של סטרימליט (עמודות ושורות) לחתוך את התפריט הנפתח */
-    [data-testid="stVerticalBlock"], 
-    [data-testid="stHorizontalBlock"], 
-    .element-container {
+    /* 3. שחרור חסימות (הקוד של ה-iframe שהיה לך) */
+    iframe, [data-testid="stVerticalBlock"], [data-testid="stHorizontalBlock"], .element-container {
         overflow: visible !important;
     }
 </style>
