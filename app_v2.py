@@ -572,14 +572,14 @@ else:
     
     
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    # ── Daily Quote Section (The Perfect "Edge-to-Edge" Version) ──────────
+    # ── Daily Quote Section (The Proportional & Connected Version) ──────────
     import streamlit as st
     import pandas as pd
     import os
     
-    # 1. לוגיקה של שליפת הנתונים (נשמרת ללא שינוי)
-    quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
-    quote_author = "ארתור אש"
+    # 1. לוגיקה של שליפת הנתונים
+    quote_text = "שני הימים החשובים ביותר בחייך הם היום שבו נולדת והיום שבו אתה מגלה את הסיבה לכך"
+    quote_author = "מארק טוויין"
     try:
         if os.path.exists("inspirational_quotes.xlsx"):
             df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
@@ -591,102 +591,99 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. הזרקה מאוחדת של CSS ו-HTML בבלוק אחד כדי למנוע רווחים של המערכת
-    st.markdown(f"""
+    # 2. ה-CSS המדויק לחיבור הסרגל לציטוט ללא רווח
+    st.markdown("""
     <style>
-        /* ביטול המרווחים הלבנים של סטרימליט בכל הרמות */
-        [data-testid="stHeader"] {{
+        /* הופך את הסרגל העליון ללבן ואטום כחלק מהעיצוב */
+        header[data-testid="stHeader"] {
             background-color: white !important;
-            z-index: 1000 !important;
-        }}
-        
-        .main .block-container {{
-            padding-top: 0px !important;
-            margin-top: 0px !important;
-        }}
+            z-index: 100 !important;
+        }
     
-        /* קונטיינר הציטוט - נצמד לסרגל ללא רווח */
-        .master-quote-container {{
-            width: 100vw;
-            position: relative;
-            left: 50%;
-            right: 50%;
-            margin-left: -50vw;
-            margin-right: -50vw;
-            margin-top: -100px; /* משיכה חזקה למעלה כדי להתחבר לסרגל */
-            padding: 100px 0 20px 0; /* פיצוי על המשיכה כדי שהתוכן ייראה */
+        /* ביטול המרווח שסטרימליט יוצרת בין הסרגל לתוכן */
+        .stApp .main .block-container {
+            padding-top: 0px !important;
+            margin-top: -1.5rem !important; /* מושך את כל התוכן למעלה אל מתחת לסרגל */
+        }
+    
+        /* תיבת הציטוט בעיצוב המקורי והנכון */
+        .quote-box-clean {
             background: #ffffff;
-            background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
-                              radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
+            background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 45%), 
+                              radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.3) 0%, transparent 45%);
             border-bottom: 1px solid #f1f5f9;
+            padding: 30px 40px;
             text-align: center;
             direction: rtl;
-        }}
+            position: relative;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
     
-        /* המרכאות המקוריות שלך (100px) */
-        .master-quote-container::before {{
+        /* המרכאות במיקום ובגודל המקורי */
+        .quote-box-clean::before {
             content: '“';
             position: absolute;
-            top: 110px; right: 60px;
-            font-size: 100px; color: #fadce6;
-            font-family: serif; opacity: 0.5; line-height: 1;
-        }}
+            top: 20px; right: 30px;
+            font-size: 80px; color: #fadce6;
+            font-family: serif; opacity: 0.4; line-height: 1;
+        }
     
-        .master-quote-container::after {{
+        .quote-box-clean::after {
             content: '”';
             position: absolute;
-            bottom: 10px; left: 60px;
-            font-size: 100px; color: #fadce6;
-            font-family: serif; opacity: 0.5; line-height: 1;
-        }}
+            bottom: 10px; left: 30px;
+            font-size: 80px; color: #fadce6;
+            font-family: serif; opacity: 0.4; line-height: 1;
+        }
     
-        /* עיצוב הטקסט המדויק שלך */
-        .q-text-style {{
+        .q-text-main {
             font-family: 'Noto Serif Hebrew', serif !important;
-            font-size: 24px !important;
+            font-size: 22px !important;
             color: #1a1c1c !important;
             font-weight: 700 !important;
-            line-height: 1.3;
-            margin: 10px 15%;
-            position: relative;
-            z-index: 2;
-        }}
+            line-height: 1.4;
+            margin: 10px 10%;
+        }
     
-        .q-author-style {{
+        .q-author-main {
             font-family: 'Plus Jakarta Sans', sans-serif !important;
-            font-size: 14px !important;
+            font-size: 13px !important;
             color: #646566 !important;
-            font-style: italic !important;
-            margin-bottom: 10px;
-        }}
+            font-style: italic;
+            margin: 5px 0 15px 0;
+            display: block;
+        }
     
-        .icon-line-wrapper {{
+        .icon-separator {
             display: flex; align-items: center; justify-content: center; gap: 10px;
-        }}
+        }
     
-        .line {{ height: 1px; width: 40px; background-color: #fadce6; }}
+        .line-sep { height: 1px; width: 40px; background-color: #fadce6; }
     
-        .material-symbols-outlined {{
+        .material-symbols-outlined {
             font-family: 'Material Symbols Outlined' !important;
             color: #6f5861 !important;
-            font-size: 22px !important;
-        }}
+            font-size: 20px !important;
+        }
     </style>
-    
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
+    """, unsafe_allow_html=True)
     
-    <div class="master-quote-container">
-        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 5px;">DAILY QUOTE</span>
-        <div class="q-text-style">"{quote_text}"</div>
-        <div class="q-author-style">&#8212; {quote_author} &#8212;</div>
-        <div class="icon-line-wrapper">
-            <div class="line"></div>
+    # 3. הזרקת ה-HTML
+    st.markdown(f"""
+    <div class="quote-box-clean">
+        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.2em; display: block;">DAILY QUOTE</span>
+        <div class="q-text-main">"{quote_text}"</div>
+        <span class="q-author-main">&#8212; {quote_author} &#8212;</span>
+        <div class="icon-separator">
+            <div class="line-sep"></div>
             <span class="material-symbols-outlined">auto_stories</span>
-            <div class="line"></div>
+            <div class="line-sep"></div>
         </div>
     </div>
     """, unsafe_allow_html=True)
-
                                                 
 
 
