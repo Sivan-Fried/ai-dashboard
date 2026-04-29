@@ -557,50 +557,77 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
 
-    # 1. עיצוב ומיקום סופי: הצמדה למעלה ושליטה בשכבות
-    st.markdown("""
-        <style>
-            /* ניקוי רווחים כללי */
-            .block-container {
-                padding-top: 0rem !important;
-                margin-top: 0rem !important;
-            }
-            
-            /* מעטפת הציטוט - דחיפה למעלה ושליחתה "אחורה" */
-            .quote-wrapper-final {
-                margin-top: -55px !important; 
-                position: relative;
-                z-index: 1 !important; /* שכבה נמוכה כדי שתיכנס מתחת לסרגל */
-            }
-
-            /* הבטחת עליונות הסרגל של סטרימליט */
-            header[data-testid="stHeader"] {
-                z-index: 99 !important;
-            }
-        </style>
-    """, unsafe_allow_html=True)
-
-    # 2. ה-HTML עם העיצוב המלא (הגרדיאנט והפונטים)
-    html_content = f"""
-    <body style="margin: 0; padding: 0; background: transparent; overflow: hidden;">
+    # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
+    
+    # הזרקת הכל ביחידה אחת: פונטים, סגנונות ומבנה
+    st.write(f"""
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
-        <div style="font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%); border-bottom: 1px solid #f1f5f9; padding: 25px 20px; text-align: center; direction: rtl;">
-            <span style="font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 10px;">DAILY QUOTE</span>
-            <div style="font-family: 'Noto Serif Hebrew', serif; font-size: 26px; color: #1a1c1c; line-height: 1.3; margin-bottom: 8px; font-weight: 700;">"{quote_text}"</div>
-            <div style="font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">&#8212; {quote_author} &#8212;</div>
-            <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+        
+        <style>
+            /* 1. טיפול במרחב הדף */
+            .main .block-container {{
+                padding-top: 0rem !important;
+            }}
+            
+            /* 2. הבטחת עליונות הסרגל העליון (Z-Index) */
+            header[data-testid="stHeader"] {{
+                z-index: 100 !important;
+                background: white !important;
+            }}
+
+            /* 3. עיצוב תיבת הציטוט והצמדתה למעלה */
+            .final-quote-box {{
+                margin-top: -100px !important; /* הכוח שמושך למעלה - ניתן לשינוי קל */
+                background: #ffffff;
+                /* הגרדיאנט המקורי שאהבת */
+                background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
+                                  radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
+                border-bottom: 1px solid #f1f5f9;
+                padding: 20px 15px;
+                text-align: center;
+                direction: rtl;
+                position: relative;
+                z-index: 1 !important; /* מתחת לסרגל (100) */
+                width: 100%;
+            }}
+
+            /* פונט הציטוט */
+            .quote-main-text {{
+                font-family: 'Noto Serif Hebrew', serif !important;
+                font-size: 24px !important;
+                color: #1a1c1c !important;
+                line-height: 1.3 !important;
+                margin-bottom: 8px !important;
+                font-weight: 700 !important;
+            }}
+
+            /* פונט כותרת ומחבר */
+            .quote-sub-text {{
+                font-family: 'Plus Jakarta Sans', sans-serif !important;
+            }}
+        </style>
+        
+        <div class="final-quote-box">
+            <span class="quote-sub-text" style="font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 8px;">DAILY QUOTE</span>
+            
+            <div class="quote-main-text">
+                "{quote_text}"
+            </div>
+            
+            <div class="quote-sub-text" style="font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
+                &#8212; {quote_author} &#8212;
+            </div>
+            
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
                 <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
                 <span class="material-symbols-outlined" style="color: #6f5861; font-size: 20px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
                 <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
             </div>
         </div>
-    </body>
-    """
-
-    # 3. הצגת הרכיב בתוך המעטפת המבוקרת
-    st.markdown('<div class="quote-wrapper-final">', unsafe_allow_html=True)
-    st.components.v1.html(html_content, height=160)
-    st.markdown('</div>', unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
+    
+    # הוספת רווח בטיחות קטן כדי שה-KPIs לא ייצמדו חזק מדי לציטוט מלמטה
+    st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
    
     
 
