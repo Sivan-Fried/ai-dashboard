@@ -572,12 +572,14 @@ else:
     
     
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    # ── Daily Quote Section Logic & Display (The Verified & Final Version) ──
+    # ── Daily Quote Section Logic & Display (Corrected Spacing & Background) ─────
     import streamlit as st
     import pandas as pd
     import os
+    import datetime
+
     
-    # 1. לוגיקה של שליפת הנתונים (נשמרת בדיוק כפי שהייתה)
+    # 1. לוגיקה של שליפת הנתונים
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
     quote_author = "ארתור אש"
     try:
@@ -591,119 +593,97 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. ה-CSS המלא - עבר בדיקה של 10 פעמים
+    # 2. העיצוב המקורי + תיקון הסרגל + המרכאות ברקע
     st.markdown("""
     <style>
-        /* נעילת הסרגל העליון מעל הציטוט */
+        /* התיקון לסרגל - הופך אותו ללבן אטום וצף מעל הציטוט */
         header[data-testid="stHeader"] {
             background-color: white !important;
-            z-index: 999999 !important;
-            display: block !important;
+            z-index: 1000000 !important;
             opacity: 1 !important;
         }
     
-        /* ביטול רווחים לבנים בראש הדף */
-        .stApp .main .block-container { 
-            padding-top: 0px !important; 
-            margin-top: 0px !important;
+        /* איפוס המרווח העליון של הדף */
+        .main .block-container { 
+            padding-top: 1rem !important; 
         }
     
-        /* תיבת הציטוט - קומפקטית וצמודה לסרגל */
-        .final-mini-box {
+        /* תיבת הציטוט המקורית */
+        .safe-quote-box {
             background: #ffffff;
-            background-image: 
-                radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 40%), 
-                radial-gradient(circle at 90% 50%, rgba(227, 225, 236, 0.3) 0%, transparent 40%);
+            background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
+                              radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
             border-bottom: 1px solid #f1f5f9;
-            padding-top: 65px; /* גובה הסרגל */
-            padding-bottom: 15px;
+            padding: 20px 80px; /* הוספת padding בצדדים למרכאות */
             text-align: center;
             direction: rtl;
             position: relative;
+            z-index: 1 !important;
             width: 100%;
-            z-index: 1;
         }
     
-        /* המרכאות הורודות העדינות ברקע */
-        .final-mini-box::before {
+        /* המרכאות הגדולות והעדינות ברקע */
+        .safe-quote-box::before {
             content: '“';
             position: absolute;
-            top: 60px; right: 40px;
-            font-size: 60px; color: #fadce6;
-            font-family: serif; opacity: 0.5; line-height: 1;
+            top: 20px;
+            right: 40px;
+            font-size: 100px;
+            color: #fadce6;
+            font-family: 'serif';
+            opacity: 0.5;
+            line-height: 1;
             z-index: -1;
         }
     
-        .final-mini-box::after {
+        .safe-quote-box::after {
             content: '”';
             position: absolute;
-            bottom: 5px; left: 40px;
-            font-size: 60px; color: #fadce6;
-            font-family: serif; opacity: 0.5; line-height: 1;
+            bottom: 0px;
+            left: 40px;
+            font-size: 100px;
+            color: #fadce6;
+            font-family: 'serif';
+            opacity: 0.5;
+            line-height: 1;
             z-index: -1;
         }
     
-        /* כותרת DAILY QUOTE */
-        .q-label {
-            font-family: 'Plus Jakarta Sans', sans-serif !important;
-            font-size: 8px !important;
-            font-weight: 800 !important;
-            color: #6f5861 !important;
-            text-transform: uppercase !important;
-            letter-spacing: 0.25em !important;
-            margin-bottom: 5px !important;
-            display: block !important;
-        }
-    
-        /* טקסט הציטוט - קטן ואלגנטי */
-        .q-text {
+        .q-text-final {
             font-family: 'Noto Serif Hebrew', serif !important;
-            font-size: 18px !important;
+            font-size: 24px !important;
             color: #1a1c1c !important;
             font-weight: 700 !important;
-            line-height: 1.4 !important;
-            margin: 5px 15% !important;
+            line-height: 1.3;
+            margin: 5px 0;
+            position: relative; /* כדי שהטקסט יהיה מעל המרכאות */
+            z-index: 2;
         }
-    
-        /* שם המחבר */
-        .q-author {
-            font-family: 'Plus Jakarta Sans', sans-serif !important;
-            font-size: 11px !important;
-            color: #646566 !important;
-            font-style: italic !important;
-            margin-top: 4px !important;
-        }
-    
-        /* האייקון והקווים */
-        .icon-wrapper {
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            margin-top: 8px;
-        }
-    
-        .divider { height: 1px; width: 35px; background-color: #fadce6; }
     
         .material-symbols-outlined {
             font-family: 'Material Symbols Outlined' !important;
-            font-size: 18px !important; color: #6f5861 !important;
+            vertical-align: middle;
         }
     </style>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 3. מבנה ה-HTML של הציטוט
+    # 3. התוכן המקורי
     st.markdown(f"""
-    <div class="final-mini-box">
-        <span class="q-label">DAILY QUOTE</span>
-        <div class="q-text">"{quote_text}"</div>
-        <div class="q-author">&#8212; {quote_author} &#8212;</div>
-        <div class="icon-wrapper">
-            <div class="divider"></div>
-            <span class="material-symbols-outlined">auto_stories</span>
-            <div class="divider"></div>
+    <div class="safe-quote-box">
+        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
+        <div class="q-text-final">"{quote_text}"</div>
+        <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 10px;">
+            &#8212; {quote_author} &#8212;
+        </div>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+            <span class="material-symbols-outlined" style="color: #6f5861; font-size: 22px;">auto_stories</span>
+            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
         </div>
     </div>
     """, unsafe_allow_html=True)
+
                                                 
 
 
