@@ -576,9 +576,9 @@ else:
     import pandas as pd
     import os
     
-    # 1. שליפת הנתונים (נשארת ללא שינוי)
-    quote_text = "הדרך היחידה לעשות עבודה נהדרת היא לאהוב את מה שאתה עושה"
-    quote_author = "סטיב ג'ובס"
+    # 1. לוגיקה של שליפת הנתונים
+    quote_text = "אל תיגרר על ידי הבעיות שלך, היה מובל על ידי החלומות שלך"
+    quote_author = "ראלף וולדו אמרסון"
     try:
         if os.path.exists("inspirational_quotes.xlsx"):
             df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
@@ -590,87 +590,70 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. ה-CSS ש"מנקה" את הראש של סטרימליט
+    # 2. ה-CSS שסוגר את הרווח האפור באופן סופי
     st.markdown("""
-        <style>
-            /* הסתרת הסרגל המקורי לגמרי כדי שלא יפריע */
-            header[data-testid="stHeader"] {
-                visibility: hidden;
-                height: 0px;
-            }
-            
-            /* איפוס מוחלט של כל המרווחים בדף */
-            .stApp .main .block-container {
-                padding-top: 0px !important;
-                margin-top: 0px !important;
-            }
-            
-            /* הסרת רווחים בין אלמנטים של סטרימליט */
-            div[data-testid="stVerticalBlock"] > div:first-child {
-                margin-top: 0px !important;
-            }
-        </style>
-    """, unsafe_allow_html=True)
-    
-    # 3. הבלוק המאוחד - סרגל לבן דק + תיבת הציטוט
-    st.markdown(f"""
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     <style>
-        /* ה-Header הלבן החדש שלנו (במקום המקורי) */
-        .custom-header {{
-            height: 60px;
-            background: white;
-            width: 100%;
-            border-bottom: 1px solid #f1f5f9;
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: #f36d9d; /* צבע הלוגו שלך */
-            font-weight: 800;
-            font-size: 18px;
-        }}
+        /* הופך את הסרגל העליון ללבן נקי */
+        header[data-testid="stHeader"] {
+            background-color: white !important;
+        }
     
-        /* תיבת הציטוט המחוברת */
-        .unified-quote-box {{
+        /* איפוס המרווחים של סטרימליט */
+        .stApp .main .block-container {
+            padding-top: 0px !important;
+            margin-top: -2rem !important; /* משיכה עדינה למעלה לביטול הפס האפור */
+        }
+    
+        /* תיבת הציטוט בעיצוב המקורי והאהוב */
+        .quote-final-box {
             background: #ffffff;
             background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 45%), 
                               radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.3) 0%, transparent 45%);
             border-bottom: 1px solid #f1f5f9;
-            padding: 40px 60px 25px 60px;
+            padding: 40px 60px 20px 60px;
             text-align: center;
             direction: rtl;
             position: relative;
-        }}
+        }
     
-        .unified-quote-box::before {{
-            content: '“'; position: absolute; top: 20px; right: 40px;
-            font-size: 100px; color: #fadce6; font-family: serif; opacity: 0.5;
-        }}
-        .unified-quote-box::after {{
-            content: '”'; position: absolute; bottom: 0px; left: 40px;
-            font-size: 100px; color: #fadce6; font-family: serif; opacity: 0.5;
-        }}
+        /* מרכאות ב-100px */
+        .quote-final-box::before {
+            content: '“';
+            position: absolute;
+            top: 20px; right: 40px;
+            font-size: 100px; color: #fadce6;
+            font-family: serif; opacity: 0.5; line-height: 1;
+        }
     
-        .quote-txt {{
-            font-family: 'Noto Serif Hebrew', serif; font-size: 24px; color: #1a1c1c;
-            font-weight: 700; line-height: 1.4; margin: 10px 10%;
-        }}
-        
-        .author-txt {{
-            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566;
-            font-style: italic; display: block; margin-bottom: 10px;
-        }}
+        .quote-final-box::after {
+            content: '”';
+            position: absolute;
+            bottom: 0px; left: 40px;
+            font-size: 100px; color: #fadce6;
+            font-family: serif; opacity: 0.5; line-height: 1;
+        }
+    
+        .q-text {
+            font-family: 'Noto Serif Hebrew', serif !important;
+            font-size: 24px !important;
+            color: #1a1c1c !important;
+            font-weight: 700 !important;
+            line-height: 1.4;
+            margin: 10px 12% !important;
+        }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
+    """, unsafe_allow_html=True)
     
-    <div class="custom-header">Dashboard AI</div>
-    <div class="unified-quote-box">
-        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
-        <div class="quote-txt">"{quote_text}"</div>
-        <span class="author-txt">&#8212; {quote_author} &#8212;</span>
+    # 3. ה-HTML הנקי
+    st.markdown(f"""
+    <div class="quote-final-box">
+        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.2em; display: block;">DAILY QUOTE</span>
+        <div class="q-text">"{quote_text}"</div>
+        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; display: block; margin-bottom: 10px;">&#8212; {quote_author} &#8212;</span>
         <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
             <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
-            <span class="material-symbols-outlined" style="color: #6f5861; font-size: 22px;">auto_stories</span>
+            <span class="material-symbols-outlined" style="font-family: 'Material Symbols Outlined'; color: #6f5861; font-size: 22px;">auto_stories</span>
             <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
         </div>
     </div>
