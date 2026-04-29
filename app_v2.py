@@ -558,56 +558,51 @@ else:
     except: pass
 
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
-    # 1. שליפת הנתונים (מוודא שמשתמשים במשתנים מהאקסל שלך)
-    # 1. הגדרת ה-CSS (העיצוב) בנפרד כדי למנוע תקלות הדפסה
+    # חלק 1: הזרקת העיצוב (CSS) בלבד
     st.markdown("""
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
-        <style>
-            .main .block-container { padding-top: 0rem !important; }
-            header[data-testid="stHeader"] { z-index: 100 !important; background: white !important; }
-            
-            .final-quote-box {
-                margin-top: -100px !important;
-                background: #ffffff;
-                background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
-                                  radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
-                border-bottom: 1px solid #f1f5f9;
-                padding: 25px 20px;
-                text-align: center;
-                direction: rtl;
-                position: relative;
-                z-index: 1 !important;
-                width: 100%;
-            }
-            .quote-main-text {
-                font-family: 'Noto Serif Hebrew', serif !important;
-                font-size: 24px !important;
-                color: #1a1c1c !important;
-                line-height: 1.3 !important;
-                margin-bottom: 8px !important;
-                font-weight: 700 !important;
-            }
-        </style>
+    <style>
+        .main .block-container { padding-top: 0rem !important; }
+        header[data-testid="stHeader"] { z-index: 100 !important; background: white !important; }
+        
+        .final-quote-box {
+            margin-top: -95px !important;
+            background: #ffffff;
+            background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
+                              radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
+            border-bottom: 1px solid #f1f5f9;
+            padding: 25px 20px;
+            text-align: center;
+            direction: rtl;
+            position: relative;
+            z-index: 1 !important;
+            width: 100%;
+        }
+        .quote-main-text {
+            font-family: 'Noto Serif Hebrew', serif !important;
+            font-size: 24px !important;
+            color: #1a1c1c !important;
+            line-height: 1.3 !important;
+            margin-bottom: 8px !important;
+            font-weight: 700 !important;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 2. הזרקת ה-HTML עם המשתנים (בלי f-string מסובך)
-    html_template = """
-        <div class="final-quote-box">
-            <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 10px;">DAILY QUOTE</span>
-            <div class="quote-main-text">"{text}"</div>
-            <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">&#8212; {author} &#8212;</div>
-            <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
-                <span class="material-symbols-outlined" style="color: #6f5861; font-size: 20px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
-                <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
-            </div>
+    # חלק 2: הזרקת התוכן (HTML) עם המשתנים בנפרד
+    st.write(f"""
+    <div class="final-quote-box">
+        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 10px;">DAILY QUOTE</span>
+        <div class="quote-main-text">"{quote_text}"</div>
+        <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">&#8212; {quote_author} &#8212;</div>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+            <span class="material-symbols-outlined" style="color: #6f5861; font-size: 20px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
+            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
         </div>
-    """
+    </div>
+    """, unsafe_allow_html=True)
     
-    # כאן אנחנו מחליפים את המילים בתוך התבנית בנתונים מהאקסל שלך
-    st.markdown(html_template.format(text=quote_text, author=quote_author), unsafe_allow_html=True)
-    
-    # 3. רווח לסיום
     st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
        
     
