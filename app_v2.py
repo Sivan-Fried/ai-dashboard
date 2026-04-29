@@ -24,30 +24,23 @@ st.set_page_config(
 )
 
 # הנה החלק החדש - תדביקי אותו בדיוק כאן, מתחת להגדרות הדף:
-st.set_page_config(
-    layout="wide",
-    page_title="Dashboard Sivan",
-    initial_sidebar_state="collapsed"
-)
-
-# הזרקה ישירה שאומרת לסרגל להיות לבן ולדף להתחיל ב-0
+# הזרקת עיצוב גלובלית - זה המקום היחיד שקובע את צבע הסרגל
 st.markdown("""
     <style>
-        /* 1. הסרגל העליון - לבן אטום וקבוע למעלה */
+        /* כניסה בכוח לסרגל העליון */
         header[data-testid="stHeader"] {
             background-color: white !important;
             position: fixed !important;
-            z-index: 1000 !important;
+            z-index: 9999 !important;
             height: 60px !important;
         }
 
-        /* 2. ביטול הרווח הלבן המובנה של הדף */
+        /* מחיקת הרווח הלבן המעצבן מעל הציטוט */
         .stApp .main .block-container {
-            padding-top: 60px !important; /* משאיר מקום בדיוק לסרגל */
-            margin-top: 0px !important;
+            padding-top: 60px !important; /* הגובה המדויק של הסרגל */
         }
     </style>
-""", unsafe_allow_html=True)
+""", unsafe_allow_html=True))
 
 
 # 1. שחרור חסימות גובה (התיקון הקריטי)
