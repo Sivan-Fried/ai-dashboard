@@ -572,12 +572,12 @@ else:
     
     
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    # ── Daily Quote Section Logic & Display (The Atomic Injected Version) ──
+    # ── Daily Quote Section Logic & Display (The Sub-Header Version) ─────
     import streamlit as st
     import pandas as pd
     import os
     
-    # 1. לוגיקה של שליפת הנתונים (נשמרת ללא שינוי)
+    # 1. לוגיקה של שליפת הנתונים (ללא שינוי)
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
     quote_author = "ארתור אש"
     try:
@@ -591,69 +591,65 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. הזרקה מאוחדת: פונטים + CSS + HTML בבת אחת
-    st.markdown(f"""
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
-    
+    # 2. ה-CSS המדויק להצמדה מתחת לסרגל
+    st.markdown("""
     <style>
-        /* הופך את הסרגל העליון ליחידה גמישה שמכילה את הציטוט */
-        header[data-testid="stHeader"] {{
-            height: auto !important;
+        /* הפיכת הסרגל העליון ללבן ואטום (כפי שביקשת) */
+        header[data-testid="stHeader"] {
             background-color: white !important;
-            border-bottom: 1px solid #f1f5f9 !important;
-            display: flex !important;
-            flex-direction: column !important;
             z-index: 1000000 !important;
-            position: fixed !important;
-        }}
+        }
     
-        /* ביטול המרווח הלבן של גוף הדף */
-        .stApp .main .block-container {{
-            padding-top: 30px !important;
-        }}
+        /* צמצום המרווח שסטרימליט יוצרת בראש הדף */
+        .stApp .main .block-container { 
+            padding-top: 0px !important; 
+        }
     
-        /* תיבת הציטוט המקורית שלך */
-        .safe-quote-box {{
+        /* תיבת הציטוט המקורית שלך - ללא ה-Fixed הבעייתי */
+        .safe-quote-box {
             background: #ffffff;
             background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                               radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
+            border-bottom: 1px solid #f1f5f9;
             padding: 20px 80px;
             text-align: center;
             direction: rtl;
             position: relative;
+            z-index: 1 !important;
             width: 100%;
-            box-sizing: border-box;
-        }}
+            
+            /* המפתח: ביטול מרווחים חיצוניים שהורסים את החיבור לסרגל */
+            margin-top: 0px !important;
+        }
     
-        /* המרכאות הגדולות (100px) */
-        .safe-quote-box::before {{
+        /* המרכאות הגדולות (100px) מהעיצוב המקורי */
+        .safe-quote-box::before {
             content: '“';
             position: absolute;
-            top: 10px;
+            top: 20px;
             right: 40px;
             font-size: 100px;
             color: #fadce6;
             font-family: 'serif';
             opacity: 0.5;
             line-height: 1;
-            z-index: 0;
-        }}
+            z-index: -1;
+        }
     
-        .safe-quote-box::after {{
+        .safe-quote-box::after {
             content: '”';
             position: absolute;
-            bottom: -10px;
+            bottom: 0px;
             left: 40px;
             font-size: 100px;
             color: #fadce6;
             font-family: 'serif';
             opacity: 0.5;
             line-height: 1;
-            z-index: 0;
-        }}
+            z-index: -1;
+        }
     
-        /* טקסט הציטוט (24px) */
-        .q-text-final {{
+        .q-text-final {
             font-family: 'Noto Serif Hebrew', serif !important;
             font-size: 24px !important;
             color: #1a1c1c !important;
@@ -662,47 +658,23 @@ else:
             margin: 5px 0;
             position: relative;
             z-index: 2;
-        }}
-    
-        /* המחבר והאייקון */
-        .q-author-style {{
-            font-family: 'Plus Jakarta Sans', sans-serif !important;
-            font-size: 14px !important;
-            color: #646566 !important;
-            font-style: italic !important;
-            margin-bottom: 10px;
-        }}
-    
-        .icon-wrapper {{
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }}
-    
-        .divider {{
-            height: 1px;
-            width: 40px;
-            background-color: #fadce6;
-        }}
-    
-        .material-symbols-outlined {{
-            font-family: 'Material Symbols Outlined' !important;
-            color: #6f5861 !important;
-            font-size: 22px !important;
-        }}
+        }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
+    """, unsafe_allow_html=True)
     
+    # 3. מבנה ה-HTML (העיצוב המקורי שלך ללא שינוי)
+    st.markdown(f"""
     <div class="safe-quote-box">
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
         <div class="q-text-final">"{quote_text}"</div>
-        <div class="q-author-style">
+        <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 10px;">
             &#8212; {quote_author} &#8212;
         </div>
-        <div class="icon-wrapper">
-            <div class="divider"></div>
-            <span class="material-symbols-outlined">auto_stories</span>
-            <div class="divider"></div>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+            <span class="material-symbols-outlined" style="font-family: 'Material Symbols Outlined'; color: #6f5861; font-size: 22px;">auto_stories</span>
+            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
         </div>
     </div>
     """, unsafe_allow_html=True)
