@@ -122,7 +122,7 @@ h3 {
     box-shadow: var(--shadow-md) !important;
 }
 
-/* 1. הגדרת הטופ-בר - אטימות מלאה ושכבה עליונה */
+/* 1. הגדרת הטופ-בר כשכבה העליונה ביותר */
 header[data-testid="stHeader"] {
     background-color: white !important;
     position: fixed !important;
@@ -130,36 +130,35 @@ header[data-testid="stHeader"] {
     top: 0;
     left: 0;
     right: 0;
-    height: 60px !important; /* גובה סטנדרטי לטופ-בר */
+    height: 60px !important;
     display: block !important;
-    border-bottom: 1px solid #f1f5f9; /* קו עדין שמפריד בין הטופ-בר לציטוט */
 }
 
-/* הבטחה שגם החלק הפנימי של הטופ-בר לבן ולא שקוף */
+/* מוודא שהתוכן הפנימי של הטופ-בר לבן ולא שקוף */
 header[data-testid="stHeader"] > div:first-child {
     background-color: white !important;
+    opacity: 1 !important;
 }
+
 
 /* 2. סידר הציטוט מתחת לטופ-בר */
 /* אנחנו נבטל את ה-margin-top החיובי ששם לך רווח לבן */
 .quote-wrapper-outer {
     width: 100%;
-    background-color: #fdf2f8 !important;
-    padding: 20px 10px !important; 
+    background-color: #fdf2f8 !important; 
+    padding: 10px !important;
     position: relative;
     overflow: hidden;
     margin-bottom: 24px;
-    
-    /* השינוי הקריטי: */
-    margin-top: 0px !important; /* נצמד לקצה העליון של הדף */
-    padding-top: 65px !important; /* דוחף רק את הטקסט למטה כדי שלא יוסתר ע"י הטופ-בר */
-    
+    /* הפעולה הכפולה: */
+    margin-top: -65px !important; /* מושך את הרקע הוורוד למעלה אל מאחורי הטופ-בר */
+    padding-top: 80px !important;  /* דוחף את הטקסט DAILY QUOTE מתחת לטופ-בר */
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 120px !important;
+    min-height: 100px !important;
     font-family: 'Assistant', sans-serif !important;
-    z-index: 1 !important; /* מוודא שהציטוט תמיד מתחת לטופ-בר */
+    z-index: 1 !important; /* מבטיח שהציטוט בדרגה נמוכה מהטופ-בר */
 }
 
 /* ביטול המרווח המובנה של סטרימליט שיוצר פס לבן מעל הוורוד */
