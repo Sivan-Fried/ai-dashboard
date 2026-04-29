@@ -48,6 +48,14 @@ st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fami
 with open("styles_v2.css", encoding="utf-8") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
+st.markdown("""
+<style>
+section[data-testid="stMain"] > div {
+    padding-top: 0.5rem !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # ai-card עיצוב כרטיס ה-AI
 st.markdown("""
 <style>
