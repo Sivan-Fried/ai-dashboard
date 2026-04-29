@@ -606,7 +606,7 @@ else:
         </div>
     </div>
     """
-    components.html(html_design, height=160)
+    st.markdown(html_design, unsafe_allow_html=True)
 
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
