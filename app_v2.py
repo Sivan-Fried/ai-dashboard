@@ -559,6 +559,7 @@ else:
 
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
     # 1. הגדרת העיצוב (CSS) - מבטיח שהסרגל תמיד יהיה מעל הציטוט
+    # 1. הזרקת העיצוב והפונטים (CSS)
     st.markdown("""
     <style>
         /* איפוס מרווחים בראש הדף */
@@ -568,26 +569,26 @@ else:
         
         /* הפיכת הסרגל הלבן לשכבה הכי עליונה בדף */
         header[data-testid="stHeader"] {
-            z-index: 999 !important;
+            z-index: 99999 !important;
             background-color: white !important;
         }
     
         /* עיצוב כרטיס הציטוט - נשלח לשכבה תחתונה */
-        .quote-box-final {
-            margin-top: -75px !important; /* העלאה למעלה בלי להסתיר את הסרגל */
+        .quote-card-final {
+            margin-top: -100px !important; 
             background: #ffffff;
             background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                               radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
             border-bottom: 1px solid #f1f5f9;
-            padding: 25px 20px;
+            padding: 30px 20px;
             text-align: center;
             direction: rtl;
             position: relative;
-            z-index: 1 !important; /* שכבה נמוכה יותר מהסרגל */
+            z-index: 1 !important; 
             width: 100%;
         }
     
-        .quote-text-style {
+        .quote-main-text {
             font-family: 'Noto Serif Hebrew', serif !important;
             font-size: 24px !important;
             color: #1a1c1c !important;
@@ -596,7 +597,6 @@ else:
             margin: 10px 0;
         }
     
-        /* החזרת האייקון של הספר */
         .material-symbols-outlined {
             font-family: 'Material Symbols Outlined' !important;
             vertical-align: middle;
@@ -606,12 +606,12 @@ else:
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 2. הצגת התוכן (HTML)
+    # 2. הצגת התוכן
     st.markdown(f"""
-    <div class="quote-box-final">
+    <div class="quote-card-final">
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
         
-        <div class="quote-text-style">"{quote_text}"</div>
+        <div class="quote-main-text">"{quote_text}"</div>
         
         <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
             &#8212; {quote_author} &#8212;
@@ -624,10 +624,7 @@ else:
         </div>
     </div>
     """, unsafe_allow_html=True)
-    
-    # מרווח בטיחות קטן כדי ששאר הדשבורד לא יקפוץ
-    st.write("")
-        
+            
 
 
     # ── KPIs ────────────────────────────────────────────────
