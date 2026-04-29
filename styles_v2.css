@@ -154,15 +154,15 @@ header[data-testid="stHeader"] > div:first-child {
     position: relative;
     overflow: hidden;
     margin-bottom: 24px;
-    /* הפעולה הכפולה: */
-    margin-top: -65px !important; /* מושך את הרקע הוורוד למעלה אל מאחורי הטופ-בר */
-    padding-top: 80px !important;  /* דוחף את הטקסט DAILY QUOTE מתחת לטופ-בר */
+    /* כאן הקסם: מושך את הוורוד למעלה ודוחף את הטקסט למטה */
+    margin-top: -65px !important; 
+    padding-top: 85px !important;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100px !important;
+    min-height: 120px !important;
     font-family: 'Assistant', sans-serif !important;
-    z-index: 1 !important; /* מבטיח שהציטוט בדרגה נמוכה מהטופ-בר */
+    z-index: 1 !important;
 }
 
 /* ביטול המרווח המובנה של סטרימליט שיוצר פס לבן מעל הוורוד */
