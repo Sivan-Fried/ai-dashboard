@@ -537,17 +537,15 @@ else:
     
     
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    # ── SECTION: DAILY QUOTE SECTION LOGIC & DISPLAY ──────────────────────────
-    # ── SECTION: DAILY QUOTE SECTION LOGIC & DISPLAY ──────────────────────────
     import streamlit as st
     import streamlit.components.v1 as components
     import pandas as pd
     import os
+
     
-    # 1. לוגיקה מלאה לשליפת נתונים מהאקסל
+    # 1. נתונים (ללא שינוי)
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
     quote_author = "ארתור אש"
-    
     try:
         if os.path.exists("inspirational_quotes.xlsx"):
             df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
@@ -555,88 +553,56 @@ else:
                 row = df.sample(n=1).iloc[0]
                 q_col = [c for c in df.columns if str(c).lower() in ['quote', 'ציטוט']]
                 a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר']]
-                if q_col: 
-                    quote_text = str(row[q_col[0]])
-                if a_col: 
-                    quote_author = str(row[a_col[0]])
-    except Exception:
-        pass
-    
-    # 2. הזרקת CSS גלובלי לתיקון מבנה הדף (ביטול הרווח הלבן בראש הדף)
+                if q_col: quote_text = str(row[q_col[0]])
+                if a_col: quote_author = str(row[a_col[0]])
+    except: pass
+
+   
+    # 2. הזרקת CSS גלובלי שמתקן את ה"בורות" של סטרימליט
     st.markdown("""
     <style>
+        /* 1. ביטול הרווח הלבן המובנה שסטרימליט דוחף בראש הדף */
         .block-container {
             padding-top: 0rem !important;
         }
-        /* מבטיח שהאלמנט הראשון (הטופבר) יהיה מעל הכל */
+   
+
+        /* 2. שליטה אבסולוטית במיכל הציטוט שלנו */
+        #quote-wrapper {
+            position: relative;
+            margin-top: -65px !important; /* הזזה אגרסיבית למעלה - אם זה יותר מדי, פשוט תקטיני ל-50 */
+            z-index: 1;
+            width: 100%;
+        }
+
+    
+        /* 3. הבטחה שהסרגל (האלמנט הראשון) תמיד יהיה מעל הכל */
         [data-testid="stVerticalBlock"] > div:first-child {
             position: relative !important;
             z-index: 9999 !important;
         }
     </style>
     """, unsafe_allow_html=True)
-    
-    # 3. הזרקת ה-HTML המלא כולל הסטייל הפנימי וה-SVG
-    # זהו העיצוב היציב שכולל את הפונטים והגרפיקה
-    st.markdown(f"""
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
-    
-    <div style="
-        margin-top: -65px !important; 
-        position: relative; 
-        z-index: 1000;
-        width: 100%;
-        direction: rtl;
-        background: #ffffff;
-        border-bottom: 1px solid #f1f5f9;
-        padding: 25px 20px;
-        text-align: center;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-    ">
-        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; z-index: -1; opacity: 0.4;">
-            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
-                <path fill="#FADCE6" d="M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.6,90,-16.3,88.5,-0.9C87,14.6,81.4,29.1,73.6,42.4C65.8,55.7,55.8,67.7,43.2,75.1C30.6,82.5,15.3,85.2,0.4,84.5C-14.5,83.8,-29,79.7,-42.2,72.6C-55.3,65.5,-67.1,55.3,-75.4,42.6C-83.7,29.9,-88.4,14.9,-88.7,-0.2C-89,-15.3,-84.8,-30.7,-76.5,-43.4C-68.2,-56.1,-55.8,-66.1,-42,-73.4C-28.2,-80.7,-14.1,-85.4,0.3,-85.9C14.7,-86.4,29.4,-82.7,44.7,-76.4Z" transform="translate(100 100)" />
-            </svg>
-        </div>
-    
-        <div style="position: relative; z-index: 10;">
-            <span style="
-                font-family: 'Plus Jakarta Sans', sans-serif;
-                font-size: 10px;
-                font-weight: 700;
-                color: #6f5861;
-                text-transform: uppercase;
-                letter-spacing: 0.25em;
-                display: block;
-                margin-bottom: 10px;
-            ">DAILY QUOTE</span>
-            
-            <div style="
-                font-family: 'Noto Serif Hebrew', serif;
-                font-size: 24px;
-                color: #1a1c1c;
-                line-height: 1.3;
-                margin-bottom: 10px;
-                font-weight: 700;
-            ">"{quote_text}"</div>
-            
-            <div style="
-                font-family: 'Plus Jakarta Sans', sans-serif;
-                font-size: 14px;
-                color: #646566;
-                font-style: italic;
-                margin-bottom: 18px;
-            ">— {quote_author} —</div>
-            
-            <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
-                <div style="height: 1px; width: 45px; background-color: #fadce6;"></div>
-                <span class="material-symbols-outlined" style="color: #6f5861; font-size: 20px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
-                <div style="height: 1px; width: 45px; background-color: #fadce6;"></div>
-            </div>
+  
+
+    # 3. העיצוב המקורי שאהבת בתוך "מעטפת שליטה"
+    st.markdown('<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">', unsafe_allow_html=True)
+
+
+    html_design = f"""
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+    <div style="font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%); border-bottom: 1px solid #f1f5f9; padding: 15px 20px; text-align: center; direction: rtl; margin: 0;">
+        <span style="font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 6px;">DAILY QUOTE</span>
+        <div style="font-family: 'Noto Serif Hebrew', serif; font-size: 22px; color: #1a1c1c; line-height: 1.2; margin-bottom: 6px; font-weight: 700;">"{quote_text}"</div>
+        <div style="font-size: 13px; color: #646566; font-style: italic; margin-bottom: 12px;">&#8212; {quote_author} &#8212;</div>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
+            <span class="material-symbols-outlined" style="color: #6f5861; font-size: 18px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
+            <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
         </div>
     </div>
-    """, unsafe_allow_html=True)
+    """
+    components.html(html_design, height=160)
 
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
