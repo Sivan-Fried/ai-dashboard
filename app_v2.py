@@ -557,29 +557,30 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
 
-    # 2. עיצוב והצמדה למעלה - גרסה סופית ומדויקת
+    # 2. תיקון מיקום אגרסיבי להצמדה לסרגל העליון
     st.markdown("""
     <style>
-        /* ביטול הרווח הלבן של הדף בראש */
-        .block-container { padding-top: 0rem !important; }
+        /* ביטול מוחלט של הרווח בראש הדף */
+        .block-container { 
+            padding-top: 0rem !important; 
+        }
         
-        /* יצירת קונטיינר ייעודי לציטוט עם שליטה במיקום */
+        /* משיכה חזקה למעלה רק עבור הציטוט */
         .quote-fix-wrapper {
-            margin-top: -75px !important; 
-            margin-bottom: -20px !important;
+            margin-top: -115px !important; 
+            margin-bottom: -40px !important;
             padding: 0 !important;
             width: 100%;
         }
     </style>
     """, unsafe_allow_html=True)
 
-    # 3. ה-HTML המקורי בתוך ה-Wrapper
-    # שימי לב: העליתי את ה-height ל-150 כדי שהעיצוב הפנימי לא ייחתך
+    # 3. ה-HTML של הציטוט (מעודכן עם גובה שמונע חיתוך)
     html_content = f"""
     <body style="margin: 0; padding: 0; overflow: hidden; background: transparent;">
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
-        <div style="font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%); border-bottom: 1px solid #f1f5f9; padding: 20px; text-align: center; direction: rtl; border-radius: 0px;">
-            <span style="font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 10px;">DAILY QUOTE</span>
+        <div style="font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%); border-bottom: 1px solid #f1f5f9; padding: 20px; text-align: center; direction: rtl;">
+            <span style="font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 8px;">DAILY QUOTE</span>
             <div style="font-family: 'Noto Serif Hebrew', serif; font-size: 24px; color: #1a1c1c; line-height: 1.3; margin-bottom: 8px; font-weight: 700;">"{quote_text}"</div>
             <div style="font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">&#8212; {quote_author} &#8212;</div>
             <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
