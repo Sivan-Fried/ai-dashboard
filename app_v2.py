@@ -572,14 +572,14 @@ else:
     
     
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    # ── Daily Quote Section (The Proportional & Connected Version) ──────────
+    # ── Daily Quote Section (The Final Visual Match) ──────────────────
     import streamlit as st
     import pandas as pd
     import os
     
     # 1. לוגיקה של שליפת הנתונים
-    quote_text = "שני הימים החשובים ביותר בחייך הם היום שבו נולדת והיום שבו אתה מגלה את הסיבה לכך"
-    quote_author = "מארק טוויין"
+    quote_text = "הצלחה היא סך כל המאמצים הקטנים, שנעשים יום אחר יום"
+    quote_author = "רוברט קולייר"
     try:
         if os.path.exists("inspirational_quotes.xlsx"):
             df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
@@ -591,96 +591,97 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. ה-CSS המדויק לחיבור הסרגל לציטוט ללא רווח
+    # 2. ה-CSS שמבטל את הרווח האפור ומחבר את האלמנטים
     st.markdown("""
     <style>
-        /* הופך את הסרגל העליון ללבן ואטום כחלק מהעיצוב */
+        /* הופך את הסרגל העליון ללבן ואטום (כמו בתמונה) */
         header[data-testid="stHeader"] {
             background-color: white !important;
-            z-index: 100 !important;
+            height: 3.5rem !important;
         }
     
-        /* ביטול המרווח שסטרימליט יוצרת בין הסרגל לתוכן */
+        /* הסרת הרווח האפור המיותר בין הסרגל לציטוט */
         .stApp .main .block-container {
             padding-top: 0px !important;
-            margin-top: -1.5rem !important; /* מושך את כל התוכן למעלה אל מתחת לסרגל */
+            margin-top: -3.5rem !important; /* המפתח: מושך את הציטוט בדיוק עד לסרגל */
         }
     
-        /* תיבת הציטוט בעיצוב המקורי והנכון */
-        .quote-box-clean {
+        /* תיבת הציטוט - עיצוב נקי ופרופורציונלי (לפי image_7cf4cc) */
+        .quote-container-fixed {
             background: #ffffff;
             background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 45%), 
                               radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.3) 0%, transparent 45%);
             border-bottom: 1px solid #f1f5f9;
-            padding: 30px 40px;
+            padding: 40px 60px 20px 60px;
             text-align: center;
             direction: rtl;
             position: relative;
             width: 100%;
             box-sizing: border-box;
-            margin-bottom: 20px;
         }
     
-        /* המרכאות במיקום ובגודל המקורי */
-        .quote-box-clean::before {
+        /* מרכאות עדינות בגודל 80px (לא ענקיות) */
+        .quote-container-fixed::before {
             content: '“';
             position: absolute;
-            top: 20px; right: 30px;
+            top: 30px; right: 40px;
             font-size: 80px; color: #fadce6;
             font-family: serif; opacity: 0.4; line-height: 1;
         }
     
-        .quote-box-clean::after {
+        .quote-container-fixed::after {
             content: '”';
             position: absolute;
-            bottom: 10px; left: 30px;
+            bottom: 15px; left: 40px;
             font-size: 80px; color: #fadce6;
             font-family: serif; opacity: 0.4; line-height: 1;
         }
     
-        .q-text-main {
+        /* פונטים אלגנטיים */
+        .q-main-text {
             font-family: 'Noto Serif Hebrew', serif !important;
-            font-size: 22px !important;
+            font-size: 24px !important;
             color: #1a1c1c !important;
             font-weight: 700 !important;
             line-height: 1.4;
-            margin: 10px 10%;
+            margin: 10px 12% !important;
         }
     
-        .q-author-main {
+        .q-author-text {
             font-family: 'Plus Jakarta Sans', sans-serif !important;
-            font-size: 13px !important;
+            font-size: 14px !important;
             color: #646566 !important;
             font-style: italic;
-            margin: 5px 0 15px 0;
+            margin-bottom: 10px;
             display: block;
         }
     
-        .icon-separator {
+        .sep-wrapper {
             display: flex; align-items: center; justify-content: center; gap: 10px;
+            margin-top: 5px;
         }
     
-        .line-sep { height: 1px; width: 40px; background-color: #fadce6; }
+        .sep-line { height: 1px; width: 40px; background-color: #fadce6; }
     
         .material-symbols-outlined {
             font-family: 'Material Symbols Outlined' !important;
             color: #6f5861 !important;
-            font-size: 20px !important;
+            font-size: 22px !important;
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 3. הזרקת ה-HTML
+    # 3. הצגת ה-HTML
     st.markdown(f"""
-    <div class="quote-box-clean">
+    <div class="quote-container-fixed">
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.2em; display: block;">DAILY QUOTE</span>
-        <div class="q-text-main">"{quote_text}"</div>
-        <span class="q-author-main">&#8212; {quote_author} &#8212;</span>
-        <div class="icon-separator">
-            <div class="line-sep"></div>
+        <div class="q-main-text">"{quote_text}"</div>
+        <span class="q-author-text">&#8212; {quote_author} &#8212;</span>
+        <div class="sep-wrapper">
+            <div class="sep-line"></div>
             <span class="material-symbols-outlined">auto_stories</span>
-            <div class="line-sep"></div>
+            <div class="sep-line"></div>
         </div>
     </div>
     """, unsafe_allow_html=True)
