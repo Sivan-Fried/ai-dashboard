@@ -572,14 +572,14 @@ else:
     
     
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    # ── Daily Quote Section (The Final Visual Match) ──────────────────
+    # ── Daily Quote Section (The Absolute Final - Fixed Positioning) ──
     import streamlit as st
     import pandas as pd
     import os
     
-    # 1. לוגיקה של שליפת הנתונים
-    quote_text = "הצלחה היא סך כל המאמצים הקטנים, שנעשים יום אחר יום"
-    quote_author = "רוברט קולייר"
+    # 1. שליפת הנתונים (נשאר אותו דבר)
+    quote_text = "הגבולות היחידים הם אלה שבתוך ראשנו"
+    quote_author = "ג'יימי פאולינטי"
     try:
         if os.path.exists("inspirational_quotes.xlsx"):
             df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
@@ -591,23 +591,26 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. ה-CSS שמבטל את הרווח האפור ומחבר את האלמנטים
+    # 2. ה-CSS שסוגר את הסיפור
     st.markdown("""
     <style>
-        /* הופך את הסרגל העליון ללבן ואטום (כמו בתמונה) */
-        header[data-testid="stHeader"] {
+        /* הסתרת המרווח המובנה של סטרימליט - בצורה אגרסיבית */
+        .stApp header {
             background-color: white !important;
-            height: 3.5rem !important;
         }
-    
-        /* הסרת הרווח האפור המיותר בין הסרגל לציטוט */
-        .stApp .main .block-container {
+        
+        /* ביטול ה-Padding של המכולה הראשית */
+        [data-testid="stAppViewContainer"] > section:nth-child(2) > div:nth-child(1) {
             padding-top: 0px !important;
-            margin-top: -3.5rem !important; /* המפתח: מושך את הציטוט בדיוק עד לסרגל */
         }
     
-        /* תיבת הציטוט - עיצוב נקי ופרופורציונלי (לפי image_7cf4cc) */
-        .quote-container-fixed {
+        .main .block-container {
+            padding-top: 0px !important;
+            margin-top: 0px !important;
+        }
+    
+        /* תיבת הציטוט המקורית שלך - בדיוק לפי העיצוב שאהבת */
+        .ultimate-quote-box {
             background: #ffffff;
             background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 45%), 
                               radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.3) 0%, transparent 45%);
@@ -618,27 +621,12 @@ else:
             position: relative;
             width: 100%;
             box-sizing: border-box;
+            
+            /* משיכה למעלה כדי להתחבר לסרגל הלבן */
+            margin-top: -85px !important; 
         }
     
-        /* מרכאות עדינות בגודל 80px (לא ענקיות) */
-        .quote-container-fixed::before {
-            content: '“';
-            position: absolute;
-            top: 30px; right: 40px;
-            font-size: 80px; color: #fadce6;
-            font-family: serif; opacity: 0.4; line-height: 1;
-        }
-    
-        .quote-container-fixed::after {
-            content: '”';
-            position: absolute;
-            bottom: 15px; left: 40px;
-            font-size: 80px; color: #fadce6;
-            font-family: serif; opacity: 0.4; line-height: 1;
-        }
-    
-        /* פונטים אלגנטיים */
-        .q-main-text {
+        .q-text-final {
             font-family: 'Noto Serif Hebrew', serif !important;
             font-size: 24px !important;
             color: #1a1c1c !important;
@@ -647,21 +635,22 @@ else:
             margin: 10px 12% !important;
         }
     
-        .q-author-text {
-            font-family: 'Plus Jakarta Sans', sans-serif !important;
-            font-size: 14px !important;
-            color: #646566 !important;
-            font-style: italic;
-            margin-bottom: 10px;
-            display: block;
+        /* המרכאות (100px כמו במקור) */
+        .ultimate-quote-box::before {
+            content: '“';
+            position: absolute;
+            top: 20px; right: 40px;
+            font-size: 100px; color: #fadce6;
+            font-family: serif; opacity: 0.5; line-height: 1;
         }
     
-        .sep-wrapper {
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            margin-top: 5px;
+        .ultimate-quote-box::after {
+            content: '”';
+            position: absolute;
+            bottom: 0px; left: 40px;
+            font-size: 100px; color: #fadce6;
+            font-family: serif; opacity: 0.5; line-height: 1;
         }
-    
-        .sep-line { height: 1px; width: 40px; background-color: #fadce6; }
     
         .material-symbols-outlined {
             font-family: 'Material Symbols Outlined' !important;
@@ -669,19 +658,22 @@ else:
             font-size: 22px !important;
         }
     </style>
+    
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 3. הצגת ה-HTML
+    # 3. ה-HTML
     st.markdown(f"""
-    <div class="quote-container-fixed">
-        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.2em; display: block;">DAILY QUOTE</span>
-        <div class="q-main-text">"{quote_text}"</div>
-        <span class="q-author-text">&#8212; {quote_author} &#8212;</span>
-        <div class="sep-wrapper">
-            <div class="sep-line"></div>
+    <div class="ultimate-quote-box">
+        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
+        <div class="q-text-final">"{quote_text}"</div>
+        <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 10px;">
+            &#8212; {quote_author} &#8212;
+        </div>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
             <span class="material-symbols-outlined">auto_stories</span>
-            <div class="sep-line"></div>
+            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
         </div>
     </div>
     """, unsafe_allow_html=True)
