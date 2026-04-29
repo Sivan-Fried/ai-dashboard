@@ -572,7 +572,7 @@ else:
     
     
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    # ── Daily Quote Section Logic & Display (Mini & Complete) ─────────────
+    # ── Daily Quote Section Logic & Display (Mini & Spaced) ─────────────
     import streamlit as st
     import pandas as pd
     import os
@@ -596,10 +596,10 @@ else:
     except Exception:
         pass
     
-    # 2. ה-CSS המלא (גרסה מוקטנת אך עשירה)
+    # 2. ה-CSS המעודכן - דגש על ריווח (Spacing)
     st.markdown("""
     <style>
-        /* סרגל עליון לבן ואטום - תמיד מעל הכל */
+        /* סרגל עליון */
         header[data-testid="stHeader"] {
             background-color: white !important;
             z-index: 1000000 !important;
@@ -612,16 +612,16 @@ else:
             margin-top: 0px !important;
         }
     
-        /* תיבת הציטוט המוקטנת */
+        /* תיבת הציטוט */
         .safe-quote-box {
             margin-top: -45px !important; 
-            padding-top: 55px !important; 
+            padding-top: 60px !important; /* הגדלתי מעט את המרווח מהסרגל */
             background: #ffffff;
             background-image: 
                 radial-gradient(circle at 10% 40%, rgba(250, 220, 230, 0.3) 0%, transparent 30%), 
-                radial-gradient(circle at 90% 70%, rgba(227, 225, 236, 0.3) 0%, transparent 30%);
+                radial-gradient(circle at 90% 70%, rgba(227, 225, 236, 0.4) 0%, transparent 30%);
             border-bottom: 1px solid #f1f5f9;
-            padding-bottom: 15px;
+            padding-bottom: 25px; /* הוספתי מרווח למטה */
             text-align: center;
             direction: rtl;
             position: relative;
@@ -630,76 +630,81 @@ else:
             box-shadow: 0 2px 10px rgba(0,0,0,0.02);
         }
     
-        /* המרכאות הגרפיות (הוקטנו ב-50%) */
+        /* מרכאות */
         .safe-quote-box::before {
             content: '“';
             position: absolute;
-            top: 50px;
-            right: 25px;
-            font-size: 40px;
+            top: 55px;
+            right: 30px;
+            font-size: 45px;
             color: #fadce6;
             font-family: 'serif';
-            opacity: 0.5;
+            opacity: 0.4;
         }
     
         .safe-quote-box::after {
             content: '”';
             position: absolute;
-            bottom: 5px;
-            left: 25px;
-            font-size: 40px;
+            bottom: 15px;
+            left: 30px;
+            font-size: 45px;
             color: #fadce6;
             font-family: 'serif';
-            opacity: 0.5;
+            opacity: 0.4;
         }
     
+        /* כותרת DAILY QUOTE */
         .q-label {
             font-family: 'Plus Jakarta Sans', sans-serif !important;
-            font-size: 8px !important;
+            font-size: 9px !important;
             font-weight: 800 !important;
             color: #6f5861 !important;
             text-transform: uppercase !important;
-            letter-spacing: 0.25em !important;
+            letter-spacing: 0.3em !important;
             display: block !important;
-            margin-bottom: 4px !important;
+            margin-bottom: 12px !important; /* רווח גדול יותר מתחת לכותרת */
         }
     
+        /* הטקסט עצמו */
         .q-text-final {
             font-family: 'Noto Serif Hebrew', serif !important;
-            font-size: 17px !important;
+            font-size: 18px !important;
             color: #1a1c1c !important;
             font-weight: 700 !important;
-            line-height: 1.35 !important;
-            margin: 5px 60px !important;
+            line-height: 1.5 !important; /* הגדלתי ריווח בין שורות */
+            margin: 10px 80px !important; /* רווח גדול יותר מהצדדים */
             position: relative;
             z-index: 2;
         }
     
+        /* שם המחבר */
         .q-author-final {
             font-family: 'Plus Jakarta Sans', sans-serif !important;
-            font-size: 11px !important;
+            font-size: 12px !important;
             color: #525455 !important;
             font-style: italic !important;
-            margin-top: 4px !important;
-            margin-bottom: 8px !important;
+            margin-top: 12px !important; /* רווח גדול יותר מעל המחבר */
+            margin-bottom: 18px !important; /* רווח גדול יותר מתחת למחבר */
         }
     
+        /* האייקון והקווים */
         .icon-wrapper {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 15px;
+            margin-top: 5px;
         }
     
         .divider-line {
             height: 1px;
-            width: 40px;
+            width: 45px;
             background-color: #fadce6;
         }
     
         .material-symbols-outlined {
             font-family: 'Material Symbols Outlined' !important;
-            font-size: 18px !important;
+            font-size: 20px !important;
             color: #6f5861 !important;
         }
     </style>
@@ -719,7 +724,7 @@ else:
         </div>
     </div>
     """, unsafe_allow_html=True)
-                            
+                                
 
 
     # ── KPIs ────────────────────────────────────────────────
