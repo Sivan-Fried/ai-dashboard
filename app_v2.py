@@ -577,8 +577,8 @@ else:
     import os
     
     # 1. לוגיקה של שליפת הנתונים
-    quote_text = "אל תחתרו להצלחה, שאפו להיות בעלי ערך"
-    quote_author = "אלברט איינשטיין"
+    quote_text = "אתה לעולם לא תוכל לחצות את האוקיינוס, אם לא יהיה לך את האומץ להיפרד ממראה היבשה"
+    quote_author = "כריסטופר קולומבוס"
     try:
         if os.path.exists("inspirational_quotes.xlsx"):
             df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
@@ -590,25 +590,27 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. ה-CSS המהודק - צמצום גובה ומשיכה למעלה
+    # 2. ה-CSS המהודק ביותר (Ultra-Compact)
     st.markdown(f"""
     <style>
+        /* הלבנת הסרגל וביטול צללים */
         header[data-testid="stHeader"] {{
             background-color: white !important;
+            height: 3rem !important;
         }}
     
-        /* משיכה אגרסיבית יותר למעלה וביטול מרווחי דף */
+        /* משיכה מקסימלית למעלה */
         .stApp .main .block-container {{
             padding-top: 0px !important;
-            margin-top: -4.2rem !important; 
+            margin-top: -5.2rem !important; 
         }}
     
-        /* תיבת הציטוט בגובה מינימלי */
-        .quote-compact-container {{
+        /* תיבת ציטוט דקה במיוחד */
+        .ultra-compact-quote {{
             background: #ffffff;
-            background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.2) 0%, transparent 40%);
-            border-bottom: 1px solid #f1f5f9;
-            padding: 25px 60px 15px 60px; /* צמצום משמעותי של ה-Padding */
+            background-image: linear-gradient(to right, rgba(250, 220, 230, 0.1), transparent, rgba(227, 225, 236, 0.1));
+            border-bottom: 1px solid #f8fafc;
+            padding: 15px 40px 10px 40px; /* מינימום פאדינג */
             text-align: center;
             direction: rtl;
             position: relative;
@@ -616,45 +618,46 @@ else:
             box-sizing: border-box;
         }}
     
-        /* הקטנת המרכאות כדי שלא ירחיבו את התיבה */
-        .quote-compact-container::before {{
-            content: '“'; position: absolute; top: 10px; right: 45px;
-            font-size: 70px; color: #fadce6; font-family: serif; opacity: 0.4; line-height: 1;
+        /* החלפת המרכאות בקו עיצובי עדין בצדדים למניעת גובה */
+        .ultra-compact-quote::before {{
+            content: ''; position: absolute; top: 20%; right: 20px;
+            height: 60%; width: 3px; background: #fadce6; border-radius: 10px;
         }}
     
-        .quote-compact-container::after {{
-            content: '”'; position: absolute; bottom: -5px; left: 45px;
-            font-size: 70px; color: #fadce6; font-family: serif; opacity: 0.4; line-height: 1;
+        .ultra-compact-quote::after {{
+            content: ''; position: absolute; top: 20%; left: 20px;
+            height: 60%; width: 3px; background: #fadce6; border-radius: 10px;
         }}
     
-        .compact-q-text {{
+        .q-text-slim {{
             font-family: 'Noto Serif Hebrew', serif !important;
-            font-size: 21px !important; /* הקטנה קלה של הפונט לטובת הגובה */
+            font-size: 19px !important; /* פונט קטן ומהודק */
             color: #1a1c1c !important;
             font-weight: 700 !important;
             line-height: 1.2;
-            margin: 5px 12% !important;
+            margin: 4px 5% !important;
         }}
     
-        .material-symbols-outlined {{
-            font-family: 'Material Symbols Outlined' !important;
-            color: #6f5861 !important;
-            font-size: 18px !important;
-            display: inline-block;
-            vertical-align: middle;
+        .author-slim {{
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 12px;
+            color: #646566;
+            font-style: italic;
+            display: block;
+            margin-bottom: 4px;
         }}
     </style>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     
-    <div class="quote-compact-container">
-        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 8px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.2em; display: block; margin-bottom: 2px;">DAILY QUOTE</span>
-        <div class="compact-q-text">"{quote_text}"</div>
-        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; color: #646566; font-style: italic; display: block; margin-bottom: 5px;">&#8212; {quote_author} &#8212;</span>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-            <div style="height: 1px; width: 30px; background-color: #fadce6;"></div>
-            <span class="material-symbols-outlined">auto_stories</span>
-            <div style="height: 1px; width: 30px; background-color: #fadce6;"></div>
+    <div class="ultra-compact-quote">
+        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 8px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.15em; display: block; margin-bottom: 2px;">DAILY QUOTE</span>
+        <div class="q-text-slim">"{quote_text}"</div>
+        <span class="author-slim">&#8212; {quote_author} &#8212;</span>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 2px;">
+            <div style="height: 1px; width: 20px; background-color: #fadce6;"></div>
+            <span class="material-symbols-outlined" style="font-size: 16px; color: #6f5861;">auto_stories</span>
+            <div style="height: 1px; width: 20px; background-color: #fadce6;"></div>
         </div>
     </div>
     """, unsafe_allow_html=True)
