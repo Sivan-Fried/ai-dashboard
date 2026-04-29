@@ -23,7 +23,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. הזרקת עיצוב גלובלית - תדביקי את כל זה כאן:
+# 2. הזרקת עיצוב גלובלית מאוחדת
 st.markdown("""
 <style>
     /* הפיכת הסרגל הלבן לשכבה הכי עליונה בדף */
@@ -34,15 +34,7 @@ st.markdown("""
         display: flex !important;
     }
 
-    /* ביטול הרווח הלבן המובנה של סטרימליט בראש הדף */
-    .stApp .main .block-container {
-        padding-top: 0px !important;
-        margin-top: 0px !important;
-    }
-
-   st.markdown("""
-<style>
-    /* 1. השליטה על גובה כל האזור במסך */
+    /* 1. השליטה על גובה כל האזור במסך - המשיכה למעלה */
     .stApp .main .block-container {
         padding-top: 0px !important;
         margin-top: -6.0rem !important; /* ככל שהמינוס גדול יותר, זה עולה למעלה */
@@ -61,14 +53,14 @@ st.markdown("""
         padding-top: 35px !important; 
         padding-bottom: 15px !important;
         
-        /* רווח מה-KPIs למטה */
-        margin-bottom: 10px !important; 
+        /* רווח קטן מה-KPIs למטה */
+        margin-bottom: 5px !important; 
         
         position: relative !important;
         z-index: 1 !important;
     }
 
-    /* 3. שחרור חסימות (הקוד של ה-iframe שהיה לך) */
+    /* 3. שחרור חסימות למניעת חיתוך אלמנטים */
     iframe, [data-testid="stVerticalBlock"], [data-testid="stHorizontalBlock"], .element-container {
         overflow: visible !important;
     }
