@@ -577,8 +577,8 @@ else:
     import os
     
     # 1. לוגיקה של שליפת הנתונים
-    quote_text = "אתה אף פעם לא זקן מכדי להציב מטרה חדשה או לחלום חלום חדש"
-    quote_author = "סי. אס. לואיס"
+    quote_text = "אל תחתרו להצלחה, שאפו להיות בעלי ערך"
+    quote_author = "אלברט איינשטיין"
     try:
         if os.path.exists("inspirational_quotes.xlsx"):
             df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
@@ -590,73 +590,68 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. ה-CSS המהודק והצמוד ביותר
+    # 2. CSS אולטרה-קומפקטי לחיבור מושלם
     st.markdown(f"""
     <style>
-        /* הלבנה מוחלטת של הסרגל וביטול מרווחים תחתונים שלו */
+        /* הלבנת הסרגל וקיבוע הגובה שלו */
         header[data-testid="stHeader"] {{
             background-color: white !important;
-            height: 2.5rem !important;
+            height: 3.5rem !important;
+            z-index: 100 !important; /* מבטיח שהסרגל תמיד יהיה מעל הכל */
         }}
     
-        /* משיכה למעלה וביטול פאדינג של הקונטיינר הראשי */
+        /* ביטול מוחלט של הרווח המובנה של סטרימליט */
         .stApp .main .block-container {{
             padding-top: 0px !important;
-            margin-top: -6.0rem !important; /* העלייה המקסימלית האפשרית */
+            margin-top: -4.5rem !important; /* משיכה מדויקת לקו הסרגל */
+            z-index: 1 !important;
         }}
     
-        /* ביטול רווחים בין אלמנטים של סטרימליט */
-        div[data-testid="stVerticalBlock"] {{
-            gap: 0px !important;
-        }}
-    
-        /* תיבת ציטוט דקה במיוחד (Slim-Line) */
-        .nano-quote {{
+        /* עיצוב תיבת הציטוט הנמוכה ביותר האפשרית */
+        .nano-strip-quote {{
             background: #ffffff;
             border-bottom: 1px solid #f1f5f9;
-            padding: 10px 40px 8px 40px; /* מינימום גובה */
+            padding: 8px 50px 5px 50px; /* מינימום פאדינג אנכי */
             text-align: center;
             direction: rtl;
-            position: relative;
             width: 100%;
             box-sizing: border-box;
         }}
     
-        /* קו עיצובי צדדי דק במקום מרכאות (חוסך המון גובה) */
-        .nano-quote::before, .nano-quote::after {{
-            content: ''; position: absolute; top: 25%;
-            height: 50%; width: 2px; background: #fadce6; border-radius: 5px;
-        }}
-        .nano-quote::before {{ right: 15px; }}
-        .nano-quote::after {{ left: 15px; }}
-    
-        .q-text-nano {{
+        .q-text-line {{
             font-family: 'Noto Serif Hebrew', serif !important;
-            font-size: 18px !important;
+            font-size: 17px !important; /* פונט קריא אך קטן */
             color: #1a1c1c !important;
             font-weight: 700 !important;
             line-height: 1.1;
-            margin: 2px auto !important;
+            margin: 2px 0 !important;
         }}
     
-        .author-nano {{
+        .q-author-line {{
             font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 11px;
             color: #8c8d8e;
+            margin-bottom: 2px;
             display: block;
+        }}
+    
+        /* קישוט צדדי מינימליסטי - לא תופס גובה */
+        .nano-strip-quote::before {{
+            content: ''; position: absolute; right: 25px; top: 30%;
+            height: 40%; width: 2px; background: #fadce6;
         }}
     </style>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     
-    <div class="nano-quote">
+    <div class="nano-strip-quote">
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 7px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.1em; display: block;">DAILY QUOTE</span>
-        <div class="q-text-nano">"{quote_text}"</div>
-        <span class="author-nano">&#8212; {quote_author} &#8212;</span>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 2px; opacity: 0.7;">
-            <div style="height: 1px; width: 15px; background-color: #fadce6;"></div>
-            <span class="material-symbols-outlined" style="font-size: 14px; color: #6f5861;">auto_stories</span>
-            <div style="height: 1px; width: 15px; background-color: #fadce6;"></div>
+        <div class="q-text-line">"{quote_text}"</div>
+        <span class="q-author-line">&#8212; {quote_author} &#8212;</span>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 4px; opacity: 0.6;">
+            <div style="height: 1px; width: 12px; background-color: #fadce6;"></div>
+            <span class="material-symbols-outlined" style="font-size: 12px; color: #6f5861;">auto_stories</span>
+            <div style="height: 1px; width: 12px; background-color: #fadce6;"></div>
         </div>
     </div>
     """, unsafe_allow_html=True)
