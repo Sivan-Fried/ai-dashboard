@@ -572,14 +572,14 @@ else:
     
     
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    # ── Daily Quote Section (The Absolute Final - Fixed Positioning) ──
     import streamlit as st
     import pandas as pd
     import os
+    import streamlit.components.v1 as components
     
-    # 1. שליפת הנתונים (נשאר אותו דבר)
-    quote_text = "הגבולות היחידים הם אלה שבתוך ראשנו"
-    quote_author = "ג'יימי פאולינטי"
+    # 1. לוגיקה של שליפת הנתונים (נשארת ללא שינוי)
+    quote_text = "חיים שלא עמדו למבחן אינם בעלי ערך"
+    quote_author = "סוקרטס"
     try:
         if os.path.exists("inspirational_quotes.xlsx"):
             df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
@@ -591,93 +591,64 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. ה-CSS שסוגר את הסיפור
+    # 2. ה-CSS שמנקה את השטח מסביב (בתוך Streamlit)
     st.markdown("""
+        <style>
+            header[data-testid="stHeader"] { background-color: white !important; }
+            .main .block-container { padding-top: 0px !important; }
+            iframe { margin-top: -1rem !important; } /* מעלים את הרווח הקטן שנותר */
+        </style>
+    """, unsafe_allow_html=True)
+    
+    # 3. הזרקה של הציטוט בתוך Component עצמאי (מבטיח הצמדה ועיצוב 1:1)
+    html_code = f"""
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     <style>
-        /* הסתרת המרווח המובנה של סטרימליט - בצורה אגרסיבית */
-        .stApp header {
-            background-color: white !important;
-        }
-        
-        /* ביטול ה-Padding של המכולה הראשית */
-        [data-testid="stAppViewContainer"] > section:nth-child(2) > div:nth-child(1) {
-            padding-top: 0px !important;
-        }
-    
-        .main .block-container {
-            padding-top: 0px !important;
-            margin-top: 0px !important;
-        }
-    
-        /* תיבת הציטוט המקורית שלך - בדיוק לפי העיצוב שאהבת */
-        .ultimate-quote-box {
+        body {{ margin: 0; padding: 0; background-color: transparent; }}
+        .quote-card {{
             background: #ffffff;
             background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 45%), 
                               radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.3) 0%, transparent 45%);
             border-bottom: 1px solid #f1f5f9;
-            padding: 40px 60px 20px 60px;
+            padding: 30px 60px;
             text-align: center;
             direction: rtl;
             position: relative;
-            width: 100%;
-            box-sizing: border-box;
-            
-            /* משיכה למעלה כדי להתחבר לסרגל הלבן */
-            margin-top: -85px !important; 
-        }
-    
-        .q-text-final {
-            font-family: 'Noto Serif Hebrew', serif !important;
-            font-size: 24px !important;
-            color: #1a1c1c !important;
-            font-weight: 700 !important;
-            line-height: 1.4;
-            margin: 10px 12% !important;
-        }
-    
-        /* המרכאות (100px כמו במקור) */
-        .ultimate-quote-box::before {
-            content: '“';
-            position: absolute;
-            top: 20px; right: 40px;
-            font-size: 100px; color: #fadce6;
-            font-family: serif; opacity: 0.5; line-height: 1;
-        }
-    
-        .ultimate-quote-box::after {
-            content: '”';
-            position: absolute;
-            bottom: 0px; left: 40px;
-            font-size: 100px; color: #fadce6;
-            font-family: serif; opacity: 0.5; line-height: 1;
-        }
-    
-        .material-symbols-outlined {
-            font-family: 'Material Symbols Outlined' !important;
-            color: #6f5861 !important;
-            font-size: 22px !important;
-        }
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }}
+        .quote-card::before {{
+            content: '“'; position: absolute; top: 10px; right: 40px;
+            font-size: 100px; color: #fadce6; font-family: serif; opacity: 0.5; line-height: 1;
+        }}
+        .quote-card::after {{
+            content: '”'; position: absolute; bottom: -10px; left: 40px;
+            font-size: 100px; color: #fadce6; font-family: serif; opacity: 0.5; line-height: 1;
+        }}
+        .text {{
+            font-family: 'Noto Serif Hebrew', serif; font-size: 24px; color: #1a1c1c;
+            font-weight: 700; line-height: 1.3; margin: 10px 0;
+        }}
+        .author {{ font-size: 14px; color: #646566; font-style: italic; margin-bottom: 10px; }}
+        .sep {{ display: flex; align-items: center; justify-content: center; gap: 10px; }}
+        .line {{ height: 1px; width: 40px; background-color: #fadce6; }}
+        .icon {{ font-family: 'Material Symbols Outlined'; color: #6f5861; font-size: 22px; }}
     </style>
     
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
-    """, unsafe_allow_html=True)
-    
-    # 3. ה-HTML
-    st.markdown(f"""
-    <div class="ultimate-quote-box">
-        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
-        <div class="q-text-final">"{quote_text}"</div>
-        <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 10px;">
-            &#8212; {quote_author} &#8212;
-        </div>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
-            <span class="material-symbols-outlined">auto_stories</span>
-            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+    <div class="quote-card">
+        <span style="font-size: 10px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
+        <div class="text">"{quote_text}"</div>
+        <div class="author">&#8212; {quote_author} &#8212;</div>
+        <div class="sep">
+            <div class="line"></div>
+            <span class="icon">auto_stories</span>
+            <div class="line"></div>
         </div>
     </div>
-    """, unsafe_allow_html=True)
-                                                
+    """
+    
+    # הצגת הקומפוננטה בגובה המדויק
+    components.html(html_code, height=200)
+                                                    
 
 
     # ── KPIs ────────────────────────────────────────────────
