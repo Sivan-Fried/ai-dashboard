@@ -525,8 +525,7 @@ else:
     # 3. קריאה לפונקציה
     render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders)
     
-    st.markdown("<br>", unsafe_allow_html=True)
-
+    
     # ── Daily Quote Section Logic & Display ──────────────────────────
     import streamlit as st
     import streamlit.components.v1 as components
