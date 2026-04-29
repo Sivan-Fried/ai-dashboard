@@ -139,8 +139,13 @@ h3 {
 }
 
 /* מוודא שהתוכן הפנימי של הטופ-בר לבן ולא שקוף */
-header[data-testid="stHeader"] > div:first-child {
+header[data-testid="stHeader"] {
     background-color: white !important;
+    position: fixed !important;
+    z-index: 1000000 !important;
+    top: 0;
+    left: 0;
+    right: 0;
     opacity: 1 !important;
 }
 
@@ -188,17 +193,19 @@ header[data-testid="stHeader"] > div:first-child {
 .quote-wrapper-outer {
     width: 100%;
     background-color: #fdf2f8 !important; /* הרקע הוורוד העדין */
-    padding: 10px !important; /* צמצום גובה מקסימלי */
+    /*padding: 10px !important; /* צמצום גובה מקסימלי */
+    padding-top: 85px !important;  /* דוחף את הטקסט DAILY QUOTE מתחת לטופ-בר */
     position: relative;
     overflow: hidden;
     margin-bottom: 24px;
     /* מרווח קטן מלמעלה כדי שייצמד מתחת לסרגל העליון */
-    margin-top: 10px !important; 
+    margin-top: -65px !important; /* מושך את הוורוד למעלה אל מאחורי הטופ-בר */
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100px !important; /* גובה מצומצם */
     font-family: 'Assistant', sans-serif !important; /* פונט Assistant נקי */
+    z-index: 1 !important; /* מספר נמוך = הוא מתחת לטופ-בר */
 }
 
 .watercolor-bg {
