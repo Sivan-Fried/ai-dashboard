@@ -558,27 +558,34 @@ else:
     except: pass
 
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
-    # הזרקת הכל ביחידה אחת: פונטים, סגנונות ומבנה
-    st.write(f"""
+    # 1. הגדרת המשתנים (מוודא שהם קיימים)
+    try:
+        display_text = quote_text
+        display_author = quote_author
+    except NameError:
+        display_text = "הדרך הכי נפוצה שבה אנשים מוותרים על הכוח שלהם היא בכך שהם חושבים שאין להם שום כוח"
+        display_author = "אליס ווקר"
+    
+    # 2. הזרקת ה-HTML וה-CSS כיחידה אחת
+    st.markdown(f"""
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
         
         <style>
-            /* 1. ביטול הרווח הלבן של סטרימליט בראש הדף */
+            /* ביטול מרווח עליון של סטרימליט */
             .main .block-container {{
                 padding-top: 0rem !important;
             }}
             
-            /* 2. הבטחת עליונות הסרגל העליון (Z-Index) - שהסרגל יסתיר את המשפט ולא להיפך */
+            /* וידאו שהסרגל העליון תמיד מעל הכל */
             header[data-testid="stHeader"] {{
                 z-index: 100 !important;
                 background: white !important;
             }}
     
-            /* 3. עיצוב תיבת הציטוט והצמדתה למעלה */
+            /* עיצוב התיבה */
             .final-quote-box {{
-                margin-top: -105px !important; /* המשיכה למעלה - כיוונתי ל-105 כדי שייצמד לסרגל */
+                margin-top: -105px !important;
                 background: #ffffff;
-                /* הגרדיאנט המקורי */
                 background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                                   radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
                 border-bottom: 1px solid #f1f5f9;
@@ -586,11 +593,10 @@ else:
                 text-align: center;
                 direction: rtl;
                 position: relative;
-                z-index: 1 !important; /* שכבה נמוכה כדי שייכנס מתחת לסרגל במידת הצורך */
+                z-index: 1 !important;
                 width: 100%;
             }}
     
-            /* פונט הציטוט - Noto Serif */
             .quote-main-text {{
                 font-family: 'Noto Serif Hebrew', serif !important;
                 font-size: 24px !important;
@@ -599,22 +605,17 @@ else:
                 margin-bottom: 8px !important;
                 font-weight: 700 !important;
             }}
-    
-            /* פונט כותרת ומחבר - Plus Jakarta */
-            .quote-sub-text {{
-                font-family: 'Plus Jakarta Sans', sans-serif !important;
-            }}
         </style>
         
         <div class="final-quote-box">
-            <span class="quote-sub-text" style="font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 8px;">DAILY QUOTE</span>
+            <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 8px;">DAILY QUOTE</span>
             
             <div class="quote-main-text">
-                "{quote_text}"
+                "{display_text}"
             </div>
             
-            <div class="quote-sub-text" style="font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
-                &#8212; {quote_author} &#8212;
+            <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
+                &#8212; {display_author} &#8212;
             </div>
             
             <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
@@ -624,10 +625,7 @@ else:
             </div>
         </div>
     """, unsafe_allow_html=True)
-    
-    # רווח קטן כדי שה-KPIs יתחילו בצורה נעימה בעין
-    st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
-   
+       
     
 
 
