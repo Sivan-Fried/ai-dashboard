@@ -558,28 +558,27 @@ else:
     except: pass
 
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
-    
     # הזרקת הכל ביחידה אחת: פונטים, סגנונות ומבנה
     st.write(f"""
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
         
         <style>
-            /* 1. טיפול במרחב הדף */
+            /* 1. ביטול הרווח הלבן של סטרימליט בראש הדף */
             .main .block-container {{
                 padding-top: 0rem !important;
             }}
             
-            /* 2. הבטחת עליונות הסרגל העליון (Z-Index) */
+            /* 2. הבטחת עליונות הסרגל העליון (Z-Index) - שהסרגל יסתיר את המשפט ולא להיפך */
             header[data-testid="stHeader"] {{
                 z-index: 100 !important;
                 background: white !important;
             }}
-
+    
             /* 3. עיצוב תיבת הציטוט והצמדתה למעלה */
             .final-quote-box {{
-                margin-top: -100px !important; /* הכוח שמושך למעלה - ניתן לשינוי קל */
+                margin-top: -105px !important; /* המשיכה למעלה - כיוונתי ל-105 כדי שייצמד לסרגל */
                 background: #ffffff;
-                /* הגרדיאנט המקורי שאהבת */
+                /* הגרדיאנט המקורי */
                 background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                                   radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
                 border-bottom: 1px solid #f1f5f9;
@@ -587,11 +586,11 @@ else:
                 text-align: center;
                 direction: rtl;
                 position: relative;
-                z-index: 1 !important; /* מתחת לסרגל (100) */
+                z-index: 1 !important; /* שכבה נמוכה כדי שייכנס מתחת לסרגל במידת הצורך */
                 width: 100%;
             }}
-
-            /* פונט הציטוט */
+    
+            /* פונט הציטוט - Noto Serif */
             .quote-main-text {{
                 font-family: 'Noto Serif Hebrew', serif !important;
                 font-size: 24px !important;
@@ -600,8 +599,8 @@ else:
                 margin-bottom: 8px !important;
                 font-weight: 700 !important;
             }}
-
-            /* פונט כותרת ומחבר */
+    
+            /* פונט כותרת ומחבר - Plus Jakarta */
             .quote-sub-text {{
                 font-family: 'Plus Jakarta Sans', sans-serif !important;
             }}
@@ -626,8 +625,8 @@ else:
         </div>
     """, unsafe_allow_html=True)
     
-    # הוספת רווח בטיחות קטן כדי שה-KPIs לא ייצמדו חזק מדי לציטוט מלמטה
-    st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
+    # רווח קטן כדי שה-KPIs יתחילו בצורה נעימה בעין
+    st.markdown("<div style='margin-bottom: 10px;'></div>", unsafe_allow_html=True)
    
     
 
