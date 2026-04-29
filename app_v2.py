@@ -559,69 +559,74 @@ else:
 
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
     # חלק 1: הגדרת העיצוב (CSS סטטי - לא מודפס על המסך)
-    # 1. עיצוב וסרגל עליון (CSS סטטי - לא מודפס על המסך)
-    st.markdown("""
-    <style>
-        /* הפיכת הסרגל העליון לקיר אטום מעל הכל */
-        header[data-testid="stHeader"] {
-            z-index: 999999 !important;
-            background-color: white !important;
-            opacity: 1 !important;
-        }
+    # שימוש בבלוק ריק כדי להבטיח טעינה נקייה
+    placeholder = st.empty()
     
-        /* איפוס מרווח הדף */
-        .main .block-container { 
-            padding-top: 0rem !important; 
-        }
+    with placeholder.container():
+        # 1. הגדרת ה-CSS בתוך משתנה פשוט (ללא f-string כדי למנוע הדפסת קוד)
+        st.markdown("""
+        <style>
+            /* הכרחת הסרגל העליון להיות השכבה הכי עליונה בדף - קבוע ואטום */
+            header[data-testid="stHeader"] {
+                z-index: 1000000 !important;
+                background-color: white !important;
+                opacity: 1 !important;
+                position: fixed !important;
+            }
     
-        /* תיבת הציטוט - צמודה למעלה ושלוחה לרקע */
-        .final-quote-box {
-            margin-top: -80px !important; 
-            background: #ffffff;
-            background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
-                              radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
-            border-bottom: 1px solid #f1f5f9;
-            padding: 25px 20px;
-            text-align: center;
-            direction: rtl;
-            position: relative;
-            z-index: 1 !important;
-            width: 100%;
-        }
+            /* מניעת רווחים של סטרימליט */
+            .main .block-container { 
+                padding-top: 0rem !important; 
+            }
     
-        .quote-main-text {
-            font-family: 'Noto Serif Hebrew', serif !important;
-            font-size: 24px !important;
-            color: #1a1c1c !important;
-            font-weight: 700 !important;
-            line-height: 1.4;
-            margin: 10px 0;
-        }
+            /* תיבת הציטוט - עולה למעלה ומחליקה מתחת לסרגל */
+            .final-quote-card {
+                margin-top: -85px !important; 
+                background: #ffffff;
+                background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
+                                  radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
+                border-bottom: 1px solid #f1f5f9;
+                padding: 25px 20px;
+                text-align: center;
+                direction: rtl;
+                position: relative;
+                z-index: 1 !important;
+                width: 100%;
+            }
     
-        .material-symbols-outlined {
-            font-family: 'Material Symbols Outlined' !important;
-            vertical-align: middle;
-            display: inline-block;
-        }
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
-    """, unsafe_allow_html=True)
+            .q-main-text {
+                font-family: 'Noto Serif Hebrew', serif !important;
+                font-size: 24px !important;
+                color: #1a1c1c !important;
+                font-weight: 700 !important;
+                line-height: 1.4;
+                margin: 10px 0;
+            }
     
-    # 2. הזרקת התוכן (HTML עם משתנים)
-    st.markdown(f"""
-    <div class="final-quote-box">
-        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
-        <div class="quote-main-text">"{quote_text}"</div>
-        <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
-            &#8212; {quote_author} &#8212;
+            .material-symbols-outlined {
+                font-family: 'Material Symbols Outlined' !important;
+                vertical-align: middle;
+                display: inline-block;
+            }
+        </style>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
+        """, unsafe_allow_html=True)
+    
+        # 2. הזרקת התוכן
+        st.markdown(f"""
+        <div class="final-quote-card">
+            <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
+            <div class="q-main-text">"{quote_text}"</div>
+            <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
+                &#8212; {quote_author} &#8212;
+            </div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+                <span class="material-symbols-outlined" style="color: #6f5861; font-size: 24px;">auto_stories</span>
+                <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+            </div>
         </div>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
-            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
-            <span class="material-symbols-outlined" style="color: #6f5861; font-size: 24px;">auto_stories</span>
-            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
                     
 
 
