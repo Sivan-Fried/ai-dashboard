@@ -560,23 +560,32 @@ else:
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
     st.markdown("""
     <style>
-        /* 1. ביטול הרווח העליון המובנה של סטרימליט */
-        .main .block-container {
-            padding-top: 1.5rem !important; /* רווח קטן ובטוח שלא נוגע בשעה */
+        /* 1. הופכים את הסרגל המקורי לשקוף כדי שנוכל לראות את הציטוט דרכו */
+        header[data-testid="stHeader"] {
+            background-color: rgba(0,0,0,0) !important;
+            background: transparent !important;
+            z-index: 999 !important;
         }
     
-        /* 2. עיצוב הציטוט ללא הזזה אגרסיבית למעלה */
-        .quote-box-clean {
+        /* 2. מבטלים את הרווח הלבן הענק בראש הדף */
+        .main .block-container {
+            padding-top: 0rem !important;
+            margin-top: -60px !important;
+        }
+    
+        /* 3. כרטיס הציטוט - הוא הופך להיות ה"רקע" החדש של ראש הדף */
+        .quote-final-card {
             background: #ffffff;
             background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                               radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
-            border: 1px solid #f1f5f9;
-            border-radius: 15px; /* פינות מעוגלות כדי שזה יראה כמו כרטיס */
-            padding: 25px;
+            border-bottom: 1px solid #f1f5f9;
+            /* ה-Padding הזה דואג שהטקסט יתחיל רק מתחת לשעה ולטמפרטורה */
+            padding: 80px 20px 30px 20px; 
             text-align: center;
             direction: rtl;
             width: 100%;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02); /* צל עדין */
+            position: relative;
+            z-index: 1 !important;
         }
     
         .q-text {
@@ -585,12 +594,12 @@ else:
             color: #1a1c1c !important;
             font-weight: 700 !important;
             line-height: 1.4;
-            margin: 10px 0;
         }
     
         .material-symbols-outlined {
             font-family: 'Material Symbols Outlined' !important;
             vertical-align: middle;
+            display: inline-block;
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
@@ -598,8 +607,8 @@ else:
     
     # הצגת התוכן
     st.markdown(f"""
-    <div class="quote-box-clean">
-        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
+    <div class="quote-final-card">
+        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 5px;">DAILY QUOTE</span>
         <div class="q-text">"{quote_text}"</div>
         <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
             &#8212; {quote_author} &#8212;
