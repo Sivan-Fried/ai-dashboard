@@ -24,24 +24,29 @@ st.set_page_config(
 )
 
 # הנה החלק החדש - תדביקי אותו בדיוק כאן, מתחת להגדרות הדף:
-# הזרקת עיצוב גלובלית - זה המקום היחיד שקובע את צבע הסרגל
 st.markdown("""
     <style>
-        /* כניסה בכוח לסרגל העליון */
-        header[data-testid="stHeader"] {
+        /* 1. הסרגל העליון - השכבה החיצונית ביותר */
+        [data-testid="stHeader"] {
             background-color: white !important;
-            position: fixed !important;
-            z-index: 9999 !important;
+            border-bottom: 1px solid #f0f2f6; /* פס הפרדה עדין */
             height: 60px !important;
+            z-index: 1000000 !important;
         }
 
-        /* מחיקת הרווח הלבן המעצבן מעל הציטוט */
+        /* 2. המכולה הפנימית של הסרגל - לפעמים היא זו ששקופה */
+        [data-testid="stHeader"] > div {
+            background-color: white !important;
+            opacity: 1 !important;
+        }
+
+        /* 3. ביטול הרווח הלבן המובנה מעל הציטוט */
         .stApp .main .block-container {
-            padding-top: 60px !important; /* הגובה המדויק של הסרגל */
+            padding-top: 0px !important;
+            margin-top: 0px !important;
         }
     </style>
 """, unsafe_allow_html=True)
-
 
 # 1. שחרור חסימות גובה (התיקון הקריטי)
 # הסבר: הקוד הזה אומר ל-Streamlit לא לחתוך אלמנטים שיוצאים מהגבולות שלהם (overflow: visible)
