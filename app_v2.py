@@ -557,21 +557,30 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
 
-    # 1. ניקוי הרווח הלבן המובנה של סטרימליט בראש הדף
+    # 1. עיצוב ומיקום סופי: הצמדה למעלה ושליטה בשכבות
     st.markdown("""
         <style>
+            /* ניקוי רווחים כללי */
             .block-container {
                 padding-top: 0rem !important;
                 margin-top: 0rem !important;
             }
-            iframe {
-                display: block;
-                border-radius: 0px;
+            
+            /* מעטפת הציטוט - דחיפה למעלה ושליחתה "אחורה" */
+            .quote-wrapper-final {
+                margin-top: -55px !important; 
+                position: relative;
+                z-index: 1 !important; /* שכבה נמוכה כדי שתיכנס מתחת לסרגל */
+            }
+
+            /* הבטחת עליונות הסרגל של סטרימליט */
+            header[data-testid="stHeader"] {
+                z-index: 99 !important;
             }
         </style>
     """, unsafe_allow_html=True)
 
-    # 2. ה-HTML המקורי (העיצוב המלא כולל הכל)
+    # 2. ה-HTML עם העיצוב המלא (הגרדיאנט והפונטים)
     html_content = f"""
     <body style="margin: 0; padding: 0; background: transparent; overflow: hidden;">
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
@@ -588,8 +597,10 @@ else:
     </body>
     """
 
-    # 3. הצגת הרכיב - גובה 160 ימנע חיתוך ויבטיח שכל העיצוב יופיע
+    # 3. הצגת הרכיב בתוך המעטפת המבוקרת
+    st.markdown('<div class="quote-wrapper-final">', unsafe_allow_html=True)
     st.components.v1.html(html_content, height=160)
+    st.markdown('</div>', unsafe_allow_html=True)
    
     
 
