@@ -597,9 +597,6 @@ else:
     """
 
     st.markdown(f'<div style="margin-top:-80px;">{html_design}</div>', unsafe_allow_html=True)
-    
-    # 4. הצגה בתוך הדיב עם ה-ID הייחודי
-    st.markdown(f'<div id="quote-wrapper">{html_design}</div>', unsafe_allow_html=True)
 
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
