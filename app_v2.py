@@ -558,42 +558,36 @@ else:
     except: pass
 
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
-    # 1. הגדרת העיצוב - כאן קורה הקסם של השכבות
+    # העתקה אחת אחרונה - הפעם עם ה"מגן הלבן"
     st.markdown("""
     <style>
-        /* הפיכת הסרגל העליון למלך של הדף */
-        header[data-testid="stHeader"] {
-            position: fixed !important; /* נועל אותו למעלה */
-            top: 0 !important;
-            z-index: 1000000 !important; /* הכי גבוה שיש */
-            background-color: white !important; /* לבן אטום - שלא יראו את הציטוט דרכו */
-            opacity: 1 !important;
-            height: 3.5rem !important;
-            display: flex !important;
-            align-items: center !important;
-        }
-    
-        /* איפוס מרווחים למעלה */
+        /* הסרת רווחים מהשורש */
         .main .block-container { 
             padding-top: 0rem !important; 
         }
     
-        /* תיבת הציטוט - עולה למעלה אבל בנחיתות שכבתית */
-        .final-quote-box {
-            margin-top: -75px !important; /* המשיכה למעלה */
+        /* תיבת הציטוט עם מגן לבן מובנה לסרגל */
+        .quote-final-shield {
+            /* המשיכה למעלה */
+            margin-top: -100px !important; 
+            
+            /* יצירת השטח הלבן האטום בדיוק איפה שהסרגל נמצא */
+            border-top: 60px solid white; 
+            
             background: #ffffff;
             background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                               radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
             border-bottom: 1px solid #f1f5f9;
-            padding: 30px 20px 20px 20px;
+            padding: 20px 20px 30px 20px;
             text-align: center;
             direction: rtl;
             position: relative;
-            z-index: 1 !important; /* שכבה נמוכה - תמיד תהיה "מתחת" לסרגל */
+            /* השכבה הזו תהיה מתחת לכפתורים של סטרימליט אבל מעל הרקע */
+            z-index: 1 !important; 
             width: 100%;
         }
     
-        .quote-text-main {
+        .q-main-text {
             font-family: 'Noto Serif Hebrew', serif !important;
             font-size: 24px !important;
             color: #1a1c1c !important;
@@ -605,16 +599,16 @@ else:
         .material-symbols-outlined {
             font-family: 'Material Symbols Outlined' !important;
             vertical-align: middle;
+            display: inline-block;
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 2. הזרקת התוכן (שימוש ב-f-string בטוח)
     st.markdown(f"""
-    <div class="final-quote-box">
+    <div class="quote-final-shield">
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
-        <div class="quote-text-main">"{quote_text}"</div>
+        <div class="q-main-text">"{quote_text}"</div>
         <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
             &#8212; {quote_author} &#8212;
         </div>
