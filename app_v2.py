@@ -565,8 +565,8 @@ else:
     import os
     
     # 1. לוגיקה של שליפת הנתונים (נשמרת בדיוק כפי שהיא)
-    quote_text = "הדרך היחידה לעשות עבודה נהדרת היא לאהוב את מה שאתה עושה"
-    quote_author = "סטיב ג'ובס"
+    quote_text = "אנחנו יכולים ליצור שלום בתוכנו אם אנחנו מרפים מהרצון לשנות את העבר ולשלוט בעתיד"
+    quote_author = "לסטר לוינסון"
     try:
         if os.path.exists("inspirational_quotes.xlsx"):
             df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
@@ -578,41 +578,38 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. ה-CSS עם התיקון העדין - שמירה על פרופורציות
+    # 2. ה-CSS המדויק עם התיקונים המבוקשים
     st.markdown(f"""
     <style>
-        /* הלבנת ה-Header ושמירה עליו בשכבה עליונה */
+        /* שמירה על הסרגל הלבן למעלה (מבלי לגעת) */
         header[data-testid="stHeader"] {{
             background-color: white !important;
             z-index: 1000 !important;
         }}
     
-        /* משיכה למעלה וביטול מרווחים מיותרים */
+        /* הצמדה למעלה וביטול מרווחים של סטרימליט (מבלי לגעת) */
         .stApp .main .block-container {{
             padding-top: 0px !important;
-            margin-top: -7.5rem !important; 
+            margin-top: -5.5rem !important; 
         }}
     
-        /* תיבת הציטוט - עיצוב עשיר עם פאדינג מאוזן */
+        /* תיבת הציטוט והרקע - שמירה על הפרופורציות (מבלי לגעת) */
         .premium-quote-box-refined {{
             background: #ffffff;
             background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                               radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.3) 0%, transparent 45%);
             border-bottom: 1px solid #f1f5f9;
-            
-            /* התיקון העדין: צמצום ה-Padding האנכי כדי להקטין את הגובה הכללי */
-            padding: 30px 60px 15px 60px; /* היה 40px/20px - שמרנו על היחסים */
-            
+            padding: 30px 60px 15px 60px; /* שמירה על הפאדינג */
             text-align: center;
             direction: rtl;
             position: relative;
             width: 100%;
             box-sizing: border-box;
-            margin-bottom: 10px !important; /* מרווח נקי ל-KPIs */
+            margin-bottom: 25px !important; /* רווח נקי ל-KPIs */
             z-index: 1;
         }}
     
-        /* מרכאות גדולות (100px) במיקום המקורי */
+        /* מרכאות גדולות (100px) - שמירה על המיקום (מבלי לגעת) */
         .premium-quote-box-refined::before {{
             content: '“'; position: absolute; top: 15px; right: 40px;
             font-size: 100px; color: #fadce6; font-family: serif; opacity: 0.5; line-height: 1;
@@ -623,10 +620,10 @@ else:
             font-size: 100px; color: #fadce6; font-family: serif; opacity: 0.5; line-height: 1;
         }}
     
-        /* הפונט המקורי והנהדר - ללא שינוי */
+        /* תיקון הפונט: שינוי גודל ל-20px (מה שהיה) לטובת מראה קומפקטי ואלגנטי */
         .q-main-text {{
             font-family: 'Noto Serif Hebrew', serif !important;
-            font-size: 24px !important;
+            font-size: 20px !important; /* שינוי מ-24px ל-20px */
             color: #1a1c1c !important;
             font-weight: 700 !important;
             line-height: 1.3;
@@ -637,13 +634,14 @@ else:
     
         .q-author-text {{
             font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 14px;
+            font-size: 13px; /* שינוי מ-14px ל-13px */
             color: #646566;
             font-style: italic;
             display: block;
             margin-bottom: 8px;
         }}
     
+        /* תיקון האייקון: צביעת הספר בוורוד עם הקווים בצדדיו */
         .material-symbols-outlined {{
             font-family: 'Material Symbols Outlined' !important;
             color: #6f5861 !important;
@@ -655,17 +653,19 @@ else:
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     
     <div class="premium-quote-box-refined">
-        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.2em; display: block; margin-bottom: 5px;">DAILY QUOTE</span>
+        /* תיקון הכותרת: הבהרת ה-'DAILY QUOTE' על ידי צמצום משקל הפונט */
+        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9px; font-weight: 600; color: #6f5861; text-transform: uppercase; letter-spacing: 0.2em; display: block; margin-bottom: 5px; opacity: 0.7;">DAILY QUOTE</span>
         <div class="q-main-text">"{quote_text}"</div>
         <span class="q-author-text">&#8212; {quote_author} &#8212;</span>
         <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 5px;">
             <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
-            <span class="material-symbols-outlined">auto_stories</span>
+            /* הספר הורוד */
+            <span class="material-symbols-outlined" style="color: #6f5861 !important;">auto_stories</span>
             <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
         </div>
     </div>
     """, unsafe_allow_html=True)
-                                                                            
+                                                                                
 
 
     # ── KPIs ────────────────────────────────────────────────
