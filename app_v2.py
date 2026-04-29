@@ -577,8 +577,8 @@ else:
     import pandas as pd
     import os
     import datetime
-    
-    # 1. לוגיקה של שליפת הנתונים (נשארת אותו דבר)
+        
+    # 1. לוגיקה של שליפת הנתונים
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
     quote_author = "ארתור אש"
     try:
@@ -590,69 +590,56 @@ else:
                 a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר']]
                 if q_col: quote_text = str(row[q_col[0]])
                 if a_col: quote_author = str(row[a_col[0]])
-    except Exception:
-        pass
+    except: pass
     
-    # 2. ה-CSS המלא: ביטול האוויר המיותר והחזרת המרכאות
+    # 2. ה-CSS המלא - כולל קישור לפונטים ואיפוס רווחים
     st.markdown("""
     <style>
-        /* הפיכת הסרגל העליון ללבן אטום */
-        header[data-testid="stHeader"] {
-            background-color: white !important;
-            z-index: 1000000 !important;
-        }
-    
-        /* איפוס המרווחים הלבנים של הדף בראשו */
+        /* 1. איפוס רווחים בראש הדף */
         .stApp .main .block-container { 
-            padding-top: 20px !important; /* רווח קטן ואחיד מהתקרה */
-            margin-top: 0px !important;
+            padding-top: 10px !important; 
         }
     
-        /* תיבת הציטוט המעוצבת */
+        /* 2. תיבת הציטוט - גובה מינימלי */
         .safe-quote-box {
             background: #ffffff;
             background-image: 
-                radial-gradient(circle at 12% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
-                radial-gradient(circle at 88% 70%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
+                radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 40%), 
+                radial-gradient(circle at 90% 50%, rgba(227, 225, 236, 0.3) 0%, transparent 40%);
             border-bottom: 1px solid #f1f5f9;
             text-align: center;
             direction: rtl;
             position: relative;
-            z-index: 1 !important;
             width: 100%;
-            /* צמצום גובה משמעותי - כל האוויר המיותר נעלם */
-            padding-top: 20px;
-            padding-bottom: 25px;
+            padding: 5px 0 15px 0; /* צמצום ה-Padding העליון והתחתון */
         }
     
-        /* החזרת סימני הציטוט הדקורטיביים (המרכאות הגדולות ברקע) */
+        /* המרכאות הורודות */
         .safe-quote-box::before {
             content: '“';
             position: absolute;
-            top: 25px; /* מותאם לגרסה המוקטנת */
-            right: 40px;
-            font-size: 80px;
+            top: 5px;
+            right: 30px;
+            font-size: 55px;
             color: #fadce6;
             font-family: 'serif';
+            opacity: 0.5;
             line-height: 1;
-            opacity: 0.6;
-            z-index: -1;
         }
     
         .safe-quote-box::after {
             content: '”';
             position: absolute;
-            bottom: 15px; /* מותאם לגרסה המוקטנת */
-            left: 40px;
-            font-size: 80px;
+            bottom: 0px;
+            left: 30px;
+            font-size: 55px;
             color: #fadce6;
             font-family: 'serif';
+            opacity: 0.5;
             line-height: 1;
-            opacity: 0.6;
-            z-index: -1;
         }
     
-        /* עיצוב הפונטים והמרווחים בגרסה המוקטנת */
+        /* כותרת DAILY QUOTE */
         .q-label {
             font-family: 'Plus Jakarta Sans', sans-serif !important;
             font-size: 8px !important;
@@ -661,45 +648,47 @@ else:
             text-transform: uppercase !important;
             letter-spacing: 0.2em !important;
             display: block !important;
-            margin-bottom: 8px !important;
+            margin: 0 0 5px 0 !important;
         }
     
+        /* הטקסט המרכזי */
         .q-text-final {
             font-family: 'Noto Serif Hebrew', serif !important;
-            font-size: 16px !important;
+            font-size: 17px !important;
             color: #1a1c1c !important;
             font-weight: 700 !important;
-            line-height: 1.4 !important;
-            margin: 5px 60px !important;
+            line-height: 1.3 !important;
+            margin: 0 80px !important;
             position: relative;
             z-index: 2;
         }
     
+        /* שם המחבר */
         .q-author-final {
             font-family: 'Plus Jakarta Sans', sans-serif !important;
             font-size: 11px !important;
             color: #525455 !important;
             font-style: italic !important;
-            margin-top: 8px !important;
-            margin-bottom: 12px !important;
+            margin: 4px 0 8px 0 !important;
         }
     
+        /* האייקון והקווים */
         .icon-wrapper {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 10px;
         }
     
         .divider-line {
             height: 1px;
-            width: 40px;
+            width: 35px;
             background-color: #fadce6;
         }
     
         .material-symbols-outlined {
             font-family: 'Material Symbols Outlined' !important;
-            font-size: 18px !important;
+            font-size: 16px !important;
             color: #6f5861 !important;
         }
     </style>
