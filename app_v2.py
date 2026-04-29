@@ -620,7 +620,7 @@ else:
             position: relative;
             width: 100%;
             box-sizing: border-box;
-            margin-bottom: 25px !important; /* מרווח נקי ל-KPIs */
+            margin-bottom: 20px !important; /* מרווח נקי ל-KPIs */
             z-index: 1;
         }}
     
