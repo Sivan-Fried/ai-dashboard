@@ -558,7 +558,7 @@ else:
     except: pass
 
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
-    # 1. הגדרת העיצוב (CSS)
+    # 1. הזרקת העיצוב (CSS) והפונטים
     st.markdown("""
     <style>
         /* ביטול רווחים מיותרים בראש הדף */
@@ -566,7 +566,7 @@ else:
             padding-top: 0rem !important; 
         }
         
-        /* הבטחת עליונות הסרגל העליון - תמיד יהיה מעל הציטוט */
+        /* הבטחת עליונות הסרגל העליון - הסרגל תמיד יהיה מעל הציטוט */
         header[data-testid="stHeader"] {
             z-index: 100 !important;
             background-color: white !important;
@@ -574,7 +574,7 @@ else:
     
         /* עיצוב כרטיס הציטוט */
         .quote-card {
-            margin-top: -85px !important; /* גובה מתוקן כדי לא להסתיר את הסרגל */
+            margin-top: -85px !important; /* גובה מתוקן כדי שלא יסתיר את פרטי הסרגל */
             background: #ffffff;
             background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                               radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
@@ -596,21 +596,21 @@ else:
             margin: 8px 0;
         }
     
-        /* תיקון האייקון */
+        /* הגדרה מפורשת לאייקון הספר */
         .quote-icon {
             font-family: 'Material Symbols Outlined' !important;
             color: #6f5861;
-            font-size: 22px;
+            font-size: 24px;
             line-height: 1;
             display: inline-block;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 2. הצגת התוכן (HTML)
-    # שימוש במשתנה נפרד מונע מסטרימליט להדפיס את הקוד כטקסט
-    quote_html = f"""
+    # 2. הצגת התוכן (HTML) - שימוש במשתנה נפרד מונע מהקוד להופיע כטקסט
+    quote_content = f"""
     <div class="quote-card">
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
         <div class="quote-main-text">"{quote_text}"</div>
@@ -625,7 +625,7 @@ else:
     </div>
     """
     
-    st.markdown(quote_html, unsafe_allow_html=True)
+    st.markdown(quote_content, unsafe_allow_html=True)
        
     
 
