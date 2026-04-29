@@ -492,7 +492,3 @@ div[data-testid="stAlert"] h3 {
 ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--primary-dark); }
 
-/* ביטול רווח בין components.html רצופים */
-.element-container:has(iframe) + .element-container:has(iframe) {
-    margin-top: -75px !important;
-}
