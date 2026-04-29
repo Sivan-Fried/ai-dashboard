@@ -602,7 +602,7 @@ else:
         /* משיכה למעלה וביטול מרווחים מיותרים */
         .stApp .main .block-container {{
             padding-top: 0px !important;
-            margin-top: -5.5rem !important; 
+            margin-top: -7.5rem !important; 
         }}
     
         /* תיבת הציטוט - עיצוב עשיר עם פאדינג מאוזן */
