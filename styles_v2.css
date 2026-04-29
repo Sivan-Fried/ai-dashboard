@@ -142,25 +142,6 @@ header, [data-testid="stHeader"], .st-emotion-cache-18ni7ap {
     margin-top: 0rem !important;
 }
 
-/* 3. עיצוב הציטוט - דורס את כל ההגדרות הקודמות כדי למנוע סתירות */
-.quote-wrapper-outer {
-    width: 100% !important;
-    background-color: #fdf2f8 !important; 
-    position: relative !important;
-    z-index: 1 !important; /* מבטיח שהציטוט מתחת לסרגל */
-    
-    /* התיקון הקריטי למראה: */
-    margin-top: -60px !important; /* מושך את הוורוד עד למעלה */
-    padding-top: 80px !important;  /* דוחף את הטקסט DAILY QUOTE שייראה מתחת לשעה */
-    
-    margin-bottom: 24px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
-    min-height: 120px !important;
-    overflow: hidden;
-}
 
 
 /* Daily Quote - הקוד הסופי, הדק והצמוד */
