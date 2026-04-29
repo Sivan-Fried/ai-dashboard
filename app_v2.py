@@ -590,91 +590,90 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. ה-CSS המדויק לפי התמונה (image_7c0c4f)
+    # 2. ה-CSS המהודק והמלוטש ביותר
     st.markdown(f"""
     <style>
-        /* הלבנת ה-Header ושמירה עליו בשכבה עליונה */
+        /* הלבנה ושמירה על ה-Header למעלה */
         header[data-testid="stHeader"] {{
             background-color: white !important;
             z-index: 1000 !important;
         }}
     
-        /* משיכה למעלה וביטול מרווחים מיותרים */
+        /* משיכה למעלה וביטול מרווחים מיותרים של הדף */
         .stApp .main .block-container {{
             padding-top: 0px !important;
-            margin-top: -5.4rem !important; 
+            margin-top: -5.8rem !important; /* הצמדה מקסימלית לסרגל */
         }}
     
-        /* תיבת הציטוט - עיצוב קומפקטי אך עשיר */
-        .dashboard-quote-final {{
+        /* תיבת ציטוט "מינימליסטית-יוקרתית" */
+        .super-compact-quote {{
             background: #ffffff;
-            background-image: radial-gradient(circle at 5% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 40%), 
-                              radial-gradient(circle at 95% 50%, rgba(227, 225, 236, 0.2) 0%, transparent 40%);
+            background-image: radial-gradient(circle at 2% 50%, rgba(250, 220, 230, 0.25) 0%, transparent 35%), 
+                              radial-gradient(circle at 98% 50%, rgba(227, 225, 236, 0.2) 0%, transparent 35%);
             border-bottom: 1px solid #f1f5f9;
-            padding: 25px 60px 15px 60px; /* פאדינג מהודק */
+            padding: 15px 60px 8px 60px; /* צמצום דרסטי ב-Padding */
             text-align: center;
             direction: rtl;
             position: relative;
             width: 100%;
             box-sizing: border-box;
-            
-            /* רווח קטן ומדויק מה-KPIs */
-            margin-bottom: 15px !important; 
+            margin-bottom: 8px !important; /* רווח קטן ומדויק מה-KPIs */
             z-index: 1;
         }}
     
-        /* מרכאות בעיצוב המקורי (80px לטובת צמצום גובה) */
-        .dashboard-quote-final::before {{
-            content: '“'; position: absolute; top: 10px; right: 40px;
-            font-size: 80px; color: #fadce6; font-family: serif; opacity: 0.5; line-height: 1;
+        /* מרכאות מוקטנות (60px) שלא דוחפות את הגובה */
+        .super-compact-quote::before {{
+            content: '“'; position: absolute; top: 0px; right: 40px;
+            font-size: 60px; color: #fadce6; font-family: serif; opacity: 0.5; line-height: 1;
         }}
     
-        .dashboard-quote-final::after {{
-            content: '”'; position: absolute; top: 10px; left: 40px;
-            font-size: 80px; color: #fadce6; font-family: serif; opacity: 0.5; line-height: 1;
+        .super-compact-quote::after {{
+            content: '”'; position: absolute; top: 0px; left: 40px;
+            font-size: 60px; color: #fadce6; font-family: serif; opacity: 0.5; line-height: 1;
         }}
     
-        .q-text-style {{
+        /* תיקון הפונט - החזרת הריווח והמשקל הנכון */
+        .q-text-final {{
             font-family: 'Noto Serif Hebrew', serif !important;
-            font-size: 22px !important;
+            font-size: 20px !important; /* גודל מאוזן לקריאות וחיסכון במקום */
             color: #1a1c1c !important;
             font-weight: 700 !important;
-            line-height: 1.3;
-            margin: 5px 12% !important;
+            line-height: 1.2 !important; /* תיקון ה-Line height שהשתבש */
+            margin: 2px 10% !important;
+            letter-spacing: -0.01em;
         }}
     
-        .q-author-style {{
+        .q-author-final {{
             font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 13px;
+            font-size: 12px;
             color: #646566;
             display: block;
-            margin-bottom: 5px;
+            margin-top: -2px;
+            opacity: 0.9;
         }}
     
-        /* האייקון המקורי */
         .material-symbols-outlined {{
             font-family: 'Material Symbols Outlined' !important;
             color: #6f5861 !important;
-            font-size: 20px !important;
-            display: inline-block;
+            font-size: 18px !important;
             vertical-align: middle;
         }}
     </style>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     
-    <div class="dashboard-quote-final">
-        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 8px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.15em; display: block; margin-bottom: 4px;">DAILY QUOTE</span>
-        <div class="q-text-style">"{quote_text}"</div>
-        <span class="q-author-style">&#8212; {quote_author} &#8212;</span>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-            <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
+    <div class="super-compact-quote">
+        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 7px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 2px; opacity: 0.7;">DAILY QUOTE</span>
+        <div class="q-text-final">"{quote_text}"</div>
+        <span class="q-author-final">&#8212; {quote_author} &#8212;</span>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 2px;">
+            <div style="height: 1px; width: 30px; background-color: #fadce6; opacity: 0.6;"></div>
             <span class="material-symbols-outlined">auto_stories</span>
-            <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
+            <div style="height: 1px; width: 30px; background-color: #fadce6; opacity: 0.6;"></div>
         </div>
     </div>
     """, unsafe_allow_html=True)
-                                                                        
+                                                                            
 
 
     # ── KPIs ────────────────────────────────────────────────
