@@ -572,12 +572,12 @@ else:
     
     
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    # ── Daily Quote Section Logic & Display (The "Zero-Gap" Version) ─────
+    # ── Daily Quote Section (The Perfect "Edge-to-Edge" Version) ──────────
     import streamlit as st
     import pandas as pd
     import os
     
-    # 1. לוגיקה של שליפת הנתונים (ללא שינוי)
+    # 1. לוגיקה של שליפת הנתונים (נשמרת ללא שינוי)
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
     quote_author = "ארתור אש"
     try:
@@ -591,94 +591,98 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. CSS אגרסיבי לביטול כל המרווחים העליונים של Streamlit
-    st.markdown("""
+    # 2. הזרקה מאוחדת של CSS ו-HTML בבלוק אחד כדי למנוע רווחים של המערכת
+    st.markdown(f"""
     <style>
-        /* 1. הפיכת הסרגל העליון ללבן ואטום */
-        header[data-testid="stHeader"] {
+        /* ביטול המרווחים הלבנים של סטרימליט בכל הרמות */
+        [data-testid="stHeader"] {{
             background-color: white !important;
-            z-index: 1000000 !important;
-        }
-    
-        /* 2. ניקוי מרווחים מכל השכבות של Streamlit בבת אחת */
-        .stApp header + section {
-            padding-top: 0 !important;
-        }
+            z-index: 1000 !important;
+        }}
         
-        .stApp .main .block-container {
-            padding-top: 0rem !important;
-            padding-bottom: 0rem !important;
-            max-width: 100% !important;
-        }
+        .main .block-container {{
+            padding-top: 0px !important;
+            margin-top: 0px !important;
+        }}
     
-        /* 3. תיבת הציטוט המקורית שלך */
-        .safe-quote-box {
+        /* קונטיינר הציטוט - נצמד לסרגל ללא רווח */
+        .master-quote-container {{
+            width: 100vw;
+            position: relative;
+            left: 50%;
+            right: 50%;
+            margin-left: -50vw;
+            margin-right: -50vw;
+            margin-top: -100px; /* משיכה חזקה למעלה כדי להתחבר לסרגל */
+            padding: 100px 0 20px 0; /* פיצוי על המשיכה כדי שהתוכן ייראה */
             background: #ffffff;
             background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                               radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
             border-bottom: 1px solid #f1f5f9;
-            padding: 40px 80px 20px 80px; /* הוספנו קצת padding למעלה כדי שלא ייצמד מדי לסרגל */
             text-align: center;
             direction: rtl;
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            margin-top: 0 !important;
-        }
+        }}
     
-        /* 4. המרכאות הגדולות (100px) */
-        .safe-quote-box::before {
+        /* המרכאות המקוריות שלך (100px) */
+        .master-quote-container::before {{
             content: '“';
             position: absolute;
-            top: 20px;
-            right: 40px;
-            font-size: 100px;
-            color: #fadce6;
-            font-family: 'serif';
-            opacity: 0.5;
-            line-height: 1;
-            z-index: -1;
-        }
+            top: 110px; right: 60px;
+            font-size: 100px; color: #fadce6;
+            font-family: serif; opacity: 0.5; line-height: 1;
+        }}
     
-        .safe-quote-box::after {
+        .master-quote-container::after {{
             content: '”';
             position: absolute;
-            bottom: 0px;
-            left: 40px;
-            font-size: 100px;
-            color: #fadce6;
-            font-family: 'serif';
-            opacity: 0.5;
-            line-height: 1;
-            z-index: -1;
-        }
+            bottom: 10px; left: 60px;
+            font-size: 100px; color: #fadce6;
+            font-family: serif; opacity: 0.5; line-height: 1;
+        }}
     
-        .q-text-final {
+        /* עיצוב הטקסט המדויק שלך */
+        .q-text-style {{
             font-family: 'Noto Serif Hebrew', serif !important;
             font-size: 24px !important;
             color: #1a1c1c !important;
             font-weight: 700 !important;
             line-height: 1.3;
-            margin: 5px 0;
+            margin: 10px 15%;
             position: relative;
             z-index: 2;
-        }
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
-    """, unsafe_allow_html=True)
+        }}
     
-    # 3. מבנה ה-HTML (העיצוב המקורי שלך)
-    st.markdown(f"""
-    <div class="safe-quote-box">
-        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
-        <div class="q-text-final">"{quote_text}"</div>
-        <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 10px;">
-            &#8212; {quote_author} &#8212;
-        </div>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
-            <span class="material-symbols-outlined" style="font-family: 'Material Symbols Outlined'; color: #6f5861; font-size: 22px;">auto_stories</span>
-            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+        .q-author-style {{
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            font-size: 14px !important;
+            color: #646566 !important;
+            font-style: italic !important;
+            margin-bottom: 10px;
+        }}
+    
+        .icon-line-wrapper {{
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }}
+    
+        .line {{ height: 1px; width: 40px; background-color: #fadce6; }}
+    
+        .material-symbols-outlined {{
+            font-family: 'Material Symbols Outlined' !important;
+            color: #6f5861 !important;
+            font-size: 22px !important;
+        }}
+    </style>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
+    
+    <div class="master-quote-container">
+        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 5px;">DAILY QUOTE</span>
+        <div class="q-text-style">"{quote_text}"</div>
+        <div class="q-author-style">&#8212; {quote_author} &#8212;</div>
+        <div class="icon-line-wrapper">
+            <div class="line"></div>
+            <span class="material-symbols-outlined">auto_stories</span>
+            <div class="line"></div>
         </div>
     </div>
     """, unsafe_allow_html=True)
