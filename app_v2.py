@@ -169,7 +169,9 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     background: transparent !important; 
     overflow: hidden; 
     height: 110px; 
-    direction: rtl; 
+    direction: rtl;
+    margin: 0 !important;
+    padding: 0 !important;
   }}
   
   .topbar {{ 
