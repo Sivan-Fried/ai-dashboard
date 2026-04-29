@@ -577,8 +577,8 @@ else:
     import os
     
     # 1. לוגיקה של שליפת הנתונים
-    quote_text = "אל תחתרו להצלחה, שאפו להיות בעלי ערך"
-    quote_author = "אלברט איינשטיין"
+    quote_text = "הדרך היחידה לעשות עבודה נהדרת היא לאהוב את מה שאתה עושה"
+    quote_author = "סטיב ג'ובס"
     try:
         if os.path.exists("inspirational_quotes.xlsx"):
             df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
@@ -590,68 +590,81 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. CSS אולטרה-קומפקטי לחיבור מושלם
+    # 2. ה-CSS שמשלב עיצוב עשיר עם הצמדה ומרווח
     st.markdown(f"""
     <style>
-        /* הלבנת הסרגל וקיבוע הגובה שלו */
+        /* הלבנת ה-Header ושמירה עליו בשכבה עליונה */
         header[data-testid="stHeader"] {{
             background-color: white !important;
-            height: 3.5rem !important;
-            z-index: 100 !important; /* מבטיח שהסרגל תמיד יהיה מעל הכל */
+            z-index: 1000 !important;
         }}
     
-        /* ביטול מוחלט של הרווח המובנה של סטרימליט */
+        /* איפוס מרווחים ומשיכה למעלה */
         .stApp .main .block-container {{
             padding-top: 0px !important;
-            margin-top: -4.5rem !important; /* משיכה מדויקת לקו הסרגל */
-            z-index: 1 !important;
+            margin-top: -5.5rem !important; 
         }}
     
-        /* עיצוב תיבת הציטוט הנמוכה ביותר האפשרית */
-        .nano-strip-quote {{
+        /* תיבת הציטוט - החזרת העיצוב העשיר */
+        .premium-quote-box {{
             background: #ffffff;
+            background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
+                              radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.3) 0%, transparent 45%);
             border-bottom: 1px solid #f1f5f9;
-            padding: 8px 50px 5px 50px; /* מינימום פאדינג אנכי */
+            padding: 40px 60px 20px 60px; /* פאדינג מאוזן */
             text-align: center;
             direction: rtl;
+            position: relative;
             width: 100%;
             box-sizing: border-box;
+            
+            /* הוספת מרווח בין האזור הזה לבין ה-KPIs שמתחת */
+            margin-bottom: 30px !important; 
+            z-index: 1;
         }}
     
-        .q-text-line {{
+        /* החזרת המרכאות הגדולות (100px) במיקום שלא דוחף את התיבה */
+        .premium-quote-box::before {{
+            content: '“'; position: absolute; top: 15px; right: 40px;
+            font-size: 100px; color: #fadce6; font-family: serif; opacity: 0.5; line-height: 1;
+        }}
+    
+        .premium-quote-box::after {{
+            content: '”'; position: absolute; bottom: -10px; left: 40px;
+            font-size: 100px; color: #fadce6; font-family: serif; opacity: 0.5; line-height: 1;
+        }}
+    
+        .q-main-text {{
             font-family: 'Noto Serif Hebrew', serif !important;
-            font-size: 17px !important; /* פונט קריא אך קטן */
+            font-size: 24px !important;
             color: #1a1c1c !important;
             font-weight: 700 !important;
-            line-height: 1.1;
-            margin: 2px 0 !important;
+            line-height: 1.3;
+            margin: 5px 12% !important;
+            position: relative;
+            z-index: 2;
         }}
     
-        .q-author-line {{
+        .q-author-text {{
             font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 11px;
-            color: #8c8d8e;
-            margin-bottom: 2px;
+            font-size: 14px;
+            color: #646566;
+            font-style: italic;
             display: block;
-        }}
-    
-        /* קישוט צדדי מינימליסטי - לא תופס גובה */
-        .nano-strip-quote::before {{
-            content: ''; position: absolute; right: 25px; top: 30%;
-            height: 40%; width: 2px; background: #fadce6;
+            margin-bottom: 10px;
         }}
     </style>
     
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     
-    <div class="nano-strip-quote">
-        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 7px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.1em; display: block;">DAILY QUOTE</span>
-        <div class="q-text-line">"{quote_text}"</div>
-        <span class="q-author-line">&#8212; {quote_author} &#8212;</span>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 4px; opacity: 0.6;">
-            <div style="height: 1px; width: 12px; background-color: #fadce6;"></div>
-            <span class="material-symbols-outlined" style="font-size: 12px; color: #6f5861;">auto_stories</span>
-            <div style="height: 1px; width: 12px; background-color: #fadce6;"></div>
+    <div class="premium-quote-box">
+        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.2em; display: block; margin-bottom: 5px;">DAILY QUOTE</span>
+        <div class="q-main-text">"{quote_text}"</div>
+        <span class="q-author-text">&#8212; {quote_author} &#8212;</span>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 5px;">
+            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+            <span class="material-symbols-outlined" style="font-family: 'Material Symbols Outlined'; color: #6f5861; font-size: 22px;">auto_stories</span>
+            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
         </div>
     </div>
     """, unsafe_allow_html=True)
