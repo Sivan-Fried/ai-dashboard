@@ -558,24 +558,23 @@ else:
     except: pass
 
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
-    # 1. הגדרת העיצוב (CSS) - מבטיח שהסרגל תמיד יהיה מעל הציטוט
-    # חלק 1: הזרקת ה-CSS והפונטים (ללא f-string כדי למנוע הדפסת קוד)
+    # חלק 1: הגדרת העיצוב (CSS סטטי - לא מודפס על המסך)
     st.markdown("""
     <style>
-        /* איפוס מרווחים למעלה */
+        /* ניקוי רווחים בראש הדף */
         .main .block-container { 
             padding-top: 0rem !important; 
         }
         
-        /* הסרגל הלבן תמיד מעל הכל */
+        /* הסרגל הלבן של סטרימליט - מקבל עדיפות עליונה מוחלטת */
         header[data-testid="stHeader"] {
-            z-index: 9999 !important;
+            z-index: 99999 !important;
             background-color: white !important;
         }
     
-        /* תיבת הציטוט - עולה למעלה ומחליקה מתחת לסרגל */
-        .quote-box-final {
-            margin-top: -70px !important; 
+        /* תיבת הציטוט - עולה למעלה ונשלחת לרקע */
+        .final-quote-card {
+            margin-top: -75px !important; /* גובה הצמדה לסרגל */
             background: #ffffff;
             background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                               radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
@@ -584,11 +583,11 @@ else:
             text-align: center;
             direction: rtl;
             position: relative;
-            z-index: 1 !important; 
+            z-index: 1 !important; /* שכבה תחתונה מהסרגל */
             width: 100%;
         }
     
-        .quote-main-text {
+        .q-text {
             font-family: 'Noto Serif Hebrew', serif !important;
             font-size: 24px !important;
             color: #1a1c1c !important;
@@ -597,7 +596,6 @@ else:
             margin: 10px 0;
         }
     
-        /* הגדרת פונט האייקון */
         .material-symbols-outlined {
             font-family: 'Material Symbols Outlined' !important;
             vertical-align: middle;
@@ -607,25 +605,25 @@ else:
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # חלק 2: הזרקת התוכן בלבד
-    st.markdown(f"""
-    <div class="quote-box-final">
+    # חלק 2: הזרקת התוכן המשתנה (הציטוט והמחבר)
+    # שימוש במשתנים בנפרד מונע את שיבוש הקוד
+    html_content = f"""
+    <div class="final-quote-card">
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
-        
-        <div class="quote-main-text">"{quote_text}"</div>
-        
+        <div class="q-text">"{quote_text}"</div>
         <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
             &#8212; {quote_author} &#8212;
         </div>
-        
         <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
             <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
             <span class="material-symbols-outlined" style="color: #6f5861; font-size: 24px;">auto_stories</span>
             <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
         </div>
     </div>
-    """, unsafe_allow_html=True)
-            
+    """
+    
+    st.markdown(html_content, unsafe_allow_html=True)
+                
 
 
     # ── KPIs ────────────────────────────────────────────────
