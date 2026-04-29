@@ -602,7 +602,7 @@ else:
             position: relative;
             width: 100%;
             box-sizing: border-box;
-            margin-bottom: 10px !important; 
+            margin-bottom: 0px !important; 
             z-index: 1;
         }}
     
