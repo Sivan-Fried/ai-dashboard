@@ -589,20 +589,27 @@ else:
     st.markdown('<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">', unsafe_allow_html=True)
 
 
+    # 3. העיצוב המקורי מוזרק כאלמנט "חי" (Native) למניעת רווחים לבנים
+    st.markdown('<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">', unsafe_allow_html=True)
+
+    #תצוגה
     html_design = f"""
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
-    <div style="font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%); border-bottom: 1px solid #f1f5f9; padding: 15px 20px; text-align: center; direction: rtl; margin: 0;">
-        <span style="font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 6px;">DAILY QUOTE</span>
-        <div style="font-family: 'Noto Serif Hebrew', serif; font-size: 22px; color: #1a1c1c; line-height: 1.2; margin-bottom: 6px; font-weight: 700;">"{quote_text}"</div>
-        <div style="font-size: 13px; color: #646566; font-style: italic; margin-bottom: 12px;">&#8212; {quote_author} &#8212;</div>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-            <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
-            <span class="material-symbols-outlined" style="color: #6f5861; font-size: 18px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
-            <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
+    <div class="quote-live-element" style="margin-top: -65px !important; position: relative; z-index: 1; width: 100%;">
+        <div style="font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%); border-bottom: 1px solid #f1f5f9; padding: 15px 20px; text-align: center; direction: rtl; margin: 0;">
+            <span style="font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 6px;">DAILY QUOTE</span>
+            <div style="font-family: 'Noto Serif Hebrew', serif; font-size: 22px; color: #1a1c1c; line-height: 1.2; margin-bottom: 6px; font-weight: 700;">"{quote_text}"</div>
+            <div style="font-size: 13px; color: #646566; font-style: italic; margin-bottom: 12px;">&#8212; {quote_author} &#8212;</div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
+                <span class="material-symbols-outlined" style="color: #6f5861; font-size: 18px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
+                <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
+            </div>
         </div>
     </div>
     """
-    components.html(html_design, height=160)
+    
+    # הזרקה ישירה לדף במקום שימוש ב-components.html
+    st.markdown(html_design, unsafe_allow_html=True)
 
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
