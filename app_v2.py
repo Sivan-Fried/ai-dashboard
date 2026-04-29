@@ -557,42 +557,42 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
 
-    # 2. יצירת קונטיינר מבודד לציטוט
-    with st.container():
-        # CSS שפועל נקודתית ומזיז רק את הבלוק הזה
-        st.markdown("""
-            <style>
-                /* ביטול הרווח הלבן הכללי בראש הדף */
-                .block-container { padding-top: 0rem !important; }
-                
-                /* הזזה למעלה של הציטוט בלבד - בלי לשבש אחרים */
-                .quote-container-wrap {
-                    margin-top: -85px !important;
-                    position: relative;
-                    z-index: 10;
-                    width: 100%;
-                }
-            </style>
-        """, unsafe_allow_html=True)
+    # 2. הזרקת הציטוט עם שליטה מדויקת במיקום
+    # הורדתי את ה-margin-top ל-45- כדי שיפסיק לעלות על הסרגל וירד למטה
+    st.markdown("""
+    <style>
+        .block-container { padding-top: 0rem !important; }
+        
+        /* שליטה במיקום של הציטוט בלבד */
+        .quote-wrapper {
+            margin-top: -45px !important; 
+            margin-bottom: -30px !important;
+            padding: 0 !important;
+        }
+    </style>
+    """, unsafe_allow_html=True)
 
-        # 3. העיצוב המקורי שלך מוזרק כאלמנט חי (לא iframe!)
-        # זה מבטיח שהעיצוב ישמר והרווח הלבן ייעלם
-        html_design_live = f"""
+    # 3. בניית ה-HTML המקורי (שומר על הפונטים והעיצוב)
+    html_content = f"""
+    <body style="margin: 0; padding: 0; overflow: hidden; background: transparent;">
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
-        <div class="quote-container-wrap">
-            <div style="font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%); border-bottom: 1px solid #f1f5f9; padding: 15px 20px; text-align: center; direction: rtl; margin: 0;">
-                <span style="font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 6px;">DAILY QUOTE</span>
-                <div style="font-family: 'Noto Serif Hebrew', serif; font-size: 22px; color: #1a1c1c; line-height: 1.2; margin-bottom: 6px; font-weight: 700;">"{quote_text}"</div>
-                <div style="font-size: 13px; color: #646566; font-style: italic; margin-bottom: 12px;">&#8212; {quote_author} &#8212;</div>
-                <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                    <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
-                    <span class="material-symbols-outlined" style="color: #6f5861; font-size: 18px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
-                    <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
-                </div>
+        <div style="font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%); border-bottom: 1px solid #f1f5f9; padding: 15px 20px; text-align: center; direction: rtl; border-radius: 8px;">
+            <span style="font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 6px;">DAILY QUOTE</span>
+            <div style="font-family: 'Noto Serif Hebrew', serif; font-size: 22px; color: #1a1c1c; line-height: 1.2; margin-bottom: 6px; font-weight: 700;">"{quote_text}"</div>
+            <div style="font-size: 13px; color: #646566; font-style: italic; margin-bottom: 12px;">&#8212; {quote_author} &#8212;</div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
+                <span class="material-symbols-outlined" style="color: #6f5861; font-size: 18px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
+                <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
             </div>
         </div>
-        """
-        st.markdown(html_design_live, unsafe_allow_html=True)
+    </body>
+    """
+
+    # הצגה בתוך דיב עוטף שמאפשר שליטה במיקום
+    st.markdown('<div class="quote-wrapper">', unsafe_allow_html=True)
+    st.components.v1.html(html_content, height=130)
+    st.markdown('</div>', unsafe_allow_html=True)
    
     
 
