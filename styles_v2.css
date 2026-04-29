@@ -122,6 +122,15 @@ h3 {
     box-shadow: var(--shadow-md) !important;
 }
 
+/* 1. הגדרת הטופ-בר כשכבה העליונה ביותר */
+    header[data-testid="stHeader"] {
+        background-color: white !important; /* אטום כדי שלא יראו את הציטוט עובר מאחור */
+        position: fixed !important;    /* חובה! כדי ש-z-index יעבוד */
+        z-index: 1000000 !important;   /* מקסימום עומק */
+        top: 0;
+        opacity: 1 !important;
+    }
+
 /* ── Daily Quote Section - Pink Background & White Border ── */
 /* ייבוא פונטים ואייקונים */
 @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap');
