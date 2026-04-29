@@ -576,9 +576,9 @@ else:
     import pandas as pd
     import os
     
-    # 1. לוגיקה של שליפת הנתונים
-    quote_text = "האיש שעומד על ראש ההר לא נפל לשם"
-    quote_author = "וינס לומברדי"
+    # 1. לוגיקה של שליפת הנתונים - נשמרת בדיוק כפי שהיא
+    quote_text = "המקום היחיד שבו הצלחה באה לפני עבודה הוא במילון"
+    quote_author = "וידאל ששון"
     try:
         if os.path.exists("inspirational_quotes.xlsx"):
             df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
@@ -590,27 +590,28 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. ה-CSS המאוחד לסגירת הפער והצמדה לסרגל
+    # 2. ה-CSS וה-HTML ביחידה אחת - מבטיח יציבות ויזואלית (כפי שרואים ב-image_7c7c17)
     st.markdown(f"""
     <style>
         /* הלבנת ה-Header של סטרימליט */
         header[data-testid="stHeader"] {{
             background-color: white !important;
+            border-bottom: none !important;
         }}
     
-        /* איפוס המרווחים הכלליים של הדף */
+        /* איפוס המרווחים העליונים של האפליקציה למניעת הפס האפור */
         .stApp .main .block-container {{
             padding-top: 0px !important;
-            margin-top: -3.6rem !important; /* הערך המדויק להצמדה מלאה */
+            margin-top: -3.8rem !important; /* הערך המדויק להצמדה לסרגל הלבן */
         }}
     
-        /* מניעת רווחים בין אלמנטים עוקבים */
-        div[data-testid="stVerticalBlock"] > div:first-child {{
+        /* מניעת רווחים מיותרים בין רכיבי ה-Dashboard */
+        [data-testid="stVerticalBlock"] > div:first-child {{
             margin-top: 0px !important;
         }}
     
-        /* עיצוב תיבת הציטוט המנצחת */
-        .quote-box-final {{
+        /* עיצוב תיבת הציטוט הסופית */
+        .quote-final-fixed {{
             background: #ffffff;
             background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 45%), 
                               radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.3) 0%, transparent 45%);
@@ -623,18 +624,19 @@ else:
             box-sizing: border-box;
         }}
     
-        /* מרכאות 100px בעיצוב נקי */
-        .quote-box-final::before {{
+        /* מרכאות 100px - בדיוק כמו ב-image_7c7d28 */
+        .quote-final-fixed::before {{
             content: '“'; position: absolute; top: 25px; right: 40px;
             font-size: 100px; color: #fadce6; font-family: serif; opacity: 0.5; line-height: 1;
         }}
     
-        .quote-box-final::after {{
+        .quote-final-fixed::after {{
             content: '”'; position: absolute; bottom: 0px; left: 40px;
             font-size: 100px; color: #fadce6; font-family: serif; opacity: 0.5; line-height: 1;
         }}
     
-        .quote-text-main {{
+        /* עיצוב הטקסט המרכזי */
+        .q-text {{
             font-family: 'Noto Serif Hebrew', serif !important;
             font-size: 24px !important;
             color: #1a1c1c !important;
@@ -643,7 +645,7 @@ else:
             margin: 10px 12% !important;
         }}
     
-        /* הבטחת תצוגת האייקון */
+        /* אייקון ה-auto_stories המיושר */
         .material-symbols-outlined {{
             font-family: 'Material Symbols Outlined' !important;
             color: #6f5861 !important;
@@ -655,9 +657,9 @@ else:
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     
-    <div class="quote-box-final">
+    <div class="quote-final-fixed">
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.2em; display: block;">DAILY QUOTE</span>
-        <div class="quote-text-main">"{quote_text}"</div>
+        <div class="q-text">"{quote_text}"</div>
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; display: block; margin-bottom: 10px;">&#8212; {quote_author} &#8212;</span>
         <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
             <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
@@ -666,7 +668,7 @@ else:
         </div>
     </div>
     """, unsafe_allow_html=True)
-                                                                
+                                                                    
 
 
     # ── KPIs ────────────────────────────────────────────────
