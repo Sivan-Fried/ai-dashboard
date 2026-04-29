@@ -576,9 +576,9 @@ else:
     import pandas as pd
     import os
     
-    # 1. לוגיקה של שליפת הנתונים
-    quote_text = "אל תיגרר על ידי הבעיות שלך, היה מובל על ידי החלומות שלך"
-    quote_author = "ראלף וולדו אמרסון"
+    # 1. לוגיקה של שליפת הנתונים (נשמרת בדיוק כפי שהיא)
+    quote_text = "התעקשו על המטרות שלכם והתגמשו לגבי השיטות שלכם"
+    quote_author = "אנונימי"
     try:
         if os.path.exists("inspirational_quotes.xlsx"):
             df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
@@ -590,31 +590,33 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. ה-CSS המדויק לביטול המרווח האפור והצמדה לסרגל
+    # 2. ה-CSS הסופי - פותר את בעיית הפס האפור מהתמונה האחרונה
     st.markdown("""
     <style>
-        /* 1. הפיכת הסרגל העליון ללבן נקי */
+        /* הופך את הסרגל העליון ללבן נקי ומבטל את הצל שלו */
         header[data-testid="stHeader"] {
             background-color: white !important;
+            border-bottom: none !important;
         }
     
-        /* 2. איפוס המרווחים של המכולה הראשית של סטרימליט */
-        [data-testid="stAppViewContainer"] > section:nth-child(2) > div:nth-child(1) {
-            padding-top: 0px !important;
-        }
-        
+        /* איפוס אגרסיבי של המרווחים העליונים */
         .stApp .main .block-container {
             padding-top: 0px !important;
-            margin-top: -1.8rem !important; /* הערך המדויק לסגירת הפער האפור */
+            margin-top: 0px !important;
         }
     
-        /* 3. תיבת הציטוט המנצחת מהתמונה האחרונה */
-        .dashboard-quote-box {
+        /* ביטול הרווח שסטרימליט שמה בין אלמנטים (הפס האפור) */
+        [data-testid="stVerticalBlock"] > div:first-child {
+            margin-top: -3.5rem !important; 
+        }
+    
+        /* תיבת הציטוט המנצחת (עיצוב 1:1 לפי image_7c87f1) */
+        .final-dashboard-quote {
             background: #ffffff;
             background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 45%), 
                               radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.3) 0%, transparent 45%);
             border-bottom: 1px solid #f1f5f9;
-            padding: 40px 60px 25px 60px;
+            padding: 45px 60px 30px 60px;
             text-align: center;
             direction: rtl;
             position: relative;
@@ -622,8 +624,8 @@ else:
             box-sizing: border-box;
         }
     
-        /* 4. מרכאות 100px */
-        .dashboard-quote-box::before {
+        /* מרכאות גדולות ואלגנטיות */
+        .final-dashboard-quote::before {
             content: '“';
             position: absolute;
             top: 25px; right: 40px;
@@ -631,16 +633,16 @@ else:
             font-family: serif; opacity: 0.5; line-height: 1;
         }
     
-        .dashboard-quote-box::after {
+        .final-dashboard-quote::after {
             content: '”';
             position: absolute;
-            bottom: 0px; left: 40px;
+            bottom: 5px; left: 40px;
             font-size: 100px; color: #fadce6;
             font-family: serif; opacity: 0.5; line-height: 1;
         }
     
-        /* 5. טקסט ופונטים */
-        .q-main {
+        /* פונטים ועיצוב טקסט */
+        .q-main-title {
             font-family: 'Noto Serif Hebrew', serif !important;
             font-size: 24px !important;
             color: #1a1c1c !important;
@@ -649,25 +651,25 @@ else:
             margin: 10px 12% !important;
         }
     
-        /* 6. תיקון האייקון (auto_stories) שלא יהפוך לטקסט */
+        /* תיקון האייקון auto_stories */
         .material-symbols-outlined {
             font-family: 'Material Symbols Outlined' !important;
             color: #6f5861 !important;
             font-size: 22px !important;
             display: inline-block;
-            line-height: 1;
+            vertical-align: middle;
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 3. ה-HTML המאוחד
+    # 3. הזרקת ה-HTML המאוחד
     st.markdown(f"""
-    <div class="dashboard-quote-box">
+    <div class="final-dashboard-quote">
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.2em; display: block;">DAILY QUOTE</span>
-        <div class="q-main">"{quote_text}"</div>
-        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; display: block; margin-bottom: 10px;">&#8212; {quote_author} &#8212;</span>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 5px;">
+        <div class="q-main-title">"{quote_text}"</div>
+        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; display: block; margin-bottom: 12px;">&#8212; {quote_author} &#8212;</span>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
             <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
             <span class="material-symbols-outlined">auto_stories</span>
             <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
