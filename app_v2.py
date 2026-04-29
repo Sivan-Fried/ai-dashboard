@@ -557,43 +557,38 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
 
-    # 2. הזרקת CSS לביטול המרווח וחיבור לסרגל העליון
-    st.markdown("""
-    <style>
-        /* ביטול הרווח הלבן של סטרימליט בראש הדף */
-        .block-container { padding-top: 0rem !important; }
+    # 2. יצירת קונטיינר ייעודי לציטוט כדי שלא ישפיע על שאר הדף
+    quote_placeholder = st.empty()
 
-        /* הצמדה אגרסיבית לסרגל העליון - משיכה חזקה למעלה */
-        [data-testid="stVerticalBlock"] > div:first-child {
-            margin-top: -95px !important;
-            padding-top: 0 !important;
-        }
-        
-        /* ביטול מרווחים של המעטפת כדי שלא יווצר "בור" לבן */
-        div[data-testid="stHtml"] { padding: 0 !important; margin: 0 !important; }
-        iframe { display: block; margin: 0 !important; }
-    </style>
-    """, unsafe_allow_html=True)
+    with quote_placeholder.container():
+        # CSS שפועל אך ורק בתוך הקונטיינר הזה
+        st.markdown("""
+        <style>
+            /* מזיז למעלה רק את האלמנט הספציפי הזה */
+            div[data-testid="stVerticalBlock"] > div:first-child {
+                margin-top: -105px !important;
+                padding-top: 0 !important;
+            }
+            .block-container { padding-top: 0rem !important; }
+        </style>
+        """, unsafe_allow_html=True)
 
-    # 3. בניית ה-HTML של הציטוט עם תיקון מרווחים פנימיים
-    html_content = f"""
-    <body style="margin: 0; padding: 0; overflow: hidden; background: transparent;">
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
-        <div style="font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%); border-bottom: 1px solid #f1f5f9; padding: 15px 20px; text-align: center; direction: rtl; margin: 0;">
-            <span style="font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 6px;">DAILY QUOTE</span>
-            <div style="font-family: 'Noto Serif Hebrew', serif; font-size: 22px; color: #1a1c1c; line-height: 1.2; margin-bottom: 6px; font-weight: 700;">"{quote_text}"</div>
-            <div style="font-size: 13px; color: #646566; font-style: italic; margin-bottom: 12px;">&#8212; {quote_author} &#8212;</div>
-            <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
-                <span class="material-symbols-outlined" style="color: #6f5861; font-size: 18px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
-                <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
+        html_content = f"""
+        <body style="margin: 0; padding: 0; overflow: hidden; background: transparent;">
+            <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+            <div style="font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%); border-bottom: 1px solid #f1f5f9; padding: 15px 20px; text-align: center; direction: rtl; margin: 0;">
+                <span style="font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 6px;">DAILY QUOTE</span>
+                <div style="font-family: 'Noto Serif Hebrew', serif; font-size: 22px; color: #1a1c1c; line-height: 1.2; margin-bottom: 6px; font-weight: 700;">"{quote_text}"</div>
+                <div style="font-size: 13px; color: #646566; font-style: italic; margin-bottom: 12px;">&#8212; {quote_author} &#8212;</div>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
+                    <span class="material-symbols-outlined" style="color: #6f5861; font-size: 18px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
+                    <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
+                </div>
             </div>
-        </div>
-    </body>
-    """
-
-    # 4. הצגת הרכיב - גובה 115 סוגר את הפער מה-KPI שלמטה
-    st.components.v1.html(html_content, height=115)
+        </body>
+        """
+        st.components.v1.html(html_content, height=115)
    
     
 
