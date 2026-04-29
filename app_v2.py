@@ -577,8 +577,8 @@ else:
     import os
     
     # 1. לוגיקה של שליפת הנתונים
-    quote_text = "הדרך היחידה לעשות עבודה נהדרת היא לאהוב את מה שאתה עושה"
-    quote_author = "סטיב ג'ובס"
+    quote_text = "אנחנו יכולים ליצור שלום בתוכנו אם אנחנו מרפים מהרצון לשנות את העבר"
+    quote_author = "לסטר לוינסון"
     try:
         if os.path.exists("inspirational_quotes.xlsx"):
             df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
@@ -590,7 +590,7 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. ה-CSS שמשלב עיצוב עשיר עם הצמדה ומרווח
+    # 2. ה-CSS המדויק לפי התמונה (image_7c0c4f)
     st.markdown(f"""
     <style>
         /* הלבנת ה-Header ושמירה עליו בשכבה עליונה */
@@ -599,72 +599,78 @@ else:
             z-index: 1000 !important;
         }}
     
-        /* איפוס מרווחים ומשיכה למעלה */
+        /* משיכה למעלה וביטול מרווחים מיותרים */
         .stApp .main .block-container {{
             padding-top: 0px !important;
-            margin-top: -5.5rem !important; 
+            margin-top: -5.4rem !important; 
         }}
     
-        /* תיבת הציטוט - החזרת העיצוב העשיר */
-        .premium-quote-box {{
+        /* תיבת הציטוט - עיצוב קומפקטי אך עשיר */
+        .dashboard-quote-final {{
             background: #ffffff;
-            background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
-                              radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.3) 0%, transparent 45%);
+            background-image: radial-gradient(circle at 5% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 40%), 
+                              radial-gradient(circle at 95% 50%, rgba(227, 225, 236, 0.2) 0%, transparent 40%);
             border-bottom: 1px solid #f1f5f9;
-            padding: 40px 60px 20px 60px; /* פאדינג מאוזן */
+            padding: 25px 60px 15px 60px; /* פאדינג מהודק */
             text-align: center;
             direction: rtl;
             position: relative;
             width: 100%;
             box-sizing: border-box;
             
-            /* הוספת מרווח בין האזור הזה לבין ה-KPIs שמתחת */
-            margin-bottom: 30px !important; 
+            /* רווח קטן ומדויק מה-KPIs */
+            margin-bottom: 15px !important; 
             z-index: 1;
         }}
     
-        /* החזרת המרכאות הגדולות (100px) במיקום שלא דוחף את התיבה */
-        .premium-quote-box::before {{
-            content: '“'; position: absolute; top: 15px; right: 40px;
-            font-size: 100px; color: #fadce6; font-family: serif; opacity: 0.5; line-height: 1;
+        /* מרכאות בעיצוב המקורי (80px לטובת צמצום גובה) */
+        .dashboard-quote-final::before {{
+            content: '“'; position: absolute; top: 10px; right: 40px;
+            font-size: 80px; color: #fadce6; font-family: serif; opacity: 0.5; line-height: 1;
         }}
     
-        .premium-quote-box::after {{
-            content: '”'; position: absolute; bottom: -10px; left: 40px;
-            font-size: 100px; color: #fadce6; font-family: serif; opacity: 0.5; line-height: 1;
+        .dashboard-quote-final::after {{
+            content: '”'; position: absolute; top: 10px; left: 40px;
+            font-size: 80px; color: #fadce6; font-family: serif; opacity: 0.5; line-height: 1;
         }}
     
-        .q-main-text {{
+        .q-text-style {{
             font-family: 'Noto Serif Hebrew', serif !important;
-            font-size: 24px !important;
+            font-size: 22px !important;
             color: #1a1c1c !important;
             font-weight: 700 !important;
             line-height: 1.3;
             margin: 5px 12% !important;
-            position: relative;
-            z-index: 2;
         }}
     
-        .q-author-text {{
+        .q-author-style {{
             font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 14px;
+            font-size: 13px;
             color: #646566;
-            font-style: italic;
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
+        }}
+    
+        /* האייקון המקורי */
+        .material-symbols-outlined {{
+            font-family: 'Material Symbols Outlined' !important;
+            color: #6f5861 !important;
+            font-size: 20px !important;
+            display: inline-block;
+            vertical-align: middle;
         }}
     </style>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     
-    <div class="premium-quote-box">
-        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.2em; display: block; margin-bottom: 5px;">DAILY QUOTE</span>
-        <div class="q-main-text">"{quote_text}"</div>
-        <span class="q-author-text">&#8212; {quote_author} &#8212;</span>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 5px;">
-            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
-            <span class="material-symbols-outlined" style="font-family: 'Material Symbols Outlined'; color: #6f5861; font-size: 22px;">auto_stories</span>
-            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+    <div class="dashboard-quote-final">
+        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 8px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.15em; display: block; margin-bottom: 4px;">DAILY QUOTE</span>
+        <div class="q-text-style">"{quote_text}"</div>
+        <span class="q-author-style">&#8212; {quote_author} &#8212;</span>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
+            <span class="material-symbols-outlined">auto_stories</span>
+            <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
         </div>
     </div>
     """, unsafe_allow_html=True)
