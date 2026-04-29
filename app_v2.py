@@ -40,7 +40,7 @@ st.markdown("""
             padding-top: 60px !important; /* הגובה המדויק של הסרגל */
         }
     </style>
-""", unsafe_allow_html=True))
+""", unsafe_allow_html=True)
 
 
 # 1. שחרור חסימות גובה (התיקון הקריטי)
