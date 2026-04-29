@@ -538,61 +538,6 @@ else:
     
     # ── Daily Quote Section Logic & Display ──────────────────────────
     # ── SECTION: DAILY QUOTE SECTION LOGIC & DISPLAY ──────────────────────────
-    # ── SECTION: DAILY QUOTE SECTION LOGIC & DISPLAY ──────────────────────────
-    import streamlit as st
-    import streamlit.components.v1 as components
-    import pandas as pd
-    import os
-    
-    # 1. לוגיקה: שליפה מהאקסל (נשארת בדיוק כפי שהייתה)
-    quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
-    quote_author = "ארתור אש"
-    try:
-        if os.path.exists("inspirational_quotes.xlsx"):
-            df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
-            if not df.empty:
-                row = df.sample(n=1).iloc[0]
-                q_col = [c for c in df.columns if str(c).lower() in ['quote', 'ציטוט']]
-                a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר']]
-                if q_col: quote_text = str(row[q_col[0]])
-                if a_col: quote_author = str(row[a_col[0]])
-    except: 
-        pass
-    
-    # 2. הזרקת CSS למיקום והצמדה (מבטל את הרווח הלבן שרואים בתמונה)
-    st.markdown("""
-    <style>
-        .block-container {
-            padding-top: 0rem !important;
-        }
-        .main-quote-container {
-            margin-top: -60px !important; /* מושך את הציטוט למעלה מתחת לטופבר */
-            position: relative;
-            z-index: 1;
-        }
-    </style>
-    """, unsafe_allow_html=True)
-    
-    # 3. מבנה ה-HTML המלא (בדיוק לפי העיצוב שבתמונה השנייה ששלחת)
-    # משתמשים ב-st.markdown כדי שהעיצוב לא יישבר בתוך iframe
-    html_content = f"""
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
-    <div class="main-quote-container">
-        <div style="font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%); border-bottom: 1px solid #f1f5f9; padding: 15px 20px; text-align: center; direction: rtl;">
-            <span style="font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 6px;">DAILY QUOTE</span>
-            <div style="font-family: 'Noto Serif Hebrew', serif; font-size: 22px; color: #1a1c1c; line-height: 1.2; margin-bottom: 6px; font-weight: 700;">"{quote_text}"</div>
-            <div style="font-size: 13px; color: #646566; font-style: italic; margin-bottom: 12px;">&#8212; {quote_author} &#8212;</div>
-            <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
-                <span class="material-symbols-outlined" style="color: #6f5861; font-size: 18px;">auto_stories</span>
-                <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
-            </div>
-        </div>
-    </div>
-    """
-
-    # ── SECTION: DAILY QUOTE SECTION LOGIC & DISPLAY ──────────────────────────
-    st.markdown(html_content, unsafe_allow_html=True)
     import streamlit as st
     import streamlit.components.v1 as components
     import pandas as pd
