@@ -24,22 +24,24 @@ st.set_page_config(
 )
 
 # הנה החלק החדש - תדביקי אותו בדיוק כאן, מתחת להגדרות הדף:
-st.markdown("""
-    <style>
-        /* הגדרת הסרגל העליון כשכבה עליונה אטומה */
-        [data-testid="stHeader"] {
-            background-color: white !important;
-            position: fixed !important;
-            z-index: 1000000 !important;
-            height: 60px !important;
+st.components.v1.html("""
+    <script>
+        // הקוד הזה מחפש את הסרגל מחוץ ל"קופסה" של סטרימליט
+        const topBar = window.parent.document.querySelector('header[data-testid="stHeader"]');
+        if (topBar) {
+            topBar.style.backgroundColor = 'white';
+            topBar.style.position = 'fixed';
+            topBar.style.zIndex = '1000000';
+            topBar.style.display = 'block';
         }
-
-        /* ביטול הרווח הלבן כדי שהציטוט יוכל לעלות למעלה */
-        .stApp .main .block-container {
-            padding-top: 0px !important;
+        
+        // ביטול הרווח הלבן במיכל הראשי
+        const mainContent = window.parent.document.querySelector('.stApp .main .block-container');
+        if (mainContent) {
+            mainContent.style.paddingTop = '0px';
         }
-    </style>
-""", unsafe_allow_html=True)
+    </script>
+""", height=0)
 
 
 # 1. שחרור חסימות גובה (התיקון הקריטי)
