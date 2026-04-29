@@ -590,8 +590,102 @@ else:
         </div>
     </div>
     """
-    
+
+    # ── SECTION: DAILY QUOTE SECTION LOGIC & DISPLAY ──────────────────────────
     st.markdown(html_content, unsafe_allow_html=True)
+    import streamlit as st
+    import streamlit.components.v1 as components
+    import pandas as pd
+    import os
+    
+    # 1. לוגיקה מלאה לשליפת נתונים מהאקסל
+    quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
+    quote_author = "ארתור אש"
+    
+    try:
+        if os.path.exists("inspirational_quotes.xlsx"):
+            df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
+            if not df.empty:
+                # בחירת שורה אקראית
+                row = df.sample(n=1).iloc[0]
+                
+                # זיהוי עמודות לפי שם (גמיש לעברית ואנגלית)
+                q_col = [c for c in df.columns if str(c).lower() in ['quote', 'ציטוט']]
+                a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר']]
+                
+                if q_col: 
+                    quote_text = str(row[q_col[0]])
+                if a_col: 
+                    quote_author = str(row[a_col[0]])
+    except Exception as e:
+        # הגנה מפני קריסה במקרה של שגיאה בקובץ
+        pass
+    
+    # 2. הזרקת ה-HTML והעיצוב (Inline) כדי למנוע היעלמות עיצוב ורווחים לבנים
+    # ה-margin-top מושך את הציטוט בדיוק אל מתחת ל-Topbar
+    st.markdown(f"""
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+    
+    <div style="
+        margin-top: -65px !important; 
+        position: relative; 
+        z-index: 1000;
+        width: 100%;
+        direction: rtl;
+        background: #ffffff;
+        background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
+                          radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
+        border-bottom: 1px solid #f1f5f9;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    ">
+        <span style="
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            color: #6f5861;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            display: block;
+            margin-bottom: 8px;
+        ">DAILY QUOTE</span>
+        
+        <div style="
+            font-family: 'Noto Serif Hebrew', serif;
+            font-size: 24px;
+            color: #1a1c1c;
+            line-height: 1.3;
+            margin-bottom: 8px;
+            font-weight: 700;
+        ">"{quote_text}"</div>
+        
+        <div style="
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 14px;
+            color: #646566;
+            font-style: italic;
+            margin-bottom: 15px;
+        ">— {quote_author} —</div>
+        
+        <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+            <span class="material-symbols-outlined" style="color: #6f5861; font-size: 20px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
+            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+        </div>
+    </div>
+    
+    <style>
+        /* ביטול מרווחים פנימיים של Streamlit בראש הדף */
+        .block-container {{ 
+            padding-top: 0rem !important; 
+        }}
+        /* וידוא שהקונטיינר העליון לא מסתיר את הציטוט */
+        [data-testid="stVerticalBlock"] > div:first-child {{ 
+            z-index: 1001 !important; 
+        }}
+    </style>
+    """, unsafe_allow_html=True)
 
     # ── KPIs ────────────────────────────────────────────────
     # ── KPIs New Compact Design ───────────────────────────────────────────
