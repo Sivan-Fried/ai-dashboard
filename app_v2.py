@@ -576,9 +576,9 @@ else:
     import pandas as pd
     import os
     
-    # 1. לוגיקה של שליפת הנתונים (נשמרת בדיוק כפי שהיא)
-    quote_text = "התעקשו על המטרות שלכם והתגמשו לגבי השיטות שלכם"
-    quote_author = "אנונימי"
+    # 1. לוגיקה של שליפת הנתונים
+    quote_text = "אנחנו יכולים ליצור שלום בתוכנו אם אנחנו מרפים מהרצון לשנות את העבר"
+    quote_author = "לסטר לוינסון"
     try:
         if os.path.exists("inspirational_quotes.xlsx"):
             df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
@@ -590,68 +590,64 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. ה-CSS הסופי - פותר את בעיית הפס האפור מהתמונה האחרונה
+    # 2. ה-CSS המנצח - חיבור הרמטי לסרגל
     st.markdown("""
     <style>
-        /* הופך את הסרגל העליון ללבן נקי ומבטל את הצל שלו */
+        /* הפיכת הסרגל העליון ללבן נקי */
         header[data-testid="stHeader"] {
             background-color: white !important;
             border-bottom: none !important;
         }
     
-        /* איפוס אגרסיבי של המרווחים העליונים */
+        /* איפוס המרווחים של המכולה הראשית */
         .stApp .main .block-container {
             padding-top: 0px !important;
-            margin-top: 0px !important;
         }
     
-        /* ביטול הרווח שסטרימליט שמה בין אלמנטים (הפס האפור) */
-        [data-testid="stVerticalBlock"] > div:first-child {
-            margin-top: -3.5rem !important; 
-        }
-    
-        /* תיבת הציטוט המנצחת (עיצוב 1:1 לפי image_7c87f1) */
-        .final-dashboard-quote {
+        /* תיבת הציטוט בעיצוב הסופי והמוחלט */
+        .fixed-quote-container {
             background: #ffffff;
             background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 45%), 
                               radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.3) 0%, transparent 45%);
             border-bottom: 1px solid #f1f5f9;
-            padding: 45px 60px 30px 60px;
+            padding: 40px 60px 25px 60px;
             text-align: center;
             direction: rtl;
             position: relative;
             width: 100%;
             box-sizing: border-box;
+            
+            /* משיכה למעלה בדיוק לחיבור עם ה-Header */
+            margin-top: -3.8rem !important;
+            z-index: 1;
         }
     
-        /* מרכאות גדולות ואלגנטיות */
-        .final-dashboard-quote::before {
+        /* מרכאות 100px */
+        .fixed-quote-container::before {
             content: '“';
             position: absolute;
-            top: 25px; right: 40px;
+            top: 20px; right: 40px;
             font-size: 100px; color: #fadce6;
             font-family: serif; opacity: 0.5; line-height: 1;
         }
     
-        .final-dashboard-quote::after {
+        .fixed-quote-container::after {
             content: '”';
             position: absolute;
-            bottom: 5px; left: 40px;
+            bottom: 0px; left: 40px;
             font-size: 100px; color: #fadce6;
             font-family: serif; opacity: 0.5; line-height: 1;
         }
     
-        /* פונטים ועיצוב טקסט */
-        .q-main-title {
+        .q-text-final {
             font-family: 'Noto Serif Hebrew', serif !important;
             font-size: 24px !important;
             color: #1a1c1c !important;
             font-weight: 700 !important;
             line-height: 1.4;
-            margin: 10px 12% !important;
+            margin: 10px 10% !important;
         }
     
-        /* תיקון האייקון auto_stories */
         .material-symbols-outlined {
             font-family: 'Material Symbols Outlined' !important;
             color: #6f5861 !important;
@@ -663,12 +659,12 @@ else:
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 3. הזרקת ה-HTML המאוחד
+    # 3. HTML
     st.markdown(f"""
-    <div class="final-dashboard-quote">
+    <div class="fixed-quote-container">
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.2em; display: block;">DAILY QUOTE</span>
-        <div class="q-main-title">"{quote_text}"</div>
-        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; display: block; margin-bottom: 12px;">&#8212; {quote_author} &#8212;</span>
+        <div class="q-text-final">"{quote_text}"</div>
+        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; display: block; margin-bottom: 10px;">&#8212; {quote_author} &#8212;</span>
         <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
             <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
             <span class="material-symbols-outlined">auto_stories</span>
@@ -676,7 +672,7 @@ else:
         </div>
     </div>
     """, unsafe_allow_html=True)
-                                                            
+                                                                
 
 
     # ── KPIs ────────────────────────────────────────────────
