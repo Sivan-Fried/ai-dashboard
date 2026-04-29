@@ -26,21 +26,24 @@ st.set_page_config(
 # הנה החלק החדש - תדביקי אותו בדיוק כאן, מתחת להגדרות הדף:
 st.markdown("""
     <style>
-        /* 1. הסרגל העליון - השכבה החיצונית ביותר */
-        [data-testid="stHeader"] {
-            background-color: white !important;
-            border-bottom: 1px solid #f0f2f6; /* פס הפרדה עדין */
-            height: 60px !important;
-            z-index: 1000000 !important;
-        }
-
-        /* 2. המכולה הפנימית של הסרגל - לפעמים היא זו ששקופה */
-        [data-testid="stHeader"] > div {
+        /* 1. הגדרה ישירה לתוך ה-Header וה-Toolbar של סטרימליט */
+        [data-testid="stHeader"], 
+        header, 
+        .st-emotion-cache-18ni7ap,
+        .stApp header {
             background-color: white !important;
             opacity: 1 !important;
+            visibility: visible !important;
+            height: 60px !important;
+            z-index: 999999 !important;
         }
 
-        /* 3. ביטול הרווח הלבן המובנה מעל הציטוט */
+        /* 2. צביעת הרקע הלבן גם בתוך הדיבים הפנימיים של הטופ-בר */
+        [data-testid="stHeader"] > div:first-child {
+            background-color: white !important;
+        }
+
+        /* 3. ביטול המרווח הלבן המובנה מעל הציטוט */
         .stApp .main .block-container {
             padding-top: 0px !important;
             margin-top: 0px !important;
