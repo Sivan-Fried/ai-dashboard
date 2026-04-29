@@ -572,13 +572,13 @@ else:
     
     
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    # ── Daily Quote Section Logic & Display (Clean & Compact) ──────────
+    # ── Daily Quote Section Logic & Display (Corrected Spacing & Background) ─────
     import streamlit as st
     import pandas as pd
     import os
     import datetime
     
-    # 1. לוגיקה של שליפת הנתונים
+    # 1. לוגיקה של שליפת הנתונים (נשארת אותו דבר)
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
     quote_author = "ארתור אש"
     try:
@@ -590,38 +590,69 @@ else:
                 a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר']]
                 if q_col: quote_text = str(row[q_col[0]])
                 if a_col: quote_author = str(row[a_col[0]])
-    except: pass
+    except Exception:
+        pass
     
-    # 2. ה-CSS המדויק לביטול הרווח והחזרת הרקע
+    # 2. ה-CSS המלא: ביטול האוויר המיותר והחזרת המרכאות
     st.markdown("""
     <style>
-        /* הפיכת הסרגל ללבן אטום */
+        /* הפיכת הסרגל העליון ללבן אטום */
         header[data-testid="stHeader"] {
             background-color: white !important;
             z-index: 1000000 !important;
         }
     
-        /* ביטול הרווחים הלבנים של סטרימליט */
+        /* איפוס המרווחים הלבנים של הדף בראשו */
         .stApp .main .block-container { 
-            padding-top: 30px !important; /* רווח מינימלי מהתקרה */
+            padding-top: 20px !important; /* רווח קטן ואחיד מהתקרה */
             margin-top: 0px !important;
         }
     
-        /* תיבת הציטוט - ללא margin שלילי הפעם כדי למנוע את הבלגן */
+        /* תיבת הציטוט המעוצבת */
         .safe-quote-box {
             background: #ffffff;
             background-image: 
-                radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.25) 0%, transparent 40%), 
-                radial-gradient(circle at 85% 50%, rgba(227, 225, 236, 0.25) 0%, transparent 40%);
+                radial-gradient(circle at 12% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
+                radial-gradient(circle at 88% 70%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
             border-bottom: 1px solid #f1f5f9;
-            padding: 20px 0; /* צמצום משמעותי של הגובה */
             text-align: center;
             direction: rtl;
             position: relative;
+            z-index: 1 !important;
             width: 100%;
+            /* צמצום גובה משמעותי - כל האוויר המיותר נעלם */
+            padding-top: 20px;
+            padding-bottom: 25px;
         }
     
-        /* כותרת קטנה */
+        /* החזרת סימני הציטוט הדקורטיביים (המרכאות הגדולות ברקע) */
+        .safe-quote-box::before {
+            content: '“';
+            position: absolute;
+            top: 25px; /* מותאם לגרסה המוקטנת */
+            right: 40px;
+            font-size: 80px;
+            color: #fadce6;
+            font-family: 'serif';
+            line-height: 1;
+            opacity: 0.6;
+            z-index: -1;
+        }
+    
+        .safe-quote-box::after {
+            content: '”';
+            position: absolute;
+            bottom: 15px; /* מותאם לגרסה המוקטנת */
+            left: 40px;
+            font-size: 80px;
+            color: #fadce6;
+            font-family: 'serif';
+            line-height: 1;
+            opacity: 0.6;
+            z-index: -1;
+        }
+    
+        /* עיצוב הפונטים והמרווחים בגרסה המוקטנת */
         .q-label {
             font-family: 'Plus Jakarta Sans', sans-serif !important;
             font-size: 8px !important;
@@ -633,17 +664,17 @@ else:
             margin-bottom: 8px !important;
         }
     
-        /* הטקסט המרכזי - גודל בינוני וקריא */
         .q-text-final {
             font-family: 'Noto Serif Hebrew', serif !important;
-            font-size: 18px !important;
+            font-size: 16px !important;
             color: #1a1c1c !important;
             font-weight: 700 !important;
             line-height: 1.4 !important;
-            margin: 5px 15% !important;
+            margin: 5px 60px !important;
+            position: relative;
+            z-index: 2;
         }
     
-        /* שם המחבר */
         .q-author-final {
             font-family: 'Plus Jakarta Sans', sans-serif !important;
             font-size: 11px !important;
@@ -653,7 +684,6 @@ else:
             margin-bottom: 12px !important;
         }
     
-        /* אייקון וקווים */
         .icon-wrapper {
             display: flex;
             align-items: center;
@@ -676,7 +706,7 @@ else:
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 3. הצגת התוכן
+    # 3. הצגת התוכן (HTML)
     st.markdown(f"""
     <div class="safe-quote-box">
         <span class="q-label">DAILY QUOTE</span>
@@ -689,7 +719,7 @@ else:
         </div>
     </div>
     """, unsafe_allow_html=True)
-                                
+                                    
 
 
     # ── KPIs ────────────────────────────────────────────────
