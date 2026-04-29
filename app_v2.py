@@ -43,7 +43,7 @@ st.markdown("""
     /* הגדרת תיבת הציטוט כאלמנט שמתחיל מתחת לסרגל */
     .safe-quote-box {
         margin-top: -60px !important; /* מושך את הוורוד לקצה המסך */
-        padding-top: 75px !important;  /* דוחף את הטקסט מתחת לסרגל הלבן */
+        padding-top: 1px !important;  /* דוחף את הטקסט מתחת לסרגל הלבן */
         position: relative !important;
         z-index: 1 !important; /* קומה נמוכה יותר מהסרגל */
         width: 100%;
