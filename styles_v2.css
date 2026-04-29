@@ -122,6 +122,12 @@ h3 {
     box-shadow: var(--shadow-md) !important;
 }
 
+/* בדיקה */
+header[data-testid="stHeader"] {
+    display: none !important;
+}
+/* סוף בדיקה */
+
 /* 1. הגדרת הטופ-בר - השתלטות סופית */
 .stApp header[data-testid="stHeader"] {
     background-color: white !important;
