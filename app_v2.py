@@ -23,33 +23,40 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# הנה החלק החדש - תדביקי אותו בדיוק כאן, מתחת להגדרות הדף:
+# 2. הזרקת עיצוב גלובלית - תדביקי את כל זה כאן:
 st.markdown("""
-    <style>
-        /* 1. הגדרה ישירה לתוך ה-Header וה-Toolbar של סטרימליט */
-        [data-testid="stHeader"], 
-        header, 
-        .st-emotion-cache-18ni7ap,
-        .stApp header {
-            background-color: white !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-            height: 60px !important;
-            z-index: 999999 !important;
-        }
+<style>
+    /* הפיכת הסרגל הלבן לשכבה הכי עליונה בדף */
+    header[data-testid="stHeader"], [data-testid="stHeader"] {
+        background-color: white !important;
+        z-index: 1000000 !important;
+        opacity: 1 !important;
+        display: flex !important;
+    }
 
-        /* 2. צביעת הרקע הלבן גם בתוך הדיבים הפנימיים של הטופ-בר */
-        [data-testid="stHeader"] > div:first-child {
-            background-color: white !important;
-        }
+    /* ביטול הרווח הלבן המובנה של סטרימליט בראש הדף */
+    .stApp .main .block-container {
+        padding-top: 0px !important;
+        margin-top: 0px !important;
+    }
 
-        /* 3. ביטול המרווח הלבן המובנה מעל הציטוט */
-        .stApp .main .block-container {
-            padding-top: 0px !important;
-            margin-top: 0px !important;
-        }
-    </style>
+    /* הגדרת תיבת הציטוט כאלמנט שמתחיל מתחת לסרגל */
+    .safe-quote-box {
+        margin-top: -60px !important; /* מושך את הוורוד לקצה המסך */
+        padding-top: 75px !important;  /* דוחף את הטקסט מתחת לסרגל הלבן */
+        position: relative !important;
+        z-index: 1 !important; /* קומה נמוכה יותר מהסרגל */
+        width: 100%;
+        background: #ffffff;
+        background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
+                          radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
+        border-bottom: 1px solid #f1f5f9;
+        text-align: center;
+        padding-bottom: 20px;
+    }
+</style>
 """, unsafe_allow_html=True)
+
 
 # 1. שחרור חסימות גובה (התיקון הקריטי)
 # הסבר: הקוד הזה אומר ל-Streamlit לא לחתוך אלמנטים שיוצאים מהגבולות שלהם (overflow: visible)
