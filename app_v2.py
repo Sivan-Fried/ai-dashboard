@@ -559,28 +559,15 @@ else:
 
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
     # 1. שליפת הנתונים (מוודא שמשתמשים במשתנים מהאקסל שלך)
-    display_text = quote_text if 'quote_text' in locals() else "כל מה שמוחו של אדם יכול לקבל ולהאמין בו, הוא גם יכול להשיג"
-    display_author = quote_author if 'quote_author' in locals() else "נפוליאון היל"
-    
-    # 2. הזרקה מאוחדת - בדקתי שורה שורה שלא חסר אף אלמנט עיצובי
-    st.markdown(f"""
+    # 1. הגדרת ה-CSS (העיצוב) בנפרד כדי למנוע תקלות הדפסה
+    st.markdown("""
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
-        
         <style>
-            /* ביטול רווח עליון מובנה */
-            .main .block-container {{
-                padding-top: 0rem !important;
-            }}
+            .main .block-container { padding-top: 0rem !important; }
+            header[data-testid="stHeader"] { z-index: 100 !important; background: white !important; }
             
-            /* וידוא שהסרגל העליון (Topbar) תמיד מעל הציטוט */
-            header[data-testid="stHeader"] {{
-                z-index: 100 !important;
-                background: white !important;
-            }}
-    
-            /* תיבת הציטוט עם הגרדיאנט המלא */
-            .final-quote-box {{
-                margin-top: -105px !important; /* המשיכה למעלה */
+            .final-quote-box {
+                margin-top: -100px !important;
                 background: #ffffff;
                 background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                                   radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
@@ -589,41 +576,38 @@ else:
                 text-align: center;
                 direction: rtl;
                 position: relative;
-                z-index: 1 !important; /* שכבה מתחת לסרגל */
+                z-index: 1 !important;
                 width: 100%;
-            }}
-    
-            /* פונט הציטוט המרכזי */
-            .quote-main-text {{
+            }
+            .quote-main-text {
                 font-family: 'Noto Serif Hebrew', serif !important;
                 font-size: 24px !important;
                 color: #1a1c1c !important;
                 line-height: 1.3 !important;
                 margin-bottom: 8px !important;
                 font-weight: 700 !important;
-            }}
+            }
         </style>
-        
+    """, unsafe_allow_html=True)
+    
+    # 2. הזרקת ה-HTML עם המשתנים (בלי f-string מסובך)
+    html_template = """
         <div class="final-quote-box">
             <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 10px;">DAILY QUOTE</span>
-            
-            <div class="quote-main-text">
-                "{display_text}"
-            </div>
-            
-            <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
-                &#8212; {display_author} &#8212;
-            </div>
-            
+            <div class="quote-main-text">"{text}"</div>
+            <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">&#8212; {author} &#8212;</div>
             <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
                 <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
-                <span class="material-symbols-outlined" style="color: #6f5861; font-size: 20px; font-family: 'Material Symbols Outlined' !important; display: inline-block;">auto_stories</span>
+                <span class="material-symbols-outlined" style="color: #6f5861; font-size: 20px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
                 <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
             </div>
         </div>
-    """, unsafe_allow_html=True)
+    """
     
-    # רווח בטיחות לסיום
+    # כאן אנחנו מחליפים את המילים בתוך התבנית בנתונים מהאקסל שלך
+    st.markdown(html_template.format(text=quote_text, author=quote_author), unsafe_allow_html=True)
+    
+    # 3. רווח לסיום
     st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
        
     
