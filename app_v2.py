@@ -23,6 +23,30 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# הנה החלק החדש - תדביקי אותו בדיוק כאן, מתחת להגדרות הדף:
+st.html("""
+    <style>
+        /* פנייה ישירה לסרגל העליון דרך ה-HTML הראשי */
+        header[data-testid="stHeader"] {
+            background-color: white !important;
+            position: fixed !important;
+            z-index: 1000000 !important;
+            display: block !important;
+        }
+
+        /* מוודא שהתוכן הפנימי של הסרגל לבן אטום */
+        header[data-testid="stHeader"] > div:first-child {
+            background-color: white !important;
+        }
+
+        /* ביטול הפס הלבן המובנה של סטרימליט בראש הדף */
+        .stApp .main .block-container {
+            padding-top: 0px !important;
+        }
+    </style>
+""")
+
+
 # 1. שחרור חסימות גובה (התיקון הקריטי)
 # הסבר: הקוד הזה אומר ל-Streamlit לא לחתוך אלמנטים שיוצאים מהגבולות שלהם (overflow: visible)
 st.markdown("""
