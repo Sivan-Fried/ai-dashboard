@@ -558,63 +558,65 @@ else:
     except: pass
 
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
-   # 1. ניקוי רווחים אגרסיבי של סטרימליט
+   # 1. עיצוב עדין שלא משבש את שאר הדף
     st.markdown("""
         <style>
-            /* ביטול רווחים בראש הדף */
+            /* איפוס עדין של מרווח עליון בלבד, בלי לגעת בשאר הבלוקים */
             .block-container { 
-                padding-top: 0rem !important; 
-                margin-top: 0rem !important;
+                padding-top: 1.5rem !important; 
             }
-            /* ביטול רווחים שסטרימליט מוסיף סביב רכיבי HTML */
-            [data-testid="stVerticalBlock"] > div:first-child {
-                margin-top: -35px !important;
-            }
-            /* וידוא שהסרגל העליון נשאר מעל הכל */
+            
+            /* הגדרת הסרגל העליון כעליון */
             header[data-testid="stHeader"] { 
                 z-index: 100 !important; 
-                background: white !important; 
             }
-            /* הסרת הגבולות והרווחים של ה-iframe עצמו */
-            iframe {
-                margin-top: -50px !important;
+    
+            /* תיבת הציטוט - ללא margin שלילי שמשבש את הדף */
+            .quote-container {
+                background: #ffffff;
+                background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
+                                  radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
+                border-bottom: 1px solid #f1f5f9;
+                padding: 20px;
+                text-align: center;
+                direction: rtl;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+    
+            .main-text {
+                font-family: 'Noto Serif Hebrew', serif !important;
+                font-size: 24px !important;
+                color: #1a1c1c !important;
+                font-weight: 700 !important;
+                line-height: 1.3;
+                margin: 10px 0;
+            }
+    
+            /* הבטחת טעינת האייקון */
+            .material-symbols-outlined {
+                font-family: 'Material Symbols Outlined' !important;
+                vertical-align: middle;
             }
         </style>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 2. תוכן הציטוט
-    quote_html = f"""
-    <div dir="rtl" style="
-        background: #ffffff;
-        background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
-                          radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
-        border-bottom: 1px solid #f1f5f9;
-        padding: 15px 20px;
-        text-align: center;
-        border-radius: 0 0 10px 10px;
-    ">
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
-        
-        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 5px;">DAILY QUOTE</span>
-        
-        <div style="font-family: 'Noto Serif Hebrew', serif; font-size: 24px; color: #1a1c1c; line-height: 1.2; margin-bottom: 5px; font-weight: 700;">
-            "{quote_text}"
+    # 2. הצגת הציטוט (שימוש ב-unsafe_allow_html=True בסוף מבטיח שלא יודפס קוד)
+    st.markdown(f"""
+        <div class="quote-container">
+            <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
+            <div class="main-text">"{quote_text}"</div>
+            <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
+                &#8212; {quote_author} &#8212;
+            </div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+                <span class="material-symbols-outlined" style="color: #6f5861; font-size: 22px;">auto_stories</span>
+                <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+            </div>
         </div>
-        
-        <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; color: #646566; font-style: italic; margin-bottom: 10px;">
-            &#8212; {quote_author} &#8212;
-        </div>
-        
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-direction: row-reverse;">
-            <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
-            <span class="material-symbols-outlined" style="color: #6f5861; font-size: 18px; vertical-align: middle;">auto_stories</span>
-            <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
-        </div>
-    </div>
-    """
-    
-    # 3. הצגת הרכיב - הקטנתי את הגובה (height) ל-150 כדי לצמצם את ה"בור" מתחת לציטוט
-    st.components.v1.html(quote_html, height=150)
+    """, unsafe_allow_html=True)
     
 
 
