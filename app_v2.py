@@ -593,56 +593,6 @@ else:
     except: pass
 
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
-    st.markdown("""
-    <style>
-        /* 1. הפיכת הסרגל ללבן אטום - הוא יהיה מעל הכל */
-        header[data-testid="stHeader"] {
-            background-color: white !important;
-            z-index: 1000000 !important;
-            opacity: 1 !important;
-            height: 60px !important;
-        }
-
-        /* 2. איפוס המרווח הלבן של הדף */
-        .main .block-container { 
-            padding-top: 0px !important; 
-            margin-top: 0px !important;
-        }
-
-        /* 3. הצמדת הציטוט למעלה ומשיכתו מתחת לסרגל הלבן */
-        .safe-quote-box {
-            margin-top: -60px !important; /* מושך את הוורוד לקצה העליון */
-            padding-top: 75px !important;  /* דוחף את הטקסט שייראה מתחת לסרגל הלבן */
-            background: #ffffff;
-            background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
-                              radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
-            border-bottom: 1px solid #f1f5f9;
-            padding-bottom: 20px;
-            text-align: center;
-            direction: rtl;
-            position: relative;
-            z-index: 1 !important; /* שכבה נמוכה יותר מהסרגל */
-            width: 100%;
-        }
-
-        .q-text-final {
-            font-family: 'Noto Serif Hebrew', serif !important;
-            font-size: 24px !important;
-            color: #1a1c1c !important;
-            font-weight: 700 !important;
-            line-height: 1.3;
-            margin: 5px 0;
-        }
-
-        .material-symbols-outlined {
-            font-family: 'Material Symbols Outlined' !important;
-            vertical-align: middle;
-        }
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
-    """, unsafe_allow_html=True)
-    
-    # 2. הצגת התוכן
     st.markdown(f"""
     <div class="safe-quote-box">
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
