@@ -577,8 +577,8 @@ else:
     import os
     
     # 1. לוגיקה של שליפת הנתונים
-    quote_text = "אתה יכול להיות מאוכזב אם לא תצליח, אבל אתה חורץ את גורלך אם אינך מנסה"
-    quote_author = "בוורלי סילס"
+    quote_text = "האיש שעומד על ראש ההר לא נפל לשם"
+    quote_author = "וינס לומברדי"
     try:
         if os.path.exists("inspirational_quotes.xlsx"):
             df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
@@ -590,7 +590,7 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. ה-CSS וה-HTML ביחידה אחת למניעת "קפיצות" תוכן
+    # 2. ה-CSS המאוחד לסגירת הפער והצמדה לסרגל
     st.markdown(f"""
     <style>
         /* הלבנת ה-Header של סטרימליט */
@@ -598,14 +598,19 @@ else:
             background-color: white !important;
         }}
     
-        /* איפוס ה-Padding של האפליקציה למניעת הפס האפור */
+        /* איפוס המרווחים הכלליים של הדף */
         .stApp .main .block-container {{
             padding-top: 0px !important;
-            margin-top: -3.5rem !important; /* מושך את כל הבלוק הראשון למעלה */
+            margin-top: -3.6rem !important; /* הערך המדויק להצמדה מלאה */
         }}
     
-        /* עיצוב תיבת הציטוט */
-        .quote-container-final {{
+        /* מניעת רווחים בין אלמנטים עוקבים */
+        div[data-testid="stVerticalBlock"] > div:first-child {{
+            margin-top: 0px !important;
+        }}
+    
+        /* עיצוב תיבת הציטוט המנצחת */
+        .quote-box-final {{
             background: #ffffff;
             background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 45%), 
                               radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.3) 0%, transparent 45%);
@@ -618,17 +623,18 @@ else:
             box-sizing: border-box;
         }}
     
-        .quote-container-final::before {{
+        /* מרכאות 100px בעיצוב נקי */
+        .quote-box-final::before {{
             content: '“'; position: absolute; top: 25px; right: 40px;
             font-size: 100px; color: #fadce6; font-family: serif; opacity: 0.5; line-height: 1;
         }}
     
-        .quote-container-final::after {{
+        .quote-box-final::after {{
             content: '”'; position: absolute; bottom: 0px; left: 40px;
             font-size: 100px; color: #fadce6; font-family: serif; opacity: 0.5; line-height: 1;
         }}
     
-        .quote-text-style {{
+        .quote-text-main {{
             font-family: 'Noto Serif Hebrew', serif !important;
             font-size: 24px !important;
             color: #1a1c1c !important;
@@ -637,6 +643,7 @@ else:
             margin: 10px 12% !important;
         }}
     
+        /* הבטחת תצוגת האייקון */
         .material-symbols-outlined {{
             font-family: 'Material Symbols Outlined' !important;
             color: #6f5861 !important;
@@ -648,9 +655,9 @@ else:
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     
-    <div class="quote-container-final">
+    <div class="quote-box-final">
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.2em; display: block;">DAILY QUOTE</span>
-        <div class="quote-text-style">"{quote_text}"</div>
+        <div class="quote-text-main">"{quote_text}"</div>
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; display: block; margin-bottom: 10px;">&#8212; {quote_author} &#8212;</span>
         <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
             <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
