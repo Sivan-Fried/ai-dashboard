@@ -558,42 +558,48 @@ else:
     except: pass
 
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
-    # 1. עיצוב נקי שלא מעלים כלום ושומר על שאר הדשבורד
+    # 1. הגדרת העיצוב - כאן קורה הקסם של השכבות
     st.markdown("""
     <style>
-        /* הפיכת הסרגל הלבן לעליון ואטום - בלי position: fixed שעלול להרוס */
+        /* הפיכת הסרגל העליון למלך של הדף */
         header[data-testid="stHeader"] {
-            z-index: 100 !important;
-            background-color: white !important;
+            position: fixed !important; /* נועל אותו למעלה */
+            top: 0 !important;
+            z-index: 1000000 !important; /* הכי גבוה שיש */
+            background-color: white !important; /* לבן אטום - שלא יראו את הציטוט דרכו */
+            opacity: 1 !important;
+            height: 3.5rem !important;
+            display: flex !important;
+            align-items: center !important;
         }
     
-        /* צמצום המרווח בראש הדף בצורה עדינה */
+        /* איפוס מרווחים למעלה */
         .main .block-container { 
-            padding-top: 2rem !important; 
+            padding-top: 0rem !important; 
         }
     
-        /* תיבת הציטוט - החזרנו אותה ל-z-index חיובי כדי שלא תיעלם */
-        .quote-final-fixed {
-            margin-top: -45px !important; /* העלאה מתונה שרק מצמידה לסרגל */
+        /* תיבת הציטוט - עולה למעלה אבל בנחיתות שכבתית */
+        .final-quote-box {
+            margin-top: -75px !important; /* המשיכה למעלה */
             background: #ffffff;
             background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                               radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
             border-bottom: 1px solid #f1f5f9;
-            padding: 20px;
+            padding: 30px 20px 20px 20px;
             text-align: center;
             direction: rtl;
             position: relative;
-            z-index: 1 !important; 
+            z-index: 1 !important; /* שכבה נמוכה - תמיד תהיה "מתחת" לסרגל */
             width: 100%;
         }
     
-        .q-text {
+        .quote-text-main {
             font-family: 'Noto Serif Hebrew', serif !important;
             font-size: 24px !important;
             color: #1a1c1c !important;
             font-weight: 700 !important;
-            line-height: 1.3;
-            margin: 5px 0;
+            line-height: 1.4;
+            margin: 10px 0;
         }
     
         .material-symbols-outlined {
@@ -604,17 +610,17 @@ else:
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 2. הצגת התוכן (בלי f-string ב-CSS כדי למנוע הדפסת קוד)
+    # 2. הזרקת התוכן (שימוש ב-f-string בטוח)
     st.markdown(f"""
-    <div class="quote-final-fixed">
+    <div class="final-quote-box">
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
-        <div class="q-text">"{quote_text}"</div>
+        <div class="quote-text-main">"{quote_text}"</div>
         <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
             &#8212; {quote_author} &#8212;
         </div>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
             <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
-            <span class="material-symbols-outlined" style="color: #6f5861; font-size: 22px;">auto_stories</span>
+            <span class="material-symbols-outlined" style="color: #6f5861; font-size: 24px;">auto_stories</span>
             <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
         </div>
     </div>
