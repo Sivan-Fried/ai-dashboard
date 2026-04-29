@@ -558,35 +558,66 @@ else:
     except: pass
 
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
+    # 1. עיצוב נקי שלא מעלים כלום ושומר על שאר הדשבורד
     st.markdown("""
     <style>
-        /* 1. הכרחת הסרגל להיות השכבה העליונה ביותר בדפדפן */
+        /* הפיכת הסרגל הלבן לעליון ואטום - בלי position: fixed שעלול להרוס */
         header[data-testid="stHeader"] {
-            z-index: 9999999 !important;
+            z-index: 100 !important;
             background-color: white !important;
-            position: fixed !important; /* מקבע אותו למעלה */
         }
     
-        /* 2. יצירת "בור" שבו הציטוט יושב, כך שהוא לא יוכל לצאת מעל הסרגל */
-        .main .block-container {
-            padding-top: 0rem !important;
-            isolation: isolate; /* יוצר הקשר שכבות חדש ונמוך */
+        /* צמצום המרווח בראש הדף בצורה עדינה */
+        .main .block-container { 
+            padding-top: 2rem !important; 
         }
     
-        /* 3. תיבת הציטוט */
-        .quote-box-final {
-            margin-top: -65px !important; 
+        /* תיבת הציטוט - החזרנו אותה ל-z-index חיובי כדי שלא תיעלם */
+        .quote-final-fixed {
+            margin-top: -45px !important; /* העלאה מתונה שרק מצמידה לסרגל */
             background: #ffffff;
             background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                               radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
             border-bottom: 1px solid #f1f5f9;
-            padding: 25px;
+            padding: 20px;
             text-align: center;
             direction: rtl;
             position: relative;
-            z-index: -1 !important; /* ערך שלילי! זה אמור להכריח אותו להיות מתחת לכל דבר */
+            z-index: 1 !important; 
+            width: 100%;
+        }
+    
+        .q-text {
+            font-family: 'Noto Serif Hebrew', serif !important;
+            font-size: 24px !important;
+            color: #1a1c1c !important;
+            font-weight: 700 !important;
+            line-height: 1.3;
+            margin: 5px 0;
+        }
+    
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined' !important;
+            vertical-align: middle;
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
+    """, unsafe_allow_html=True)
+    
+    # 2. הצגת התוכן (בלי f-string ב-CSS כדי למנוע הדפסת קוד)
+    st.markdown(f"""
+    <div class="quote-final-fixed">
+        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
+        <div class="q-text">"{quote_text}"</div>
+        <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
+            &#8212; {quote_author} &#8212;
+        </div>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+            <span class="material-symbols-outlined" style="color: #6f5861; font-size: 22px;">auto_stories</span>
+            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+        </div>
+    </div>
     """, unsafe_allow_html=True)
                         
 
