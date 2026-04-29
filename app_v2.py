@@ -558,36 +558,28 @@ else:
     except: pass
 
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
-    # העתקה אחת אחרונה - הפעם עם ה"מגן הלבן"
     st.markdown("""
     <style>
-        /* הסרת רווחים מהשורש */
-        .main .block-container { 
-            padding-top: 0rem !important; 
+        /* 1. ביטול הרווח העליון המובנה של סטרימליט */
+        .main .block-container {
+            padding-top: 1.5rem !important; /* רווח קטן ובטוח שלא נוגע בשעה */
         }
     
-        /* תיבת הציטוט עם מגן לבן מובנה לסרגל */
-        .quote-final-shield {
-            /* המשיכה למעלה */
-            margin-top: -100px !important; 
-            
-            /* יצירת השטח הלבן האטום בדיוק איפה שהסרגל נמצא */
-            border-top: 60px solid white; 
-            
+        /* 2. עיצוב הציטוט ללא הזזה אגרסיבית למעלה */
+        .quote-box-clean {
             background: #ffffff;
             background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                               radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
-            border-bottom: 1px solid #f1f5f9;
-            padding: 20px 20px 30px 20px;
+            border: 1px solid #f1f5f9;
+            border-radius: 15px; /* פינות מעוגלות כדי שזה יראה כמו כרטיס */
+            padding: 25px;
             text-align: center;
             direction: rtl;
-            position: relative;
-            /* השכבה הזו תהיה מתחת לכפתורים של סטרימליט אבל מעל הרקע */
-            z-index: 1 !important; 
             width: 100%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02); /* צל עדין */
         }
     
-        .q-main-text {
+        .q-text {
             font-family: 'Noto Serif Hebrew', serif !important;
             font-size: 24px !important;
             color: #1a1c1c !important;
@@ -599,16 +591,16 @@ else:
         .material-symbols-outlined {
             font-family: 'Material Symbols Outlined' !important;
             vertical-align: middle;
-            display: inline-block;
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     """, unsafe_allow_html=True)
     
+    # הצגת התוכן
     st.markdown(f"""
-    <div class="quote-final-shield">
+    <div class="quote-box-clean">
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
-        <div class="q-main-text">"{quote_text}"</div>
+        <div class="q-text">"{quote_text}"</div>
         <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
             &#8212; {quote_author} &#8212;
         </div>
