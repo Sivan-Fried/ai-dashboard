@@ -26,43 +26,39 @@ st.set_page_config(
 # 2. הזרקת עיצוב גלובלית מאוחדת
 st.markdown("""
 <style>
-    /* הפיכת הסרגל הלבן לשכבה הכי עליונה בדף */
-    header[data-testid="stHeader"], [data-testid="stHeader"] {
-        background-color: white !important;
-        z-index: 1000000 !important;
-        opacity: 1 !important;
-        display: flex !important;
-    }
-
-    /* 1. השליטה על גובה כל האזור במסך - המשיכה למעלה */
+    /* 1. הסרת המרווח הלבן של הדף כולו */
     .stApp .main .block-container {
         padding-top: 0px !important;
-        margin-top: -6.0rem !important; /* ככל שהמינוס גדול יותר, זה עולה למעלה */
+        margin-top: 0px !important;
     }
 
-    /* 2. השליטה על העיצוב של תיבת הציטוט */
-    .safe-quote-box {
+    /* 2. המשיכה האגרסיבית של תיבת הציטוט למעלה */
+    .premium-quote-box-refined {
         width: 100%;
         background: #ffffff;
-        background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
-                          radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
+        background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
+                          radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.3) 0%, transparent 45%);
         border-bottom: 1px solid #f1f5f9;
         text-align: center;
+        direction: rtl;
         
-        /* פאדינג פנימי - שומר על ה"אווריריות" של העיצוב */
-        padding-top: 35px !important; 
-        padding-bottom: 15px !important;
-        
-        /* רווח קטן מה-KPIs למטה */
-        margin-bottom: 5px !important; 
-        
+        /* התיקון הקריטי: הזזה אבסולוטית כלפי מעלה */
         position: relative !important;
+        top: -95px !important; /* ככל שתגדילי את המספר השלילי, זה יעלה יותר גבוה */
+        
+        /* צמצום הפאדינג הפנימי כדי שהתיבה עצמה תהיה דקה יותר */
+        padding: 25px 60px 10px 60px !important;
+        
+        /* צמצום הרווח מה-KPIs (ערך שלילי כאן מקרב את ה-KPIs לציטוט) */
+        margin-bottom: -70px !important; 
+        
         z-index: 1 !important;
     }
 
-    /* 3. שחרור חסימות למניעת חיתוך אלמנטים */
-    iframe, [data-testid="stVerticalBlock"], [data-testid="stHorizontalBlock"], .element-container {
-        overflow: visible !important;
+    /* 3. שמירה על הסרגל הלבן (Header) מעל הציטוט */
+    header[data-testid="stHeader"] {
+        background-color: white !important;
+        z-index: 1000 !important;
     }
 </style>
 """, unsafe_allow_html=True)
