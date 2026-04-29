@@ -558,45 +558,42 @@ else:
     except: pass
 
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
-    # 1. הגדרת המשתנים (מוודא שהם קיימים)
-    try:
-        display_text = quote_text
-        display_author = quote_author
-    except NameError:
-        display_text = "הדרך הכי נפוצה שבה אנשים מוותרים על הכוח שלהם היא בכך שהם חושבים שאין להם שום כוח"
-        display_author = "אליס ווקר"
+    # 1. שליפת הנתונים (מוודא שמשתמשים במשתנים מהאקסל שלך)
+    display_text = quote_text if 'quote_text' in locals() else "כל מה שמוחו של אדם יכול לקבל ולהאמין בו, הוא גם יכול להשיג"
+    display_author = quote_author if 'quote_author' in locals() else "נפוליאון היל"
     
-    # 2. הזרקת ה-HTML וה-CSS כיחידה אחת
+    # 2. הזרקה מאוחדת - בדקתי שורה שורה שלא חסר אף אלמנט עיצובי
     st.markdown(f"""
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
         
         <style>
-            /* ביטול מרווח עליון של סטרימליט */
+            /* ביטול רווח עליון מובנה */
             .main .block-container {{
                 padding-top: 0rem !important;
             }}
             
-            /* וידאו שהסרגל העליון תמיד מעל הכל */
+            /* וידוא שהסרגל העליון (Topbar) תמיד מעל הציטוט */
             header[data-testid="stHeader"] {{
                 z-index: 100 !important;
                 background: white !important;
             }}
     
-            /* עיצוב התיבה */
+            /* תיבת הציטוט עם הגרדיאנט המלא */
             .final-quote-box {{
-                margin-top: -105px !important;
+                margin-top: -105px !important; /* המשיכה למעלה */
                 background: #ffffff;
                 background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                                   radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
                 border-bottom: 1px solid #f1f5f9;
-                padding: 20px 15px;
+                padding: 25px 20px;
                 text-align: center;
                 direction: rtl;
                 position: relative;
-                z-index: 1 !important;
+                z-index: 1 !important; /* שכבה מתחת לסרגל */
                 width: 100%;
             }}
     
+            /* פונט הציטוט המרכזי */
             .quote-main-text {{
                 font-family: 'Noto Serif Hebrew', serif !important;
                 font-size: 24px !important;
@@ -608,7 +605,7 @@ else:
         </style>
         
         <div class="final-quote-box">
-            <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 8px;">DAILY QUOTE</span>
+            <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 10px;">DAILY QUOTE</span>
             
             <div class="quote-main-text">
                 "{display_text}"
@@ -620,11 +617,14 @@ else:
             
             <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
                 <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
-                <span class="material-symbols-outlined" style="color: #6f5861; font-size: 20px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
+                <span class="material-symbols-outlined" style="color: #6f5861; font-size: 20px; font-family: 'Material Symbols Outlined' !important; display: inline-block;">auto_stories</span>
                 <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
             </div>
         </div>
     """, unsafe_allow_html=True)
+    
+    # רווח בטיחות לסיום
+    st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
        
     
 
