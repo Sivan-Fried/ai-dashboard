@@ -122,16 +122,20 @@ h3 {
     box-shadow: var(--shadow-md) !important;
 }
 
-/* 1. הגדרת הטופ-בר כשכבה העליונה ביותר */
-header[data-testid="stHeader"] {
+/* 1. הגדרת הטופ-בר - השתלטות סופית */
+.stApp header[data-testid="stHeader"] {
     background-color: white !important;
     position: fixed !important;
-    z-index: 1000000 !important;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 60px !important;
+    z-index: 999999 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
     display: block !important;
+}
+
+.stApp header[data-testid="stHeader"] > div:first-child {
+    background-color: white !important;
+    opacity: 1 !important;
 }
 
 /* מוודא שהתוכן הפנימי של הטופ-בר לבן ולא שקוף */
