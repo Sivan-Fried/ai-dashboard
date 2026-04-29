@@ -557,44 +557,39 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
 
-    # 1. הזרקת הציטוט - פתרון משולב לעיצוב ומיקום
-    st.markdown(f"""
-    <style>
-        /* ביטול הרווח הכללי בראש הדף */
-        .block-container {{ padding-top: 0rem !important; }}
-        
-        /* עיצוב תיבת הציטוט */
-        .quote-container {{
-            margin-top: -65px !important; /* הצמדה לסרגל העליון */
-            margin-bottom: 20px !important;
-            background: #ffffff;
-            background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
-                              radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
-            border-bottom: 1px solid #f1f5f9;
-            padding: 25px 20px;
-            text-align: center;
-            direction: rtl;
-            width: 100%;
-        }}
-    </style>
-
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
-    
-    <div class="quote-container">
-        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 10px;">DAILY QUOTE</span>
-        <div style="font-family: 'Noto Serif Hebrew', serif; font-size: 26px; color: #1a1c1c; line-height: 1.3; margin-bottom: 10px; font-weight: 700;">
-            "{quote_text}"
-        </div>
-        <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
-            &#8212; {quote_author} &#8212;
-        </div>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 15px; flex-direction: row-reverse;">
-            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
-            <span class="material-symbols-outlined" style="color: #6f5861; font-size: 20px; font-family: 'Material Symbols Outlined' !important; display: inline-block; vertical-align: middle;">auto_stories</span>
-            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
-        </div>
-    </div>
+    # 1. ניקוי הרווח הלבן המובנה של סטרימליט בראש הדף
+    st.markdown("""
+        <style>
+            .block-container {
+                padding-top: 0rem !important;
+                margin-top: 0rem !important;
+            }
+            iframe {
+                display: block;
+                border-radius: 0px;
+            }
+        </style>
     """, unsafe_allow_html=True)
+
+    # 2. ה-HTML המקורי (העיצוב המלא כולל הכל)
+    html_content = f"""
+    <body style="margin: 0; padding: 0; background: transparent; overflow: hidden;">
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+        <div style="font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%); border-bottom: 1px solid #f1f5f9; padding: 25px 20px; text-align: center; direction: rtl;">
+            <span style="font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 10px;">DAILY QUOTE</span>
+            <div style="font-family: 'Noto Serif Hebrew', serif; font-size: 26px; color: #1a1c1c; line-height: 1.3; margin-bottom: 8px; font-weight: 700;">"{quote_text}"</div>
+            <div style="font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">&#8212; {quote_author} &#8212;</div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+                <span class="material-symbols-outlined" style="color: #6f5861; font-size: 20px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
+                <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+            </div>
+        </div>
+    </body>
+    """
+
+    # 3. הצגת הרכיב - גובה 160 ימנע חיתוך ויבטיח שכל העיצוב יופיע
+    st.components.v1.html(html_content, height=160)
    
     
 
