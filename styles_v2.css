@@ -314,6 +314,7 @@ h3 {
     line-height: 1 !important;
 }
 
+
 .kpi-unit {
     font-size: 11px !important;
     color: #94a3b8 !important;
@@ -497,4 +498,27 @@ div[data-testid="stAlert"] h3 {
 iframe {
     margin-bottom: -60px !important;
     display: block !important;
+}
+
+/* ביטול המרווח בראש הדף */
+.block-container {
+    padding-top: 0rem !important;
+}
+
+/* הצמדת הקונטיינר הראשון (הציטוט) לטופ-בר */
+div[data-testid="stVerticalBlock"] > div:first-child {
+    margin-top: -65px !important;
+    padding: 0 !important;
+}
+
+/* ביטול ריווחים של אלמנט ה-HTML שסטרימליט מייצר */
+div[data-testid="stHtml"] {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* ביטול מרווחים מובנים של ה-iframe עצמו */
+iframe {
+    display: block;
+    margin: 0 !important;
 }
