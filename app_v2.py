@@ -577,7 +577,8 @@ else:
     import pandas as pd
     import os
     import datetime
-        
+
+    
     # 1. לוגיקה של שליפת הנתונים
     quote_text = "התחל היכן שאתה נמצא. השתמש במה שיש לך. עשה מה שאתה יכול."
     quote_author = "ארתור אש"
@@ -592,119 +593,64 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. ה-CSS המלא - כולל קישור לפונטים ואיפוס רווחים
+    # 2. העיצוב המקורי שלך + תיקון הסרגל בלבד
     st.markdown("""
     <style>
-        /* 1. איפוס רווחים בראש הדף */
-        .stApp .main .block-container { 
-            padding-top: 10px !important; 
+        /* התיקון לסרגל - הופך אותו ללבן אטום וצף מעל הציטוט */
+        header[data-testid="stHeader"] {
+            background-color: white !important;
+            z-index: 1000000 !important;
+            opacity: 1 !important;
         }
     
-        /* 2. תיבת הציטוט - גובה מינימלי */
+        /* איפוס המרווח העליון של הדף */
+        .main .block-container { 
+            padding-top: 1rem !important; 
+        }
+    
+        /* תיבת הציטוט המקורית שלך */
         .safe-quote-box {
             background: #ffffff;
-            background-image: 
-                radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 40%), 
-                radial-gradient(circle at 90% 50%, rgba(227, 225, 236, 0.3) 0%, transparent 40%);
+            background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
+                              radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
             border-bottom: 1px solid #f1f5f9;
+            padding: 20px;
             text-align: center;
             direction: rtl;
             position: relative;
+            z-index: 1 !important;
             width: 100%;
-            padding: 5px 0 15px 0; /* צמצום ה-Padding העליון והתחתון */
         }
     
-        /* המרכאות הורודות */
-        .safe-quote-box::before {
-            content: '“';
-            position: absolute;
-            top: 5px;
-            right: 30px;
-            font-size: 55px;
-            color: #fadce6;
-            font-family: 'serif';
-            opacity: 0.5;
-            line-height: 1;
-        }
-    
-        .safe-quote-box::after {
-            content: '”';
-            position: absolute;
-            bottom: 0px;
-            left: 30px;
-            font-size: 55px;
-            color: #fadce6;
-            font-family: 'serif';
-            opacity: 0.5;
-            line-height: 1;
-        }
-    
-        /* כותרת DAILY QUOTE */
-        .q-label {
-            font-family: 'Plus Jakarta Sans', sans-serif !important;
-            font-size: 8px !important;
-            font-weight: 800 !important;
-            color: #6f5861 !important;
-            text-transform: uppercase !important;
-            letter-spacing: 0.2em !important;
-            display: block !important;
-            margin: 0 0 5px 0 !important;
-        }
-    
-        /* הטקסט המרכזי */
         .q-text-final {
             font-family: 'Noto Serif Hebrew', serif !important;
-            font-size: 17px !important;
+            font-size: 24px !important;
             color: #1a1c1c !important;
             font-weight: 700 !important;
-            line-height: 1.3 !important;
-            margin: 0 80px !important;
-            position: relative;
-            z-index: 2;
-        }
-    
-        /* שם המחבר */
-        .q-author-final {
-            font-family: 'Plus Jakarta Sans', sans-serif !important;
-            font-size: 11px !important;
-            color: #525455 !important;
-            font-style: italic !important;
-            margin: 4px 0 8px 0 !important;
-        }
-    
-        /* האייקון והקווים */
-        .icon-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-    
-        .divider-line {
-            height: 1px;
-            width: 35px;
-            background-color: #fadce6;
+            line-height: 1.3;
+            margin: 5px 0;
         }
     
         .material-symbols-outlined {
             font-family: 'Material Symbols Outlined' !important;
-            font-size: 16px !important;
-            color: #6f5861 !important;
+            vertical-align: middle;
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 3. הצגת התוכן (HTML)
+    # 3. התוכן המקורי שלך
     st.markdown(f"""
     <div class="safe-quote-box">
-        <span class="q-label">DAILY QUOTE</span>
+        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
         <div class="q-text-final">"{quote_text}"</div>
-        <div class="q-author-final">&#8212; {quote_author} &#8212;</div>
-        <div class="icon-wrapper">
-            <div class="divider-line"></div>
-            <span class="material-symbols-outlined">auto_stories</span>
-            <div class="divider-line"></div>
+        <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 10px;">
+            &#8212; {quote_author} &#8212;
+        </div>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+            <span class="material-symbols-outlined" style="color: #6f5861; font-size: 22px;">auto_stories</span>
+            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
         </div>
     </div>
     """, unsafe_allow_html=True)
