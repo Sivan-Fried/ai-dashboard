@@ -558,16 +558,23 @@ else:
     except: pass
 
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
-    # 1. הזרקת העיצוב (CSS) - שימוש במחרוזת רגילה כדי למנוע הדפסת קוד
+    # 1. הגדרת העיצוב (CSS) - ללא f-string כדי למנוע הדפסת קוד על המסך
     st.markdown("""
     <style>
-        /* הצמדה למעלה בלי לעלות על הסרגל */
+        /* ביטול מרווחים של סטרימליט בראש הדף */
         .main .block-container { 
-            padding-top: 2rem !important; 
+            padding-top: 0rem !important; 
         }
         
-        /* עיצוב התיבה והגרדיאנט */
+        /* הפיכת הסרגל העליון לשכבה העליונה ביותר */
+        header[data-testid="stHeader"] {
+            z-index: 100 !important;
+            background-color: white !important;
+        }
+    
+        /* עיצוב הציטוט והצמדתו למעלה */
         .quote-card {
+            margin-top: -105px !important; /* העלאה למעלה */
             background: #ffffff;
             background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                               radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
@@ -575,8 +582,9 @@ else:
             padding: 25px 20px;
             text-align: center;
             direction: rtl;
+            position: relative;
+            z-index: 1 !important; /* שכבה נמוכה יותר מהסרגל */
             width: 100%;
-            margin-bottom: 20px;
         }
     
         .quote-text {
@@ -588,7 +596,6 @@ else:
             margin: 10px 0;
         }
     
-        /* החזרת האייקון של הספר */
         .quote-icon {
             font-family: 'Material Symbols Outlined' !important;
             color: #6f5861;
@@ -599,7 +606,7 @@ else:
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 2. הזרקת התוכן - שימוש בטכניקה שעוקפת את בעיית ההדפסה
+    # 2. בניית ה-HTML והזרקת המשתנים בצורה בטוחה
     quote_html = f"""
     <div class="quote-card">
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
