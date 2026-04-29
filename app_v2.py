@@ -558,23 +558,23 @@ else:
     except: pass
 
     # ── תצוגת משפט ההשראה - גרסה סופית ומאוחדת ──────────────────────────
-    # 1. הגדרת העיצוב (CSS) - ללא f-string כדי למנוע הדפסת קוד על המסך
+    # 1. הגדרת העיצוב (CSS)
     st.markdown("""
     <style>
-        /* ביטול מרווחים של סטרימליט בראש הדף */
+        /* ביטול רווחים מיותרים בראש הדף */
         .main .block-container { 
             padding-top: 0rem !important; 
         }
         
-        /* הפיכת הסרגל העליון לשכבה העליונה ביותר */
+        /* הבטחת עליונות הסרגל העליון - תמיד יהיה מעל הציטוט */
         header[data-testid="stHeader"] {
             z-index: 100 !important;
             background-color: white !important;
         }
     
-        /* עיצוב הציטוט והצמדתו למעלה */
+        /* עיצוב כרטיס הציטוט */
         .quote-card {
-            margin-top: -105px !important; /* העלאה למעלה */
+            margin-top: -85px !important; /* גובה מתוקן כדי לא להסתיר את הסרגל */
             background: #ffffff;
             background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                               radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
@@ -587,30 +587,33 @@ else:
             width: 100%;
         }
     
-        .quote-text {
+        .quote-main-text {
             font-family: 'Noto Serif Hebrew', serif !important;
             font-size: 24px !important;
             color: #1a1c1c !important;
             font-weight: 700 !important;
             line-height: 1.4;
-            margin: 10px 0;
+            margin: 8px 0;
         }
     
+        /* תיקון האייקון */
         .quote-icon {
             font-family: 'Material Symbols Outlined' !important;
             color: #6f5861;
-            font-size: 24px;
+            font-size: 22px;
             line-height: 1;
+            display: inline-block;
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 2. בניית ה-HTML והזרקת המשתנים בצורה בטוחה
+    # 2. הצגת התוכן (HTML)
+    # שימוש במשתנה נפרד מונע מסטרימליט להדפיס את הקוד כטקסט
     quote_html = f"""
     <div class="quote-card">
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
-        <div class="quote-text">"{quote_text}"</div>
+        <div class="quote-main-text">"{quote_text}"</div>
         <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566; font-style: italic; margin-bottom: 15px;">
             &#8212; {quote_author} &#8212;
         </div>
