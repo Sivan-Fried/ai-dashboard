@@ -572,7 +572,7 @@ else:
     
     
     # ── Daily Quote Section Logic & Display ──────────────────────────
-    # ── Daily Quote Section Logic & Display (The Sub-Header Version) ─────
+    # ── Daily Quote Section Logic & Display (The "Zero-Gap" Version) ─────
     import streamlit as st
     import pandas as pd
     import os
@@ -591,38 +591,42 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. ה-CSS המדויק להצמדה מתחת לסרגל
+    # 2. CSS אגרסיבי לביטול כל המרווחים העליונים של Streamlit
     st.markdown("""
     <style>
-        /* הפיכת הסרגל העליון ללבן ואטום (כפי שביקשת) */
+        /* 1. הפיכת הסרגל העליון ללבן ואטום */
         header[data-testid="stHeader"] {
             background-color: white !important;
             z-index: 1000000 !important;
         }
     
-        /* צמצום המרווח שסטרימליט יוצרת בראש הדף */
-        .stApp .main .block-container { 
-            padding-top: 0px !important; 
+        /* 2. ניקוי מרווחים מכל השכבות של Streamlit בבת אחת */
+        .stApp header + section {
+            padding-top: 0 !important;
+        }
+        
+        .stApp .main .block-container {
+            padding-top: 0rem !important;
+            padding-bottom: 0rem !important;
+            max-width: 100% !important;
         }
     
-        /* תיבת הציטוט המקורית שלך - ללא ה-Fixed הבעייתי */
+        /* 3. תיבת הציטוט המקורית שלך */
         .safe-quote-box {
             background: #ffffff;
             background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
                               radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%);
             border-bottom: 1px solid #f1f5f9;
-            padding: 20px 80px;
+            padding: 40px 80px 20px 80px; /* הוספנו קצת padding למעלה כדי שלא ייצמד מדי לסרגל */
             text-align: center;
             direction: rtl;
             position: relative;
-            z-index: 1 !important;
+            z-index: 1;
             width: 100%;
-            
-            /* המפתח: ביטול מרווחים חיצוניים שהורסים את החיבור לסרגל */
-            margin-top: 0px !important;
+            margin-top: 0 !important;
         }
     
-        /* המרכאות הגדולות (100px) מהעיצוב המקורי */
+        /* 4. המרכאות הגדולות (100px) */
         .safe-quote-box::before {
             content: '“';
             position: absolute;
@@ -663,7 +667,7 @@ else:
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     """, unsafe_allow_html=True)
     
-    # 3. מבנה ה-HTML (העיצוב המקורי שלך ללא שינוי)
+    # 3. מבנה ה-HTML (העיצוב המקורי שלך)
     st.markdown(f"""
     <div class="safe-quote-box">
         <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
