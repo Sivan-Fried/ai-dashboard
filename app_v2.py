@@ -557,36 +557,42 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
 
-    # 2. הזרקת הציטוט במיקום אבסולוטי - לא משפיע על שאר האלמנטים בדף
-    html_content = f"""
-    <div style="
-        position: fixed; 
-        top: 60px; 
-        left: 0; 
-        width: 100%; 
-        z-index: 999; 
-        background: white;
-        border-bottom: 1px solid #f1f5f9;
-    ">
+    # 2. יצירת קונטיינר מבודד לציטוט
+    with st.container():
+        # CSS שפועל נקודתית ומזיז רק את הבלוק הזה
+        st.markdown("""
+            <style>
+                /* ביטול הרווח הלבן הכללי בראש הדף */
+                .block-container { padding-top: 0rem !important; }
+                
+                /* הזזה למעלה של הציטוט בלבד - בלי לשבש אחרים */
+                .quote-container-wrap {
+                    margin-top: -85px !important;
+                    position: relative;
+                    z-index: 10;
+                    width: 100%;
+                }
+            </style>
+        """, unsafe_allow_html=True)
+
+        # 3. העיצוב המקורי שלך מוזרק כאלמנט חי (לא iframe!)
+        # זה מבטיח שהעיצוב ישמר והרווח הלבן ייעלם
+        html_design_live = f"""
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
-        <div style="font-family: 'Plus Jakarta Sans', sans-serif; background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%); padding: 15px 20px; text-align: center; direction: rtl;">
-            <span style="font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 6px;">DAILY QUOTE</span>
-            <div style="font-family: 'Noto Serif Hebrew', serif; font-size: 22px; color: #1a1c1c; line-height: 1.2; margin-bottom: 6px; font-weight: 700;">"{quote_text}"</div>
-            <div style="font-size: 13px; color: #646566; font-style: italic; margin-bottom: 12px;">&#8212; {quote_author} &#8212;</div>
-            <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
-                <span class="material-symbols-outlined" style="color: #6f5861; font-size: 18px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
-                <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
+        <div class="quote-container-wrap">
+            <div style="font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; background-image: radial-gradient(circle at 15% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), radial-gradient(circle at 85% 80%, rgba(227, 225, 236, 0.4) 0%, transparent 45%); border-bottom: 1px solid #f1f5f9; padding: 15px 20px; text-align: center; direction: rtl; margin: 0;">
+                <span style="font-size: 10px; font-weight: 700; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block; margin-bottom: 6px;">DAILY QUOTE</span>
+                <div style="font-family: 'Noto Serif Hebrew', serif; font-size: 22px; color: #1a1c1c; line-height: 1.2; margin-bottom: 6px; font-weight: 700;">"{quote_text}"</div>
+                <div style="font-size: 13px; color: #646566; font-style: italic; margin-bottom: 12px;">&#8212; {quote_author} &#8212;</div>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
+                    <span class="material-symbols-outlined" style="color: #6f5861; font-size: 18px; font-family: 'Material Symbols Outlined' !important;">auto_stories</span>
+                    <div style="height: 1px; width: 35px; background-color: #fadce6;"></div>
+                </div>
             </div>
         </div>
-    </div>
-    """
-
-    # הזרקה ישירה ללא iframe (מבטל את הריבוע הלבן)
-    st.markdown(html_content, unsafe_allow_html=True)
-
-    # הוספת רווח ריק קטן בראש הדף כדי שה-KPIs לא יתחבאו מתחת לציטוט
-    st.markdown("<br><br><br><br><br>", unsafe_allow_html=True)
+        """
+        st.markdown(html_design_live, unsafe_allow_html=True)
    
     
 
