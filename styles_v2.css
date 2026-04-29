@@ -494,3 +494,7 @@ div[data-testid="stAlert"] h3 {
 ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--primary-dark); }
 
+/* צמצום רווח בין הסרגל העליון למשפט ההשראה */
+[data-testid="stVerticalBlock"] > [data-testid="element-container"]:has(iframe) {
+    margin-bottom: -60px !important;
+}
