@@ -24,27 +24,22 @@ st.set_page_config(
 )
 
 # הנה החלק החדש - תדביקי אותו בדיוק כאן, מתחת להגדרות הדף:
-st.html("""
+st.markdown("""
     <style>
-        /* פנייה ישירה לסרגל העליון דרך ה-HTML הראשי */
-        header[data-testid="stHeader"] {
+        /* הגדרת הסרגל העליון כשכבה עליונה אטומה */
+        [data-testid="stHeader"] {
             background-color: white !important;
             position: fixed !important;
             z-index: 1000000 !important;
-            display: block !important;
+            height: 60px !important;
         }
 
-        /* מוודא שהתוכן הפנימי של הסרגל לבן אטום */
-        header[data-testid="stHeader"] > div:first-child {
-            background-color: white !important;
-        }
-
-        /* ביטול הפס הלבן המובנה של סטרימליט בראש הדף */
+        /* ביטול הרווח הלבן כדי שהציטוט יוכל לעלות למעלה */
         .stApp .main .block-container {
             padding-top: 0px !important;
         }
     </style>
-""")
+""", unsafe_allow_html=True)
 
 
 # 1. שחרור חסימות גובה (התיקון הקריטי)
