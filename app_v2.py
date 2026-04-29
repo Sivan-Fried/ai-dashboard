@@ -575,11 +575,10 @@ else:
     import streamlit as st
     import pandas as pd
     import os
-    import streamlit.components.v1 as components
     
-    # 1. לוגיקה של שליפת הנתונים (נשארת ללא שינוי)
-    quote_text = "חיים שלא עמדו למבחן אינם בעלי ערך"
-    quote_author = "סוקרטס"
+    # 1. שליפת הנתונים (נשארת ללא שינוי)
+    quote_text = "הדרך היחידה לעשות עבודה נהדרת היא לאהוב את מה שאתה עושה"
+    quote_author = "סטיב ג'ובס"
     try:
         if os.path.exists("inspirational_quotes.xlsx"):
             df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
@@ -591,64 +590,92 @@ else:
                 if a_col: quote_author = str(row[a_col[0]])
     except: pass
     
-    # 2. ה-CSS שמנקה את השטח מסביב (בתוך Streamlit)
+    # 2. ה-CSS ש"מנקה" את הראש של סטרימליט
     st.markdown("""
         <style>
-            header[data-testid="stHeader"] { background-color: white !important; }
-            .main .block-container { padding-top: 0px !important; }
-            iframe { margin-top: -1rem !important; } /* מעלים את הרווח הקטן שנותר */
+            /* הסתרת הסרגל המקורי לגמרי כדי שלא יפריע */
+            header[data-testid="stHeader"] {
+                visibility: hidden;
+                height: 0px;
+            }
+            
+            /* איפוס מוחלט של כל המרווחים בדף */
+            .stApp .main .block-container {
+                padding-top: 0px !important;
+                margin-top: 0px !important;
+            }
+            
+            /* הסרת רווחים בין אלמנטים של סטרימליט */
+            div[data-testid="stVerticalBlock"] > div:first-child {
+                margin-top: 0px !important;
+            }
         </style>
     """, unsafe_allow_html=True)
     
-    # 3. הזרקה של הציטוט בתוך Component עצמאי (מבטיח הצמדה ועיצוב 1:1)
-    html_code = f"""
+    # 3. הבלוק המאוחד - סרגל לבן דק + תיבת הציטוט
+    st.markdown(f"""
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
     <style>
-        body {{ margin: 0; padding: 0; background-color: transparent; }}
-        .quote-card {{
+        /* ה-Header הלבן החדש שלנו (במקום המקורי) */
+        .custom-header {{
+            height: 60px;
+            background: white;
+            width: 100%;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #f36d9d; /* צבע הלוגו שלך */
+            font-weight: 800;
+            font-size: 18px;
+        }}
+    
+        /* תיבת הציטוט המחוברת */
+        .unified-quote-box {{
             background: #ffffff;
             background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.3) 0%, transparent 45%), 
                               radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.3) 0%, transparent 45%);
             border-bottom: 1px solid #f1f5f9;
-            padding: 30px 60px;
+            padding: 40px 60px 25px 60px;
             text-align: center;
             direction: rtl;
             position: relative;
-            font-family: 'Plus Jakarta Sans', sans-serif;
         }}
-        .quote-card::before {{
-            content: '“'; position: absolute; top: 10px; right: 40px;
-            font-size: 100px; color: #fadce6; font-family: serif; opacity: 0.5; line-height: 1;
+    
+        .unified-quote-box::before {{
+            content: '“'; position: absolute; top: 20px; right: 40px;
+            font-size: 100px; color: #fadce6; font-family: serif; opacity: 0.5;
         }}
-        .quote-card::after {{
-            content: '”'; position: absolute; bottom: -10px; left: 40px;
-            font-size: 100px; color: #fadce6; font-family: serif; opacity: 0.5; line-height: 1;
+        .unified-quote-box::after {{
+            content: '”'; position: absolute; bottom: 0px; left: 40px;
+            font-size: 100px; color: #fadce6; font-family: serif; opacity: 0.5;
         }}
-        .text {{
+    
+        .quote-txt {{
             font-family: 'Noto Serif Hebrew', serif; font-size: 24px; color: #1a1c1c;
-            font-weight: 700; line-height: 1.3; margin: 10px 0;
+            font-weight: 700; line-height: 1.4; margin: 10px 10%;
         }}
-        .author {{ font-size: 14px; color: #646566; font-style: italic; margin-bottom: 10px; }}
-        .sep {{ display: flex; align-items: center; justify-content: center; gap: 10px; }}
-        .line {{ height: 1px; width: 40px; background-color: #fadce6; }}
-        .icon {{ font-family: 'Material Symbols Outlined'; color: #6f5861; font-size: 22px; }}
+        
+        .author-txt {{
+            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; color: #646566;
+            font-style: italic; display: block; margin-bottom: 10px;
+        }}
     </style>
     
-    <div class="quote-card">
-        <span style="font-size: 10px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
-        <div class="text">"{quote_text}"</div>
-        <div class="author">&#8212; {quote_author} &#8212;</div>
-        <div class="sep">
-            <div class="line"></div>
-            <span class="icon">auto_stories</span>
-            <div class="line"></div>
+    <div class="custom-header">Dashboard AI</div>
+    <div class="unified-quote-box">
+        <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10px; font-weight: 800; color: #6f5861; text-transform: uppercase; letter-spacing: 0.25em; display: block;">DAILY QUOTE</span>
+        <div class="quote-txt">"{quote_text}"</div>
+        <span class="author-txt">&#8212; {quote_author} &#8212;</span>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+            <span class="material-symbols-outlined" style="color: #6f5861; font-size: 22px;">auto_stories</span>
+            <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
         </div>
     </div>
-    """
-    
-    # הצגת הקומפוננטה בגובה המדויק
-    components.html(html_code, height=200)
-                                                    
+    """, unsafe_allow_html=True)
+                                                        
 
 
     # ── KPIs ────────────────────────────────────────────────
