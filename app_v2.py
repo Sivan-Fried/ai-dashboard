@@ -896,8 +896,8 @@ else:
         # 📌 פרויקטים לדיווח (priority.xlsx)
         # ============================
         with st.container(border=True):
-            st.markdown("### 📌 פרויקטים לדיווח")
-    
+            st.markdown('<h3><span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">edit</span> פרויקטים לדיווח</h3>', unsafe_allow_html=True)
+            
             if priority_df.empty:
                 st.write("לא נמצאו פרויקטים לדיווח.")
             else:
@@ -926,14 +926,18 @@ else:
                     html = (
                         '<div class="record-row" '
                         'style="display:flex; align-items:center; justify-content:space-between; '
-                        'gap:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'
-    
-                            f'<span style="font-weight:600; overflow:hidden; text-overflow:ellipsis;">'
-                            f'{project_name} '
-                            f'<span style="color:#64748b; font-size:0.8rem; margin-right:6px;">'
-                            f'{project_number} | {order_number}'
-                            '</span>'
-                            '</span>'
+                        'gap:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; '
+                        'font-size:0.92rem; font-weight:normal;">'
+                            
+                            '<span style="display: flex; align-items: center; gap: 8px; overflow:hidden; text-overflow:ellipsis;">'
+                                f'<span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #64748b; transform: scale(0.8);">edit</span>'
+                                f'<span style="overflow:hidden; text-overflow:ellipsis; font-weight:normal;">'
+                                    f'{project_name} '
+                                    f'<span style="color:#64748b; font-size:0.75rem; margin-right:6px;">'
+                                        f'{project_number} | {order_number}'
+                                    f'</span>'
+                                f'</span>'
+                            f'</span>'
     
                             f'<span class="{tag_class}" style="white-space:nowrap; flex-shrink:0;">'
                             f'{category}</span>'
