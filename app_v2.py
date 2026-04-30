@@ -1036,13 +1036,19 @@ else:
                     grid-template-columns: auto 1fr auto;
                     align-items: center;
                     background: white;
-                    border: 1px solid #edf2f7;
-                    border-right: 5px solid #4facfe;
+                    border: none;
+                    border-right: 4px solid #FADCE6;
                     border-radius: 8px;
                     padding: 0 16px;
                     height: 45px;
                     direction: rtl;
                     transition: all 0.2s ease;
+                    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+                }
+                .fathom-row-ui:hover {
+                    border-right-color: #f0b8cb;
+                    background-color: #fdf6f9;
+                    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
                 }
                 div[data-testid="stVerticalBlock"] > div:has(.fathom-row-ui) { gap: 0rem !important; }
                 div.element-container:has(.fathom-row-ui) + div.element-container {
@@ -1054,8 +1060,9 @@ else:
                     height: 45px !important; color: transparent !important; z-index: 20;
                 }
                 div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-testid="stButton"] button:hover) .fathom-row-ui {
-                    border-color: #4facfe; background-color: #f8fafc; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                    border-right-color: #f0b8cb; background-color: #fdf6f9; box-shadow: 0 4px 16px rgba(0,0,0,0.08);
                 }
+              
                 .fathom-pill-v2 {
                     background-color: #f1f5f9; color: #475569;
                     padding: 1px 8px; border-radius: 10px; font-size: 0.75rem; margin-right: 12px;
