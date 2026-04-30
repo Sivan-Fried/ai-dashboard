@@ -1052,7 +1052,7 @@ else:
                 }
                 div[data-testid="stVerticalBlock"] > div:has(.fathom-row-ui) { gap: 0rem !important; }
                 div.element-container:has(.fathom-row-ui) + div.element-container {
-                    margin-top: -40px !important; margin-bottom: 2px !important;
+                    margin-top: -50px !important; margin-bottom: 2px !important;
                 }
                 div.element-container:has(.fathom-row-ui) + div.element-container div[data-testid="stButton"] button {
                     background: transparent !important; border: 1px solid transparent !important;
