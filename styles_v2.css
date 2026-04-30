@@ -494,6 +494,7 @@ div[data-testid="stAlert"] h3 {
     direction: rtl !important;
     transition: all 0.2s ease !important;
     box-shadow: var(--shadow-sm) !important;
+    margin-bottom: 2px !important;
 }
 .fathom-pill-v2 {
     background-color: var(--tertiary) !important;
