@@ -990,6 +990,12 @@ else:
                 else:
                     st.write("אין תזכורות להיום.")
     
+            # קליטת הלחיצה מה-URL ועדכון הסטייט בשרת
+            if st.query_params.get("add_rem") == "true":
+                st.session_state.adding_reminder = True
+                st.query_params.clear()
+                st.rerun()
+    
             if st.session_state.adding_reminder:
                 with st.container():
                     r_col1, r_col2, r_col3, r_col4 = st.columns([1.5, 3, 0.5, 0.5])
@@ -1005,33 +1011,30 @@ else:
                         if st.button("❌", key="cancel_rem_btn"):
                             st.session_state.adding_reminder = False; st.rerun()
             else:
-                st.markdown("""
-                <style>
-                div[data-testid="stButton"] button[key="add_rem_btn_new"],
-                #add_rem_btn_new {
-                    border: 2px dashed #F472B6 !important;
-                    background-color: rgba(250, 220, 230, 0.1) !important;
-                    color: #F472B6 !important;
-                    border-radius: 12px !important;
-                    padding: 6px 0 !important;
-                    margin-top: 16px !important;
-                    height: auto !important;
-                    width: 100% !important;
-                    box-shadow: none !important;
-                    transition: background-color 0.2s ease !important;
-                }
-                div[data-testid="stButton"] button[key="add_rem_btn_new"]:hover,
-                #add_rem_btn_new:hover {
-                    background-color: rgba(250, 220, 230, 0.3) !important;
-                    border-color: #db2777 !important;
-                    color: #db2777 !important;
-                }
-                </style>
-                """, unsafe_allow_html=True)
-    
-                if st.button("➕", use_container_width=True, key="add_rem_btn_new"):
-                    st.session_state.adding_reminder = True
-                    st.rerun()
+                # עיצוב מותאם לכפתור התזכורות (ורוד, מקווקו ומוקטן)
+                st.markdown('''
+                    <a href="?add_rem=true" target="_self" style="text-decoration: none;">
+                        <div style="
+                            width: 100%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            padding: 6px 0;
+                            margin-top: 16px;
+                            background-color: rgba(250, 220, 230, 0.1);
+                            border: 2px dashed #F472B6;
+                            color: #F472B6;
+                            border-radius: 12px;
+                            font-size: 1.2rem;
+                            font-weight: bold;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        " onmouseover="this.style.backgroundColor='rgba(250, 220, 230, 0.3)'; this.style.borderColor='#db2777'; this.style.color='#db2777';"
+                          onmouseout="this.style.backgroundColor='rgba(250, 220, 230, 0.1)'; this.style.borderColor='#F472B6'; this.style.color='#F472B6';">
+                            <span>+</span>
+                        </div>
+                    </a>
+                ''', unsafe_allow_html=True)
 
         
         # ── Fathom ──────────────────────────────────────────
