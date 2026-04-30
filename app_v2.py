@@ -1005,10 +1005,10 @@ else:
                         if st.button("❌", key="cancel_rem_btn"):
                             st.session_state.adding_reminder = False; st.rerun()
             else:
-                # עיצוב מותאם לכפתור התזכורות הוורוד והמוקטן
+                # עיצוב ממוקד אך ורק לכפתור התזכורות החדש שלנו מבלי לדרוס כפתורים אחרים
                 st.markdown("""
                 <style>
-                div[data-testid="stButton"] > button[kind="secondary"][data-baseweb="button"] {
+                .pink-dashed-btn > button {
                     border: 2px dashed #F472B6 !important;
                     background-color: rgba(250, 220, 230, 0.1) !important;
                     color: #F472B6 !important;
@@ -1018,8 +1018,11 @@ else:
                     height: auto !important;
                     width: 100% !important;
                     box-shadow: none !important;
+                    font-size: 1.2rem !important;
+                    font-weight: bold !important;
+                    transition: all 0.2s ease !important;
                 }
-                div[data-testid="stButton"] > button[kind="secondary"][data-baseweb="button"]:hover {
+                .pink-dashed-btn > button:hover {
                     background-color: rgba(250, 220, 230, 0.3) !important;
                     border-color: #db2777 !important;
                     color: #db2777 !important;
@@ -1027,10 +1030,14 @@ else:
                 </style>
                 """, unsafe_allow_html=True)
                 
+                # עטיפת הכפתור ב-div כדי שהעיצוב יחול אך ורק עליו
+                st.markdown('<div class="pink-dashed-btn">', unsafe_allow_html=True)
                 if st.button("➕", use_container_width=True, key="add_rem_btn_new"):
                     st.session_state.adding_reminder = True
                     st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
 
+        
         # ── Fathom ──────────────────────────────────────────
         # ── Fathom ──────────────────────────────────────────
         with st.container(border=True):
