@@ -995,7 +995,7 @@ else:
                         st.markdown(f'''
                             <div class="record-row">
                                 <span style="display: flex; align-items: center; gap: 8px; font-size: 0.92rem; font-weight: normal;">
-                                    <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #64748b; transform: scale(0.8);">notifications</span>
+                                    <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #64748b; transform: scale(0.8);">event_available</span>
                                     {row["reminder_text"]}
                                 </span>
                                 <span class="tag-orange">{row.get("project_name", "כללי")}</span>
