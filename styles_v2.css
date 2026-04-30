@@ -465,7 +465,7 @@ div[data-testid="stButton"] button:hover {
 
 .st-key-add_rem_btn_unique button:hover {
     border-color: #db2777 !important;
-    background-color: #ffffff !important;
+    background-color: #fdf6f9 !important;
     transform: none !important;
     box-shadow: none !important;
 }
