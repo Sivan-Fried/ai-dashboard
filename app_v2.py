@@ -746,7 +746,9 @@ else:
         # --- פרויקטים ---
         with st.container(border=True):
             st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;\">work</span> פרויקטים", unsafe_allow_html=True)
-            with st.container(height=300, border=False):
+            
+            # הסרנו את ה-height הקשיח כדי לצמצם את הרווח הגדול, והשארנו את התצוגה פתוחה או מותאמת
+            with st.container(border=False):
                 for _, row in projects.iterrows():
                     p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
                     st.markdown(f'''
@@ -763,7 +765,7 @@ else:
                             </div>
                         </a>
                     ''', unsafe_allow_html=True)
-    
+                    
         # --- משימות ---
         with st.container(border=True):
             st.markdown('<h3>📋 משימות חדשות azure </h3>', unsafe_allow_html=True)
