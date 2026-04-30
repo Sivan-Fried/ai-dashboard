@@ -1009,7 +1009,7 @@ else:
                 if st.button("+", use_container_width=True, key="add_rem_btn_unique", type="secondary"):
                     st.session_state.adding_reminder = True
                     st.rerun()
-                st.markdown('</div>', unsafe_allow_html=True))
+                st.markdown('</div>', unsafe_allow_html=True)
                 
         # ── Fathom ──────────────────────────────────────────
         # ── Fathom ──────────────────────────────────────────
