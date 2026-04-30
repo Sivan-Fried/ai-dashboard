@@ -449,7 +449,6 @@ div[data-testid="stButton"] button:hover {
 }
 
 /* ── כפתור הוספת תזכורת ────────────────── */
-/* ── כפתור הוספת תזכורת ────────────────── */
 .st-key-add_rem_btn_unique button {
     background-color: #ffffff !important;
     border: 2px dashed #FBCFE8 !important;
@@ -486,7 +485,7 @@ div[data-testid="stButton"] button:hover {
     font-weight: 300 !important;
     line-height: 1 !important;
     position: relative !important;
-    top: -1px !important;
+    top: -5px !important;
 }
 
 /* ── Inputs ────────────────────────────────────────────── */
