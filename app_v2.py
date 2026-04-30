@@ -983,19 +983,12 @@ else:
         with st.container(border=True):
             st.markdown("### 🔔 תזכורות")
             with st.container(border=False):
-                # משיכת התזכורות להיום מתוך ה-Session State
                 t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
                 if not t_r.empty:
                     for _, row in t_r.iterrows():
                         st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
                 else:
                     st.write("אין תזכורות להיום.")
-    
-            # קליטת הלחיצה מה-URL ועדכון הסטייט בשרת
-            if st.query_params.get("add_rem") == "true":
-                st.session_state.adding_reminder = True
-                st.query_params.clear()
-                st.rerun()
     
             if st.session_state.adding_reminder:
                 with st.container():
@@ -1012,45 +1005,49 @@ else:
                         if st.button("❌", key="cancel_rem_btn"):
                             st.session_state.adding_reminder = False; st.rerun()
             else:
-                # עיצוב מותאם לכפתור התזכורות (ורוד בהיר, מסגרת מקווקו אפורה, ועיגול פלוס אפור)
-                st.markdown('''
-                    <a href="?add_rem=true" target="_self" style="text-decoration: none;">
-                        <div style="
-                            width: 100%;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            padding: 10px 0;
-                            margin-top: 16px;
-                            /* רקע ורוד בהיר מאוד כמו ברשומות */
-                            background-color: #fdf6f9; 
-                            /* מסגרת מקווקו בצבע אפור */
-                            border: 2px dashed #BCC5D1; 
-                            color: #BCC5D1;
-                            border-radius: 12px;
-                            cursor: pointer;
-                            transition: all 0.2s ease;
-                        " onmouseover="this.style.backgroundColor='#f9ebf1'; this.style.borderColor='#9ca3af';"
-                          onmouseout="this.style.backgroundColor='#fdf6f9'; this.style.borderColor='#BCC5D1';">
-                            <div style="
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                width: 32px;
-                                height: 32px;
-                                border-radius: 50%;
-                                /* מסגרת העיגול האפורה */
-                                border: 2px solid #BCC5D1; 
-                                /* צבע הפלוס האפור */
-                                color: #BCC5D1;
-                                font-size: 1.25rem;
-                                font-weight: bold;
-                            ">
-                                +
-                            </div>
-                        </div>
-                    </a>
-                ''', unsafe_allow_html=True)
+                st.markdown("""
+                <style>
+                div[data-testid="stButton"] > button[kind="secondary"][data-baseweb="button"]#add_rem_btn_new {
+                    border: 2px dashed #FBCFE8 !important; /* מסגרת מקווקו ורוד בהיר */
+                    background-color: #ffffff !important; /* רקע לבן */
+                    color: #9ca3af !important; /* צבע אפור לאלמנטים */
+                    border-radius: 12px !important;
+                    padding: 12px 0 !important;
+                    margin-top: 16px !important;
+                    height: auto !important;
+                    width: 100% !important;
+                    box-shadow: none !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    transition: all 0.2s ease !important;
+                }
+                
+                div[data-testid="stButton"] > button[kind="secondary"][data-baseweb="button"]#add_rem_btn_new:hover {
+                    border-color: #db2777 !important;
+                    background-color: #ffffff !important;
+                }
+                
+                /* עיגול אפור ממורכז סביב הפלוס */
+                div[data-testid="stButton"] > button[kind="secondary"][data-baseweb="button"]#add_rem_btn_new p {
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    width: 32px !important;
+                    height: 32px !important;
+                    border: 2px solid #9ca3af !important;
+                    border-radius: 50% !important;
+                    color: #9ca3af !important;
+                    margin: 0 auto !important;
+                    font-size: 1.25rem !important;
+                    font-weight: bold !important;
+                }
+                </style>
+                """, unsafe_allow_html=True)
+    
+                if st.button("➕", use_container_width=True, key="add_rem_btn_new"):
+                    st.session_state.adding_reminder = True
+                    st.rerun()
             
         # ── Fathom ──────────────────────────────────────────
         # ── Fathom ──────────────────────────────────────────
