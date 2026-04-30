@@ -1039,6 +1039,7 @@ else:
     
                                         
         # ── Fathom ──────────────────────────────────────────
+        # ── Fathom ──────────────────────────────────────────
         with st.container(border=True):
             col_title, col_refresh = st.columns([0.9, 0.1])
             with col_title:
@@ -1098,7 +1099,7 @@ else:
                 .fathom-pill-v2 {
                     background-color: #f1f5f9; color: #475569;
                     padding: 1px 8px; border-radius: 10px; font-size: 0.75rem; margin-right: 0;
-                    direction: rtl; unicode-bidi: embed;
+                    direction: ltr; unicode-bidi: embed;
                 }
                 div[data-testid="stAlert"] p  { direction: rtl !important; text-align: right !important; }
                 div[data-testid="stAlert"] ul { padding-right: 20px !important; padding-left: 0 !important; text-align: right !important; }
@@ -1115,7 +1116,13 @@ else:
                 for idx, mtg in enumerate(f_meetings):
                     rec_id   = mtg.get('recording_id')
                     title    = mtg.get('title') or "פגישה"
-                    date_str = mtg.get('recording_start_time', '')[:10]
+                    
+                    raw_date = mtg.get('recording_start_time', '')[:10]
+                    if raw_date and len(raw_date) >= 10:
+                        date_str = f"{raw_date[8:10]}-{raw_date[5:7]}-{raw_date[0:4]}"
+                    else:
+                        date_str = ""
+                        
                     open_key = f"open_{rec_id}"
                     is_open  = st.session_state.get(open_key, False)
                     s_key    = f"sum_v4_{rec_id}"
