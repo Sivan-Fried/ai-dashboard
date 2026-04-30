@@ -988,7 +988,7 @@ else:
                         st.markdown(f'<div class="record-row"><span>🔔 {row["reminder_text"]}</span><span class="tag-orange">{row.get("project_name", "כללי")}</span></div>', unsafe_allow_html=True)
                 else:
                     st.write("אין תזכורות להיום.")
-
+        
             if st.session_state.adding_reminder:
                 with st.container():
                     r_col1, r_col2, r_col3, r_col4 = st.columns([1.5, 3, 0.5, 0.5])
@@ -1004,8 +1004,36 @@ else:
                         if st.button("❌", key="cancel_rem_btn"):
                             st.session_state.adding_reminder = False; st.rerun()
             else:
-                if st.button("➕ הוספת תזכורת", use_container_width=True):
-                    st.session_state.adding_reminder = True; st.rerun()
+                # כפתור הוספת תזכורת מעוצב בסגנון המבוקש
+                st.markdown('''
+                    <button style="
+                        width: 100%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 8px;
+                        padding: 16px 0;
+                        margin-top: 24px;
+                        background-color: rgba(216, 180, 254, 0.1);
+                        border: 2px dashed #a855f7;
+                        color: #a855f7;
+                        font-weight: bold;
+                        border-radius: 16px;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                    " onmouseover="this.style.backgroundColor='rgba(216, 180, 254, 0.2)';"
+                      onmouseout="this.style.backgroundColor='rgba(216, 180, 254, 0.1)';"
+                      onclick="
+                        /* הפעלת מצב הוספת תזכורת מול שרת ה-Streamlit */
+                        const url = new URL(window.location);
+                        url.searchParams.set('action', 'add_reminder');
+                        window.history.pushState({}, '', url);
+                        window.location.reload();
+                      ">
+                        <span class="material-symbols-outlined" style="font-size: 24px;">add_circle</span>
+                        <span style="font-size: 16px;">הוספת תזכורת</span>
+                    </button>
+                ''', unsafe_allow_html=True)
 
         # ── Fathom ──────────────────────────────────────────
         # ── Fathom ──────────────────────────────────────────
