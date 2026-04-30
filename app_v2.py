@@ -1005,7 +1005,7 @@ else:
                         if st.button("❌", key="cancel_rem_btn"):
                             st.session_state.adding_reminder = False; st.rerun()
             else:
-                # עיצוב הכפתור - רקע לבן ומסגרת ורודה מקווקו
+                # עיצוב מותאם אישית: רקע לבן, מסגרת מקווקו בצבע ורוד, וסמל פלוס פשוט במרכז
                 st.markdown("""
                 <style>
                 div[data-testid="stButton"] > button[kind="secondary"][data-baseweb="button"]#add_rem_btn_new {
@@ -1015,12 +1015,16 @@ else:
                     padding: 18px 0 !important;
                     box-shadow: none !important;
                     width: 100% !important;
+                    color: #6b7280 !important;
+                    font-size: 1.25rem !important;
+                    font-weight: 500 !important;
                     transition: all 0.2s ease !important;
                 }
                 
                 div[data-testid="stButton"] > button[kind="secondary"][data-baseweb="button"]#add_rem_btn_new:hover {
                     border-color: #db2777 !important;
                     background-color: #ffffff !important;
+                    color: #db2777 !important;
                 }
                 </style>
                 """, unsafe_allow_html=True)
