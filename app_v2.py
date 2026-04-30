@@ -1098,6 +1098,7 @@ else:
                 .fathom-pill-v2 {
                     background-color: #f1f5f9; color: #475569;
                     padding: 1px 8px; border-radius: 10px; font-size: 0.75rem; margin-right: 0;
+                    direction: rtl; unicode-bidi: embed;
                 }
                 div[data-testid="stAlert"] p  { direction: rtl !important; text-align: right !important; }
                 div[data-testid="stAlert"] ul { padding-right: 20px !important; padding-left: 0 !important; text-align: right !important; }
