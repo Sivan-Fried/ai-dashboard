@@ -1040,7 +1040,7 @@ else:
                     border-right: 4px solid #FADCE6;
                     border-radius: 8px;
                     padding: 0 16px;
-                    height: 70px;
+                    height: 45px;
                     direction: rtl;
                     transition: all 0.2s ease;
                     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
