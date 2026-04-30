@@ -1004,31 +1004,31 @@ else:
                         if st.button("❌", key="cancel_rem_btn"):
                             st.session_state.adding_reminder = False; st.rerun()
             else:
-                # כפתור הוספת תזכורת מעוצב בסגנון המבוקש
-                st.markdown('''
-                    <button style="
-                        width: 100%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        /* גובה מופחת באופן משמעותי */
-                        padding: 8px 0; 
-                        margin-top: 16px; 
-                        /* צבע רקע ורוד בהיר מאוד (כמעט שקוף) */
-                        background-color: rgba(250, 220, 230, 0.1); 
-                        /* מסגרת מקווקו בצבע ורוד בהיר */
-                        border: 2px dashed #FBCFE8; 
-                        /* סמל פלוס ורוד בהיר */
-                        color: #FBCFE8; 
-                        border-radius: 12px;
-                        cursor: pointer;
-                        transition: all 0.2s ease;
-                    " onmouseover="this.style.backgroundColor='rgba(250, 220, 230, 0.3)'"
-                      onmouseout="this.style.backgroundColor='rgba(250, 220, 230, 0.1)'"
-                      onclick="window.location.href='/?action=add_project'">
-                        <span class="material-symbols-outlined" style="font-size: 24px; font-weight: bold;">add</span>
-                    </button>
-                ''', unsafe_allow_html=True)
+            # כפתור Streamlit רגיל המעוצב בדיוק לפי הדרישות החדשות
+            st.markdown("""
+            <style>
+            div[data-testid="stButton"] > button[kind="secondary"][data-baseweb="button"] {
+                border: 2px dashed #F472B6 !important;
+                background-color: rgba(250, 220, 230, 0.1) !important;
+                color: #F472B6 !important;
+                border-radius: 12px !important;
+                padding: 6px 0 !important;
+                margin-top: 16px !important;
+                height: auto !important;
+                width: 100% !important;
+                box-shadow: none !important;
+            }
+            div[data-testid="stButton"] > button[kind="secondary"][data-baseweb="button"]:hover {
+                background-color: rgba(250, 220, 230, 0.3) !important;
+                border-color: #db2777 !important;
+                color: #db2777 !important;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+            
+            if st.button("➕", use_container_width=True, key="add_rem_btn_new"):
+                st.session_state.adding_reminder = True
+                st.rerun()
 
         # ── Fathom ──────────────────────────────────────────
         # ── Fathom ──────────────────────────────────────────
