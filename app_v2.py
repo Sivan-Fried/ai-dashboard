@@ -768,7 +768,7 @@ else:
                     
         # --- משימות ---
         with st.container(border=True):
-            st.markdown('<h3><span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">task</span> משימות חדשות azure </h3>', unsafe_allow_html=True)
+            st.markdown('<h3><span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">assignment</span> משימות חדשות azure </h3>', unsafe_allow_html=True)
             tasks_data = get_azure_tasks()
             if tasks_data:
                 for t in tasks_data:
@@ -782,7 +782,7 @@ else:
                         f'''
                         <div class="record-row" style="white-space: nowrap;">
                             <span style="display: flex; align-items: center; gap: 8px; flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis; font-size: 0.92rem; font-weight: normal;">
-                                <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #0078d4; transform: scale(0.8);">task</span>
+                                <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #0078d4; transform: scale(0.8);">assignment</span>
                                 <a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: underline; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{t_title}</a>
                                 <span style="color: #94a3b8; font-size: 0.75rem; margin-right: 15px; flex-shrink: 0;">נוצר ב {fmt_date}</span>
                             </span>
