@@ -1005,12 +1005,10 @@ else:
                         if st.button("❌", key="cancel_rem_btn"):
                             st.session_state.adding_reminder = False; st.rerun()
             else:
-                st.markdown('<div class="add-reminder-btn">', unsafe_allow_html=True)
                 if st.button("+", use_container_width=True, key="add_rem_btn_unique", type="secondary"):
                     st.session_state.adding_reminder = True
                     st.rerun()
-                st.markdown('</div>', unsafe_allow_html=True)
-                
+                            
         # ── Fathom ──────────────────────────────────────────
         # ── Fathom ──────────────────────────────────────────
         with st.container(border=True):
