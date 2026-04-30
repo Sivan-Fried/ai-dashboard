@@ -390,8 +390,10 @@ div[data-testid="stVerticalBlockBorderWrapper"],
     transition: all 0.2s ease !important;
 }
 .record-row:hover {
-    box-shadow: var(--shadow-md) !important;
+    border-right-color: var(--primary-dark) !important;
+    background-color: #fdf6f9 !important;
     transform: translateY(-1px) !important;
+    box-shadow: var(--shadow-md) !important;
 }
 
 
