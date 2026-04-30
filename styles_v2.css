@@ -394,6 +394,7 @@ div[data-testid="stVerticalBlockBorderWrapper"],
     transform: translateY(-1px) !important;
 }
 
+/* ── Record Accent Glow ────────────────────────────────── */
 .record-row::after {
     content: "";
     position: absolute;
