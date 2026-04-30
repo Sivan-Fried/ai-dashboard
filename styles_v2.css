@@ -449,25 +449,27 @@ div[data-testid="stButton"] button:hover {
 }
 
 /* ── Custom Dashed Button for Reminders ────────────────── */
-button[data-testid="stBaseButton-secondary"] {
+div[data-testid="stButton"] button#add_rem_btn_unique {
     background-color: #ffffff !important;
     border: 2px dashed #FBCFE8 !important;
     border-radius: 12px !important;
-    padding: 20px 0 !important;
+    height: 48px !important; /* גובה מותאם אישית לרשומה רגילה */
+    padding: 0 !important;
     box-shadow: none !important;
     width: 100% !important;
     transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
-button[data-testid="stBaseButton-secondary"]:hover {
+div[data-testid="stButton"] button#add_rem_btn_unique:hover {
     border-color: #db2777 !important;
     background-color: #ffffff !important;
-    transform: none !important;
-    box-shadow: none !important;
 }
 
-/* עיגול אפור סביב הפלוס */
-button[data-testid="stBaseButton-secondary"] p {
+/* העיגול סביב הפלוס */
+div[data-testid="stButton"] button#add_rem_btn_unique div {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -476,10 +478,16 @@ button[data-testid="stBaseButton-secondary"] p {
     border: 2px solid #9ca3af !important;
     border-radius: 50% !important;
     color: #9ca3af !important;
-    margin: 0 auto !important;
     font-size: 1.25rem !important;
-    font-weight: 400 !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
 }
+
+div[data-testid="stButton"] button#add_rem_btn_unique:hover div {
+    border-color: #db2777 !important;
+    color: #db2777 !important;
+}
+
 
 /* ── Inputs ────────────────────────────────────────────── */
 div[data-testid="stTextInput"] input,
