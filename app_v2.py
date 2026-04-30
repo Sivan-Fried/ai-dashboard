@@ -990,6 +990,11 @@ else:
                 else:
                     st.write("אין תזכורות להיום.")
     
+            if st.query_params.get("add_rem") == "true":
+                st.session_state.adding_reminder = True
+                st.query_params.clear()
+                st.rerun()
+    
             if st.session_state.adding_reminder:
                 with st.container():
                     r_col1, r_col2, r_col3, r_col4 = st.columns([1.5, 3, 0.5, 0.5])
@@ -1005,49 +1010,42 @@ else:
                         if st.button("❌", key="cancel_rem_btn"):
                             st.session_state.adding_reminder = False; st.rerun()
             else:
-                st.markdown("""
-                <style>
-                div[data-testid="stButton"] > button[kind="secondary"][data-baseweb="button"]#add_rem_btn_new {
-                    border: 2px dashed #FBCFE8 !important; /* מסגרת מקווקו ורוד בהיר */
-                    background-color: #ffffff !important; /* רקע לבן */
-                    color: #9ca3af !important; /* צבע אפור לאלמנטים */
-                    border-radius: 12px !important;
-                    padding: 12px 0 !important;
-                    margin-top: 16px !important;
-                    height: auto !important;
-                    width: 100% !important;
-                    box-shadow: none !important;
-                    display: flex !important;
-                    align-items: center !important;
-                    justify-content: center !important;
-                    transition: all 0.2s ease !important;
-                }
-                
-                div[data-testid="stButton"] > button[kind="secondary"][data-baseweb="button"]#add_rem_btn_new:hover {
-                    border-color: #db2777 !important;
-                    background-color: #ffffff !important;
-                }
-                
-                /* עיגול אפור ממורכז סביב הפלוס */
-                div[data-testid="stButton"] > button[kind="secondary"][data-baseweb="button"]#add_rem_btn_new p {
-                    display: flex !important;
-                    align-items: center !important;
-                    justify-content: center !important;
-                    width: 32px !important;
-                    height: 32px !important;
-                    border: 2px solid #9ca3af !important;
-                    border-radius: 50% !important;
-                    color: #9ca3af !important;
-                    margin: 0 auto !important;
-                    font-size: 1.25rem !important;
-                    font-weight: bold !important;
-                }
-                </style>
-                """, unsafe_allow_html=True)
-    
-                if st.button("➕", use_container_width=True, key="add_rem_btn_new"):
-                    st.session_state.adding_reminder = True
-                    st.rerun()
+                # עיצוב מותאם אישית: רקע לבן, מסגרת מקווקו ורודה, ועיגול עם פלוס אפורים ממורכזים
+                st.markdown('''
+                    <a href="?add_rem=true" target="_self" style="text-decoration: none;">
+                        <div style="
+                            width: 100%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            padding: 18px 0;
+                            margin-top: 16px;
+                            background-color: #ffffff;
+                            border: 2px dashed #FBCFE8;
+                            border-radius: 12px;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        " onmouseover="this.style.borderColor='#db2777';"
+                          onmouseout="this.style.borderColor='#FBCFE8';">
+                            
+                            <div style="
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                width: 38px;
+                                height: 38px;
+                                border: 2px solid #9ca3af;
+                                border-radius: 50%;
+                                color: #9ca3af;
+                                font-size: 1.25rem;
+                                font-weight: 500;
+                                line-height: 1;
+                            ">
+                                +
+                            </div>
+                        </div>
+                    </a>
+                ''', unsafe_allow_html=True)
             
         # ── Fathom ──────────────────────────────────────────
         # ── Fathom ──────────────────────────────────────────
