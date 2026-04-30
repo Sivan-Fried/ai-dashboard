@@ -1010,7 +1010,7 @@ else:
                         if st.button("❌", key="cancel_rem_btn"):
                             st.session_state.adding_reminder = False; st.rerun()
             else:
-                # עיצוב מותאם אישית: רקע לבן, מסגרת מקווקו ורודה, ועיגול עם פלוס אפורים ממורכזים
+                # עיצוב מותאם אישית: רקע לבן, מסגרת מקווקו ורודה, ועיגול עם פלוס אפורים ממורכזים בתוך הכפתור
                 st.markdown('''
                     <a href="?add_rem=true" target="_self" style="text-decoration: none;">
                         <div style="
