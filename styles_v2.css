@@ -449,7 +449,8 @@ div[data-testid="stButton"] button:hover {
 }
 
 /* ── כפתור הוספת תזכורת ────────────────── */
-div[data-testid="stButton"]:has(button[data-testid="stBaseButton-secondary"]) button {
+/* ── כפתור הוספת תזכורת ────────────────── */
+div.add-reminder-btn button[data-testid="stBaseButton-secondary"] {
     background-color: #ffffff !important;
     border: 2px dashed #FBCFE8 !important;
     border-radius: 12px !important;
@@ -463,14 +464,14 @@ div[data-testid="stButton"]:has(button[data-testid="stBaseButton-secondary"]) bu
     transition: all 0.2s ease !important;
 }
 
-div[data-testid="stButton"]:has(button[data-testid="stBaseButton-secondary"]) button:hover {
+div.add-reminder-btn button[data-testid="stBaseButton-secondary"]:hover {
     border-color: #db2777 !important;
     background-color: #ffffff !important;
     transform: none !important;
     box-shadow: none !important;
 }
 
-div[data-testid="stButton"]:has(button[data-testid="stBaseButton-secondary"]) button p {
+div.add-reminder-btn button[data-testid="stBaseButton-secondary"] p {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
