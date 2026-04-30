@@ -386,13 +386,14 @@ div[data-testid="stVerticalBlockBorderWrapper"],
     align-items: center !important;
     direction: rtl !important;
     position: relative !important;
-    box-shadow: var(--shadow-sm), inset 4px 0px 12px rgba(250, 220, 230, 0.3) !important;
+    box-shadow: var(--shadow-sm) !important;
     transition: all 0.2s ease !important;
 }
 .record-row:hover {
-    box-shadow: var(--shadow-md), inset 4px 0px 16px rgba(250, 220, 230, 0.5) !important;
+    box-shadow: var(--shadow-md) !important;
     transform: translateY(-1px) !important;
 }
+
 
 /* ── Tags ──────────────────────────────────────────────── */
 .tag-blue   { color: #71717A; font-size: 0.78em; font-weight: 600; background: #F4F4F5; padding: 3px 10px; border-radius: 20px; }
