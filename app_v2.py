@@ -1097,7 +1097,7 @@ else:
                 
                 .fathom-pill-v2 {
                     background-color: #f1f5f9; color: #475569;
-                    padding: 1px 8px; border-radius: 10px; font-size: 0.75rem; margin-right: 12px;
+                    padding: 1px 8px; border-radius: 10px; font-size: 0.75rem; margin-right: 0;
                 }
                 div[data-testid="stAlert"] p  { direction: rtl !important; text-align: right !important; }
                 div[data-testid="stAlert"] ul { padding-right: 20px !important; padding-left: 0 !important; text-align: right !important; }
@@ -1127,10 +1127,11 @@ else:
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #64748b; transform: scale(0.8);">description</span>
                                 <span style="font-weight: 600; color: #1e293b; font-size: 0.85rem;">{title}</span>
+                            </div>
+                            <div style="display: flex; justify-content: flex-end; align-items: center;">
                                 <span class="fathom-pill-v2">{date_str}</span>
                             </div>
-                            <div></div>
-                            <span style="color: #94a3b8; font-size: 22px; line-height: 1; flex-shrink: 0;">{arrow}</span>
+                            <span style="color: #94a3b8; font-size: 22px; line-height: 1; flex-shrink: 0; margin-right: 8px;">{arrow}</span>
                         </div>
                     ''', unsafe_allow_html=True)
 
