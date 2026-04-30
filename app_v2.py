@@ -983,6 +983,7 @@ else:
         with st.container(border=True):
             st.markdown("### 🔔 תזכורות")
             with st.container(border=False):
+                # משיכת התזכורות להיום מתוך ה-Session State
                 t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
                 if not t_r.empty:
                     for _, row in t_r.iterrows():
@@ -1011,7 +1012,7 @@ else:
                         if st.button("❌", key="cancel_rem_btn"):
                             st.session_state.adding_reminder = False; st.rerun()
             else:
-                # עיצוב מותאם לכפתור התזכורות (ורוד, מקווקו ומוקטן)
+                # עיצוב מותאם לכפתור התזכורות (ורוד בהיר, מסגרת מקווקו אפורה, ועיגול פלוס אפור)
                 st.markdown('''
                     <a href="?add_rem=true" target="_self" style="text-decoration: none;">
                         <div style="
@@ -1019,23 +1020,37 @@ else:
                             display: flex;
                             align-items: center;
                             justify-content: center;
-                            padding: 6px 0;
+                            padding: 10px 0;
                             margin-top: 16px;
-                            background-color: rgba(250, 220, 230, 0.1);
-                            border: 2px dashed #F472B6;
-                            color: #F472B6;
+                            /* רקע ורוד בהיר מאוד כמו ברשומות */
+                            background-color: #fdf6f9; 
+                            /* מסגרת מקווקו בצבע אפור */
+                            border: 2px dashed #BCC5D1; 
+                            color: #BCC5D1;
                             border-radius: 12px;
-                            font-size: 1.2rem;
-                            font-weight: bold;
                             cursor: pointer;
                             transition: all 0.2s ease;
-                        " onmouseover="this.style.backgroundColor='rgba(250, 220, 230, 0.3)'; this.style.borderColor='#db2777'; this.style.color='#db2777';"
-                          onmouseout="this.style.backgroundColor='rgba(250, 220, 230, 0.1)'; this.style.borderColor='#F472B6'; this.style.color='#F472B6';">
-                            <span>+</span>
+                        " onmouseover="this.style.backgroundColor='#f9ebf1'; this.style.borderColor='#9ca3af';"
+                          onmouseout="this.style.backgroundColor='#fdf6f9'; this.style.borderColor='#BCC5D1';">
+                            <div style="
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                width: 32px;
+                                height: 32px;
+                                border-radius: 50%;
+                                /* מסגרת העיגול האפורה */
+                                border: 2px solid #BCC5D1; 
+                                /* צבע הפלוס האפור */
+                                color: #BCC5D1;
+                                font-size: 1.25rem;
+                                font-weight: bold;
+                            ">
+                                +
+                            </div>
                         </div>
                     </a>
                 ''', unsafe_allow_html=True)
-
         
         # ── Fathom ──────────────────────────────────────────
         # ── Fathom ──────────────────────────────────────────
