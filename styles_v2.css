@@ -392,9 +392,25 @@ st.markdown("""
         box-shadow: var(--shadow-sm) !important;
         transition: all 0.2s ease !important;
     }
+    
     .record-row:hover {
         box-shadow: var(--shadow-md) !important;
         transform: translateY(-1px) !important;
+    }
+
+    /* ── Accent Glow ───────────────────────────────────────── */
+    .record-row::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 6px;
+        background-color: #FADCE6;
+        box-shadow: -10px 0px 15px rgba(250, 220, 230, 0.4);
+        border-top-right-radius: 20px;
+        border-bottom-right-radius: 20px;
+        pointer-events: none;
     }
 </style>
 """, unsafe_allow_html=True)
