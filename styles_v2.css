@@ -395,6 +395,12 @@ div[data-testid="stVerticalBlockBorderWrapper"],
     transform: translateY(-1px) !important;
 }
 
+/* ── תיקון ────────────────────────────────────────── */
+div[data-testid="stVerticalBlockBorderWrapper"],
+.st-emotion-cache-1ne20ew {
+    overflow: visible !important;
+}
+
 /* ── Tags ──────────────────────────────────────────────── */
 .tag-blue   { color: #71717A; font-size: 0.78em; font-weight: 600; background: #F4F4F5; padding: 3px 10px; border-radius: 20px; }
 .tag-orange { color: #71717A; font-size: 0.78em; font-weight: 600; background: #F4F4F5; padding: 3px 10px; border-radius: 20px; }
