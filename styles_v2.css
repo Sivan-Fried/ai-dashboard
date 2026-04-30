@@ -448,6 +448,36 @@ div[data-testid="stButton"] button:hover {
     box-shadow: var(--shadow-md) !important;
 }
 
+/* ── Custom Dashed Button for Reminders ────────────────── */
+div[data-testid="stButton"] button#add_rem_btn_unique {
+    background-color: #ffffff !important;
+    border: 2px dashed #FBCFE8 !important;
+    border-radius: 12px !important;
+    padding: 18px 0 !important;
+    width: 100% !important;
+    transition: all 0.2s ease !important;
+}
+
+div[data-testid="stButton"] button#add_rem_btn_unique:hover {
+    border-color: #db2777 !important;
+    background-color: #ffffff !important;
+}
+
+/* עיגול אפור סביב הפלוס */
+div[data-testid="stButton"] button#add_rem_btn_unique p {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    border: 2px solid #9ca3af !important;
+    border-radius: 50% !important;
+    color: #9ca3af !important;
+    margin: 0 auto !important;
+    font-size: 1.25rem !important;
+    font-weight: 500 !important;
+}
+
 /* ── Inputs ────────────────────────────────────────────── */
 div[data-testid="stTextInput"] input,
 div[data-testid="stSelectbox"] > div {
