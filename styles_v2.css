@@ -376,7 +376,6 @@ div[data-testid="stVerticalBlockBorderWrapper"],
 /* ── Record Row ────────────────────────────────────────── */
 st.markdown("""
 <style>
-    /* ── Record Row ────────────────────────────────────────── */
     .record-row {
         background: var(--card-bg) !important;
         padding: 10px 15px !important;
@@ -398,7 +397,6 @@ st.markdown("""
         transform: translateY(-1px) !important;
     }
 
-    /* ── Record Accent Glow ────────────────────────────────── */
     .record-row::after {
         content: "" !important;
         position: absolute !important;
