@@ -449,32 +449,39 @@ div[data-testid="stButton"] button:hover {
 }
 
 /* ── Custom Dashed Button for Reminders ────────────────── */
-div[data-testid="stButton"] button[data-baseweb="button"] {
-    /* שאר הכפתורים נשארים כרגיל, אלא אם נגדיר אחרת */
+div[data-testid="stButton"] [kind="secondary"][data-baseweb="button"] {
+    /* הגדרות גלובליות לכפתורים משניים (אם תרצי להוסיף) */
 }
 
-/* זיהוי ספציפי לכפתור לפי ה-Key שלו */
-div[data-testid="stButton"] button[data-baseweb="button"][kind="secondary"]#add_rem_btn_unique {
+/* זיהוי הכפתור הספציפי לפי ה-key שלו בפייתון */
+div[data-testid="stButton"] [data-baseweb="button"] {
+    /* אם את רוצה לבודד, אפשר להשתמש במפתח כפי שהוא מגיע ל-DOM */
+}
+
+/* הדרך הטובה ביותר - הגדרה ישירה לפי סלקטור מפתח */
+div[data-testid="stButton"] button {
+    /* הכללים הכלליים שלך */
+}
+
+/* תפיסה ממוקדת של כפתור ההוספה לפי ה-Key שלו */
+div[data-testid="stButton"] button:has(#add_rem_btn_unique), 
+div[data-testid="stButton"] button[aria-label="+"] {
     background-color: #ffffff !important;
     border: 2px dashed #FBCFE8 !important;
     border-radius: 12px !important;
     padding: 24px 0 !important;
     box-shadow: none !important;
     width: 100% !important;
-    color: #9ca3af !important;
-    font-size: 1.25rem !important;
-    font-weight: 500 !important;
     transition: all 0.2s ease !important;
 }
 
-div[data-testid="stButton"] button[data-baseweb="button"][kind="secondary"]#add_rem_btn_unique:hover {
+div[data-testid="stButton"] button[aria-label="+"]:hover {
     border-color: #db2777 !important;
     background-color: #ffffff !important;
-    color: #db2777 !important;
 }
 
 /* עיגול אפור סביב הפלוס */
-div[data-testid="stButton"] button#add_rem_btn_unique p {
+div[data-testid="stButton"] button[aria-label="+"] p {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
