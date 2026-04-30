@@ -1060,7 +1060,9 @@ else:
                     height: 45px !important; color: transparent !important; z-index: 20;
                 }
                 div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-testid="stButton"] button:hover) .fathom-row-ui {
-                    border-right-color: #f0b8cb; background-color: #fdf6f9; box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+                    border-right-color: #f0b8cb !important;
+                    background-color: #fdf6f9 !important;
+                    box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
                 }
               
                 .fathom-pill-v2 {
