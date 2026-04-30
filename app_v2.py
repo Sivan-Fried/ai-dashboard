@@ -1005,10 +1005,10 @@ else:
                         if st.button("❌", key="cancel_rem_btn"):
                             st.session_state.adding_reminder = False; st.rerun()
             else:
-                # עיצוב ממוקד אך ורק לכפתור התזכורות החדש שלנו מבלי לדרוס כפתורים אחרים
                 st.markdown("""
                 <style>
-                .pink-dashed-btn > button {
+                div[data-testid="stButton"] button[key="add_rem_btn_new"],
+                #add_rem_btn_new {
                     border: 2px dashed #F472B6 !important;
                     background-color: rgba(250, 220, 230, 0.1) !important;
                     color: #F472B6 !important;
@@ -1018,24 +1018,20 @@ else:
                     height: auto !important;
                     width: 100% !important;
                     box-shadow: none !important;
-                    font-size: 1.2rem !important;
-                    font-weight: bold !important;
-                    transition: all 0.2s ease !important;
+                    transition: background-color 0.2s ease !important;
                 }
-                .pink-dashed-btn > button:hover {
+                div[data-testid="stButton"] button[key="add_rem_btn_new"]:hover,
+                #add_rem_btn_new:hover {
                     background-color: rgba(250, 220, 230, 0.3) !important;
                     border-color: #db2777 !important;
                     color: #db2777 !important;
                 }
                 </style>
                 """, unsafe_allow_html=True)
-                
-                # עטיפת הכפתור ב-div כדי שהעיצוב יחול אך ורק עליו
-                st.markdown('<div class="pink-dashed-btn">', unsafe_allow_html=True)
+    
                 if st.button("➕", use_container_width=True, key="add_rem_btn_new"):
                     st.session_state.adding_reminder = True
                     st.rerun()
-                st.markdown('</div>', unsafe_allow_html=True)
 
         
         # ── Fathom ──────────────────────────────────────────
