@@ -374,7 +374,6 @@ div[data-testid="stVerticalBlockBorderWrapper"],
 }
 
 /* ── Record Row ────────────────────────────────────────── */
-/* ── Record Row ────────────────────────────────────────── */
 .record-row {
     background: var(--card-bg) !important;
     padding: 10px 15px !important;
@@ -387,22 +386,11 @@ div[data-testid="stVerticalBlockBorderWrapper"],
     align-items: center !important;
     direction: rtl !important;
     position: relative !important;
-    box-shadow: var(--shadow-sm) !important;
+    box-shadow: var(--shadow-sm), inset 4px 0px 12px rgba(250, 220, 230, 0.3) !important;
     transition: all 0.2s ease !important;
 }
-.record-row::before {
-    content: '' !important;
-    position: absolute !important;
-    top: 0 !important;
-    right: -4px !important;
-    width: 4px !important;
-    height: 100% !important;
-    background: var(--border-accent) !important;
-    box-shadow: -8px 0px 16px rgba(250, 220, 230, 0.8) !important;
-    border-radius: 4px 0 0 4px !important;
-}
 .record-row:hover {
-    box-shadow: var(--shadow-md) !important;
+    box-shadow: var(--shadow-md), inset 4px 0px 16px rgba(250, 220, 230, 0.5) !important;
     transform: translateY(-1px) !important;
 }
 
