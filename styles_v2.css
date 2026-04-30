@@ -387,18 +387,23 @@ div[data-testid="stVerticalBlockBorderWrapper"],
     align-items: center !important;
     direction: rtl !important;
     position: relative !important;
-    box-shadow: var(--shadow-sm), -6px 0px 15px rgba(250, 220, 230, 0.4) !important;
+    box-shadow: var(--shadow-sm) !important;
     transition: all 0.2s ease !important;
 }
-.record-row:hover {
-    box-shadow: var(--shadow-md), -6px 0px 20px rgba(250, 220, 230, 0.6) !important;
-    transform: translateY(-1px) !important;
+.record-row::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    right: -4px !important;
+    width: 4px !important;
+    height: 100% !important;
+    background: var(--border-accent) !important;
+    box-shadow: -8px 0px 16px rgba(250, 220, 230, 0.8) !important;
+    border-radius: 4px 0 0 4px !important;
 }
-
-/* ── תיקון ────────────────────────────────────────── */
-div[data-testid="stVerticalBlockBorderWrapper"],
-.st-emotion-cache-1ne20ew {
-    overflow: visible !important;
+.record-row:hover {
+    box-shadow: var(--shadow-md) !important;
+    transform: translateY(-1px) !important;
 }
 
 /* ── Tags ──────────────────────────────────────────────── */
