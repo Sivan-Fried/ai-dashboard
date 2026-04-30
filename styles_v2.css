@@ -453,14 +453,19 @@ div[data-testid="stButton"] button#add_rem_btn_unique {
     background-color: #ffffff !important;
     border: 2px dashed #FBCFE8 !important;
     border-radius: 12px !important;
-    padding: 18px 0 !important;
+    padding: 24px 0 !important;
+    box-shadow: none !important;
     width: 100% !important;
+    color: #9ca3af !important;
+    font-size: 1.25rem !important;
+    font-weight: 500 !important;
     transition: all 0.2s ease !important;
 }
 
 div[data-testid="stButton"] button#add_rem_btn_unique:hover {
     border-color: #db2777 !important;
     background-color: #ffffff !important;
+    color: #db2777 !important;
 }
 
 /* עיגול אפור סביב הפלוס */
