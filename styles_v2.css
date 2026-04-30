@@ -448,8 +448,8 @@ div[data-testid="stButton"] button:hover {
     box-shadow: var(--shadow-md) !important;
 }
 
-/* ── Custom Dashed Button for Reminders ────────────────── */
-div.add-reminder-btn button[data-testid="stBaseButton-secondary"] {
+/* ── כפתור הוספת תזכורת ────────────────── */
+div[data-testid="stButton"]:has(button[data-testid="stBaseButton-secondary"]) button {
     background-color: #ffffff !important;
     border: 2px dashed #FBCFE8 !important;
     border-radius: 12px !important;
@@ -462,13 +462,15 @@ div.add-reminder-btn button[data-testid="stBaseButton-secondary"] {
     margin-top: 10px !important;
     transition: all 0.2s ease !important;
 }
-div.add-reminder-btn button[data-testid="stBaseButton-secondary"]:hover {
+
+div[data-testid="stButton"]:has(button[data-testid="stBaseButton-secondary"]) button:hover {
     border-color: #db2777 !important;
     background-color: #ffffff !important;
     transform: none !important;
     box-shadow: none !important;
 }
-div.add-reminder-btn button[data-testid="stBaseButton-secondary"] p {
+
+div[data-testid="stButton"]:has(button[data-testid="stBaseButton-secondary"]) button p {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
