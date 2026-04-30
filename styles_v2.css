@@ -381,8 +381,7 @@ div[data-testid="stVerticalBlockBorderWrapper"],
     border-radius: var(--radius-sm) !important;
     margin-bottom: 4px !important;
     border: none !important;
-    /* הפס הימני מוגדר פה כצבע ורוד או כהגדרת המערכת */
-    border-right: 6px solid #F472B6 !important; 
+    border-right: 4px solid var(--border-accent) !important;
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
@@ -411,6 +410,7 @@ div[data-testid="stVerticalBlockBorderWrapper"],
     border-bottom-right-radius: 20px;
     pointer-events: none;
 }
+
 
 /* ── Tags ──────────────────────────────────────────────── */
 .tag-blue   { color: #71717A; font-size: 0.78em; font-weight: 600; background: #F4F4F5; padding: 3px 10px; border-radius: 20px; }
