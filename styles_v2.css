@@ -449,7 +449,12 @@ div[data-testid="stButton"] button:hover {
 }
 
 /* ── Custom Dashed Button for Reminders ────────────────── */
-div[data-testid="stButton"] button#add_rem_btn_unique {
+div[data-testid="stButton"] button[data-baseweb="button"] {
+    /* שאר הכפתורים נשארים כרגיל, אלא אם נגדיר אחרת */
+}
+
+/* זיהוי ספציפי לכפתור לפי ה-Key שלו */
+div[data-testid="stButton"] button[data-baseweb="button"][kind="secondary"]#add_rem_btn_unique {
     background-color: #ffffff !important;
     border: 2px dashed #FBCFE8 !important;
     border-radius: 12px !important;
@@ -462,7 +467,7 @@ div[data-testid="stButton"] button#add_rem_btn_unique {
     transition: all 0.2s ease !important;
 }
 
-div[data-testid="stButton"] button#add_rem_btn_unique:hover {
+div[data-testid="stButton"] button[data-baseweb="button"][kind="secondary"]#add_rem_btn_unique:hover {
     border-color: #db2777 !important;
     background-color: #ffffff !important;
     color: #db2777 !important;
