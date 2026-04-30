@@ -1005,41 +1005,35 @@ else:
                         if st.button("❌", key="cancel_rem_btn"):
                             st.session_state.adding_reminder = False; st.rerun()
             else:
-                st.markdown('''
-                    <a href="?add_rem=true" target="_self" style="text-decoration: none;">
-                        <div style="
-                            width: 100%;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            padding: 18px 0;
-                            margin-top: 16px;
-                            background-color: #ffffff;
-                            border: 2px dashed #FBCFE8;
-                            border-radius: 12px;
-                            cursor: pointer;
-                            transition: all 0.2s ease;
-                        " onmouseover="this.style.borderColor='#db2777';"
-                          onmouseout="this.style.borderColor='#FBCFE8';">
-                            
-                            <div style="
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                width: 38px;
-                                height: 38px;
-                                border: 2px solid #9ca3af;
-                                border-radius: 50%;
-                                color: #9ca3af;
-                                font-size: 1.25rem;
-                                font-weight: 500;
-                                line-height: 1;
-                            ">
-                                +
-                            </div>
-                        </div>
-                    </a>
-                ''', unsafe_allow_html=True)
+                st.markdown("""
+                <style>
+                div[data-testid="stButton"] > button[kind="secondary"][data-baseweb="button"]#add_rem_btn_simple {
+                    background-color: #ffffff !important;
+                    border: 2px dashed #FBCFE8 !important;
+                    border-radius: 12px !important;
+                    padding: 18px 0 !important;
+                    box-shadow: none !important;
+                    width: 100% !important;
+                    color: #9ca3af !important;
+                    font-size: 1.25rem !important;
+                    font-weight: 500 !important;
+                    transition: all 0.2s ease !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                }
+                
+                div[data-testid="stButton"] > button[kind="secondary"][data-baseweb="button"]#add_rem_btn_simple:hover {
+                    border-color: #db2777 !important;
+                    background-color: #ffffff !important;
+                    color: #db2777 !important;
+                }
+                </style>
+                """, unsafe_allow_html=True)
+    
+                if st.button("+", use_container_width=True, key="add_rem_btn_simple"):
+                    st.session_state.adding_reminder = True
+                    st.rerun()
                 
         # ── Fathom ──────────────────────────────────────────
         # ── Fathom ──────────────────────────────────────────
