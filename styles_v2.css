@@ -449,8 +449,7 @@ div[data-testid="stButton"] button:hover {
 }
 
 /* ── Custom Dashed Button for Reminders ────────────────── */
-/* ── Custom Dashed Button for Reminders ────────────────── */
-button[data-testid="stBaseButton-secondary"] {
+div.add-reminder-btn button[data-testid="stBaseButton-secondary"] {
     background-color: #ffffff !important;
     border: 2px dashed #FBCFE8 !important;
     border-radius: 12px !important;
@@ -463,16 +462,13 @@ button[data-testid="stBaseButton-secondary"] {
     margin-top: 10px !important;
     transition: all 0.2s ease !important;
 }
-
-button[data-testid="stBaseButton-secondary"]:hover {
+div.add-reminder-btn button[data-testid="stBaseButton-secondary"]:hover {
     border-color: #db2777 !important;
     background-color: #ffffff !important;
     transform: none !important;
     box-shadow: none !important;
 }
-
-/* עיגול אפור סביב הפלוס */
-button[data-testid="stBaseButton-secondary"] p {
+div.add-reminder-btn button[data-testid="stBaseButton-secondary"] p {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -483,11 +479,11 @@ button[data-testid="stBaseButton-secondary"] p {
     color: #9ca3af !important;
     margin: 0 !important;
     padding: 0 !important;
-    font-size: 0.95rem !important;
-    font-weight: 400 !important;
-    line-height: 1 !important;
+    font-size: 14px !important;
+    font-weight: 300 !important;
+    line-height: 22px !important;
+    text-align: center !important;
 }
-
 
 /* ── Inputs ────────────────────────────────────────────── */
 div[data-testid="stTextInput"] input,
