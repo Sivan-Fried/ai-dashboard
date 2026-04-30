@@ -754,7 +754,7 @@ else:
                     p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
                     st.markdown(f'''
                         <a href="{p_url}" target="_self" class="project-link">
-                            <div class="record-row">
+                            <div class="record-row" style="position: relative;">
                                 <div style="display: flex; align-items: center; gap: 10px;">
                                     <b>📂 {row["project_name"]}</b>
                                     <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
@@ -777,7 +777,7 @@ else:
                     t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_task)}/_workitems/edit/{t_id}"
                     
                     st.markdown(
-                        f'<div class="record-row" style="white-space: nowrap;">'
+                        f'<div class="record-row" style="white-space: nowrap; position: relative;">'
                         f'<div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis;">'
                         f'<a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: none; font-weight: 500;">🔗 {t_title}</a>'
                         f'<span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">נוצר ב {fmt_date}</span>'
