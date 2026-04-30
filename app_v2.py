@@ -752,12 +752,14 @@ else:
                     st.markdown(f'''
                         <a href="{p_url}" target="_self" class="project-link">
                             <div class="record-row">
-                                <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
                                     <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #64748b; transform: scale(0.8);">work</span>
-                                    <b>{row["project_name"]}</b>
-                                    <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
+                                    <span style="font-size: 0.95rem; font-weight: normal;">{row["project_name"]}</span>
                                 </div>
-                                <span style="color: #94a3b8; font-size: 22px; line-height: 1; flex-shrink: 0;">&#8250;</span>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
+                                    <span style="color: #94a3b8; font-size: 22px; line-height: 1; flex-shrink: 0;">&#8250;</span>
+                                </div>
                             </div>
                         </a>
                     ''', unsafe_allow_html=True)
