@@ -485,7 +485,7 @@ div[data-testid="stButton"] button:hover {
     font-weight: 300 !important;
     line-height: 1 !important;
     position: relative !important;
-    top: -1px !important;
+    top: -2px !important;
 }
 
 /* ── Inputs ────────────────────────────────────────────── */
