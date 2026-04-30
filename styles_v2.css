@@ -503,12 +503,12 @@ div[data-testid="stAlert"] h3 {
     font-size: 0.75rem !important;
     margin-right: 12px !important;
 }
-.fathom-row:hover .record-row {
+.fathom-row-ui:hover {
     border-right-color: var(--primary-dark) !important;
     background-color: #fdf6f9 !important;
-    transform: translateY(-1px) !important;
     box-shadow: var(--shadow-md) !important;
 }
+
 
 /* ── Scrollbar עדין ────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
