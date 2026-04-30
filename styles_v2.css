@@ -398,17 +398,17 @@ st.markdown("""
     }
 
     .record-row::after {
-        content: "" !important;
-        position: absolute !important;
-        right: 0 !important;
-        top: 0 !important;
-        bottom: 0 !important;
-        width: 6px !important;
-        background-color: #FADCE6 !important;
-        box-shadow: -10px 0px 15px rgba(250, 220, 230, 0.4) !important;
-        border-top-right-radius: 20px !important;
-        border-bottom-right-radius: 20px !important;
-        pointer-events: none !important;
+        content: "";
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 6px;
+        background-color: #FADCE6;
+        box-shadow: -10px 0px 15px rgba(250, 220, 230, 0.4);
+        border-top-right-radius: 20px;
+        border-bottom-right-radius: 20px;
+        pointer-events: none;
     }
 </style>
 """, unsafe_allow_html=True)
