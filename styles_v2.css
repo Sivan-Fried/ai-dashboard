@@ -398,7 +398,7 @@ st.markdown("""
         transform: translateY(-1px) !important;
     }
 
-    /* ── Record Accent Glow (אוטומטי לחלוטין) ──────────────── */
+    /* ── Record Accent Glow ────────────────────────────────── */
     .record-row::after {
         content: "" !important;
         position: absolute !important;
@@ -410,7 +410,7 @@ st.markdown("""
         box-shadow: -10px 0px 15px rgba(250, 220, 230, 0.4) !important;
         border-top-right-radius: 20px !important;
         border-bottom-right-radius: 20px !important;
-        pointer-events: none !important; /* מונע הפרעה לאינטראקציה עם העכבר */
+        pointer-events: none !important;
     }
 </style>
 """, unsafe_allow_html=True)
