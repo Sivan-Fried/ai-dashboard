@@ -1005,7 +1005,7 @@ else:
                         if st.button("❌", key="cancel_rem_btn"):
                             st.session_state.adding_reminder = False; st.rerun()
             else:
-                if st.button("+", use_container_width=True, key="add_rem_btn_unique"):
+                if st.button("+", use_container_width=True, key="add_rem_btn_unique", type="secondary"):
                     st.session_state.adding_reminder = True
                     st.rerun()
                 
