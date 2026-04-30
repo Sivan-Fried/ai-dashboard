@@ -987,7 +987,7 @@ else:
         #אזור תזכורות
         # --- אזור תזכורות ---
         with st.container(border=True):
-            st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;\">alerts</span> תזכורות", unsafe_allow_html=True)
+            st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;\">notifications</span> תזכורות", unsafe_allow_html=True)
             with st.container(border=False):
                 t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
                 if not t_r.empty:
@@ -995,7 +995,7 @@ else:
                         st.markdown(f'''
                             <div class="record-row">
                                 <span style="display: flex; align-items: center; gap: 8px; font-size: 0.92rem; font-weight: normal;">
-                                    <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #64748b; transform: scale(0.8);">alerts</span>
+                                    <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #64748b; transform: scale(0.8);">notifications</span>
                                     {row["reminder_text"]}
                                 </span>
                                 <span class="tag-orange">{row.get("project_name", "כללי")}</span>
