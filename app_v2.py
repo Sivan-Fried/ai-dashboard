@@ -754,13 +754,12 @@ else:
                     p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
                     st.markdown(f'''
                         <a href="{p_url}" target="_self" class="project-link">
-                            <div class="record-row" style="position: relative;">
+                            <div class="record-row">
                                 <div style="display: flex; align-items: center; gap: 10px;">
                                     <b>📂 {row["project_name"]}</b>
                                     <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
                                 </div>
                                 <span style="color: #94a3b8; font-size: 22px; line-height: 1; flex-shrink: 0;">&#8250;</span>
-                                <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 6px; background-color: #FADCE6; box-shadow: -10px 0px 15px rgba(250, 220, 230, 0.4); border-top-right-radius: 20px; border-bottom-right-radius: 20px; pointer-events: none;"></div>
                             </div>
                         </a>
                     ''', unsafe_allow_html=True)
@@ -778,13 +777,12 @@ else:
                     t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_task)}/_workitems/edit/{t_id}"
                     
                     st.markdown(
-                        f'<div class="record-row" style="white-space: nowrap; position: relative;">'
+                        f'<div class="record-row" style="white-space: nowrap;">'
                         f'<div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis;">'
                         f'<a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: none; font-weight: 500;">🔗 {t_title}</a>'
                         f'<span style="color: #94a3b8; font-size: 0.8rem; margin-right: 15px;">נוצר ב {fmt_date}</span>'
                         f'</div>'
                         f'<span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_task}</span>'
-                        f'<div style="position: absolute; right: 0; top: 0; bottom: 0; width: 6px; background-color: #FADCE6; box-shadow: -10px 0px 15px rgba(250, 220, 230, 0.4); border-top-right-radius: 20px; border-bottom-right-radius: 20px; pointer-events: none;"></div>'
                         f'</div>',
                         unsafe_allow_html=True
                     )
