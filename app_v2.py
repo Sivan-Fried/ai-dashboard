@@ -738,10 +738,11 @@ else:
     col_right, col_left = st.columns([1, 1])
 
 
-        # ══════════════════════════════════════════════════════
-        # עמודה ימנית
-        # ══════════════════════════════════════════════════════
-        with col_right:
+    # ══════════════════════════════════════════════════════
+    # עמודה ימנית
+    # ══════════════════════════════════════════════════════
+    with col_right:
+        
         # --- פרויקטים ---
         with st.container(border=True):
             st.markdown("### 📁 פרויקטים")
@@ -771,7 +772,7 @@ else:
                     raw_date = f.get('System.CreatedDate', '')
                     fmt_date = f"{raw_date[8:10]}/{raw_date[5:7]} {raw_date[11:16]}" if raw_date else ""
                     t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_task)}/_workitems/edit/{t_id}"
-                    
+    
                     st.markdown(
                         f'<div class="record-row" style="white-space: nowrap;">'
                         f'<div style="flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis;">'
@@ -784,6 +785,8 @@ else:
                     )
             else:
                 st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
+
+
                 
         # ============================
         #      עוזר אישי AI — ורוד
