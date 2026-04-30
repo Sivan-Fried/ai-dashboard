@@ -753,7 +753,8 @@ else:
                         <a href="{p_url}" target="_self" class="project-link">
                             <div class="record-row">
                                 <div style="display: flex; align-items: center; gap: 10px;">
-                                    <b>📂 {row["project_name"]}</b>
+                                    <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.25rem; color: #64748b;">work</span>
+                                    <b>{row["project_name"]}</b>
                                     <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
                                 </div>
                                 <span style="color: #94a3b8; font-size: 22px; line-height: 1; flex-shrink: 0;">&#8250;</span>
