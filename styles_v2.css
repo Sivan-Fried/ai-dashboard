@@ -473,7 +473,7 @@ div[data-testid="stButton"] button:hover {
 .st-key-add_rem_btn_unique button p {
     display: flex !important;
     align-items: center !important;
-    /* ──justify-content: center !important;
+    justify-content: center !important;
     width: 22px !important;
     height: 22px !important;
     border: 1.5px solid #9ca3af !important;
