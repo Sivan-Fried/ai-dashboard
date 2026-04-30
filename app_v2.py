@@ -1039,11 +1039,10 @@ else:
     
                                         
         # ── Fathom ──────────────────────────────────────────
-        # ── Fathom ──────────────────────────────────────────
         with st.container(border=True):
             col_title, col_refresh = st.columns([0.9, 0.1])
             with col_title:
-                st.markdown("### ✨ סיכומי פגישות Fathom")
+                st.markdown('<h3><span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">description</span> סיכומי פגישות Fathom</h3>', unsafe_allow_html=True)
             with col_refresh:
                 if st.button("🔄", key="refresh_fathom"):
                     try:
@@ -1095,7 +1094,7 @@ else:
                     background-color: #fdf6f9 !important;
                     box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
                 }
-              
+                
                 .fathom-pill-v2 {
                     background-color: #f1f5f9; color: #475569;
                     padding: 1px 8px; border-radius: 10px; font-size: 0.75rem; margin-right: 12px;
@@ -1124,9 +1123,9 @@ else:
                     arrow = "&#8250;" if not is_open else "&#8249;"
 
                     st.markdown(f'''
-                        <div class="fathom-row-ui">
-                            <div style="display: flex; align-items: center;">
-                                <span style="font-size: 1.1rem; margin-left: 10px;">📅</span>
+                        <div class="fathom-row-ui" style="font-size: 0.92rem; font-weight: normal;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #64748b; transform: scale(0.8);">description</span>
                                 <span style="font-weight: 600; color: #1e293b; font-size: 0.85rem;">{title}</span>
                                 <span class="fathom-pill-v2">{date_str}</span>
                             </div>
