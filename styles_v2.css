@@ -374,7 +374,6 @@ div[data-testid="stVerticalBlockBorderWrapper"],
 }
 
 /* ── Record Row ────────────────────────────────────────── */
-/* ── Record Row ────────────────────────────────────────── */
 .record-row {
     background: var(--card-bg) !important;
     padding: 10px 15px !important;
@@ -395,7 +394,6 @@ div[data-testid="stVerticalBlockBorderWrapper"],
     transform: translateY(-1px) !important;
 }
 
-/* ── Record Row Accent Glow ──────────────────────────────── */
 .record-row::after {
     content: "";
     position: absolute;
@@ -409,23 +407,6 @@ div[data-testid="stVerticalBlockBorderWrapper"],
     border-bottom-right-radius: 20px;
     pointer-events: none;
 }
-
-    /* ── Accent Glow ───────────────────────────────────────── */
-    .record-row::after {
-        content: "";
-        position: absolute;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        width: 6px;
-        background-color: #FADCE6;
-        box-shadow: -10px 0px 15px rgba(250, 220, 230, 0.4);
-        border-top-right-radius: 20px;
-        border-bottom-right-radius: 20px;
-        pointer-events: none;
-    }
-</style>
-""", unsafe_allow_html=True)
 
 /* ── Tags ──────────────────────────────────────────────── */
 .tag-blue   { color: #71717A; font-size: 0.78em; font-weight: 600; background: #F4F4F5; padding: 3px 10px; border-radius: 20px; }
