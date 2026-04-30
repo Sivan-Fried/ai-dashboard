@@ -381,7 +381,7 @@ div[data-testid="stVerticalBlockBorderWrapper"],
     border-radius: var(--radius-sm) !important;
     margin-bottom: 4px !important;
     border: none !important;
-    border-right: 6px solid #F472B6 !important; /* הפס הימני בצבע ורוד מודגש */
+    border-right: 4px solid var(--border-accent) !important;
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
@@ -395,7 +395,7 @@ div[data-testid="stVerticalBlockBorderWrapper"],
     transform: translateY(-1px) !important;
 }
 
-/* ── Record Accent Glow ────────────────────────────────── */
+/* ── Record Row Accent Glow ──────────────────────────────── */
 .record-row::after {
     content: "";
     position: absolute;
