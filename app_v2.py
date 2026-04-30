@@ -1011,27 +1011,22 @@ else:
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        gap: 8px;
-                        padding: 16px 0;
-                        margin-top: 24px;
-                        background-color: rgba(216, 180, 254, 0.1);
-                        border: 2px dashed #a855f7;
-                        color: #a855f7;
-                        font-weight: bold;
-                        border-radius: 16px;
+                        /* גובה מופחת באופן משמעותי */
+                        padding: 8px 0; 
+                        margin-top: 16px; 
+                        /* צבע רקע ורוד בהיר מאוד (כמעט שקוף) */
+                        background-color: rgba(250, 220, 230, 0.1); 
+                        /* מסגרת מקווקו בצבע ורוד בהיר */
+                        border: 2px dashed #FBCFE8; 
+                        /* סמל פלוס ורוד בהיר */
+                        color: #FBCFE8; 
+                        border-radius: 12px;
                         cursor: pointer;
                         transition: all 0.2s ease;
-                    " onmouseover="this.style.backgroundColor='rgba(216, 180, 254, 0.2)';"
-                      onmouseout="this.style.backgroundColor='rgba(216, 180, 254, 0.1)';"
-                      onclick="
-                        /* הפעלת מצב הוספת תזכורת מול שרת ה-Streamlit */
-                        const url = new URL(window.location);
-                        url.searchParams.set('action', 'add_reminder');
-                        window.history.pushState({}, '', url);
-                        window.location.reload();
-                      ">
-                        <span class="material-symbols-outlined" style="font-size: 24px;">add_circle</span>
-                        <span style="font-size: 16px;">הוספת תזכורת</span>
+                    " onmouseover="this.style.backgroundColor='rgba(250, 220, 230, 0.3)'"
+                      onmouseout="this.style.backgroundColor='rgba(250, 220, 230, 0.1)'"
+                      onclick="window.location.href='/?action=add_project'">
+                        <span class="material-symbols-outlined" style="font-size: 24px; font-weight: bold;">add</span>
                     </button>
                 ''', unsafe_allow_html=True)
 
