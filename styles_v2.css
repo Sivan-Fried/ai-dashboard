@@ -449,39 +449,25 @@ div[data-testid="stButton"] button:hover {
 }
 
 /* ── Custom Dashed Button for Reminders ────────────────── */
-div[data-testid="stButton"] [kind="secondary"][data-baseweb="button"] {
-    /* הגדרות גלובליות לכפתורים משניים (אם תרצי להוסיף) */
-}
-
-/* זיהוי הכפתור הספציפי לפי ה-key שלו בפייתון */
-div[data-testid="stButton"] [data-baseweb="button"] {
-    /* אם את רוצה לבודד, אפשר להשתמש במפתח כפי שהוא מגיע ל-DOM */
-}
-
-/* הדרך הטובה ביותר - הגדרה ישירה לפי סלקטור מפתח */
-div[data-testid="stButton"] button {
-    /* הכללים הכלליים שלך */
-}
-
-/* תפיסה ממוקדת של כפתור ההוספה לפי ה-Key שלו */
-div[data-testid="stButton"] button:has(#add_rem_btn_unique), 
-div[data-testid="stButton"] button[aria-label="+"] {
+button[data-testid="stBaseButton-secondary"] {
     background-color: #ffffff !important;
     border: 2px dashed #FBCFE8 !important;
     border-radius: 12px !important;
-    padding: 24px 0 !important;
+    padding: 20px 0 !important;
     box-shadow: none !important;
     width: 100% !important;
     transition: all 0.2s ease !important;
 }
 
-div[data-testid="stButton"] button[aria-label="+"]:hover {
+button[data-testid="stBaseButton-secondary"]:hover {
     border-color: #db2777 !important;
     background-color: #ffffff !important;
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 /* עיגול אפור סביב הפלוס */
-div[data-testid="stButton"] button[aria-label="+"] p {
+button[data-testid="stBaseButton-secondary"] p {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -492,7 +478,7 @@ div[data-testid="stButton"] button[aria-label="+"] p {
     color: #9ca3af !important;
     margin: 0 auto !important;
     font-size: 1.25rem !important;
-    font-weight: 500 !important;
+    font-weight: 400 !important;
 }
 
 /* ── Inputs ────────────────────────────────────────────── */
