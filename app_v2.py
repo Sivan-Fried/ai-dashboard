@@ -1005,29 +1005,27 @@ else:
                         if st.button("❌", key="cancel_rem_btn"):
                             st.session_state.adding_reminder = False; st.rerun()
             else:
-                # עיצוב מותאם לכפתור התזכורות המקורי
+                # עיצוב הכפתור - רקע לבן ומסגרת ורודה מקווקו
                 st.markdown("""
                 <style>
                 div[data-testid="stButton"] > button[kind="secondary"][data-baseweb="button"]#add_rem_btn_new {
                     background-color: #ffffff !important;
                     border: 2px dashed #FBCFE8 !important;
                     border-radius: 12px !important;
-                    padding: 16px 0 !important;
+                    padding: 18px 0 !important;
                     box-shadow: none !important;
                     width: 100% !important;
-                    color: #9ca3af !important;
-                    font-size: 1.25rem !important;
                     transition: all 0.2s ease !important;
                 }
                 
                 div[data-testid="stButton"] > button[kind="secondary"][data-baseweb="button"]#add_rem_btn_new:hover {
-                    background-color: #ffffff !important;
                     border-color: #db2777 !important;
+                    background-color: #ffffff !important;
                 }
                 </style>
                 """, unsafe_allow_html=True)
     
-                if st.button("➕", use_container_width=True, key="add_rem_btn_new"):
+                if st.button("+", use_container_width=True, key="add_rem_btn_new"):
                     st.session_state.adding_reminder = True
                     st.rerun()
             
