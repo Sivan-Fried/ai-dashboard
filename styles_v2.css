@@ -449,43 +449,42 @@ div[data-testid="stButton"] button:hover {
 }
 
 /* ── Custom Dashed Button for Reminders ────────────────── */
-div[data-testid="stButton"] button#add_rem_btn_unique {
+/* ── Custom Dashed Button for Reminders ────────────────── */
+button[data-testid="stBaseButton-secondary"] {
     background-color: #ffffff !important;
     border: 2px dashed #FBCFE8 !important;
     border-radius: 12px !important;
-    height: 48px !important; /* גובה מותאם אישית לרשומה רגילה */
-    padding: 0 !important;
+    padding: 6px 0 !important;
     box-shadow: none !important;
     width: 100% !important;
-    transition: all 0.2s ease !important;
+    height: 44px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    transition: all 0.2s ease !important;
 }
 
-div[data-testid="stButton"] button#add_rem_btn_unique:hover {
+button[data-testid="stBaseButton-secondary"]:hover {
     border-color: #db2777 !important;
     background-color: #ffffff !important;
+    transform: none !important;
+    box-shadow: none !important;
 }
 
-/* העיגול סביב הפלוס */
-div[data-testid="stButton"] button#add_rem_btn_unique div {
+/* עיגול אפור סביב הפלוס */
+button[data-testid="stBaseButton-secondary"] p {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 32px !important;
-    height: 32px !important;
-    border: 2px solid #9ca3af !important;
+    width: 28px !important;
+    height: 28px !important;
+    border: 1.5px solid #9ca3af !important;
     border-radius: 50% !important;
     color: #9ca3af !important;
-    font-size: 1.25rem !important;
-    font-weight: 500 !important;
-    transition: all 0.2s ease !important;
-}
-
-div[data-testid="stButton"] button#add_rem_btn_unique:hover div {
-    border-color: #db2777 !important;
-    color: #db2777 !important;
+    margin: 0 auto !important;
+    font-size: 1.1rem !important;
+    font-weight: 400 !important;
+    line-height: 1 !important;
 }
 
 
