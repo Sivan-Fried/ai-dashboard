@@ -563,14 +563,17 @@ div[data-testid="stAlert"] h3 {
 }
 
 /* ── AI Assistant Container ────────────────── */
-.st-key-ai_p div[data-baseweb="select"] > div {
-    background-color: #ffffff !important;
-    border-radius: var(--radius-sm) !important;
+.st-key-ai_container {
+    background-color: #fadce6 !important;
+    border-radius: var(--radius-lg) !important;
 }
 
-.st-key-ai_i input {
+.st-key-ai_container div[data-baseweb="select"] > div {
     background-color: #ffffff !important;
-    border-radius: var(--radius-sm) !important;
+}
+
+.st-key-ai_container input {
+    background-color: #ffffff !important;
 }
 
 /* ── Scrollbar עדין ────────────────────────────────────── */
