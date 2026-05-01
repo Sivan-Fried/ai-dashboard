@@ -606,6 +606,20 @@ ul[data-testid="stSelectboxVirtualDropdown"] li {
 .st-key-ai_container div[data-baseweb="select"] * {
     border-color: #fdf2f8 !important;
 }
+.st-key-ai_send button {
+    background-color: #fadce6 !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 44px !important;
+    height: 44px !important;
+    font-family: 'Material Symbols Outlined' !important;
+    font-size: 1.3rem !important;
+    color: #db2777 !important;
+    box-shadow: var(--shadow-md) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
 
 /* ── Scrollbar עדין ────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
