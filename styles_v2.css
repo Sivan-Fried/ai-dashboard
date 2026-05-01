@@ -569,13 +569,12 @@ div[data-testid="stAlert"] h3 {
 }
 
 .st-key-ai_container div[data-baseweb="select"] > div {
-    background-color: #ffffff !important;
+    background-color: #fdf2f8 !important;
 }
 
 .st-key-ai_container input {
     background-color: #ffffff !important;
 }
-
 /* ── Scrollbar עדין ────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
