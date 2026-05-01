@@ -613,14 +613,17 @@ ul[data-testid="stSelectboxVirtualDropdown"] li {
     width: 44px !important;
     height: 44px !important;
     font-size: 1.3rem !important;
-    color: #fadce6 !important;
+    color: #ffffff !important;
     box-shadow: var(--shadow-md) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     padding: 0 !important;
+    float: left !important;
 }
-
+.st-key-ai_send button p {
+    color: #ffffff !important;
+}
 .st-key-ai_send button:hover {
     background-color: #6b7280 !important;
     transform: scale(1.05) !important;
