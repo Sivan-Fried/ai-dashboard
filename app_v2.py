@@ -1104,7 +1104,7 @@ else:
                         <div class="fathom-row-ui" style="font-size: 0.92rem; font-weight: normal;">
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #64748b; transform: scale(0.8);">description</span>
-                                <span style="font-family: inherit; font-weight: 400; color: #334155; font-size: 0.88rem;">{title}</span>
+                                <span style="font-size: 0.88rem;">{title}</span>
                             </div>
                             <div style="display: flex; justify-content: flex-end; align-items: center;">
                                 <span class="fathom-pill-v2">{date_str}</span>
