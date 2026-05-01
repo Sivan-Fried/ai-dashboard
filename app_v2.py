@@ -798,8 +798,9 @@ else:
         # ============================
         #      עוזר אישי AI — ורוד
         # ============================
+        st.markdown('<div class="ai-container">', unsafe_allow_html=True)
         with st.container(border=True):
-            st.markdown("### ✨ עוזר AI אישי")
+            st.markdown('### <span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">smart_toy</span> עוזר AI אישי', unsafe_allow_html=True)
     
             a1, a2 = st.columns([1, 2])
     
@@ -890,6 +891,9 @@ else:
     
             if st.session_state.ai_response:
                 st.info(st.session_state.ai_response)
+
+                st.markdown('</div>', unsafe_allow_html=True)
+                
 
 
         # ── פרויקטים לדיווח ─────────────────────────────────
