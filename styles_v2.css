@@ -562,6 +562,25 @@ div[data-testid="stAlert"] h3 {
     box-shadow: var(--shadow-md) !important;
 }
 
+/* ── AI Assistant Container ────────────────── */
+.ai-container {
+    background-color: #fadce6 !important;
+    border-radius: var(--radius-lg) !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.ai-container div[data-testid="stSelectbox"] > div {
+    background-color: #ffffff !important;
+    border: 1px solid #f0b8cb !important;
+    border-radius: var(--radius-sm) !important;
+}
+
+.ai-container div[data-testid="stTextInput"] input {
+    background-color: #ffffff !important;
+    border: 1px solid #f0b8cb !important;
+    border-radius: var(--radius-sm) !important;
+}
 
 /* ── Scrollbar עדין ────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
