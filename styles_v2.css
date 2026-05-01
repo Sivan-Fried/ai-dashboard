@@ -632,6 +632,13 @@ ul[data-testid="stSelectboxVirtualDropdown"] li {
     transform: scale(1.05) !important;
     box-shadow: var(--shadow-lg) !important;
 }
+div[data-testid="stButton"]:has(.st-key-ai_send) button {
+    border-radius: 50% !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+}
 
 /* ── Scrollbar עדין ────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
