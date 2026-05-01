@@ -447,6 +447,9 @@ div[data-testid="stButton"] button:hover {
     transform: translateY(-1px) !important;
     box-shadow: var(--shadow-md) !important;
 }
+.st-key-ai_send div[data-testid="stButton"] button {
+    border-radius: 50% !important;
+}
 /* ── כפתור הוספת תזכורת ────────────────── */
 .st-key-add_rem_btn_unique button {
     background-color: #ffffff !important;
