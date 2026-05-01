@@ -821,7 +821,7 @@ else:
 
             col_btn, col_empty = st.columns([0.15, 0.85])
             with col_btn:
-                send = st.button("↩", key="ai_send", use_container_width=True)
+                send = st.button("↩", key="ai_send", use_container_width=True, type="secondary")
 
             if send:
                 if q_in:
