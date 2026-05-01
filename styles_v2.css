@@ -661,6 +661,9 @@ div[data-testid="stButton"]:has(.st-key-ai_send) button {
     min-width: 44px !important;
     min-height: 44px !important;
 }
+.st-key-ai_send button {
+    border-radius: 50% !important;
+}
 
 /* ── Scrollbar עדין ────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
