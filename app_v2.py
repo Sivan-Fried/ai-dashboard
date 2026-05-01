@@ -802,16 +802,14 @@ else:
         with st.container(border=True, key="ai_container"):
             st.markdown('### <span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">smart_toy</span> עוזר AI אישי', unsafe_allow_html=True)
     
-            a1, a2 = st.columns([1, 2])
-    
-            sel_p = a1.selectbox(
+            sel_p = st.selectbox(
                 "פרויקט",
-                ["כללי - כל הפרויקטים"] + projects["project_name"].tolist(),
+                ["בחר פרויקט לניתוח..."] + projects["project_name"].tolist(),
                 label_visibility="collapsed",
                 key="ai_p"
             )
-    
-            q_in = a2.text_input(
+            
+            q_in = st.text_input(
                 "שאלה",
                 placeholder="מה תרצי לדעת?",
                 label_visibility="collapsed",
