@@ -799,7 +799,7 @@ else:
         #      עוזר אישי AI — ורוד
         # ============================
         st.markdown('<div class="ai-container">', unsafe_allow_html=True)
-        with st.container(border=True):
+        with st.container(border=True, key="ai_container"):
             st.markdown('### <span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">smart_toy</span> עוזר AI אישי', unsafe_allow_html=True)
     
             a1, a2 = st.columns([1, 2])
