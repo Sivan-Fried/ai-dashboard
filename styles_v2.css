@@ -563,17 +563,6 @@ div[data-testid="stAlert"] h3 {
 }
 
 /* ── AI Assistant Container ────────────────── */
-.st-key-ai_p,
-.st-key-ai_i {
-    background-color: #fadce6 !important;
-}
-
-div[data-testid="stVerticalBlock"]:has(.st-key-ai_p) {
-    background-color: #fadce6 !important;
-    border-radius: var(--radius-lg) !important;
-    padding: 12px !important;
-}
-
 .st-key-ai_p div[data-baseweb="select"] > div {
     background-color: #ffffff !important;
     border-radius: var(--radius-sm) !important;
