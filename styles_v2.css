@@ -487,6 +487,19 @@ div[data-testid="stButton"] button:hover {
     top: -1px !important;
 }
 
+/* ── כפתור רענון Fathom ────────────────── */
+.st-key-refresh_fathom button {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.st-key-refresh_fathom button:hover {
+    background: transparent !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
 /* ── Inputs ────────────────────────────────────────────── */
 div[data-testid="stTextInput"] input,
 div[data-testid="stSelectbox"] > div {
