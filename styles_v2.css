@@ -438,6 +438,7 @@ div[data-testid="stMarkdownContainer"]:has(.weather-float) {
 
 /* ── Buttons ───────────────────────────────────────────── */
 div[data-testid="stButton"] button {
+    border-radius: var(--radius-sm) !important;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
     font-weight: 600 !important;
     transition: all 0.2s ease !important;
