@@ -570,7 +570,7 @@ div[data-testid="stAlert"] h3 {
 
 .st-key-ai_container div[data-baseweb="select"] > div {
     background-color: #fdf2f8 !important;
-    border: none !important;
+    border-color: #fdf2f8 !important;
 }
 
 .st-key-ai_container input {
