@@ -800,7 +800,7 @@ else:
         # ============================
         st.markdown('<div class="ai-container">', unsafe_allow_html=True)
         with st.container(border=True, key="ai_container"):
-            st.markdown('### <span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">smart_toy</span> עוזר AI אישי', unsafe_allow_html=True)
+            st.markdown('### <span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b !important;">smart_toy</span> עוזר AI אישי', unsafe_allow_html=True)
     
             sel_p = st.selectbox(
                 "פרויקט",
