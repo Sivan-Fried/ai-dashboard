@@ -594,6 +594,11 @@ div[data-testid="stAlert"] h3 {
     text-align: right !important;
     direction: rtl !important;
 }
+[data-baseweb="menu"] li div {
+    text-align: right !important;
+    direction: rtl !important;
+    width: 100% !important;
+}
 
 /* ── Scrollbar עדין ────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
