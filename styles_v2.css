@@ -576,7 +576,6 @@ div[data-testid="stAlert"] h3 {
     border-color: #fdf2f8 !important;
 }
 .st-key-ai_container input:focus {
-    border-color: #fdf2f8 !important;
     box-shadow: none !important;
 }
 .st-key-ai_container .material-symbols-outlined {
