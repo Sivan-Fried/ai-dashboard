@@ -809,11 +809,12 @@ else:
                 key="ai_p"
             )
             
-            q_in = st.text_input(
+            q_in = st.text_area(
                 "שאלה",
                 placeholder="מה תרצי לדעת?",
                 label_visibility="collapsed",
-                key="ai_i"
+                key="ai_i",
+                height=100
             )
     
             if st.button("שגר שאילתה 🚀", use_container_width=True):
