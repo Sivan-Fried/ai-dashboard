@@ -567,16 +567,16 @@ div[data-testid="stAlert"] h3 {
     background-color: #fadce6 !important;
     border-radius: var(--radius-lg) !important;
 }
-
 .st-key-ai_container div[data-baseweb="select"] > div {
     background-color: #fdf2f8 !important;
     border-color: #fdf2f8 !important;
 }
-
 .st-key-ai_container input {
     background-color: #ffffff !important;
 }
-
+.st-key-ai_container .material-symbols-outlined {
+    color: #64748b !important;
+}
 
 /* ── Scrollbar עדין ────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
