@@ -563,22 +563,24 @@ div[data-testid="stAlert"] h3 {
 }
 
 /* ── AI Assistant Container ────────────────── */
-.ai-container {
+.st-key-ai_p,
+.st-key-ai_i {
     background-color: #fadce6 !important;
-    border-radius: var(--radius-lg) !important;
-    border: none !important;
-    box-shadow: none !important;
 }
 
-.ai-container div[data-testid="stSelectbox"] > div {
+div[data-testid="stVerticalBlock"]:has(.st-key-ai_p) {
+    background-color: #fadce6 !important;
+    border-radius: var(--radius-lg) !important;
+    padding: 12px !important;
+}
+
+.st-key-ai_p div[data-baseweb="select"] > div {
     background-color: #ffffff !important;
-    border: 1px solid #f0b8cb !important;
     border-radius: var(--radius-sm) !important;
 }
 
-.ai-container div[data-testid="stTextInput"] input {
+.st-key-ai_i input {
     background-color: #ffffff !important;
-    border: 1px solid #f0b8cb !important;
     border-radius: var(--radius-sm) !important;
 }
 
