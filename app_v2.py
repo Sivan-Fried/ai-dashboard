@@ -1071,7 +1071,7 @@ else:
                 div.element-container:has(.fathom-row-ui) + div.element-container div[data-testid="stButton"] button {
                     background: transparent !important; border: 1px solid transparent !important;
                     border-right: 5px solid transparent !important; width: 100% !important;
-                    height: 48px !important; color: transparent !important; z-index: 20;
+                    height: 45px !important; color: transparent !important; z-index: 20;
                 }
                 div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-testid="stButton"] button:hover) .fathom-row-ui {
                     border-right-color: #f0b8cb !important;
