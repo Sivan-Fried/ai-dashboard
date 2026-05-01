@@ -113,7 +113,7 @@ st.markdown("""
     align-items: center;
     justify-content: center;
     font-size: 22px;
-    margin-top: -50px;
+    margin-top: -45px;
     margin-right: 10px;
     float: left;
 }
