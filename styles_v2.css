@@ -607,13 +607,13 @@ ul[data-testid="stSelectboxVirtualDropdown"] li {
     border-color: #fdf2f8 !important;
 }
 .st-key-ai_send button {
-    background-color: #f0b8cb !important;
+    background-color: #9ca3af !important;
     border: none !important;
     border-radius: 50% !important;
     width: 44px !important;
     height: 44px !important;
     font-size: 1.3rem !important;
-    color: #ffffff !important;
+    color: #fadce6 !important;
     box-shadow: var(--shadow-md) !important;
     display: flex !important;
     align-items: center !important;
@@ -622,7 +622,7 @@ ul[data-testid="stSelectboxVirtualDropdown"] li {
 }
 
 .st-key-ai_send button:hover {
-    background-color: #db2777 !important;
+    background-color: #6b7280 !important;
     transform: scale(1.05) !important;
     box-shadow: var(--shadow-lg) !important;
 }
