@@ -607,18 +607,24 @@ ul[data-testid="stSelectboxVirtualDropdown"] li {
     border-color: #fdf2f8 !important;
 }
 .st-key-ai_send button {
-    background-color: #fadce6 !important;
+    background-color: #f0b8cb !important;
     border: none !important;
     border-radius: 50% !important;
     width: 44px !important;
     height: 44px !important;
-    font-family: 'Material Symbols Outlined' !important;
     font-size: 1.3rem !important;
-    color: #db2777 !important;
+    color: #ffffff !important;
     box-shadow: var(--shadow-md) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    padding: 0 !important;
+}
+
+.st-key-ai_send button:hover {
+    background-color: #db2777 !important;
+    transform: scale(1.05) !important;
+    box-shadow: var(--shadow-lg) !important;
 }
 
 /* ── Scrollbar עדין ────────────────────────────────────── */
