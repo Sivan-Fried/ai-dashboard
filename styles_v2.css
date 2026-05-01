@@ -573,20 +573,26 @@ div[data-testid="stAlert"] h3 {
 }
 .st-key-ai_container input {
     background-color: #ffffff !important;
-    border-color: #fdf2f8 !important;
+    border-color: #ffffff !important;
 }
 .st-key-ai_container input:focus {
+    border-color: #f0b8cb !important;
+    box-shadow: none !important;
+}
+.st-key-ai_container textarea {
+    background-color: #ffffff !important;
+    border-color: #ffffff !important;
+}
+.st-key-ai_container textarea:focus {
+    border-color: #f0b8cb !important;
     box-shadow: none !important;
 }
 .st-key-ai_container .material-symbols-outlined {
     color: #64748b !important;
 }
-.st-key-ai_container [data-baseweb="popover"] li {
+[data-baseweb="menu"] li {
     text-align: right !important;
     direction: rtl !important;
-}
-.st-key-ai_container textarea {
-    background-color: #ffffff !important;
 }
 
 /* ── Scrollbar עדין ────────────────────────────────────── */
