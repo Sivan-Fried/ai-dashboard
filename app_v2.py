@@ -890,10 +890,7 @@ else:
                             st.session_state.ai_response = f"שגיאה: {str(e)}"
     
             if st.session_state.ai_response:
-                st.info(st.session_state.ai_response)
-
-                st.markdown('</div>', unsafe_allow_html=True)
-                
+                st.info(st.session_state.ai_response)                
 
 
         # ── פרויקטים לדיווח ─────────────────────────────────
