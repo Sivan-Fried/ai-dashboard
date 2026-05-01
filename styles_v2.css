@@ -612,6 +612,10 @@ ul[data-testid="stSelectboxVirtualDropdown"] li {
     border-radius: 50% !important;
     width: 44px !important;
     height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    max-width: 44px !important;
+    max-height: 44px !important;
     font-size: 1.3rem !important;
     color: #ffffff !important;
     box-shadow: var(--shadow-md) !important;
@@ -619,7 +623,6 @@ ul[data-testid="stSelectboxVirtualDropdown"] li {
     align-items: center !important;
     justify-content: center !important;
     padding: 0 !important;
-    float: left !important;
 }
 .st-key-ai_send button p {
     color: #ffffff !important;
