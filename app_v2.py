@@ -819,7 +819,7 @@ else:
                 height=100
             )
     
-            if st.button("arrow_forward", key="ai_send", use_container_width=False):
+            if st.button("⬅", key="ai_send", use_container_width=False):
                 if q_in:
                     with st.spinner("מנתח..."):
                         try:
