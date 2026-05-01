@@ -664,6 +664,12 @@ div[data-testid="stButton"]:has(.st-key-ai_send) button {
 .st-key-ai_send button {
     border-radius: 50% !important;
 }
+.st-key-ai_send button,
+.st-key-ai_send button:not(:hover) {
+    border-radius: 50% !important;
+    -webkit-border-radius: 50% !important;
+    -moz-border-radius: 50% !important;
+}
 
 /* ── Scrollbar עדין ────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
