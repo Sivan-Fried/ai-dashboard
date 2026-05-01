@@ -801,13 +801,24 @@ else:
         # ============================
         #     עוזר אישי AI — ורוד
         # ============================
-        with st.container(border=True, key="ai_container"):
-            st.markdown('### <span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b !important;">smart_toy</span> עוזר AI אישי', unsafe_allow_html=True)
-            
-            # יצירת עמודה יחידה ברוחב 100% כדי למנוע חלוקה אופקית
-            ai_col = st.columns([1])
-            
-            with ai_col[0]:
+            # ============================
+            #     עוזר אישי AI — ורוד
+            # ============================
+            with st.container(border=True, key="ai_container"):
+                st.markdown('### <span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b !important;">smart_toy</span> עוזר AI אישי', unsafe_allow_html=True)
+                
+                # הוספת CSS שמונע מהשדות להסתדר זה לצד זה
+                st.markdown("""
+                    <style>
+                    [data-testid="ai_container"] .stSelectbox, 
+                    [data-testid="ai_container"] .stTextArea {
+                        width: 100% !important;
+                        display: block !important;
+                        float: none !important;
+                    }
+                    </style>
+                """, unsafe_allow_html=True)
+        
                 sel_p = st.selectbox(
                     "פרויקט",
                     ["בחר פרויקט לניתוח..."] + projects["project_name"].tolist(),
@@ -822,7 +833,7 @@ else:
                     key="ai_i",
                     height=100
                 )
-    
+        
                 if st.button("שגר שאילתה 🚀", use_container_width=True):
                     if q_in:
                         with st.spinner("מנתח..."):
