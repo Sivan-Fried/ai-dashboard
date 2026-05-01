@@ -577,6 +577,10 @@ div[data-testid="stAlert"] h3 {
 .st-key-ai_container .material-symbols-outlined {
     color: #64748b !important;
 }
+.st-key-ai_container [data-baseweb="popover"] li {
+    text-align: right !important;
+    direction: rtl !important;
+}
 
 /* ── Scrollbar עדין ────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
