@@ -800,27 +800,7 @@ else:
         # ============================
         # ============================
         #      עוזר אישי AI — ורוד
-        # ============================
-        st.markdown("""
-                <style>
-                /* ביטול המסגרת האדומה סביב תיבות טקסט במצב שגיאה או פוקוס */
-                .stTextArea textarea:focus, .stTextArea textarea:active {
-                    border-color: #cbd5e1 !important; /* צבע אפור ניטרלי או ללא מסגרת */
-                    box-shadow: none !important;
-                }
-                
-                div[data-testid="stForm"] [data-baseweb="textarea"], 
-                .stTextArea div[data-baseweb="base-input"] {
-                    border: 1px solid #cbd5e1 !important; /* אפור עדין */
-                }
-                
-                /* ביטול מוחלט של הצבע האדום */
-                .stTextArea:has(:invalid) {
-                    border-color: #cbd5e1 !important;
-                }
-                </style>
-            """, unsafe_allow_html=True)
-        
+        # ============================    
         with st.container(border=True, key="ai_container"):
             st.markdown('### <span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b !important;">smart_toy</span> עוזר AI אישי', unsafe_allow_html=True)
     
