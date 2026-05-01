@@ -599,6 +599,10 @@ div[data-testid="stAlert"] h3 {
     direction: rtl !important;
     width: 100% !important;
 }
+ul[data-testid="stSelectboxVirtualDropdown"] li {
+    text-align: right !important;
+    direction: rtl !important;
+}
 
 /* ── Scrollbar עדין ────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
