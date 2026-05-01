@@ -447,7 +447,6 @@ div[data-testid="stButton"] button:hover {
     transform: translateY(-1px) !important;
     box-shadow: var(--shadow-md) !important;
 }
-
 /* ── כפתור הוספת תזכורת ────────────────── */
 .st-key-add_rem_btn_unique button {
     background-color: #ffffff !important;
@@ -462,14 +461,12 @@ div[data-testid="stButton"] button:hover {
     margin-top: 10px !important;
     transition: all 0.2s ease !important;
 }
-
 .st-key-add_rem_btn_unique button:hover {
     border-color: var(--primary-dark) !important;
     background-color: #fdf6f9 !important;
     transform: none !important;
     box-shadow: none !important;
 }
-
 .st-key-add_rem_btn_unique button p {
     display: flex !important;
     justify-content: center !important;
@@ -486,20 +483,45 @@ div[data-testid="stButton"] button:hover {
     position: relative !important;
     top: -1px !important;
 }
-
 /* ── כפתור רענון Fathom ────────────────── */
 .st-key-refresh_fathom button {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
 }
-
 .st-key-refresh_fathom button:hover {
     background: transparent !important;
     box-shadow: none !important;
     transform: none !important;
 }
-
+/* ── כפתור שליחת AI ────────────────── */
+.st-key-ai_send div[data-testid="stButton"] button,
+.st-key-ai_send button {
+    background-color: #9ca3af !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    max-width: 44px !important;
+    max-height: 44px !important;
+    font-size: 1.3rem !important;
+    color: #ffffff !important;
+    box-shadow: var(--shadow-md) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+}
+.st-key-ai_send button p {
+    color: #ffffff !important;
+}
+.st-key-ai_send button:hover {
+    background-color: #6b7280 !important;
+    transform: scale(1.05) !important;
+    box-shadow: var(--shadow-lg) !important;
+}
 /* ── Inputs ────────────────────────────────────────────── */
 div[data-testid="stTextInput"] input,
 div[data-testid="stSelectbox"] > div {
