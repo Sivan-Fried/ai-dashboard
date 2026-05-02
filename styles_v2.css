@@ -673,7 +673,7 @@ div[data-testid="stButton"]:has(.st-key-ai_send) button {
     -webkit-border-radius: 50% !important;
     -moz-border-radius: 50% !important;
 }
-
+   
 /* ── Scrollbar עדין ────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
