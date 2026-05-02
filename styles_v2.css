@@ -523,8 +523,8 @@ div[data-testid="stButton"] button:hover {
 }
 .st-key-ai_send button:hover {
     background-color: #6b7280 !important;
-    transform: scale(1.05) !important;
-    box-shadow: var(--shadow-lg) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: var(--shadow-md) !important;
 }
 /* ── Inputs ────────────────────────────────────────────── */
 div[data-testid="stTextInput"] input,
