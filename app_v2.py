@@ -378,6 +378,149 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
 </html>""", height=110)
 #סוף נסיון
 
+def render_sidebar(page="main"):
+    import streamlit.components.v1 as components
+    
+    if page == "main":
+        nav_items = [
+            {"icon": "dashboard", "label": "דשבורד", "target": "section-projects"},
+            {"icon": "calendar_today", "label": "פגישות", "target": "section-meetings"},
+            {"icon": "checklist", "label": "משימות", "target": "section-tasks"},
+            {"icon": "notifications", "label": "תזכורות", "target": "section-reminders"},
+            {"icon": "edit", "label": "דיווחים", "target": "section-priority"},
+            {"icon": "description", "label": "סיכומים", "target": "section-fathom"},
+            {"icon": "smart_toy", "label": "עוזר AI", "target": "section-ai"},
+        ]
+    else:
+        nav_items = [
+            {"icon": "calendar_month", "label": "תוכנית עבודה", "target": "tab-work"},
+            {"icon": "group", "label": "משאבים", "target": "tab-resources"},
+            {"icon": "warning", "label": "סיכונים", "target": "tab-risks"},
+            {"icon": "description", "label": "סיכומים", "target": "tab-meetings"},
+        ]
+
+    items_html = ""
+    for item in nav_items:
+        items_html += f"""
+        <div class="nav-item" onclick="scrollToSection('{item['target']}')">
+            <span class="material-symbols-outlined">{item['icon']}</span>
+            <span class="nav-label">{item['label']}</span>
+        </div>"""
+
+    components.html(f"""<!DOCTYPE html>
+<html dir="rtl">
+<head>
+<meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<style>
+* {{ box-sizing: border-box; margin: 0; padding: 0; }}
+body {{
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: transparent;
+    direction: rtl;
+    overflow: hidden;
+}}
+.sidebar {{
+    position: fixed;
+    right: 0;
+    top: 110px;
+    width: 200px;
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #F4F4F5;
+    box-shadow: 0 2px 20px rgba(225,200,210,0.2);
+    padding: 12px 8px;
+    z-index: 999;
+    transition: width 0.3s ease;
+}}
+.sidebar.collapsed {{
+    width: 56px;
+}}
+.toggle-btn {{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #fdf2f8;
+    cursor: pointer;
+    margin: 0 auto 8px auto;
+    border: none;
+    color: #f0b8cb;
+    font-size: 18px;
+    transition: all 0.2s;
+}}
+.toggle-btn:hover {{ background: #fadce6; }}
+.nav-item {{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    color: #71717A;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    overflow: hidden;
+}}
+.nav-item:hover {{
+    background: #fdf2f8;
+    color: #3f3f46;
+}}
+.nav-item .material-symbols-outlined {{
+    font-family: 'Material Symbols Outlined' !important;
+    font-size: 20px;
+    flex-shrink: 0;
+    color: #94a3b8;
+}}
+.nav-item:hover .material-symbols-outlined {{
+    color: #f0b8cb;
+}}
+.nav-label {{
+    font-size: 0.82rem;
+    font-weight: 500;
+    transition: opacity 0.2s;
+}}
+.collapsed .nav-label {{
+    opacity: 0;
+    width: 0;
+}}
+</style>
+</head>
+<body>
+<div class="sidebar" id="sidebar">
+    <button class="toggle-btn" id="toggleBtn" onclick="toggleSidebar()">&#10094;</button>
+    {items_html}
+</div>
+<script>
+var collapsed = false;
+
+function toggleSidebar() {{
+    var sidebar = document.getElementById('sidebar');
+    var btn = document.getElementById('toggleBtn');
+    collapsed = !collapsed;
+    if (collapsed) {{
+        sidebar.classList.add('collapsed');
+        btn.innerHTML = '&#10095;';
+    }} else {{
+        sidebar.classList.remove('collapsed');
+        btn.innerHTML = '&#10094;';
+    }}
+}}
+
+function scrollToSection(sectionId) {{
+    var parentDoc = window.parent.document;
+    var el = parentDoc.getElementById(sectionId);
+    if (el) {{
+        el.scrollIntoView({{ behavior: 'smooth', block: 'start' }});
+    }}
+}}
+</script>
+</body>
+</html>""", height=500, scrolling=False)
+
 
 # ---תמונת פרופיל ---
 def get_base64_image(path):
@@ -528,6 +671,7 @@ elif 'is_read' not in today_reminders.columns:
     today_reminders['is_read'] = False
 
 render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders)
+render_sidebar(page=st.session_state.current_page)
 
 if st.session_state.current_page == "project":
     p_name = st.session_state.get("selected_project", "פרויקט")
