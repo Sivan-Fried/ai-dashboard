@@ -1,3 +1,4 @@
+#CSS_02_05_11_25
 /* =========================================================
    AURA DASHBOARD — Design System
    Primary:   #FADCE6 (ורוד עדין)
@@ -445,7 +446,10 @@ div[data-testid="stButton"] button {
 div[data-testid="stButton"] button:hover {
     transform: translateY(-1px) !important;
     box-shadow: var(--shadow-md) !important;
-
+}
+.st-key-ai_send div[data-testid="stButton"] button {
+    border-radius: 50% !important;
+}
 /* ── כפתור הוספת תזכורת ────────────────── */
 .st-key-add_rem_btn_unique button {
     background-color: #ffffff !important;
@@ -469,6 +473,7 @@ div[data-testid="stButton"] button:hover {
 .st-key-add_rem_btn_unique button p {
     display: flex !important;
     justify-content: center !important;
+    align-items: center !important;
     width: 22px !important;
     height: 22px !important;
     background-color: #9ca3af !important;
@@ -518,13 +523,11 @@ div[data-testid="stButton"] button:hover {
 .st-key-ai_send button p {
     color: #ffffff !important;
 }
-
 .st-key-ai_send button:hover {
     background-color: #6b7280 !important;
-    transform: translateY(-1px) !important;
-    box-shadow: var(--shadow-md) !important;
+    transform: scale(1.05) !important;
+    box-shadow: var(--shadow-lg) !important;
 }
-   
 /* ── Inputs ────────────────────────────────────────────── */
 div[data-testid="stTextInput"] input,
 div[data-testid="stSelectbox"] > div {
@@ -673,10 +676,9 @@ div[data-testid="stButton"]:has(.st-key-ai_send) button {
     -webkit-border-radius: 50% !important;
     -moz-border-radius: 50% !important;
 }
-   
+
 /* ── Scrollbar עדין ────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--primary-dark); }
-
