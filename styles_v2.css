@@ -741,12 +741,6 @@ section[data-testid="stSidebar"] > div {
     font-weight: 500 !important;
 }
 
-/* הסתרת כפתור הפתיחה/סגירה המובנה */
-button[data-testid="collapsedControl"],
-button[data-testid="baseButton-headerNoPadding"] {
-    display: none !important;
-}
-
 /* ── Scrollbar עדין ────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
