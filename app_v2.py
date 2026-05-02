@@ -413,6 +413,13 @@ var oldSidebar = parentDoc.getElementById('aura-sidebar');
 if (oldSidebar) oldSidebar.remove();
 var oldStyle = parentDoc.getElementById('aura-sidebar-style');
 if (oldStyle) oldStyle.remove();
+var oldFont = parentDoc.getElementById('aura-font');
+if (oldFont) oldFont.remove();
+var font = parentDoc.createElement('link');
+font.id = 'aura-font';
+font.rel = 'stylesheet';
+font.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0';
+parentDoc.head.appendChild(font);
 
 var style = parentDoc.createElement('style');
 style.id = 'aura-sidebar-style';
