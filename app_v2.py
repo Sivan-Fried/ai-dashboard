@@ -379,8 +379,6 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
 #סוף נסיון
 
 def render_sidebar(page="main"):
-    import streamlit.components.v1 as components
-    
     if page == "main":
         nav_items = [
             {"icon": "dashboard", "label": "דשבורד", "target": "section-projects"},
@@ -399,127 +397,28 @@ def render_sidebar(page="main"):
             {"icon": "description", "label": "סיכומים", "target": "tab-meetings"},
         ]
 
-    components.html(f"""<!DOCTYPE html>
-<html dir="rtl">
-<head>
-<meta charset="utf-8"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
-</head>
-<body>
-<script>
-var parentDoc = window.parent.document;
+    items_html = ""
+    for item in nav_items:
+        items_html += f'''
+        <a class="aura-nav-item" onclick="document.getElementById('{item['target']}').scrollIntoView({{behavior:'smooth'}})">
+            <span class="aura-nav-icon">{item['icon']}</span>
+            <span class="aura-nav-label">{item['label']}</span>
+        </a>'''
 
-var oldSidebar = parentDoc.getElementById('aura-sidebar');
-if (oldSidebar) oldSidebar.remove();
-var oldStyle = parentDoc.getElementById('aura-sidebar-style');
-if (oldStyle) oldStyle.remove();
-var oldFont = parentDoc.getElementById('aura-font');
-if (oldFont) oldFont.remove();
-var font = parentDoc.createElement('link');
-font.id = 'aura-font';
-font.rel = 'stylesheet';
-font.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0';
-parentDoc.head.appendChild(font);
-
-var style = parentDoc.createElement('style');
-style.id = 'aura-sidebar-style';
-style.textContent = `
-    #aura-sidebar {{
-        position: fixed;
-        right: 16px;
-        top: 120px;
-        width: 180px;
-        background: white;
-        border-radius: 16px;
-        border: 1px solid #F4F4F5;
-        box-shadow: 0 2px 20px rgba(225,200,210,0.2);
-        padding: 12px 8px;
-        z-index: 99999;
-        transition: width 0.3s ease;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        direction: rtl;
-    }}
-    #aura-sidebar.collapsed {{ width: 52px; }}
-    .aura-toggle-btn {{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        background: #fdf2f8;
-        cursor: pointer;
-        margin: 0 auto 8px auto;
-        border: none;
-        color: #f0b8cb;
-        font-size: 18px;
-        transition: all 0.2s;
-    }}
-    .aura-toggle-btn:hover {{ background: #fadce6; }}
-    .aura-nav-item {{
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 12px;
-        border-radius: 12px;
-        cursor: pointer;
-        color: #71717A;
-        transition: all 0.2s ease;
-        white-space: nowrap;
-        overflow: hidden;
-    }}
-    .aura-nav-item:hover {{ background: #fdf2f8; color: #3f3f46; }}
-    .aura-nav-icon {{
-        font-family: 'Material Symbols Outlined';
-        font-weight: normal;
-        font-style: normal;
-        font-size: 20px;
-        flex-shrink: 0;
-        color: #94a3b8;
-        line-height: 1;
-    }}
-    .aura-nav-item:hover .aura-nav-icon {{ color: #f0b8cb; }}
-    .aura-nav-label {{
-        font-size: 0.82rem;
-        font-weight: 500;
-        white-space: nowrap;
-        transition: opacity 0.2s, width 0.2s;
-    }}
-    #aura-sidebar.collapsed .aura-nav-label {{
-        opacity: 0;
-        width: 0;
-        overflow: hidden;
-    }}
-`;
-parentDoc.head.appendChild(style);
-
-var navItems = {str(nav_items).replace("'", '"')};
-
-var itemsHtml = '';
-navItems.forEach(function(item) {{
-    itemsHtml += '<div class="aura-nav-item" onclick="auraScrollTo(\\''+item.target+'\\')"><span class="aura-nav-icon">'+item.icon+'</span><span class="aura-nav-label">'+item.label+'</span></div>';
-}});
-
-var sidebar = parentDoc.createElement('div');
-sidebar.id = 'aura-sidebar';
-sidebar.innerHTML = '<button class="aura-toggle-btn" id="aura-toggle" onclick="auraToggle()">&#10094;</button>' + itemsHtml;
-parentDoc.body.appendChild(sidebar);
-
-
-window.auraToggle = function() {{
-    var sb = parentDoc.getElementById('aura-sidebar');
-    var btn = parentDoc.getElementById('aura-toggle');
-    sb.classList.toggle('collapsed');
-    btn.innerHTML = sb.classList.contains('collapsed') ? '&#10095;' : '&#10094;';
-}};
-
-window.auraScrollTo = function(id) {{
-    var el = parentDoc.getElementById(id);
-    if (el) el.scrollIntoView({{ behavior: 'smooth', block: 'start' }});
-}};
-</script>
-</body>
-</html>""", height=0, scrolling=False)
+    st.markdown(f'''
+        <div class="aura-sidebar" id="aura-sidebar">
+            {items_html}
+        </div>
+        <script>
+        document.querySelectorAll('.aura-nav-item').forEach(function(el) {{
+            el.addEventListener('click', function() {{
+                var target = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+                var el = window.parent.document.getElementById(target);
+                if (el) el.scrollIntoView({{behavior: 'smooth'}});
+            }});
+        }});
+        </script>
+    ''', unsafe_allow_html=True)
 
 
 # ---תמונת פרופיל ---
