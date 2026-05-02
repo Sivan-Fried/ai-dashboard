@@ -4,5 +4,4 @@ openpyxl
 google-generativeai
 geocoder
 streamlit-js-eval
-openai
-
+streamlit-float
