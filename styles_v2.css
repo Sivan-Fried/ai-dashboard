@@ -530,6 +530,7 @@ div[data-testid="stButton"] button:hover {
 
 /* ── Sidebar ────────────────── */
 section[data-testid="stSidebar"] {
+    position: fixed !important;
     top: 110px !important;
     height: calc(100% - 110px) !important;
     background-color: #ffffff !important;
