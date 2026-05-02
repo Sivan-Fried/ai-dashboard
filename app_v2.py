@@ -402,10 +402,10 @@ def render_sidebar(page="main"):
     items_html = ""
     for item in nav_items:
         items_html += f'''
-        <a class="aura-nav-item" onclick="document.getElementById('{item['target']}').scrollIntoView({{behavior:'smooth'}})">
+        <div class="aura-nav-item" onclick="window.parent.document.getElementById('{item['target']}').scrollIntoView({{behavior:'smooth'}})">
             <span class="aura-nav-icon">{item['icon']}</span>
             <span class="aura-nav-label">{item['label']}</span>
-        </a>'''
+        </div>'''
 
     sidebar_container = st.container()
     with sidebar_container:
@@ -414,7 +414,7 @@ def render_sidebar(page="main"):
                 {items_html}
             </div>
         ''', unsafe_allow_html=True)
-    sidebar_container.float("top: 120px; right: 16px; width: 180px; z-index: 99999;")
+    sidebar_container.float("top: 120px; right: 16px; width: 196px; z-index: 99999; background: transparent; border: none; box-shadow: none;")
 
 
 # ---תמונת פרופיל ---
