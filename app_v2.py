@@ -913,24 +913,25 @@ else:
     # ══════════════════════════════════════════════════════
     with col_left:
         #אזור פגישות
-        st.markdown('<div id="section-meetings"></div>', unsafe_allow_html=True)
-                st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align: middle; margin-left: 8px; color: #6f5861;\">calendar_today</span> פגישות היום", unsafe_allow_html=True)
-                t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-                if t_m.empty:
-                    st.write("אין פגישות היום")
-                else:
-                    for _, r in t_m.iterrows():
-                        s_t = fmt_time(r.get('start_time', ''))
-                        e_t = fmt_time(r.get('end_time', ''))
-                        st.markdown(f'''
-                            <div class="record-row">
-                                <span style="display: flex; align-items: center; gap: 8px; flex-grow: 1; text-align: right; font-size: 0.92rem; font-weight: normal;">
-                                    <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #6f5861; transform: scale(0.8);">event_available</span>
-                                    {r["meeting_title"]}
-                                </span>
-                                <span class="time-label">{s_t}-{e_t}</span>
-                            </div>
-                        ''', unsafe_allow_html=True)
+        with st.container(border=True):
+            st.markdown('<div id="section-meetings"></div>', unsafe_allow_html=True)
+            st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align: middle; margin-left: 8px; color: #6f5861;\">calendar_today</span> פגישות היום", unsafe_allow_html=True)
+            t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
+            if t_m.empty:
+                st.write("אין פגישות היום")
+            else:
+                for _, r in t_m.iterrows():
+                    s_t = fmt_time(r.get('start_time', ''))
+                    e_t = fmt_time(r.get('end_time', ''))
+                    st.markdown(f'''
+                        <div class="record-row">
+                            <span style="display: flex; align-items: center; gap: 8px; flex-grow: 1; text-align: right; font-size: 0.92rem; font-weight: normal;">
+                                <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #6f5861; transform: scale(0.8);">event_available</span>
+                                {r["meeting_title"]}
+                            </span>
+                            <span class="time-label">{s_t}-{e_t}</span>
+                        </div>
+                    ''', unsafe_allow_html=True)
 
                 
                                         
