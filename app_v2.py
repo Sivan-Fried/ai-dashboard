@@ -805,7 +805,9 @@ else:
                     st.rerun()
                     
         # --- משימות ---
-        st.markdown('<div id="section-tasks"></div>', unsafe_allow_html=True)
+        # --- משימות ---
+        with st.container(border=True):
+            st.markdown('<div id="section-tasks"></div>', unsafe_allow_html=True)
             st.markdown('<h3><span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">checklist</span> משימות חדשות azure </h3>', unsafe_allow_html=True)
             tasks_data = get_azure_tasks()
             if tasks_data:
@@ -815,7 +817,6 @@ else:
                     raw_date = f.get('System.CreatedDate', '')
                     fmt_date = f"{raw_date[8:10]}/{raw_date[5:7]} {raw_date[11:16]}" if raw_date else ""
                     t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_task)}/_workitems/edit/{t_id}"
-    
                     st.markdown(
                         f'''
                         <div class="record-row" style="white-space: nowrap;">
