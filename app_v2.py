@@ -819,7 +819,7 @@ else:
                 height=100
             )
 
-            col_empty, col_btn = st.columns([0.85, 0.15])
+            col_empty, col_btn = st.columns([0.88, 0.12])
             with col_btn:
                 send = st.button("↩", key="ai_send", use_container_width=True)
 
