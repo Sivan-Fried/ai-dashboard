@@ -414,7 +414,7 @@ def render_sidebar(page="main"):
                 {items_html}
             </div>
         ''', unsafe_allow_html=True)
-    sidebar_container.float("top: 120px; right: 16px; width: 196px; z-index: 99999; background: transparent; border: none; box-shadow: none;")
+    sidebar_container.float("top: 120px; right: 0; width: 100%;")
 
 
 # ---תמונת פרופיל ---
@@ -569,7 +569,7 @@ render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders)
 sidebar_col, main_col = st.columns([0.12, 0.88])
 with sidebar_col:
     render_sidebar(page=st.session_state.current_page)
-    float_parent()
+    float_parent("top: 120px; right: 0; width: 196px;")
 
 if st.session_state.current_page == "project":
     p_name = st.session_state.get("selected_project", "פרויקט")
