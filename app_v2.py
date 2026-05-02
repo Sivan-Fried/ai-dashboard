@@ -401,7 +401,10 @@ def render_sidebar(page="main"):
 
     components.html(f"""<!DOCTYPE html>
 <html dir="rtl">
-<head><meta charset="utf-8"/></head>
+<head>
+<meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+</head>
 <body>
 <script>
 var parentDoc = window.parent.document;
