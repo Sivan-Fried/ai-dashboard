@@ -765,7 +765,7 @@ else:
 
         #אזור תזכורות
         # --- אזור תזכורות ---
-        st.markdown('<div id="section-reminders"></div>', unsafe_allow_html=True):
+        st.markdown('<div id="section-reminders"></div>', unsafe_allow_html=True)
             st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;\">notifications</span> תזכורות", unsafe_allow_html=True)
             with st.container(border=False):
                 t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
@@ -803,7 +803,7 @@ else:
                     st.rerun()
                     
         # --- משימות ---
-        st.markdown('<div id="section-tasks"></div>', unsafe_allow_html=True):
+        st.markdown('<div id="section-tasks"></div>', unsafe_allow_html=True)
             st.markdown('<h3><span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">checklist</span> משימות חדשות azure </h3>', unsafe_allow_html=True)
             tasks_data = get_azure_tasks()
             if tasks_data:
@@ -838,7 +838,7 @@ else:
         # ============================
         # 📌 פרויקטים לדיווח (priority.xlsx)
         # ============================
-        st.markdown('<div id="section-priority"></div>', unsafe_allow_html=True):
+        st.markdown('<div id="section-priority"></div>', unsafe_allow_html=True)
             st.markdown('<h3><span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">edit</span> פרויקטים לדיווח</h3>', unsafe_allow_html=True)
             
             if priority_df.empty:
@@ -922,7 +922,7 @@ else:
     # ══════════════════════════════════════════════════════
     with col_left:
         #אזור פגישות
-        st.markdown('<div id="section-meetings"></div>', unsafe_allow_html=True):
+        st.markdown('<div id="section-meetings"></div>', unsafe_allow_html=True)
                 st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align: middle; margin-left: 8px; color: #6f5861;\">calendar_today</span> פגישות היום", unsafe_allow_html=True)
                 t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
                 if t_m.empty:
@@ -946,7 +946,7 @@ else:
         # ── Fathom ──────────────────────────────────────────
         # ── Fathom ──────────────────────────────────────────
         # ── Fathom ──────────────────────────────────────────
-        st.markdown('<div id="section-fathom"></div>', unsafe_allow_html=True):
+        st.markdown('<div id="section-fathom"></div>', unsafe_allow_html=True)
             col_title, col_refresh = st.columns([0.9, 0.1])
             with col_title:
                 st.markdown('<h3><span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">description</span> סיכומי פגישות Fathom</h3>', unsafe_allow_html=True)
@@ -1043,7 +1043,7 @@ else:
         # ============================
         #      עוזר אישי AI — ורוד
         # ============================    
-        st.markdown('<div id="section-ai"></div>', unsafe_allow_html=True):
+        st.markdown('<div id="section-ai"></div>', unsafe_allow_html=True)
             st.markdown('### <span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b !important;">smart_toy</span> עוזר AI אישי', unsafe_allow_html=True)
 
             sel_p = st.selectbox(
