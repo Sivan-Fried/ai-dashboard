@@ -482,11 +482,12 @@ div[data-testid="stButton"] button:hover {
     margin: 0 !important;
     padding: 0 !important;
     font-size: 16px !important;
-    font-weight: 300 !important;
-    line-height: 1 !important;
+    font-weight: 700 !important;
+    line-height: 22px !important;
     position: relative !important;
-    top: -1px !important;
+    top: -2px !important;
 }
+
 /* ── כפתור רענון Fathom ────────────────── */
 .st-key-refresh_fathom button {
     background: transparent !important;
