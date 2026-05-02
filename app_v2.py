@@ -914,8 +914,8 @@ else:
     with col_right:
         
         # --- פרויקטים ---
-        st.markdown('<div id="section-projects"></div>', unsafe_allow_html=True)
         with st.container(border=True):
+            st.markdown('<div id="section-projects"></div>', unsafe_allow_html=True)
             st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;\">work</span> פרויקטים", unsafe_allow_html=True)
             
             # הסרנו את ה-height הקשיח כדי לצמצם את הרווח הגדול, והשארנו את התצוגה פתוחה או מותאמת
