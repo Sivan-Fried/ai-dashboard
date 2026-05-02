@@ -695,22 +695,16 @@ div[data-testid="stButton"]:has(.st-key-ai_send) button {
 }
 
 /* ── Sidebar ────────────────── */
-.aura-sidebar {
-    position: fixed !important;
-    right: 16px !important;
-    top: 240px !important;
-    width: 150px !important;
-    background: white !important;
-    border-radius: 16px !important;
-    border: 1px solid #F4F4F5 !important;
-    box-shadow: 0 2px 20px rgba(225,200,210,0.2) !important;
-    padding: 12px 8px !important;
-    z-index: 99999 !important;
-    direction: rtl !important;
+section[data-testid="stSidebar"] {
+    background-color: #ffffff !important;
+    border-left: 1px solid #F4F4F5 !important;
+    box-shadow: -2px 0 20px rgba(225,200,210,0.2) !important;
+    width: 180px !important;
+    min-width: 180px !important;
 }
 
-.aura-sidebar.collapsed {
-    width: 52px !important;
+section[data-testid="stSidebar"] > div {
+    padding: 120px 8px 12px 8px !important;
 }
 
 .aura-nav-item {
@@ -723,8 +717,7 @@ div[data-testid="stButton"]:has(.st-key-ai_send) button {
     color: #71717A !important;
     transition: all 0.2s ease !important;
     white-space: nowrap !important;
-    overflow: hidden !important;
-    text-decoration: none !important;
+    direction: rtl !important;
 }
 
 .aura-nav-item:hover {
@@ -738,10 +731,9 @@ div[data-testid="stButton"]:has(.st-key-ai_send) button {
     flex-shrink: 0 !important;
     color: #94a3b8 !important;
     line-height: 1 !important;
-}
-
-.aura-nav-item:hover .aura-nav-icon {
-    color: #f0b8cb !important;
+    -webkit-font-feature-settings: 'liga' !important;
+    font-feature-settings: 'liga' !important;
+    -webkit-font-smoothing: antialiased !important;
 }
 
 .aura-nav-label {
@@ -749,9 +741,10 @@ div[data-testid="stButton"]:has(.st-key-ai_send) button {
     font-weight: 500 !important;
 }
 
-/* ── Sidebar spacing ────────────────── */
-section[data-testid="stMain"] {
-    padding-right: 70px !important;
+/* הסתרת כפתור הפתיחה/סגירה המובנה */
+button[data-testid="collapsedControl"],
+button[data-testid="baseButton-headerNoPadding"] {
+    display: none !important;
 }
 
 /* ── Scrollbar עדין ────────────────────────────────────── */
