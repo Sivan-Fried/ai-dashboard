@@ -535,14 +535,19 @@ section[data-testid="stSidebar"] {
     box-shadow: -2px 0 20px rgba(225,200,210,0.2) !important;
     width: 180px !important;
     min-width: 180px !important;
-    top: 60px !important;
+    top: 110px !important;
     height: calc(100vh - 110px) !important;
+    position: fixed !important;
 }
 
 section[data-testid="stSidebar"] > div:first-child {
     padding-top: 120px !important;
     padding-right: 8px !important;
     padding-left: 8px !important;
+}
+.stMainBlockContainer, section[data-testid="stMain"] {
+    margin-right: 0 !important;
+    padding-right: 0 !important;
 }
 
 .aura-nav-item {
