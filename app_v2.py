@@ -399,22 +399,14 @@ def render_sidebar(page="main"):
             {"icon": "description", "label": "סיכומים", "target": "tab-meetings"},
         ]
 
-    items_html = ""
-    for item in nav_items:
-        items_html += f'''
-        <div class="aura-nav-item" onclick="window.parent.document.getElementById('{item['target']}').scrollIntoView({{behavior:'smooth'}})">
-            <span class="aura-nav-icon">{item['icon']}</span>
-            <span class="aura-nav-label">{item['label']}</span>
-        </div>'''
-
-    sidebar_container = st.container()
-    with sidebar_container:
-        st.markdown(f'''
-            <div class="aura-sidebar" id="aura-sidebar">
-                {items_html}
-            </div>
-        ''', unsafe_allow_html=True)
-    sidebar_container.float("top: 120px; right: 0; width: 100%;")
+    with st.sidebar:
+        for item in nav_items:
+            st.markdown(f'''
+                <div class="aura-nav-item" onclick="window.parent.document.getElementById('{item['target']}').scrollIntoView({{behavior:'smooth'}})">
+                    <span class="aura-nav-icon">{item['icon']}</span>
+                    <span class="aura-nav-label">{item['label']}</span>
+                </div>
+            ''', unsafe_allow_html=True)
 
 
 # ---תמונת פרופיל ---
@@ -567,9 +559,7 @@ elif 'is_read' not in today_reminders.columns:
 
 render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders)
 sidebar_col, main_col = st.columns([0.12, 0.88])
-with sidebar_col:
-    render_sidebar(page=st.session_state.current_page)
-    float_parent("top: 120px; right: 0; width: 196px;")
+render_sidebar(page=st.session_state.current_page)
 
 if st.session_state.current_page == "project":
     p_name = st.session_state.get("selected_project", "פרויקט")
