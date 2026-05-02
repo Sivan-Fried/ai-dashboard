@@ -835,13 +835,11 @@ else:
                 
                         
 
-
-
-        # ── פרויקטים לדיווח ─────────────────────────────────
         # ============================
         # 📌 פרויקטים לדיווח (priority.xlsx)
         # ============================
-        st.markdown('<div id="section-priority"></div>', unsafe_allow_html=True)
+        with st.container(border=True):
+            st.markdown('<div id="section-priority"></div>', unsafe_allow_html=True)
             st.markdown('<h3><span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">edit</span> פרויקטים לדיווח</h3>', unsafe_allow_html=True)
             
             if priority_df.empty:
@@ -855,26 +853,20 @@ else:
                     "פיתוח": "tag-pink",
                     "אלשטול": "tag-purple",
                 }
-    
-                # --- חדש: session state לפתיחה/סגירה ---
                 if "priority_expanded" not in st.session_state:
                     st.session_state.priority_expanded = False
-    
                 rows_to_show = priority_df if st.session_state.priority_expanded else priority_df.iloc[:4]
-    
                 for _, row in rows_to_show.iterrows():
                     project_name   = row["project_name"]
                     project_number = row["project_number"]
                     order_number   = row["order_number"]
                     category  = project_name.split(" ")[0]
                     tag_class = color_map.get(category, "tag-gray")
-    
                     html = (
                         '<div class="record-row" '
                         'style="display:flex; align-items:center; justify-content:space-between; '
                         'gap:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; '
                         'font-size:0.92rem; font-weight:normal;">'
-                            
                             '<span style="display: flex; align-items: center; gap: 8px; overflow:hidden; text-overflow:ellipsis;">'
                                 f'<span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #64748b; transform: scale(0.8);">edit</span>'
                                 f'<span style="overflow:hidden; text-overflow:ellipsis; font-weight:normal;">'
@@ -884,15 +876,11 @@ else:
                                     f'</span>'
                                 f'</span>'
                             f'</span>'
-    
                             f'<span class="{tag_class}" style="white-space:nowrap; flex-shrink:0;">'
                             f'{category}</span>'
-    
                         '</div>'
                     )
                     st.markdown(html, unsafe_allow_html=True)
-    
-                # --- כפתור הצג הכל / הראה פחות ---
                 if len(priority_df) > 4:
                     label = "הראה פחות ▲" if st.session_state.priority_expanded else f"הצג הכל ({len(priority_df)}) ▼"
                     st.markdown("""
