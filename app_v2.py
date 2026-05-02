@@ -905,13 +905,7 @@ else:
     st.markdown("<div style='margin-bottom: 0.5rem;'></div>", unsafe_allow_html=True)
 
     #הגדרת עמודה ימנית - לא למחוק
-    if "sidebar_collapsed" not in st.session_state:
-        st.session_state.sidebar_collapsed = False
-
-    if st.session_state.sidebar_collapsed:
-        col_sidebar, col_right, col_left = st.columns([0.05, 0.475, 0.475])
-    else:
-        col_sidebar, col_right, col_left = st.columns([0.15, 0.425, 0.425])
+    col_right, col_left = st.columns([1, 1])
 
     # ══════════════════════════════════════════════════════
     # עמודה ימנית
