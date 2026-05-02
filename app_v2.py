@@ -906,7 +906,7 @@ else:
 
     #הגדרת עמודה ימנית - לא למחוק
     if "sidebar_collapsed" not in st.session_state:
-    st.session_state.sidebar_collapsed = False
+        st.session_state.sidebar_collapsed = False
 
     if st.session_state.sidebar_collapsed:
         col_sidebar, col_right, col_left = st.columns([0.05, 0.475, 0.475])
