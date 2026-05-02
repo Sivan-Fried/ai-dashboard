@@ -529,10 +529,12 @@ div[data-testid="stButton"] button:hover {
 }
 
 /* ── Sidebar ────────────────── */
-section[data-testid="stSidebar"] {
+/* ── Sidebar ────────────────── */
+section[data-testid="stSidebar"][aria-expanded="true"],
+section[data-testid="stSidebar"][aria-expanded="false"] {
     position: fixed !important;
     top: 110px !important;
-    height: calc(100% - 110px) !important;
+    height: calc(100vh - 110px) !important;
     background-color: #ffffff !important;
     border-left: 1px solid #F4F4F5 !important;
     box-shadow: -2px 0 20px rgba(225,200,210,0.2) !important;
