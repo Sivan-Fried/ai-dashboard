@@ -519,7 +519,7 @@ function scrollToSection(sectionId) {{
 }}
 </script>
 </body>
-</html>""", height=500, scrolling=False)
+</html>""", height=0, scrolling=False)
 
 
 # ---תמונת פרופיל ---
