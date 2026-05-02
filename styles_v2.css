@@ -680,7 +680,7 @@ div[data-testid="stButton"]:has(.st-key-ai_send) button {
 .aura-sidebar {
     position: fixed !important;
     right: 16px !important;
-    top: 120px !important;
+    top: 240px !important;
     width: 150px !important;
     background: white !important;
     border-radius: 16px !important;
