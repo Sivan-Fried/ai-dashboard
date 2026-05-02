@@ -15,6 +15,7 @@ import google.generativeai as genai
 from streamlit_js_eval import get_geolocation
 from workplan_module import build_timeline_html
 from urllib.parse import urlencode
+from streamlit_float import *
 
 # הגדרות דף
 st.set_page_config(
@@ -22,6 +23,7 @@ st.set_page_config(
     page_title="Dashboard Sivan",
     initial_sidebar_state="expanded"
 )
+float_init()
 
 # 2. הזרקת עיצוב גלובלית מאוחדת
 st.markdown("""
