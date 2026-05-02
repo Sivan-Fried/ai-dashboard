@@ -568,7 +568,6 @@ elif 'is_read' not in today_reminders.columns:
 render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders)
 sidebar_col, main_col = st.columns([0.12, 0.88])
 with sidebar_col:
-with sidebar_col:
     render_sidebar(page=st.session_state.current_page)
     float_parent()
 
