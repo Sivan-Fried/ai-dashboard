@@ -346,6 +346,22 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     dropdown.innerHTML = '<div class="sn-header">התראות להיום</div>' + `{items_js}`;
     parentDoc.body.appendChild(dropdown);
 
+    var sidebar = parentDoc.querySelector('section[data-testid="stSidebar"]');
+    if (sidebar) {{
+        sidebar.style.setProperty('top', '110px', 'important');
+        sidebar.style.setProperty('height', 'calc(100vh - 110px)', 'important');
+        sidebar.style.setProperty('position', 'fixed', 'important');
+    }}
+    var observer = new MutationObserver(function() {{
+        var sb = parentDoc.querySelector('section[data-testid="stSidebar"]');
+        if (sb) {{
+            sb.style.setProperty('top', '110px', 'important');
+            sb.style.setProperty('height', 'calc(100vh - 110px)', 'important');
+            sb.style.setProperty('position', 'fixed', 'important');
+        }}
+    }});
+    observer.observe(parentDoc.body, {{ childList: true, subtree: true, attributes: true }});
+
     parentDoc.addEventListener('scroll', function() {{
       var d = parentDoc.getElementById('sn-floating-dropdown');
       if (d && d.style.display === 'block') {{
