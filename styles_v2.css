@@ -733,7 +733,7 @@ div[data-testid="stButton"]:has(.st-key-ai_send) button {
 
 /* ── Sidebar spacing ────────────────── */
 section[data-testid="stMain"] {
-    padding-right: 210px !important;
+    padding-right: 70px !important;
 }
 
 /* ── Scrollbar עדין ────────────────────────────────────── */
