@@ -501,6 +501,7 @@ div[data-testid="stButton"] button:hover {
 }
 /* ── כפתור שליחת AI ────────────────── */
 /* ── כפתור שליחת AI ────────────────── */
+/* ── כפתור שליחת AI ────────────────── */
 .st-key-ai_send button,
 div[data-testid="stButton"]:has(.st-key-ai_send) button {
     background-color: #9ca3af !important;
@@ -526,6 +527,7 @@ div[data-testid="stButton"]:has(.st-key-ai_send) button {
     color: #ffffff !important;
 }
 
+div[data-testid="stButton"] .st-key-ai_send button:hover,
 .st-key-ai_send button:hover,
 div[data-testid="stButton"]:has(.st-key-ai_send) button:hover {
     background-color: #6b7280 !important;
@@ -533,6 +535,7 @@ div[data-testid="stButton"]:has(.st-key-ai_send) button:hover {
     box-shadow: var(--shadow-md) !important;
 }
 
+div[data-testid="stButton"] .st-key-ai_send button:active,
 .st-key-ai_send button:active,
 div[data-testid="stButton"]:has(.st-key-ai_send) button:active {
     transform: translateY(0) !important;
