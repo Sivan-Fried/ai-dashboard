@@ -518,10 +518,7 @@ div[data-testid="stButton"] button:hover {
 .st-key-ai_send button p {
     color: #ffffff !important;
 }
-div[data-testid="stButton"] .st-key-ai_send div:hover {
-    transform: translateY(-1px) !important;
-    box-shadow: var(--shadow-md) !important;
-}   
+
 .st-key-ai_send button:hover {
     background-color: #6b7280 !important;
     transform: translateY(-1px) !important;
