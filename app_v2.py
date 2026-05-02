@@ -494,6 +494,7 @@ var sidebar = parentDoc.createElement('div');
 sidebar.id = 'aura-sidebar';
 sidebar.innerHTML = '<button class="aura-toggle-btn" id="aura-toggle" onclick="auraToggle()">&#10094;</button>' + itemsHtml;
 parentDoc.body.appendChild(sidebar);
+parentDoc.body.style.position = 'relative';
 
 window.auraToggle = function() {{
     var sb = parentDoc.getElementById('aura-sidebar');
