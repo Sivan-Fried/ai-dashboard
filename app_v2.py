@@ -20,7 +20,7 @@ from urllib.parse import urlencode
 st.set_page_config(
     layout="wide",
     page_title="Dashboard Sivan",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 # 2. הזרקת עיצוב גלובלית מאוחדת
