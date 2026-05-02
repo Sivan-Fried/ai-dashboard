@@ -494,6 +494,10 @@ var sidebar = parentDoc.createElement('div');
 sidebar.id = 'aura-sidebar';
 sidebar.innerHTML = '<button class="aura-toggle-btn" id="aura-toggle" onclick="auraToggle()">&#10094;</button>' + itemsHtml;
 parentDoc.body.appendChild(sidebar);
+var stApp = parentDoc.querySelector('.stApp');
+if (stApp) stApp.style.overflow = 'unset';
+var mainBlock = parentDoc.querySelector('section[data-testid="stMain"]');
+if (mainBlock) mainBlock.style.overflow = 'unset';
 
 window.auraToggle = function() {{
     var sb = parentDoc.getElementById('aura-sidebar');
