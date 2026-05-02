@@ -676,6 +676,11 @@ div[data-testid="stButton"]:has(.st-key-ai_send) button {
     -moz-border-radius: 50% !important;
 }
 
+/* ── Sidebar spacing ────────────────── */
+.stApp > section > div {
+    padding-right: 200px !important;
+}
+
 /* ── Scrollbar עדין ────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
