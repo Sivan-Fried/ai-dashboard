@@ -530,24 +530,19 @@ div[data-testid="stButton"] button:hover {
 
 /* ── Sidebar ────────────────── */
 section[data-testid="stSidebar"] {
+    top: 110px !important;
+    height: calc(100% - 110px) !important;
     background-color: #ffffff !important;
     border-left: 1px solid #F4F4F5 !important;
     box-shadow: -2px 0 20px rgba(225,200,210,0.2) !important;
     width: 180px !important;
     min-width: 180px !important;
-    top: 110px !important;
-    height: calc(100vh - 110px) !important;
-    position: fixed !important;
 }
 
 section[data-testid="stSidebar"] > div:first-child {
-    padding-top: 120px !important;
+    padding-top: 16px !important;
     padding-right: 8px !important;
     padding-left: 8px !important;
-}
-.stMainBlockContainer, section[data-testid="stMain"] {
-    margin-right: 0 !important;
-    padding-right: 0 !important;
 }
 
 .aura-nav-item {
@@ -582,6 +577,10 @@ section[data-testid="stSidebar"] > div:first-child {
 .aura-nav-label {
     font-size: 0.82rem !important;
     font-weight: 500 !important;
+}
+
+button[data-testid="stSidebarCollapseButton"] {
+    display: none !important;
 }
 
 /* ── Inputs ────────────────────────────────────────────── */
