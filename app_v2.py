@@ -938,7 +938,8 @@ else:
         # ── Fathom ──────────────────────────────────────────
         # ── Fathom ──────────────────────────────────────────
         # ── Fathom ──────────────────────────────────────────
-        st.markdown('<div id="section-fathom"></div>', unsafe_allow_html=True)
+        with st.container(border=True):
+            st.markdown('<div id="section-fathom"></div>', unsafe_allow_html=True)
             col_title, col_refresh = st.columns([0.9, 0.1])
             with col_title:
                 st.markdown('<h3><span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">description</span> סיכומי פגישות Fathom</h3>', unsafe_allow_html=True)
@@ -982,20 +983,15 @@ else:
                 for idx, mtg in enumerate(f_meetings):
                     rec_id   = mtg.get('recording_id')
                     title    = mtg.get('title') or "פגישה"
-                    
                     raw_date = mtg.get('recording_start_time', '')[:10]
                     if raw_date and len(raw_date) >= 10:
                         date_str = f"{raw_date[8:10]}-{raw_date[5:7]}-{raw_date[0:4]}"
                     else:
                         date_str = ""
-                        
                     open_key = f"open_{rec_id}"
                     is_open  = st.session_state.get(open_key, False)
                     s_key    = f"sum_v4_{rec_id}"
-
-                    # תיקון החץ — Unicode במקום Material Symbols
                     arrow = "&#8250;" if not is_open else "&#8249;"
-
                     st.markdown(f'''
                         <div class="fathom-row-ui" style="font-size: 0.92rem; font-weight: normal;">
                             <div style="display: flex; align-items: center; gap: 8px;">
@@ -1008,11 +1004,9 @@ else:
                             <span style="color: #94a3b8; font-size: 22px; line-height: 1; flex-shrink: 0; margin-right: 8px;">{arrow}</span>
                         </div>
                     ''', unsafe_allow_html=True)
-
                     if st.button("", key=f"f_trig_{rec_id}_{idx}", use_container_width=True):
                         st.session_state[open_key] = not is_open
                         st.rerun()
-
                     if is_open:
                         with st.container():
                             if s_key not in st.session_state:
@@ -1028,14 +1022,11 @@ else:
                             if st.session_state.get(s_key):
                                 st.info(st.session_state.get(s_key))
 
-
         # ============================
         #      עוזר אישי AI — ורוד
         # ============================
-        # ============================
-        #      עוזר אישי AI — ורוד
-        # ============================    
-        st.markdown('<div id="section-ai"></div>', unsafe_allow_html=True)
+        with st.container(border=True, key="ai_container"):
+            st.markdown('<div id="section-ai"></div>', unsafe_allow_html=True)
             st.markdown('### <span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b !important;">smart_toy</span> עוזר AI אישי', unsafe_allow_html=True)
 
             sel_p = st.selectbox(
@@ -1130,4 +1121,3 @@ else:
 
             if st.session_state.ai_response:
                 st.info(st.session_state.ai_response)
-                                
