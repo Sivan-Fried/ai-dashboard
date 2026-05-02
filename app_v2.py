@@ -511,17 +511,7 @@ window.addEventListener('load', function() {{
     sidebar.innerHTML = itemsHtml;
     parentDoc.body.appendChild(sidebar);
 
-    // תיקון transform שמשבש fixed
-    var el = sidebar.parentElement;
-    while (el && el !== parentDoc.body) {
-        var t = window.getComputedStyle(el).transform;
-        if (t && t !== 'none') {
-            el.style.transform = 'none';
-            el.style.willChange = 'auto';
-        }
-        el = el.parentElement;
-    }
-
+   
     // קיפול
     parentDoc.getElementById('aura-toggle').addEventListener('click', function() {{
         var sb = parentDoc.getElementById('aura-sidebar');
