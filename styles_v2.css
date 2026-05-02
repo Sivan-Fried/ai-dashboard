@@ -676,9 +676,59 @@ div[data-testid="stButton"]:has(.st-key-ai_send) button {
     -moz-border-radius: 50% !important;
 }
 
-/* ── Sidebar spacing ────────────────── */
-.stApp > section > div {
-    padding-right: 200px !important;
+/* ── Sidebar ────────────────── */
+.aura-sidebar {
+    position: fixed !important;
+    right: 16px !important;
+    top: 120px !important;
+    width: 180px !important;
+    background: white !important;
+    border-radius: 16px !important;
+    border: 1px solid #F4F4F5 !important;
+    box-shadow: 0 2px 20px rgba(225,200,210,0.2) !important;
+    padding: 12px 8px !important;
+    z-index: 99999 !important;
+    direction: rtl !important;
+}
+
+.aura-sidebar.collapsed {
+    width: 52px !important;
+}
+
+.aura-nav-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 10px 12px !important;
+    border-radius: 12px !important;
+    cursor: pointer !important;
+    color: #71717A !important;
+    transition: all 0.2s ease !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-decoration: none !important;
+}
+
+.aura-nav-item:hover {
+    background: #fdf2f8 !important;
+    color: #3f3f46 !important;
+}
+
+.aura-nav-icon {
+    font-family: 'Material Symbols Outlined' !important;
+    font-size: 20px !important;
+    flex-shrink: 0 !important;
+    color: #94a3b8 !important;
+    line-height: 1 !important;
+}
+
+.aura-nav-item:hover .aura-nav-icon {
+    color: #f0b8cb !important;
+}
+
+.aura-nav-label {
+    font-size: 0.82rem !important;
+    font-weight: 500 !important;
 }
 
 /* ── Scrollbar עדין ────────────────────────────────────── */
