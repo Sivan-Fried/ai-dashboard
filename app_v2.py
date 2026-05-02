@@ -571,6 +571,25 @@ elif 'is_read' not in today_reminders.columns:
 
 render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders)
 render_sidebar(page=st.session_state.current_page)
+st.markdown("""
+<script>
+(function() {
+    function fixSidebar() {
+        var sidebar = document.getElementById('aura-sidebar');
+        if (!sidebar) return;
+        var parent = sidebar.parentElement;
+        while (parent) {
+            var style = window.getComputedStyle(parent);
+            if (style.transform !== 'none') {
+                parent.style.transform = 'none';
+            }
+            parent = parent.parentElement;
+        }
+    }
+    setTimeout(fixSidebar, 500);
+})();
+</script>
+""", unsafe_allow_html=True)
 
 if st.session_state.current_page == "project":
     p_name = st.session_state.get("selected_project", "פרויקט")
