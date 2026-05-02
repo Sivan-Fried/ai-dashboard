@@ -501,10 +501,10 @@ div[data-testid="stButton"] button:hover {
 }
 /* ── כפתור שליחת AI ────────────────── */
 /* ── כפתור שליחת AI ────────────────── */
-.st-key-ai_send button,
-div[data-testid="stButton"]:has(.st-key-ai_send) button {
+[data-testid="stBaseButton-secondary"].st-key-ai_send {
     background-color: #9ca3af !important;
     border: none !important;
+    outline: none !important;
     border-radius: 50% !important;
     width: 44px !important;
     height: 44px !important;
@@ -514,7 +514,7 @@ div[data-testid="stButton"]:has(.st-key-ai_send) button {
     max-height: 44px !important;
     font-size: 1.3rem !important;
     color: #ffffff !important;
-    box-shadow: var(--shadow-sm) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -522,31 +522,21 @@ div[data-testid="stButton"]:has(.st-key-ai_send) button {
     transition: all 0.2s ease-in-out !important;
 }
 
-.st-key-ai_send button p {
+[data-testid="stBaseButton-secondary"].st-key-ai_send p {
     color: #ffffff !important;
 }
 
-.st-key-ai_send button:hover,
-div[data-testid="stButton"]:has(.st-key-ai_send) button:hover {
+[data-testid="stBaseButton-secondary"].st-key-ai_send:hover {
     background-color: #6b7280 !important;
     transform: translateY(-2px) !important;
-    box-shadow: var(--shadow-md) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
 }
 
-.st-key-ai_send button:active,
-div[data-testid="stButton"]:has(.st-key-ai_send) button:active {
+[data-testid="stBaseButton-secondary"].st-key-ai_send:active {
     transform: translateY(0) !important;
-    box-shadow: var(--shadow-sm) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* ── קיבוע מידות הכפתור ומניעת עיוות ── */
-div[data-testid="stButton"]:has(.st-key-ai_send) button {
-    border-radius: 50% !important;
-    width: 44px !important;
-    height: 44px !important;
-    min-width: 44px !important;
-    min-height: 44px !important;
-}
 /* ── Inputs ────────────────────────────────────────────── */
 div[data-testid="stTextInput"] input,
 div[data-testid="stSelectbox"] > div {
