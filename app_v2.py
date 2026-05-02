@@ -511,7 +511,7 @@ window.addEventListener('load', function() {{
     sidebar.innerHTML = itemsHtml;
     parentDoc.body.appendChild(sidebar);
 
-    #הוספה מעכשיו שאמורה לתקן
+    // תיקון transform שמשבש fixed
     var el = sidebar.parentElement;
     while (el && el !== parentDoc.body) {
         var t = window.getComputedStyle(el).transform;
