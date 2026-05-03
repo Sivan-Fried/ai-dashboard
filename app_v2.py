@@ -516,7 +516,7 @@ document.getElementById('toggleBtn').addEventListener('click', function() {{
 </html>
 """, height=600, scrolling=False)
 
-    if st.button("toggle", key="sidebar_toggle", label_visibility="hidden"):
+    if st.button(toggle_icon, key="sidebar_toggle"):
         st.session_state.sidebar_collapsed = not collapsed
         st.rerun()
 
