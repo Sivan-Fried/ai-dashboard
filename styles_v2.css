@@ -529,23 +529,28 @@ div[data-testid="stButton"] button:hover {
 }
 
 /* ── Sidebar ────────────────── */
-/* ── Sidebar ────────────────── */
-section[data-testid="stSidebar"][aria-expanded="true"],
-section[data-testid="stSidebar"][aria-expanded="false"] {
-    position: fixed !important;
-    top: 110px !important;
-    height: calc(100vh - 110px) !important;
-    background-color: #ffffff !important;
-    border-left: 1px solid #F4F4F5 !important;
+.aura-sidebar-inner {
+    background: #ffffff !important;
+    border-radius: 16px !important;
+    border: 1px solid #F4F4F5 !important;
     box-shadow: -2px 0 20px rgba(225,200,210,0.2) !important;
-    width: 180px !important;
-    min-width: 180px !important;
+    padding: 8px !important;
+    height: 100% !important;
 }
 
-section[data-testid="stSidebar"] > div:first-child {
-    padding-top: 16px !important;
-    padding-right: 8px !important;
-    padding-left: 8px !important;
+.aura-toggle-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 50% !important;
+    background: #fdf2f8 !important;
+    border: none !important;
+    cursor: pointer !important;
+    margin: 0 auto 8px auto !important;
+    color: #f0b8cb !important;
+    font-size: 16px !important;
 }
 
 .aura-nav-item {
@@ -580,10 +585,6 @@ section[data-testid="stSidebar"] > div:first-child {
 .aura-nav-label {
     font-size: 0.82rem !important;
     font-weight: 500 !important;
-}
-
-button[data-testid="stSidebarCollapseButton"] {
-    display: none !important;
 }
 
 /* ── Inputs ────────────────────────────────────────────── */
