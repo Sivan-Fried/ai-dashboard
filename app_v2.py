@@ -1252,34 +1252,44 @@ with main_col:
 
         # ============================
         # ── אזור פגישות אמיתיות מ-Fathom ──────────────────────────
+        # ── אזור פגישות אמיתיות מיומן העבודה ──────────────────────────
         st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown("<h3>פגישות אמיתיות</h3>", unsafe_allow_html=True)
+        st.markdown("<h3>פגישות אמיתיות מהיומן</h3>", unsafe_allow_html=True)
         
-        # שליפת הפגישות מ-Fathom
-        fathom_meetings, status_code = get_fathom_meetings()
+        today = datetime.date.today()
+        start_of_day = datetime.datetime.combine(today, datetime.time.min).strftime("%Y%m%dT%H%M%S")
+        end_of_day = datetime.datetime.combine(today, datetime.time.max).strftime("%Y%m%dT%H%M%S")
         
-        if status_code != 200 or not fathom_meetings:
-            st.info("לא נמצאו פגישות מ-Fathom כרגע.")
+        # שליפת האירועים מיומן העבודה/היומן הראשי שאליו מתחבר Fathom
+        calendar_events, status = generic_calendar.search(
+            calendar_ids=['primary'],
+            start_datetime=start_of_day,
+            end_datetime=end_of_day
+        )
+        
+        if status != 200 or not calendar_events:
+            st.info("לא נמצאו פגישות ביומן להיום.")
         else:
             now_time = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).time()
             
-            for meeting in fathom_meetings:
-                # משיכת הנתונים (מומלץ לוודא את שמות המפתחות מול ה-API של Fathom אם צריך, למשל 'title', 'start_time')
-                m_title = meeting.get('title', 'ללא נושא')
-                m_time_str = meeting.get('start_time', '') # תלוי בפורמט שמגיע, לדוגמה "14:30"
+            for event in calendar_events:
+                m_title = event.get('event_title', 'ללא נושא')
+                start_time_str = event.get('start_time', '')
                 
-                # בדיקה האם הפגישה עברה
+                meeting_time_str = "לא צוינה שעה"
                 is_past = False
-                if m_time_str:
+                
+                if start_time_str:
                     try:
-                        # חילוץ השעה בלבד לצורך ההשוואה (אם מגיע כ-ISO string אפשר להמיר)
-                        meeting_time_obj = datetime.datetime.fromisoformat(m_time_str).time()
+                        meeting_datetime = datetime.datetime.fromisoformat(start_time_str.replace('Z', '+00:00'))
+                        meeting_time_obj = meeting_datetime.astimezone(ZoneInfo("Asia/Jerusalem")).time()
+                        
+                        meeting_time_str = meeting_datetime.astimezone(ZoneInfo("Asia/Jerusalem")).strftime("%H:%M")
                         is_past = meeting_time_obj < now_time
                     except:
-                        # אם הפורמט שונה, תוכלי להתאים כאן את ה-Parsing
                         pass
                 
-                # עיצוב הטקסט (קו חוצה אם עבר הזמן)
+                # עיצוב התצוגה (פס חוצה אם השעה עברה)
                 text_decoration = "line-through; color: #94a3b8;" if is_past else "none; color: #0f172a;"
                 
                 st.markdown(f"""
@@ -1289,7 +1299,7 @@ with main_col:
                             {m_title}
                         </span>
                         <span style="font-size: 0.82rem; font-family: monospace; color: #64748b; text-decoration: {text_decoration};">
-                            {m_time_str}
+                            {meeting_time_str}
                         </span>
                     </div>
                 </div>
