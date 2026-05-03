@@ -449,6 +449,21 @@ def render_sidebar(page="main"):
             border: 1px solid #F4F4F5;
             box-shadow: -2px 0 20px rgba(225,200,210,0.2);
             padding: 8px;
+            min-height: 500px;
+        }}
+        .aura-toggle-btn {{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #fdf2f8;
+            border: none;
+            cursor: pointer;
+            margin: 0 auto 12px auto;
+            color: #f0b8cb;
+            font-size: 16px;
         }}
         .aura-nav-item {{
             display: flex;
@@ -470,7 +485,7 @@ def render_sidebar(page="main"):
             font-family: 'Material Symbols Outlined';
             font-size: 20px;
             flex-shrink: 0;
-            color: #f0b8cb !important;
+            color: #94a3b8;
             line-height: 1;
             -webkit-font-feature-settings: 'liga';
             font-feature-settings: 'liga';
@@ -482,14 +497,14 @@ def render_sidebar(page="main"):
         }}
         </style>
         <div class="aura-sidebar-inner">
+            <button class="aura-toggle-btn" onclick="void(0)">{toggle_icon}</button>
             {items_html}
         </div>
     ''', unsafe_allow_html=True)
 
-    if st.button(toggle_icon, key="sidebar_toggle"):
+    if st.button(toggle_icon, key="sidebar_toggle", label_visibility="collapsed"):
         st.session_state.sidebar_collapsed = not collapsed
         st.rerun()
-
 
 # ---תמונת פרופיל ---
 def get_base64_image(path):
