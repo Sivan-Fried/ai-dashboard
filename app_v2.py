@@ -440,6 +440,10 @@ def render_sidebar(page="main"):
             {label_html}
         </div>'''
 
+    if st.button(toggle_icon, key="sidebar_toggle"):
+        st.session_state.sidebar_collapsed = not collapsed
+        st.rerun()
+
     st.markdown('<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>', unsafe_allow_html=True)
     st.markdown(f'''
         <style>
@@ -497,14 +501,11 @@ def render_sidebar(page="main"):
         }}
         </style>
         <div class="aura-sidebar-inner">
-            <button class="aura-toggle-btn" onclick="void(0)">{toggle_icon}</button>
             {items_html}
         </div>
     ''', unsafe_allow_html=True)
 
-    if st.button(toggle_icon, key="sidebar_toggle"):
-        st.session_state.sidebar_collapsed = not collapsed
-        st.rerun()
+
 
 # ---תמונת פרופיל ---
 def get_base64_image(path):
