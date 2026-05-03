@@ -1251,16 +1251,46 @@ with main_col:
 
 
         # ============================
-        # ── אזור פגישות אמיתיות ──────────────────────────
+        # ── אזור פגישות אמיתיות מ-Fathom ──────────────────────────
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown("<h3>פגישות אמיתיות</h3>", unsafe_allow_html=True)
         
-        st.markdown("""
-        <div style="background: white; border-radius: 16px; border: 1px solid #f4f4f5; padding: 16px; box-shadow: 0 2px 12px rgba(225,200,210,0.15); margin-bottom: 16px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <span style="font-size: 0.82rem; font-weight: 600; color: #64748b;">סך הכל פגישות שהתקיימו</span>
-            </div>
-            <div style="font-size: 1.6rem; font-weight: 700; color: #0f172a;">4</div>
-        </div>
-        """, unsafe_allow_html=True)
-
+        # שליפת הפגישות מ-Fathom
+        fathom_meetings, status_code = get_fathom_meetings()
+        
+        if status_code != 200 or not fathom_meetings:
+            st.info("לא נמצאו פגישות מ-Fathom כרגע.")
+        else:
+            now_time = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).time()
+            
+            for meeting in fathom_meetings:
+                # משיכת הנתונים (מומלץ לוודא את שמות המפתחות מול ה-API של Fathom אם צריך, למשל 'title', 'start_time')
+                m_title = meeting.get('title', 'ללא נושא')
+                m_time_str = meeting.get('start_time', '') # תלוי בפורמט שמגיע, לדוגמה "14:30"
+                
+                # בדיקה האם הפגישה עברה
+                is_past = False
+                if m_time_str:
+                    try:
+                        # חילוץ השעה בלבד לצורך ההשוואה (אם מגיע כ-ISO string אפשר להמיר)
+                        meeting_time_obj = datetime.datetime.fromisoformat(m_time_str).time()
+                        is_past = meeting_time_obj < now_time
+                    except:
+                        # אם הפורמט שונה, תוכלי להתאים כאן את ה-Parsing
+                        pass
+                
+                # עיצוב הטקסט (קו חוצה אם עבר הזמן)
+                text_decoration = "line-through; color: #94a3b8;" if is_past else "none; color: #0f172a;"
+                
+                st.markdown(f"""
+                <div style="background: white; border-radius: 12px; border: 1px solid #f4f4f5; padding: 12px 16px; margin-bottom: 8px; box-shadow: 0 1px 6px rgba(225,200,210,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.9rem; font-weight: 600; text-decoration: {text_decoration};">
+                            {m_title}
+                        </span>
+                        <span style="font-size: 0.82rem; font-family: monospace; color: #64748b; text-decoration: {text_decoration};">
+                            {m_time_str}
+                        </span>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
