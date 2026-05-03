@@ -440,80 +440,85 @@ def render_sidebar(page="main"):
             {label_html}
         </div>'''
 
-    st.markdown(f'''
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
-        <style>
-        .aura-sidebar-inner {{
-            background: #ffffff;
-            border-radius: 16px;
-            border: 1px solid #F4F4F5;
-            box-shadow: -2px 0 20px rgba(225,200,210,0.2);
-            padding: 8px;
-            min-height: 500px;
-        }}
-        .aura-nav-item {{
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            border-radius: 12px;
-            cursor: pointer;
-            color: #71717A;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-            direction: rtl;
-        }}
-        .aura-nav-item:hover {{
-            background: #fdf2f8;
-            color: #3f3f46;
-        }}
-        .aura-nav-icon {{
-            font-family: 'Material Symbols Outlined';
-            font-size: 20px;
-            flex-shrink: 0;
-            color: #94a3b8;
-            line-height: 1;
-            -webkit-font-feature-settings: 'liga';
-            font-feature-settings: 'liga';
-            -webkit-font-smoothing: antialiased;
-        }}
-        .aura-nav-label {{
-            font-size: 0.82rem;
-            font-weight: 500;
-        }}
-        .st-key-sidebar_toggle button {{
-            background-color: #9ca3af !important;
-            border: none !important;
-            border-radius: 50% !important;
-            width: 28px !important;
-            height: 28px !important;
-            min-width: 28px !important;
-            min-height: 28px !important;
-            max-width: 28px !important;
-            max-height: 28px !important;
-            color: #ffffff !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            padding: 0 !important;
-            margin: 0 auto 8px auto !important;
-            font-size: 1rem !important;
-        }}
-        .st-key-sidebar_toggle button p {{
-            color: #ffffff !important;
-            margin: 0 !important;
-            line-height: 1 !important;
-        }}
-        </style>
-        <div class="aura-sidebar-inner">
-            {items_html}
-        </div>
-    ''', unsafe_allow_html=True)
+    components.html(f"""
+<html dir="rtl">
+<head>
+<meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+* {{ box-sizing: border-box; margin: 0; padding: 0; }}
+body {{ background: transparent; overflow: hidden; }}
+.aura-sidebar-inner {{
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #F4F4F5;
+    box-shadow: -2px 0 20px rgba(225,200,210,0.2);
+    padding: 8px;
+    min-height: 500px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}}
+.aura-toggle-btn {{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #9ca3af;
+    border: none;
+    cursor: pointer;
+    margin: 0 auto 12px auto;
+    color: #ffffff;
+    font-size: 16px;
+}}
+.aura-toggle-btn:hover {{ background: #6b7280; }}
+.aura-nav-item {{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    color: #71717A;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    direction: rtl;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}}
+.aura-nav-item:hover {{ background: #fdf2f8; color: #3f3f46; }}
+.aura-nav-icon {{
+    font-family: 'Material Symbols Outlined';
+    font-size: 20px;
+    flex-shrink: 0;
+    color: #94a3b8;
+    line-height: 1;
+    -webkit-font-feature-settings: 'liga';
+    font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+}}
+.aura-nav-label {{
+    font-size: 0.82rem;
+    font-weight: 500;
+}}
+</style>
+</head>
+<body>
+<div class="aura-sidebar-inner">
+    <button class="aura-toggle-btn" id="toggleBtn">{toggle_icon}</button>
+    {items_html}
+</div>
+<script>
+document.getElementById('toggleBtn').addEventListener('click', function() {{
+    window.parent.postMessage({{type: 'streamlit:setComponentValue', value: true}}, '*');
+}});
+</script>
+</body>
+</html>
+""", height=600, scrolling=False)
 
-    if st.button(toggle_icon, key="sidebar_toggle"):
+    if st.button("toggle", key="sidebar_toggle", label_visibility="hidden"):
         st.session_state.sidebar_collapsed = not collapsed
         st.rerun()
-
 
 
 # ---תמונת פרופיל ---
