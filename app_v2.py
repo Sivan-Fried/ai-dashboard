@@ -1285,9 +1285,11 @@ with main_col:
             # ============================
             # ── אזור פגישות אמיתיות מ-Fathom ──────────────────────────
             # ── אזור פגישות אמיתיות ──────────────────────────
+            # ── אזור פגישות אמיתיות ──────────────────────────
             st.markdown("<br>", unsafe_allow_html=True)
             st.markdown("<h3>פגישות להיום</h3>", unsafe_allow_html=True)
             
+            # שליפת כלל הפגישות מהממשק של Fathom
             try:
                 fathom_meetings, status_code = get_fathom_meetings()
             except Exception:
@@ -1297,14 +1299,17 @@ with main_col:
             if status_code != 200 or not fathom_meetings:
                 st.info("לא נמצאו פגישות להיום.")
             else:
-                # סינון פגישות השייכות להיום בלבד
+                # סינון פגישות שמתקיימות היום בלבד
                 today_str = datetime.date.today().isoformat()
                 today_meetings = [m for m in fathom_meetings if m.get('start_time', '').startswith(today_str)]
                 
                 if not today_meetings:
-                    st.info("לא נמצאו פגישות להיום.")
+                    st.info("לא נמצאו פגישות ביומן להיום.")
                 else:
                     now_time = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).time()
+                    
+                    # מיון לפי שעה כדי שהפגישות יופיעו לפי סדר כרונולוגי
+                    today_meetings.sort(key=lambda x: x.get('start_time', ''))
                     
                     for meeting in today_meetings:
                         m_title = meeting.get('title', 'ללא נושא')
@@ -1323,7 +1328,7 @@ with main_col:
                             except:
                                 pass
                         
-                        # עיצוב חזותי: קו חוצה לפגישות שעברו, טקסט רגיל לעתידיות
+                        # עיצוב שונה לפגישות שעברו (פס חוצה) ולפגישות עתידיות (טקסט מלא וברור)
                         text_decoration = "line-through; color: #94a3b8;" if is_past else "none; color: #0f172a;"
                         
                         st.markdown(f"""
