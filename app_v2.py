@@ -432,14 +432,15 @@ def render_sidebar(page="main"):
     toggle_icon = "›" if collapsed else "‹"
 
     items_html = ""
-    if not collapsed:
-        for item in nav_items:
-            items_html += f'''
-            <div class="aura-nav-item" onclick="window.parent.document.getElementById('{item['target']}').scrollIntoView({{behavior:'smooth'}})">
-                <span class="aura-nav-icon">{item['icon']}</span>
-                <span class="aura-nav-label">{item['label']}</span>
-            </div>'''
+    for item in nav_items:
+        label_html = f'<span class="aura-nav-label">{item["label"]}</span>' if not collapsed else ''
+        items_html += f'''
+        <div class="aura-nav-item" onclick="window.parent.document.getElementById('{item['target']}').scrollIntoView({{behavior:'smooth'}})">
+            <span class="aura-nav-icon">{item['icon']}</span>
+            {label_html}
+        </div>'''
 
+    st.markdown('<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>', unsafe_allow_html=True)
     st.markdown(f'''
         <style>
         .aura-sidebar-inner {{
