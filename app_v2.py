@@ -358,13 +358,17 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
             sb.style.setProperty('top', '110px', 'important');
             sb.style.setProperty('height', 'calc(100vh - 110px)', 'important');
             sb.style.setProperty('position', 'fixed', 'important');
+            return true;
         }}
+        return false;
     }}
-    setTimeout(fixSidebar, 500);
-    setTimeout(fixSidebar, 1000);
-    setTimeout(fixSidebar, 2000);
-    var observer = new MutationObserver(fixSidebar);
-    observer.observe(parentDoc.body, {{ childList: true, subtree: true }});
+    
+    var sidebarInterval = setInterval(function() {{
+        if (fixSidebar()) {{
+            clearInterval(sidebarInterval);
+            setInterval(fixSidebar, 2000);
+        }}
+    }}, 100);
 
     parentDoc.addEventListener('scroll', function() {{
       var d = parentDoc.getElementById('sn-floating-dropdown');
