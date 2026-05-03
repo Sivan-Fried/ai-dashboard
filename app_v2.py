@@ -1253,35 +1253,42 @@ with main_col:
         # ============================
         # ── אזור פגישות אמיתיות מ-Fathom ──────────────────────────
         # ── אזור פגישות אמיתיות מיומן העבודה ──────────────────────────
+        # ── אזור פגישות אמיתיות מהיומן ──────────────────────────
         st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown("<h3>פגישות אמיתיות מהיומן</h3>", unsafe_allow_html=True)
+        st.markdown("<h3>פגישות להיום</h3>", unsafe_allow_html=True)
         
         today = datetime.date.today()
         start_of_day = datetime.datetime.combine(today, datetime.time.min).strftime("%Y%m%dT%H%M%S")
         end_of_day = datetime.datetime.combine(today, datetime.time.max).strftime("%Y%m%dT%H%M%S")
         
-        # שליפת האירועים מיומן העבודה/היומן הראשי שאליו מתחבר Fathom
-        calendar_events, status = generic_calendar.search(
-            calendar_ids=['primary'],
-            start_datetime=start_of_day,
-            end_datetime=end_of_day
-        )
-        
-        if status != 200 or not calendar_events:
-            st.info("לא נמצאו פגישות ביומן להיום.")
+        try:
+            # שליפת האירועים מהיומן הראשי ללא משתנה סטטוס מיותר
+            calendar_events = generic_calendar.search(
+                calendar_ids=['primary'],
+                start_datetime=start_of_day,
+                end_datetime=end_of_day
+            )
+        except Exception as e:
+            calendar_events = None
+            
+        if not calendar_events:
+            st.info("לא נמצאו פגישות ביומן להיום או שהחיבור לא פעיל כרגע.")
         else:
             now_time = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).time()
             
-            for event in calendar_events:
+            # אם התוצאה מגיעה כמילון או אובייקט, נתאים את הלולאה
+            events_list = calendar_events.get('events', []) if isinstance(calendar_events, dict) else calendar_events
+            
+            for event in events_list:
                 m_title = event.get('event_title', 'ללא נושא')
                 start_time_str = event.get('start_time', '')
                 
                 meeting_time_str = "לא צוינה שעה"
                 is_past = False
                 
-                if start_time_str:
+                if start_timestr:
                     try:
-                        meeting_datetime = datetime.datetime.fromisoformat(start_time_str.replace('Z', '+00:00'))
+                        meeting_datetime = datetime.datetime.fromisoformat(start_timestr.replace('Z', '+00:00'))
                         meeting_time_obj = meeting_datetime.astimezone(ZoneInfo("Asia/Jerusalem")).time()
                         
                         meeting_time_str = meeting_datetime.astimezone(ZoneInfo("Asia/Jerusalem")).strftime("%H:%M")
@@ -1289,7 +1296,7 @@ with main_col:
                     except:
                         pass
                 
-                # עיצוב התצוגה (פס חוצה אם השעה עברה)
+                # עיצוב התצוגה
                 text_decoration = "line-through; color: #94a3b8;" if is_past else "none; color: #0f172a;"
                 
                 st.markdown(f"""
