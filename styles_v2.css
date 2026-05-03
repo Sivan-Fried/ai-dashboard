@@ -586,6 +586,9 @@ div[data-testid="stButton"] button:hover {
     font-size: 0.82rem !important;
     font-weight: 500 !important;
 }
+.st-key-sidebar_toggle button {
+    display: none !important;
+}
 
 /* ── Inputs ────────────────────────────────────────────── */
 div[data-testid="stTextInput"] input,
