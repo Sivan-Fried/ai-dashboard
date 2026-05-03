@@ -456,6 +456,7 @@ body {{ background: transparent; overflow: hidden; }}
     padding: 8px;
     min-height: 500px;
     font-family: 'Plus Jakarta Sans', sans-serif;
+    margin-top: -16px !important;
 }}
 .aura-toggle-btn {{
     display: flex;
