@@ -428,14 +428,28 @@ def render_sidebar(page="main"):
             {"icon": "description", "label": "סיכומים", "target": "tab-meetings"},
         ]
 
-    with st.sidebar:
+    collapsed = st.session_state.get("sidebar_collapsed", False)
+    
+    toggle_url = "?collapsed=false" if collapsed else "?collapsed=true"
+    toggle_icon = "›" if collapsed else "‹"
+    
+    items_html = ""
+    if not collapsed:
         for item in nav_items:
-            st.markdown(f'''
-                <div class="aura-nav-item" onclick="window.parent.document.getElementById('{item['target']}').scrollIntoView({{behavior:'smooth'}})">
-                    <span class="aura-nav-icon">{item['icon']}</span>
-                    <span class="aura-nav-label">{item['label']}</span>
-                </div>
-            ''', unsafe_allow_html=True)
+            items_html += f'''
+            <div class="aura-nav-item" onclick="window.parent.document.getElementById('{item['target']}').scrollIntoView({{behavior:'smooth'}})">
+                <span class="aura-nav-icon">{item['icon']}</span>
+                <span class="aura-nav-label">{item['label']}</span>
+            </div>'''
+
+    st.markdown(f'''
+        <div class="aura-sidebar-inner">
+            <a href="{toggle_url}" style="text-decoration:none;">
+                <button class="aura-toggle-btn">{toggle_icon}</button>
+            </a>
+            {items_html}
+        </div>
+    ''', unsafe_allow_html=True)
 
 
 # ---תמונת פרופיל ---
@@ -587,8 +601,20 @@ elif 'is_read' not in today_reminders.columns:
     today_reminders['is_read'] = False
 
 render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders)
-sidebar_col, main_col = st.columns([0.12, 0.88])
-render_sidebar(page=st.session_state.current_page)
+
+if "sidebar_collapsed" not in st.session_state:
+    st.session_state.sidebar_collapsed = False
+
+if "collapsed" in st.query_params:
+    st.session_state.sidebar_collapsed = st.query_params["collapsed"] == "true"
+
+if st.session_state.sidebar_collapsed:
+    sidebar_col, main_col = st.columns([0.03, 0.97])
+else:
+    sidebar_col, main_col = st.columns([0.13, 0.87])
+
+with sidebar_col:
+    render_sidebar(page=st.session_state.current_page)
 
 if st.session_state.current_page == "project":
     p_name = st.session_state.get("selected_project", "פרויקט")
