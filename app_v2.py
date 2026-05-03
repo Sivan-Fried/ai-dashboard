@@ -429,10 +429,8 @@ def render_sidebar(page="main"):
         ]
 
     collapsed = st.session_state.get("sidebar_collapsed", False)
-    
-    toggle_url = "?collapsed=false" if collapsed else "?collapsed=true"
     toggle_icon = "›" if collapsed else "‹"
-    
+
     items_html = ""
     if not collapsed:
         for item in nav_items:
@@ -443,13 +441,53 @@ def render_sidebar(page="main"):
             </div>'''
 
     st.markdown(f'''
+        <style>
+        .aura-sidebar-inner {{
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #F4F4F5;
+            box-shadow: -2px 0 20px rgba(225,200,210,0.2);
+            padding: 8px;
+        }}
+        .aura-nav-item {{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            color: #71717A;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            direction: rtl;
+        }}
+        .aura-nav-item:hover {{
+            background: #fdf2f8;
+            color: #3f3f46;
+        }}
+        .aura-nav-icon {{
+            font-family: 'Material Symbols Outlined';
+            font-size: 20px;
+            flex-shrink: 0;
+            color: #94a3b8;
+            line-height: 1;
+            -webkit-font-feature-settings: 'liga';
+            font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }}
+        .aura-nav-label {{
+            font-size: 0.82rem;
+            font-weight: 500;
+        }}
+        </style>
         <div class="aura-sidebar-inner">
-            <a href="{toggle_url}" style="text-decoration:none;">
-                <button class="aura-toggle-btn">{toggle_icon}</button>
-            </a>
             {items_html}
         </div>
     ''', unsafe_allow_html=True)
+
+    if st.button(toggle_icon, key="sidebar_toggle"):
+        st.session_state.sidebar_collapsed = not collapsed
+        st.rerun()
 
 
 # ---תמונת פרופיל ---
