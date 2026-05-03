@@ -1247,3 +1247,20 @@ with main_col:
 
             if st.session_state.ai_response:
                 st.info(st.session_state.ai_response)
+
+
+
+        # ============================
+        # ── אזור פגישות אמיתיות ──────────────────────────
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("<h3>פגישות אמיתיות</h3>", unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div style="background: white; border-radius: 16px; border: 1px solid #f4f4f5; padding: 16px; box-shadow: 0 2px 12px rgba(225,200,210,0.15); margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <span style="font-size: 0.82rem; font-weight: 600; color: #64748b;">סך הכל פגישות שהתקיימו</span>
+            </div>
+            <div style="font-size: 1.6rem; font-weight: 700; color: #0f172a;">4</div>
+        </div>
+        """, unsafe_allow_html=True)
+
