@@ -440,12 +440,8 @@ def render_sidebar(page="main"):
             {label_html}
         </div>'''
 
-    if st.button(toggle_icon, key="sidebar_toggle"):
-        st.session_state.sidebar_collapsed = not collapsed
-        st.rerun()
-
-    st.markdown('<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>', unsafe_allow_html=True)
     st.markdown(f'''
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
         <style>
         .aura-sidebar-inner {{
             background: #ffffff;
@@ -454,20 +450,6 @@ def render_sidebar(page="main"):
             box-shadow: -2px 0 20px rgba(225,200,210,0.2);
             padding: 8px;
             min-height: 500px;
-        }}
-        .aura-toggle-btn {{
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: #fdf2f8;
-            border: none;
-            cursor: pointer;
-            margin: 0 auto 12px auto;
-            color: #f0b8cb;
-            font-size: 16px;
         }}
         .aura-nav-item {{
             display: flex;
@@ -499,11 +481,38 @@ def render_sidebar(page="main"):
             font-size: 0.82rem;
             font-weight: 500;
         }}
+        .st-key-sidebar_toggle button {{
+            background-color: #9ca3af !important;
+            border: none !important;
+            border-radius: 50% !important;
+            width: 28px !important;
+            height: 28px !important;
+            min-width: 28px !important;
+            min-height: 28px !important;
+            max-width: 28px !important;
+            max-height: 28px !important;
+            color: #ffffff !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 0 !important;
+            margin: 0 auto 8px auto !important;
+            font-size: 1rem !important;
+        }}
+        .st-key-sidebar_toggle button p {{
+            color: #ffffff !important;
+            margin: 0 !important;
+            line-height: 1 !important;
+        }}
         </style>
         <div class="aura-sidebar-inner">
             {items_html}
         </div>
     ''', unsafe_allow_html=True)
+
+    if st.button(toggle_icon, key="sidebar_toggle"):
+        st.session_state.sidebar_collapsed = not collapsed
+        st.rerun()
 
 
 
