@@ -470,7 +470,7 @@ def render_sidebar(page="main"):
             font-family: 'Material Symbols Outlined';
             font-size: 20px;
             flex-shrink: 0;
-            color: #f0b8cb;
+            color: #f0b8cb !important;
             line-height: 1;
             -webkit-font-feature-settings: 'liga';
             font-feature-settings: 'liga';
