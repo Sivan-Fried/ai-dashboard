@@ -354,6 +354,11 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     }}
     function fixSidebar() {{
         var sb = parentDoc.querySelector('section[data-testid="stSidebar"]');
+        var app = parentDoc.querySelector('.stApp');
+        if (app) {{
+            app.style.setProperty('transform', 'none', 'important');
+            app.style.setProperty('will-change', 'auto', 'important');
+        }}
         if (sb) {{
             sb.style.setProperty('top', '110px', 'important');
             sb.style.setProperty('height', 'calc(100vh - 110px)', 'important');
