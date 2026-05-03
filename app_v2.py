@@ -352,15 +352,19 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
         sidebar.style.setProperty('height', 'calc(100vh - 110px)', 'important');
         sidebar.style.setProperty('position', 'fixed', 'important');
     }}
-    var observer = new MutationObserver(function() {{
+    function fixSidebar() {{
         var sb = parentDoc.querySelector('section[data-testid="stSidebar"]');
         if (sb) {{
             sb.style.setProperty('top', '110px', 'important');
             sb.style.setProperty('height', 'calc(100vh - 110px)', 'important');
             sb.style.setProperty('position', 'fixed', 'important');
         }}
-    }});
-    observer.observe(parentDoc.body, {{ childList: true, subtree: true, attributes: true }});
+    }}
+    setTimeout(fixSidebar, 500);
+    setTimeout(fixSidebar, 1000);
+    setTimeout(fixSidebar, 2000);
+    var observer = new MutationObserver(fixSidebar);
+    observer.observe(parentDoc.body, {{ childList: true, subtree: true }});
 
     parentDoc.addEventListener('scroll', function() {{
       var d = parentDoc.getElementById('sn-floating-dropdown');
