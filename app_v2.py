@@ -509,7 +509,9 @@ body {{ background: transparent; overflow: hidden; }}
 </div>
 <script>
 document.getElementById('toggleBtn').addEventListener('click', function() {{
-    window.parent.postMessage({{type: 'streamlit:setComponentValue', value: true}}, '*');
+    var parentDoc = window.parent.document;
+    var btn = parentDoc.querySelector('.st-key-sidebar_toggle button');
+    if (btn) btn.click();
 }});
 </script>
 </body>
