@@ -502,7 +502,7 @@ def render_sidebar(page="main"):
         </div>
     ''', unsafe_allow_html=True)
 
-    if st.button(toggle_icon, key="sidebar_toggle", label_visibility="collapsed"):
+    if st.button(toggle_icon, key="sidebar_toggle"):
         st.session_state.sidebar_collapsed = not collapsed
         st.rerun()
 
