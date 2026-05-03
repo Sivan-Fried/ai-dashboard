@@ -713,7 +713,7 @@ with main_col:
     else:
             
             
-            # ── Daily Quote Section Logic & Display ──────────────────────────
+        # ── Daily Quote Section Logic & Display ──────────────────────────
             import streamlit as st
             import pandas as pd
             import os
