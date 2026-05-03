@@ -616,29 +616,30 @@ else:
 with sidebar_col:
     render_sidebar(page=st.session_state.current_page)
 
-if st.session_state.current_page == "project":
-    p_name = st.session_state.get("selected_project", "פרויקט")
-    st.markdown(f'<h1 class="dashboard-header">{p_name}</h1>', unsafe_allow_html=True)
-    if st.button("⬅️ חזרה לדשבורד"):
-        st.query_params.clear()
-        st.session_state.current_page = "main"
-        st.rerun()
-        
-    with st.container(border=True):
-        st.markdown(f"### ℹ️ ניהול פרויקט: {p_name}")
-        tab_work, tab_res, tab_risk, tab_meetings = st.tabs(["📅 תוכנית עבודה", "👥 משאבים", "⚠️ סיכונים", "📝 סיכומים"])
-        with tab_work:
-            try:
-                html = build_timeline_html(p_name)
-                st.components.v1.html(html, height=300, scrolling=False)
-            except Exception as e:
-                st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
-
-        with tab_res:      st.write("רשימת צוות ומשאבים")
-        with tab_risk:     st.write("ניהול סיכונים")
-        with tab_meetings: st.write("סיכומי פגישות הפרויקט")
-
-else:
+with main_col:
+    if st.session_state.current_page == "project":
+        p_name = st.session_state.get("selected_project", "פרויקט")
+        st.markdown(f'<h1 class="dashboard-header">{p_name}</h1>', unsafe_allow_html=True)
+        if st.button("⬅️ חזרה לדשבורד"):
+            st.query_params.clear()
+            st.session_state.current_page = "main"
+            st.rerun()
+            
+        with st.container(border=True):
+            st.markdown(f"### ℹ️ ניהול פרויקט: {p_name}")
+            tab_work, tab_res, tab_risk, tab_meetings = st.tabs(["📅 תוכנית עבודה", "👥 משאבים", "⚠️ סיכונים", "📝 סיכומים"])
+            with tab_work:
+                try:
+                    html = build_timeline_html(p_name)
+                    st.components.v1.html(html, height=300, scrolling=False)
+                except Exception as e:
+                    st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
+    
+            with tab_res:      st.write("רשימת צוות ומשאבים")
+            with tab_risk:     st.write("ניהול סיכונים")
+            with tab_meetings: st.write("סיכומי פגישות הפרויקט")
+    
+    else:
     
     
     # ── Daily Quote Section Logic & Display ──────────────────────────
