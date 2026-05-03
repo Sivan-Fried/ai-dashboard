@@ -710,7 +710,7 @@ with main_col:
             with tab_risk:     st.write("ניהול סיכונים")
             with tab_meetings: st.write("סיכומי פגישות הפרויקט")
     
-        else:
+    else:
             
             
             # ── Daily Quote Section Logic & Display ──────────────────────────
