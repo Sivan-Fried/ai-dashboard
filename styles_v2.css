@@ -531,7 +531,7 @@ div[data-testid="stButton"] button:hover {
 /* ── Sidebar ────────────────── */
 
 .aura-sidebar-wrapper-outer {
-margin-top: -65px !important;
+   margin-top: -65px !important;
 }
 
 .aura-sidebar-inner {
