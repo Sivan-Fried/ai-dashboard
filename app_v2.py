@@ -31,7 +31,7 @@ st.markdown("""
     <style>
     /* מסיר את המרווח הלבן הענק שנוצר אוטומטית על ידי Streamlit בראש העמוד */
     .block-container {
-        padding-top: 1rem !important;
+        padding-top: 0.5rem !important;
         padding-bottom: 1.5rem !important;
     }
     
