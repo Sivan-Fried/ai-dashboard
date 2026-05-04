@@ -17,7 +17,18 @@ from workplan_module import build_timeline_html
 from urllib.parse import urlencode
 from streamlit_float import *
 
-# עיצוב גלובלי לכל הבלוקים בדף
+import streamlit as st
+from streamlit_float import *
+
+# 1. הגדרות דף - חייבות להיות ראשונות
+st.set_page_config(
+    layout="wide",
+    page_title="Dashboard Sivan",
+    initial_sidebar_state="expanded"
+)
+float_init()
+
+# 2. הגדרת עיצוב גלובלי לבלוקים
 st.markdown("""
     <style>
     [data-testid="stVerticalBlock"] {
@@ -26,40 +37,27 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# הגדרת עיצוב גלובלית ויציבה שמרימה את התוכן ומצמצמת רווחים עליונים
+# 3. הגדרת שוליים למכולה הראשית
 st.markdown("""
     <style>
-    /* מסיר את המרווח הלבן הענק שנוצר אוטומטית על ידי Streamlit בראש העמוד */
     .block-container {
         padding-top: 1rem !important;
         padding-bottom: 1.5rem !important;
     }
-    
-    /* מצמצם את המרווחים בין האלמנטים הראשיים */
     .stMainBlockContainer {
         margin-top: -20px !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# הגדרות דף
-st.set_page_config(
-    layout="wide",
-    page_title="Dashboard Sivan",
-    initial_sidebar_state="expanded"
-)
-float_init()
-
-# 2. הזרקת עיצוב גלובלית מאוחדת
+# 4. הזרקת העיצוב המאוחד של הציטוט
 st.markdown("""
-<style>
-    /* 1. הסרת המרווח הלבן של הדף כולו */
+    <style>
     .stApp .main .block-container {
         padding-top: 0px !important;
         margin-top: 0px !important;
     }
 
-    /* 2. המשיכה האגרסיבית של תיבת הציטוט למעלה */
     .premium-quote-box-refined {
         width: 100%;
         background: #ffffff;
@@ -68,27 +66,18 @@ st.markdown("""
         border-bottom: 1px solid #f1f5f9;
         text-align: center;
         direction: rtl;
-        margin-bottom: 10px !important;
-        
-        /* התיקון הקריטי: הזזה אבסולוטית כלפי מעלה */
         position: relative !important;
-        top: -10px !important; /* ככל שתגדילי את המספר השלילי, זה יעלה יותר גבוה */
-        
-        /* צמצום הפאדינג הפנימי כדי שהתיבה עצמה תהיה דקה יותר */
+        top: -10px !important;
         padding: 25px 60px 10px 60px !important;
-        
-        /* צמצום הרווח מה-KPIs (ערך שלילי כאן מקרב את ה-KPIs לציטוט) */
-        margin-bottom: 10px !important; 
-        
+        margin-bottom: 10px !important; /* מרווח תחתון תקין */
         z-index: 1 !important;
     }
 
-    /* 3. שמירה על הסרגל הלבן (Header) מעל הציטוט */
     header[data-testid="stHeader"] {
         background-color: white !important;
         z-index: 1000 !important;
     }
-</style>
+    </style>
 """, unsafe_allow_html=True)
 
 # טעינת פונטים — Material Symbols Rounded לאייקונים, Plus Jakarta Sans לטקסט
