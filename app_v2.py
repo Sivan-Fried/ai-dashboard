@@ -17,6 +17,15 @@ from workplan_module import build_timeline_html
 from urllib.parse import urlencode
 from streamlit_float import *
 
+# עיצוב גלובלי לכל הבלוקים בדף
+st.markdown("""
+    <style>
+    [data-testid="stVerticalBlock"] {
+        gap: 0.8rem !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # הגדרת עיצוב גלובלית ויציבה שמרימה את התוכן ומצמצמת רווחים עליונים
 st.markdown("""
     <style>
