@@ -587,7 +587,7 @@ div[data-testid="stButton"] button:hover {
     font-size: 0.82rem !important;
     font-weight: 500 !important;
 }
-div[data-testid="stColumn"]:first-child {
+div[data-testid="stHorizontalBlock"]:has(.aura-sidebar-inner) > div[data-testid="stColumn"]:first-child {
     margin-top: -18px !important;
 }
 .st-key-sidebar_toggle button {
