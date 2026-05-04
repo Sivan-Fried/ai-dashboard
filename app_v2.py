@@ -393,7 +393,7 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
 
     var sidebar = parentDoc.querySelector('section[data-testid="stSidebar"]');
     if (sidebar) {{
-        sidebar.style.setProperty('top', '110px', 'important');
+        sidebar.style.setProperty('top', '75px', 'important');
         sidebar.style.setProperty('height', 'calc(100vh - 110px)', 'important');
         sidebar.style.setProperty('position', 'fixed', 'important');
     }}
