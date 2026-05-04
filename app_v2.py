@@ -1097,8 +1097,8 @@ with main_col:
             # ── Fathom ──────────────────────────────────────────
             # ── Fathom ──────────────────────────────────────────
             # ── Fathom ──────────────────────────────────────────
+            st.markdown('<div id="section-fathom"></div>', unsafe_allow_html=True)
             with st.container(border=True):
-                st.markdown('<div id="section-fathom"></div>', unsafe_allow_html=True)
                 col_title, col_refresh = st.columns([0.9, 0.1])
                 with col_title:
                     st.markdown('<h3><span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">description</span> סיכומי פגישות Fathom</h3>', unsafe_allow_html=True)
@@ -1184,8 +1184,8 @@ with main_col:
             # ============================
             #      עוזר אישי AI — ורוד
             # ============================
+            st.markdown('<div id="section-ai"></div>', unsafe_allow_html=True)
             with st.container(border=True, key="ai_container"):
-                st.markdown('<div id="section-ai"></div>', unsafe_allow_html=True)
                 st.markdown('### <span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b !important;">smart_toy</span> עוזר AI אישי', unsafe_allow_html=True)
     
                 sel_p = st.selectbox(
@@ -1285,7 +1285,6 @@ with main_col:
     
             # ============================
             # ── אזור פגישות אמיתיות מ-Fathom ──────────────────────────
-            # ── אזור פגישות אמיתיות ──────────────────────────
             # ── אזור פגישות אמיתיות ──────────────────────────
             st.markdown("<br>", unsafe_allow_html=True)
             st.markdown("<h3>פגישות להיום</h3>", unsafe_allow_html=True)
