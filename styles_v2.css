@@ -803,10 +803,9 @@ div[id^="section-"] {
 }
 div[data-testid="stMainBlockContainer"] {
     padding-top: 0px !important;
-}
-div[data-testid="stVerticalBlock"] {
     gap: 0rem !important;
 }
+
 /* ── Scrollbar עדין ────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
