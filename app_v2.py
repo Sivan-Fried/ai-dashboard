@@ -21,7 +21,7 @@ from streamlit_float import *
 st.markdown("""
     <style>
     [data-testid="stVerticalBlock"] {
-        gap: 0.5rem !important;
+        gap: 0.6rem !important;
     }
     </style>
 """, unsafe_allow_html=True)
