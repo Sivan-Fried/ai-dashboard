@@ -260,6 +260,8 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
   .tb-profile {{ width:72px; height:72px; border-radius:50%; object-fit:cover; border:3px solid white; box-shadow:0 2px 12px rgba(225,200,210,0.4); }}
   .tb-name {{ font-size:0.95rem; font-weight:700; color:#3f3f46; }}
   .tb-role {{ font-size:0.75rem; color:#a1a1aa; }}
+  .tb-brand {{ font-size:0.95rem; font-weight:800; color:#f0b8cb; text-decoration:none; transition:opacity 0.2s; white-space:nowrap; }}
+  .tb-brand:hover {{ opacity:0.75; }}
 
   /* ניווט מרכזי */
   .tb-nav {{ display:flex; gap:4px; flex:1; justify-content:center; }}
@@ -280,7 +282,7 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
   .weather-wrap {{ display: flex; align-items: center; gap: 8px; text-align: right; }}
   .time-wrap {{ text-align: right; min-width: 75px; }}
   
-  /* פעמון */
+  /* פעמון והגדרות — אותו סגנון בדיוק */
   .bell-area {{ position:relative; cursor:pointer; display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; transition: background 0.2s; }}
   .bell-area:hover {{ background: #FDF2F7; }}
   .bell-badge {{ 
@@ -298,6 +300,7 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
         <div class="tb-name">{greeting}, סיון</div>
         <div class="tb-role">מנהלת פרויקטים</div>
     </div>
+    <a href="/" target="_self" class="tb-brand">Dashboard AI</a>
     <div class="bell-area" id="bellBtn">
       <span class="bell-badge" id="badge">{unread_count}</span>
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -333,12 +336,18 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
       <div style="font-size:0.68rem; color:#a1a1aa;">{date_str}</div>
     </div>
     <div class="tb-divider"></div>
-    <div style="font-size:0.95rem; font-weight:800; color:#f0b8cb;">Dashboard AI</div>
+    <div class="bell-area" id="settingsBtn">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"></path>
+      </svg>
+    </div>
   </div>
 </div>
 
 <script>
   var isOpen = false;
+  var isSettingsOpen = false;
   
   function updateBadge() {{
     var parentDoc = window.parent.document;
@@ -364,6 +373,12 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
         border:1px solid #fdf0f5; z-index:1000000; overflow-y:auto; max-height:450px;
         direction:rtl; font-family: sans-serif;
       }}
+      #sn-settings-dropdown {{
+        display:none; position:fixed; width:320px; background:white;
+        border-radius:20px; box-shadow:0 10px 40px rgba(0,0,0,0.15);
+        border:1px solid #fdf0f5; z-index:1000000;
+        direction:rtl; font-family: sans-serif;
+      }}
       .sn-header {{ padding:16px 20px; font-weight:700; border-bottom:1px solid #fdf0f5; color:#3f3f46; }}
       .sn-item {{ padding:14px 20px; display:flex; align-items:center; gap:14px; cursor:pointer; border-bottom:1px solid #fdf6f9; transition:0.15s; }}
       .sn-item:hover {{ background:#fdf6f9; }}
@@ -379,6 +394,11 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     dropdown.id = 'sn-floating-dropdown';
     dropdown.innerHTML = '<div class="sn-header">התראות להיום</div>' + `{items_js}`;
     parentDoc.body.appendChild(dropdown);
+
+    var settingsDropdown = parentDoc.createElement('div');
+    settingsDropdown.id = 'sn-settings-dropdown';
+    settingsDropdown.innerHTML = '<div class="sn-header">הגדרות</div>';
+    parentDoc.body.appendChild(settingsDropdown);
 
     var sidebar = parentDoc.querySelector('section[data-testid="stSidebar"]');
     if (sidebar) {{
@@ -402,7 +422,6 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
         return false;
     }}
 
-    
     var sidebarInterval = setInterval(function() {{
         if (fixSidebar()) {{
             clearInterval(sidebarInterval);
@@ -421,14 +440,19 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
 
     parentDoc.addEventListener('click', function(e) {{
       var d = parentDoc.getElementById('sn-floating-dropdown');
+      var s = parentDoc.getElementById('sn-settings-dropdown');
       if (isOpen && d && !d.contains(e.target)) {{ d.style.display = 'none'; isOpen = false; }}
+      if (isSettingsOpen && s && !s.contains(e.target)) {{ s.style.display = 'none'; isSettingsOpen = false; }}
     }}, true);
   }});
 
   document.getElementById('bellBtn').addEventListener('click', function(e) {{
     var parentDoc = window.parent.document;
     var d = parentDoc.getElementById('sn-floating-dropdown');
+    var s = parentDoc.getElementById('sn-settings-dropdown');
     isOpen = !isOpen;
+    isSettingsOpen = false;
+    if (s) s.style.display = 'none';
     if (isOpen) {{
       var iframe = window.frameElement;
       var rect = iframe.getBoundingClientRect();
@@ -439,123 +463,27 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     }} else {{ d.style.display = 'none'; }}
     e.stopPropagation();
   }});
+
+  document.getElementById('settingsBtn').addEventListener('click', function(e) {{
+    var parentDoc = window.parent.document;
+    var s = parentDoc.getElementById('sn-settings-dropdown');
+    var d = parentDoc.getElementById('sn-floating-dropdown');
+    isSettingsOpen = !isSettingsOpen;
+    isOpen = false;
+    if (d) d.style.display = 'none';
+    if (isSettingsOpen) {{
+      var iframe = window.frameElement;
+      var rect = iframe.getBoundingClientRect();
+      var btnRect = this.getBoundingClientRect();
+      s.style.top = (rect.bottom + 8) + 'px';
+      s.style.left = (rect.left + btnRect.left - 280) + 'px';
+      s.style.display = 'block';
+    }} else {{ s.style.display = 'none'; }}
+    e.stopPropagation();
+  }});
 </script>
 </body>
 </html>""", height=110)
-#סוף נסיון
-
-def render_sidebar(page="main"):
-    if page == "main":
-        nav_items = [
-            {"icon": "dashboard", "label": "דשבורד", "target": "section-projects"},
-            {"icon": "calendar_today", "label": "פגישות", "target": "section-meetings"},
-            {"icon": "checklist", "label": "משימות", "target": "section-tasks"},
-            {"icon": "notifications", "label": "תזכורות", "target": "section-reminders"},
-            {"icon": "edit", "label": "דיווחים", "target": "section-priority"},
-            {"icon": "description", "label": "סיכומים", "target": "section-fathom"},
-            {"icon": "smart_toy", "label": "עוזר AI", "target": "section-ai"},
-        ]
-    else:
-        nav_items = [
-            {"icon": "calendar_month", "label": "תוכנית עבודה", "target": "tab-work"},
-            {"icon": "group", "label": "משאבים", "target": "tab-resources"},
-            {"icon": "warning", "label": "סיכונים", "target": "tab-risks"},
-            {"icon": "description", "label": "סיכומים", "target": "tab-meetings"},
-        ]
-
-    collapsed = st.session_state.get("sidebar_collapsed", False)
-    toggle_icon = "›" if collapsed else "‹"
-
-    items_html = ""
-    for item in nav_items:
-        label_html = f'<span class="aura-nav-label">{item["label"]}</span>' if not collapsed else ''
-        items_html += f'''
-        <div class="aura-nav-item" onclick="window.parent.document.getElementById('{item['target']}').scrollIntoView({{behavior:'smooth'}})">
-            <span class="aura-nav-icon">{item['icon']}</span>
-            {label_html}
-        </div>'''
-
-    components.html(f"""
-<html dir="rtl">
-<head>
-<meta charset="utf-8"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
-<style>
-* {{ box-sizing: border-box; margin: 0; padding: 0; }}
-body {{ background: transparent; overflow: hidden; }}
-.aura-sidebar-inner {{
-    background: #ffffff;
-    border-radius: 16px;
-    border: 1px solid #F4F4F5;
-    box-shadow: -2px 0 20px rgba(225,200,210,0.2);
-    padding: 8px;
-    min-height: 900px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-}}
-.aura-toggle-btn {{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: #9ca3af;
-    border: none;
-    cursor: pointer;
-    margin: 0 auto 12px auto;
-    color: #ffffff;
-    font-size: 16px;
-}}
-.aura-toggle-btn:hover {{ background: #6b7280; }}
-.aura-nav-item {{
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: 12px;
-    cursor: pointer;
-    color: #71717A;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-    direction: rtl;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-}}
-.aura-nav-item:hover {{ background: #fdf2f8; color: #3f3f46; }}
-.aura-nav-icon {{
-    font-family: 'Material Symbols Outlined';
-    font-size: 20px;
-    flex-shrink: 0;
-    color: #94a3b8;
-    line-height: 1;
-    -webkit-font-feature-settings: 'liga';
-    font-feature-settings: 'liga';
-    -webkit-font-smoothing: antialiased;
-}}
-.aura-nav-label {{
-    font-size: 0.82rem;
-    font-weight: 500;
-}}
-</style>
-</head>
-<body>
-<div class="aura-sidebar-inner">
-    <button class="aura-toggle-btn" id="toggleBtn">{toggle_icon}</button>
-    {items_html}
-</div>
-<script>
-document.getElementById('toggleBtn').addEventListener('click', function() {{
-    var parentDoc = window.parent.document;
-    var btn = parentDoc.querySelector('.st-key-sidebar_toggle button');
-    if (btn) btn.click();
-}});
-</script>
-</body>
-</html>
-""", height=900, scrolling=False)
-
-    if st.button(toggle_icon, key="sidebar_toggle"):
-        st.session_state.sidebar_collapsed = not collapsed
-        st.rerun()
 
 
 # ---תמונת פרופיל ---
