@@ -801,6 +801,9 @@ html {
 div[id^="section-"] {
     scroll-margin-top: 20px;
 }
+div[data-testid="stMainBlockContainer"] {
+    padding-top: 0px !important;
+}
 
 /* ── Scrollbar עדין ────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
