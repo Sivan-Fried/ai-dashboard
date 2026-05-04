@@ -138,24 +138,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-#צמצום הרווח העליון עד הסרגל העליון
-import streamlit as st
-
-st.markdown("""
-    <style>
-    /* צמצום המרווח העליון ש-Streamlit יוצר מעל האלמנטים */
-    .st-emotion-cache-wfwsaw {
-        gap: 0.8rem !important;
-        margin-top: -30px !important;
-    }
-    
-    /* מרווח פנימי בסרגל העליון */
-    .topbar {
-        height: 80px !important; 
-        margin-bottom: 10px !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
 
 # הגדרת עיצוב גלובלית לשינוי המרווח (Gap) בין בלוקים ואלמנטים
 st.markdown("""
