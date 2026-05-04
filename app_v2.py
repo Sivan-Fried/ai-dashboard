@@ -34,6 +34,25 @@ st.markdown("""
         margin-top: 0px !important;
     }
 
+    import streamlit as st
+
+#צמצום הרווח העליון עד הסרגל העליון
+st.markdown("""
+    <style>
+    /* צמצום המרווח העליון ש-Streamlit יוצר מעל האלמנטים */
+    .st-emotion-cache-wfwsaw {
+        gap: 0.8rem !important; /* המרווח ששינית */
+        margin-top: -30px !important; /* מרים את הבלוקים למעלה לכיוון הסרגל העליון */
+    }
+    
+    /* מרווח פנימי בסרגל העליון כדי להקטין את הגובה הכולל */
+    .topbar {
+        height: 80px !important; 
+        margin-bottom: 10px !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
     /* 2. המשיכה האגרסיבית של תיבת הציטוט למעלה */
     .premium-quote-box-refined {
         width: 100%;
