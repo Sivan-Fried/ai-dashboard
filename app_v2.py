@@ -17,6 +17,22 @@ from workplan_module import build_timeline_html
 from urllib.parse import urlencode
 from streamlit_float import *
 
+# הגדרת עיצוב גלובלית ויציבה שמרימה את התוכן ומצמצמת רווחים עליונים
+st.markdown("""
+    <style>
+    /* מסיר את המרווח הלבן הענק שנוצר אוטומטית על ידי Streamlit בראש העמוד */
+    .block-container {
+        padding-top: 1.5rem !important;
+        padding-bottom: 1.5rem !important;
+    }
+    
+    /* מצמצם את המרווחים בין האלמנטים הראשיים */
+    .stMainBlockContainer {
+        margin-top: -20px !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # הגדרות דף
 st.set_page_config(
     layout="wide",
