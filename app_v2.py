@@ -398,21 +398,21 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
         sidebar.style.setProperty('position', 'fixed', 'important');
     }
     
-    function fixSidebar() {
+    function fixSidebar() {{
         var sb = parentDoc.querySelector('section[data-testid="stSidebar"]');
         var app = parentDoc.querySelector('.stApp');
-        if (app) {
+        if (app) {{
             app.style.setProperty('transform', 'none', 'important');
             app.style.setProperty('will-change', 'auto', 'important');
-        }
-        if (sb) {
-            sb.style.setProperty('top', '70px', 'important');
-            sb.style.setProperty('height', 'calc(100vh - 70px)', 'important');
+        }}
+        if (sb) {{
+            sb.style.setProperty('top', '75px', 'important');
+            sb.style.setProperty('height', 'calc(100vh - 75px)', 'important');
             sb.style.setProperty('position', 'fixed', 'important');
             return true;
-        }
+        }}
         return false;
-    }
+    }}
     
     var sidebarInterval = setInterval(function() {{
         if (fixSidebar()) {{
