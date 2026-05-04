@@ -155,7 +155,17 @@ st.markdown("""
         gap: 0.8rem !important;
     }
     </style>
-""", unsafe_allow_html=True)                
+""", unsafe_allow_html=True)   
+
+st.markdown("""
+    <style>
+    [data-testid="stSidebar"] {
+        top: 72px !important;
+        height: calc(100vh - 72px) !important;
+        padding-top: 0px !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 
     
