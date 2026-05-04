@@ -742,7 +742,7 @@ with main_col:
             
             .stApp .main .block-container {{
                 padding-top: 0px !important;
-                margin-top: -5.5rem !important; 
+                margin-top: 10px !important; 
             }}
             
             .premium-quote-box-refined {{
