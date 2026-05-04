@@ -811,6 +811,15 @@ with main_col:
             </div>
         </div>
         """, unsafe_allow_html=True)
+
+        # הגדרת עיצוב גלובלית לשינוי המרווח (Gap) בין בלוקים ואלמנטים
+        st.markdown("""
+            <style>
+            .st-emotion-cache-wfwsaw {
+                gap: 0.8rem !important;
+            }
+            </style>
+        """, unsafe_allow_html=True)
                                                                                     
 
         
