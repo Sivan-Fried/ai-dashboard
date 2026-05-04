@@ -392,12 +392,11 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     parentDoc.body.appendChild(dropdown);
 
     var sidebar = parentDoc.querySelector('section[data-testid="stSidebar"]');
-    if (sidebar) {
-        sidebar.style.setProperty('top', '70px', 'important');
-        sidebar.style.setProperty('height', 'calc(100vh - 70px)', 'important');
+    if (sidebar) {{
+        sidebar.style.setProperty('top', '110px', 'important');
+        sidebar.style.setProperty('height', 'calc(100vh - 110px)', 'important');
         sidebar.style.setProperty('position', 'fixed', 'important');
-    }
-    
+    }}
     function fixSidebar() {{
         var sb = parentDoc.querySelector('section[data-testid="stSidebar"]');
         var app = parentDoc.querySelector('.stApp');
@@ -406,13 +405,14 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
             app.style.setProperty('will-change', 'auto', 'important');
         }}
         if (sb) {{
-            sb.style.setProperty('top', '75px', 'important');
-            sb.style.setProperty('height', 'calc(100vh - 75px)', 'important');
+            sb.style.setProperty('top', '110px', 'important');
+            sb.style.setProperty('height', 'calc(100vh - 110px)', 'important');
             sb.style.setProperty('position', 'fixed', 'important');
             return true;
         }}
         return false;
     }}
+
     
     var sidebarInterval = setInterval(function() {{
         if (fixSidebar()) {{
