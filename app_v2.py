@@ -296,12 +296,12 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
 <body>
 <div class="topbar">
   <div class="tb-right">
+    <a href="/" target="_self" class="tb-brand">Dashboard AI</a>
     <img class="tb-profile" src="{profile_src}"/>
     <div>
         <div class="tb-name">{greeting}, סיון</div>
         <div class="tb-role">מנהלת פרויקטים</div>
-    </div>
-    <a href="/" target="_self" class="tb-brand">Dashboard AI</a>
+    </div> 
     <div class="bell-area" id="bellBtn">
       <span class="bell-badge" id="badge">{unread_count}</span>
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
