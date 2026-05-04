@@ -68,6 +68,7 @@ st.markdown("""
         border-bottom: 1px solid #f1f5f9;
         text-align: center;
         direction: rtl;
+        margin-bottom: 10px !important;
         
         /* התיקון הקריטי: הזזה אבסולוטית כלפי מעלה */
         position: relative !important;
