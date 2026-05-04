@@ -76,7 +76,7 @@ with open("styles_v2.css", encoding="utf-8") as f:
 st.markdown("""
 <style>
 section[data-testid="stMain"] > div {
-    padding-top: 0.5rem !important;
+    padding-top: 0rem !important;
 }
 </style>
 """, unsafe_allow_html=True)
