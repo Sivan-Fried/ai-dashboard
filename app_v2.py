@@ -69,7 +69,7 @@ st.markdown("""
         position: relative !important;
         top: -10px !important;
         padding: 25px 60px 10px 60px !important;
-        margin-bottom: 10px !important; /* מרווח תחתון תקין */
+        margin-bottom: 10px !important;
         z-index: 1 !important;
     }
 
