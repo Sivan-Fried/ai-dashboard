@@ -454,7 +454,7 @@ body {{ background: transparent; overflow: hidden; }}
     border: 1px solid #F4F4F5;
     box-shadow: -2px 0 20px rgba(225,200,210,0.2);
     padding: 8px;
-    min-height: 500px;
+    min-height: 700px;
     font-family: 'Plus Jakarta Sans', sans-serif;
 }}
 .aura-toggle-btn {{
@@ -516,7 +516,7 @@ document.getElementById('toggleBtn').addEventListener('click', function() {{
 </script>
 </body>
 </html>
-""", height=600, scrolling=False)
+""", height=700, scrolling=False)
 
     if st.button(toggle_icon, key="sidebar_toggle"):
         st.session_state.sidebar_collapsed = not collapsed
