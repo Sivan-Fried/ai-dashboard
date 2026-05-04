@@ -21,7 +21,7 @@ from streamlit_float import *
 st.markdown("""
     <style>
     [data-testid="stVerticalBlock"] {
-        gap: 0.8rem !important;
+        gap: 0.5rem !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -31,7 +31,7 @@ st.markdown("""
     <style>
     /* מסיר את המרווח הלבן הענק שנוצר אוטומטית על ידי Streamlit בראש העמוד */
     .block-container {
-        padding-top: 0.5rem !important;
+        padding-top: 1rem !important;
         padding-bottom: 1.5rem !important;
     }
     
