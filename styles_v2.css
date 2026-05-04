@@ -794,8 +794,12 @@ section[data-testid="stSidebar"] > div {
 
 
 #עוגנים עבור הסרגל הצידי
+html {
+    scroll-padding-top: 20px;
+}
+
 div[id^="section-"] {
-    scroll-margin-top: 60px;
+    scroll-margin-top: 20px;
 }
 
 /* ── Scrollbar עדין ────────────────────────────────────── */
