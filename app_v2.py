@@ -77,7 +77,7 @@ st.markdown("""
         padding: 25px 60px 10px 60px !important;
         
         /* צמצום הרווח מה-KPIs (ערך שלילי כאן מקרב את ה-KPIs לציטוט) */
-        margin-bottom: -20px !important; 
+        margin-bottom: -18px !important; 
         
         z-index: 1 !important;
     }
