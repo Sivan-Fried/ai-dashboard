@@ -485,6 +485,119 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
 </body>
 </html>""", height=110)
 
+def render_sidebar(page="main"):
+    if page == "main":
+        nav_items = [
+            {"icon": "dashboard", "label": "דשבורד", "target": "section-projects"},
+            {"icon": "calendar_today", "label": "פגישות", "target": "section-meetings"},
+            {"icon": "checklist", "label": "משימות", "target": "section-tasks"},
+            {"icon": "notifications", "label": "תזכורות", "target": "section-reminders"},
+            {"icon": "edit", "label": "דיווחים", "target": "section-priority"},
+            {"icon": "description", "label": "סיכומים", "target": "section-fathom"},
+            {"icon": "smart_toy", "label": "עוזר AI", "target": "section-ai"},
+        ]
+    else:
+        nav_items = [
+            {"icon": "calendar_month", "label": "תוכנית עבודה", "target": "tab-work"},
+            {"icon": "group", "label": "משאבים", "target": "tab-resources"},
+            {"icon": "warning", "label": "סיכונים", "target": "tab-risks"},
+            {"icon": "description", "label": "סיכומים", "target": "tab-meetings"},
+        ]
+
+    collapsed = st.session_state.get("sidebar_collapsed", False)
+    toggle_icon = "›" if collapsed else "‹"
+
+    items_html = ""
+    for item in nav_items:
+        label_html = f'<span class="aura-nav-label">{item["label"]}</span>' if not collapsed else ''
+        items_html += f'''
+        <div class="aura-nav-item" onclick="window.parent.document.getElementById('{item['target']}').scrollIntoView({{behavior:'smooth'}})">
+            <span class="aura-nav-icon">{item['icon']}</span>
+            {label_html}
+        </div>'''
+
+    components.html(f"""
+<html dir="rtl">
+<head>
+<meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+* {{ box-sizing: border-box; margin: 0; padding: 0; }}
+body {{ background: transparent; overflow: hidden; }}
+.aura-sidebar-inner {{
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #F4F4F5;
+    box-shadow: -2px 0 20px rgba(225,200,210,0.2);
+    padding: 8px;
+    min-height: 900px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}}
+.aura-toggle-btn {{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #9ca3af;
+    border: none;
+    cursor: pointer;
+    margin: 0 auto 12px auto;
+    color: #ffffff;
+    font-size: 16px;
+}}
+.aura-toggle-btn:hover {{ background: #6b7280; }}
+.aura-nav-item {{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    color: #71717A;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    direction: rtl;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}}
+.aura-nav-item:hover {{ background: #fdf2f8; color: #3f3f46; }}
+.aura-nav-icon {{
+    font-family: 'Material Symbols Outlined';
+    font-size: 20px;
+    flex-shrink: 0;
+    color: #94a3b8;
+    line-height: 1;
+    -webkit-font-feature-settings: 'liga';
+    font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+}}
+.aura-nav-label {{
+    font-size: 0.82rem;
+    font-weight: 500;
+}}
+</style>
+</head>
+<body>
+<div class="aura-sidebar-inner">
+    <button class="aura-toggle-btn" id="toggleBtn">{toggle_icon}</button>
+    {items_html}
+</div>
+<script>
+document.getElementById('toggleBtn').addEventListener('click', function() {{
+    var parentDoc = window.parent.document;
+    var btn = parentDoc.querySelector('.st-key-sidebar_toggle button');
+    if (btn) btn.click();
+}});
+</script>
+</body>
+</html>
+""", height=900, scrolling=False)
+
+    if st.button(toggle_icon, key="sidebar_toggle"):
+        st.session_state.sidebar_collapsed = not collapsed
+        st.rerun()
+
 
 # ---תמונת פרופיל ---
 def get_base64_image(path):
