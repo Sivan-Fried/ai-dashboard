@@ -535,7 +535,7 @@ div[data-testid="stButton"] button:hover {
     border: 1px solid #F4F4F5;
     box-shadow: -2px 0 20px rgba(225,200,210,0.2);
     padding: 8px;
-    min-height: 500px;
+    min-height: calc(100vh - 160px);
     margin-top: -16px !important;
 }
 
@@ -790,6 +790,12 @@ section[data-testid="stSidebar"] > div {
 .aura-nav-label {
     font-size: 0.82rem !important;
     font-weight: 500 !important;
+}
+
+
+#עוגנים עבור הסרגל הצידי
+div[id^="section-"] {
+    scroll-margin-top: 20px;
 }
 
 /* ── Scrollbar עדין ────────────────────────────────────── */
