@@ -536,7 +536,7 @@ div[data-testid="stButton"] button:hover {
     box-shadow: -2px 0 20px rgba(225,200,210,0.2);
     padding: 8px;
     min-height: calc(100vh - 160px);
-    margin-top: -16px !important;
+    margin-top: -18px !important;
 }
 
 .aura-toggle-btn {
