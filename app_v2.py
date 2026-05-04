@@ -791,7 +791,7 @@ with main_col:
                 position: relative;
                 width: 100%;
                 box-sizing: border-box;
-                margin-bottom: 0px !important; 
+                margin-bottom: 10px !important; 
                 z-index: 1;
             }}
             
