@@ -588,7 +588,7 @@ div[data-testid="stButton"] button:hover {
     font-weight: 500 !important;
 }
 div[data-testid="stColumn"]:first-child {
-    margin-top: -20px !important;
+    margin-top: -18px !important;
 }
 .st-key-sidebar_toggle button {
     display: none !important;
