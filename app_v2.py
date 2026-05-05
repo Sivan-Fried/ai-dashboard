@@ -794,13 +794,14 @@ with sidebar_col:
 with main_col:
     if st.session_state.current_page == "project":
         p_name = st.session_state.get("selected_project", "פרויקט")
-        st.markdown(f'<p style="font-size:1rem; color:#71717A; font-family:Plus Jakarta Sans, sans-serif; margin-bottom:16px;">{p_name}</p>', unsafe_allow_html=True)
+        st.markdown(f'<h1 style="font-size:1.8rem; font-weight:800; color:#71717A; font-family:Plus Jakarta Sans, sans-serif; text-align:center; margin-bottom:16px;">{p_name}</h1>', unsafe_allow_html=True)
         
-        try:
-            html = build_timeline_html(p_name)
-            st.components.v1.html(html, height=300, scrolling=False)
-        except Exception as e:
-            st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
+        with st.container(border=True):
+            try:
+                html = build_timeline_html(p_name)
+                st.components.v1.html(html, height=300, scrolling=False)
+            except Exception as e:
+                st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
     
     else:
                     
