@@ -794,7 +794,8 @@ with sidebar_col:
 with main_col:
     if st.session_state.current_page == "project":
         p_name = st.session_state.get("selected_project", "פרויקט")
-        st.markdown(f'<h1 class="dashboard-header">{p_name}</h1>', unsafe_allow_html=True)
+        st.markdown(f'<h1 style="font-size:1.8rem; font-weight:800; color:#3f3f46; font-family:Plus Jakarta Sans, sans-serif; text-align:center; margin-bottom:16px; -webkit-text-fill-color:#3f3f46;">{p_name}</h1>', unsafe_allow_html=True)
+
         
         with st.container(border=True):
             try:
