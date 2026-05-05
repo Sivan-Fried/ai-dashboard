@@ -492,9 +492,8 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
   }});
 
   document.getElementById('homeBtn').addEventListener('click', function() {{
-    var url = window.parent.location.href.split('?')[0];
-    window.parent.history.pushState({{}}, '', url);
-    window.parent.location.replace(url);
+    var url = window.parent.location.href.split('?')[0] + '?home=1';
+    window.parent.location.href = url;
   }});
 </script>
 </body>
