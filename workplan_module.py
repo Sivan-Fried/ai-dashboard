@@ -62,6 +62,7 @@ def milestone_to_html(row):
     return f"""
     <div class="item">
         <div class="card">
+            {tooltip_html}
             <span class="tag {tag_class}">{row['milestone_name']}</span>
             <div class="date">{date_str}</div>
             <span class="status {status_class}">{row['status']}</span>
