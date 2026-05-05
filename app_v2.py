@@ -184,6 +184,12 @@ except Exception as e:
     st.error(f"שגיאה בטעינת קבצים: {e}"); st.stop()
 
 today = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).date()
+
+if st.button("home", key="go_home", label_visibility="hidden"):
+    st.query_params.clear()
+    st.session_state.current_page = "main"
+    st.rerun()
+
 def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
     import re
     import datetime
@@ -498,8 +504,9 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
   }});
 
   document.getElementById('homeBtn').addEventListener('click', function() {{
-    var url = window.parent.location.href.split('?')[0] + '?home=1';
-    window.parent.location.href = url;
+    var allBtns = window.parent.document.querySelectorAll('button');
+    var homeBtn = Array.from(allBtns).find(function(b) {{ return b.innerText.trim() === 'home'; }});
+    if (homeBtn) homeBtn.click();
   }});
 </script>
 </body>
