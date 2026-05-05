@@ -260,8 +260,9 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
   .tb-profile {{ width:72px; height:72px; border-radius:50%; object-fit:cover; border:3px solid white; box-shadow:0 2px 12px rgba(225,200,210,0.4); }}
   .tb-name {{ font-size:0.95rem; font-weight:700; color:#3f3f46; }}
   .tb-role {{ font-size:0.75rem; color:#a1a1aa; }}
-  .tb-brand {{ font-size:0.95rem; font-weight:800; color:#f0b8cb; text-decoration:none; transition:opacity 0.2s; white-space:nowrap; }}
-  .tb-brand:hover {{ opacity:0.75; }}
+  .tb-brand { font-size:0.95rem; font-weight:800; color:#f0b8cb; text-decoration:none; transition:opacity 0.2s; white-space:nowrap; }
+  .tb-brand-wrap:hover .tb-brand { opacity:0.75; }
+  .tb-brand-wrap:hover span { opacity:0.75; }
   
 
   /* ניווט מרכזי */
