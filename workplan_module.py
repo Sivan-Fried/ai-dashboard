@@ -173,9 +173,9 @@ BASE_HTML = """
         }
 
         .tag { font-size: 11px; font-weight: 700; padding: 1px 4px; border-radius: 2px; display: inline-block; margin-bottom: 2px; }
-        .amit { background: #eff6ff; color: #1e40af; }
-        .measy { background: #f5f3ff; color: #5b21b6; }
-        .soch { background: #ecfdf5; color: #065f46; }
+        .amit  { background: #FADCE6; color: #831843; }
+        .measy { background: #eff6ff; color: #1e40af; }
+        .soch  { background: #fff7ed; color: #9a3412; }
         .date { font-size: 13px; font-weight: 600; color: #1e293b; margin: 0; }
         .status { font-size: 8px; font-weight: 700; margin-top: 2px; }
         .live { color: #10b981; }
