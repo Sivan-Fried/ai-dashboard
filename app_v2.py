@@ -516,6 +516,7 @@ def render_sidebar(page="main"):
     if page == "main":
         nav_items = [
             {"icon": "dashboard", "label": "דשבורד", "target": "section-projects"},
+            {"icon": "work", "label": "פרויקטים", "target": "section-projects"},
             {"icon": "calendar_today", "label": "פגישות", "target": "section-meetings"},
             {"icon": "checklist", "label": "משימות", "target": "section-tasks"},
             {"icon": "notifications", "label": "תזכורות", "target": "section-reminders"},
