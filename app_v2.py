@@ -185,7 +185,7 @@ except Exception as e:
 
 today = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).date()
 
-if st.button("home", key="go_home", label_visibility="hidden"):
+if st.button("home", key="go_home"):
     st.query_params.clear()
     st.session_state.current_page = "main"
     st.rerun()
