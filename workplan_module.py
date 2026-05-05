@@ -126,11 +126,11 @@ BASE_HTML = """
         .today-line {
             width: 2px;
             height: 220px;
-            border-left: 2px dashed #bfdbfe;
+            border-left: 2px dashed #cbd5e1;
         }
         
         .today-text {
-            color: #3b82f6;
+            color: #94a3b8;
             font-size: 11px;
             font-weight: 700;
             margin-bottom: 4px;
