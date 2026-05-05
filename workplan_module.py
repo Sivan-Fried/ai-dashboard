@@ -56,8 +56,11 @@ def milestone_to_html(row):
         "HOLD": ""
     }.get(row["status"], "")
 
-    # תאריך נקי בלי שעה
     date_str = row["date"].strftime("%d.%m.%Y")
+
+    contents = str(row.get("version_contents", "")).strip()
+    contents_html = contents.replace("\n", "<br>") if contents and contents != "nan" else ""
+    tooltip_html = f"<div class='tooltip'>{contents_html}</div>" if contents_html else ""
 
     return f"""
     <div class="item">
