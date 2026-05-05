@@ -298,8 +298,11 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
 <div class="topbar">
   <div class="tb-right">
     <div class="tb-brand-wrap" id="homeBtn" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-      <span style="font-family:'Material Symbols Outlined'; font-size:22px; color:#f0b8cb; 
-                   font-feature-settings:'liga'; -webkit-font-smoothing:antialiased;">blur_on</span>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f0b8cb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <circle cx="12" cy="12" r="6" stroke-dasharray="1 3"/>
+          <circle cx="12" cy="12" r="9" stroke-dasharray="1 4"/>
+        </svg>
       <span class="tb-brand">Dashboard AI</span>
     </div>
     <img class="tb-profile" src="{profile_src}"/>
