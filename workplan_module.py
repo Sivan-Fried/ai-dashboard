@@ -155,7 +155,7 @@ BASE_HTML = """
             text-align: center;
             width: 100%;
             margin-bottom: 8px;
-            position: relative; /* רק זה מתווסף */
+            position: relative;
         }
 
         .connector {
