@@ -257,7 +257,6 @@ def build_timeline_html(project_name):
     z-index: 100;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
-
 .tooltip::after {
     content: '';
     position: absolute;
@@ -267,7 +266,6 @@ def build_timeline_html(project_name):
     border: 5px solid transparent;
     border-top-color: #1e293b;
 }
-
 .card:hover .tooltip {
     display: block;
 }
