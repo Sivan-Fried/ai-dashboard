@@ -62,18 +62,18 @@ def milestone_to_html(row):
     contents_html = contents.replace("\n", "<br>") if contents and contents != "nan" else ""
     tooltip_html = f"<div class='tooltip'>{contents_html}</div>" if contents_html else ""
 
-    return f"""
-    <div class="item">
-        <div class="card">
-            {tooltip_html}
-            <span class="tag {tag_class}">{row['milestone_name']}</span>
-            <div class="date">{date_str}</div>
-            <span class="status {status_class}">{row['status']}</span>
-        </div>
-        <div class="connector"></div>
-        <div class="dot"></div>
-    </div>
-    """
+    return (
+        "<div class='item'>"
+        "<div class='card'>"
+        + tooltip_html +
+        "<span class='tag " + tag_class + "'>" + str(row['milestone_name']) + "</span>"
+        "<div class='date'>" + date_str + "</div>"
+        "<span class='status " + status_class + "'>" + str(row['status']) + "</span>"
+        "</div>"
+        "<div class='connector'></div>"
+        "<div class='dot'></div>"
+        "</div>"
+    )
 
 
 
@@ -176,6 +176,7 @@ BASE_HTML = """
             box-shadow: 0 0 0 1px #475569;
             z-index: 4;
         }
+        
 
         .tag { font-size: 11px; font-weight: 700; padding: 1px 4px; border-radius: 2px; display: inline-block; margin-bottom: 2px; }
         .amit  { background: #FADCE6; color: #831843; }
@@ -185,6 +186,39 @@ BASE_HTML = """
         .status { font-size: 10px; font-weight: 700; margin-top: 2px; }
         .live { color: #10b981; }
         .wip { color: #f59e0b; }
+
+         .tooltip {
+            display: none;
+            position: absolute;
+            bottom: 110%;
+            right: 50%;
+            transform: translateX(50%);
+            background: #1e293b;
+            color: white;
+            font-size: 11px;
+            line-height: 1.6;
+            padding: 8px 12px;
+            border-radius: 8px;
+            white-space: nowrap;
+            text-align: right;
+            direction: rtl;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            right: 50%;
+            transform: translateX(50%);
+            border: 5px solid transparent;
+            border-top-color: #1e293b;
+        }
+
+        .card:hover .tooltip {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -238,34 +272,3 @@ def build_timeline_html(project_name):
     html = html.replace("ITEMS_PLACEHOLDER", items_html)
 
     return html
-
-.tooltip {
-    display: none;
-    position: absolute;
-    bottom: calc(100%% + 8px);
-    right: 50%;
-    transform: translateX(50%);
-    background: #1e293b;
-    color: white;
-    font-size: 11px;
-    line-height: 1.6;
-    padding: 8px 12px;
-    border-radius: 8px;
-    white-space: nowrap;
-    text-align: right;
-    direction: rtl;
-    z-index: 100;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-.tooltip::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    right: 50%;
-    transform: translateX(50%);
-    border: 5px solid transparent;
-    border-top-color: #1e293b;
-}
-.card:hover .tooltip {
-    display: block;
-}
