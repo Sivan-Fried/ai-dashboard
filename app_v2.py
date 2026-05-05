@@ -794,10 +794,7 @@ with sidebar_col:
 with main_col:
     if st.session_state.current_page == "project":
         p_name = st.session_state.get("selected_project", "פרויקט")
-        st.markdown(f'''
-                <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&display=swap" rel="stylesheet">
-                <div style="font-size:1.8rem; font-weight:800; color:#3f3f46; font-family:Plus Jakarta Sans, sans-serif; text-align:center; margin-bottom:16px;">{p_name}</div>
-                ''', unsafe_allow_html=True)
+        st.markdown(f'<div style="font-size:1.8rem; font-weight:800; color:#3f3f46; font-family:Plus Jakarta Sans, sans-serif; text-align:center; margin-bottom:16px;">{p_name}</div>', unsafe_allow_html=True)
         
         with st.container(border=True):
             try:
