@@ -155,6 +155,7 @@ BASE_HTML = """
             text-align: center;
             width: 100%;
             margin-bottom: 8px;
+            position: relative; /* רק זה מתווסף */
         }
 
         .connector {
@@ -234,3 +235,36 @@ def build_timeline_html(project_name):
     html = html.replace("ITEMS_PLACEHOLDER", items_html)
 
     return html
+
+.tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    right: 50%;
+    transform: translateX(50%);
+    background: #1e293b;
+    color: white;
+    font-size: 11px;
+    line-height: 1.6;
+    padding: 8px 12px;
+    border-radius: 8px;
+    white-space: nowrap;
+    text-align: right;
+    direction: rtl;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    right: 50%;
+    transform: translateX(50%);
+    border: 5px solid transparent;
+    border-top-color: #1e293b;
+}
+
+.card:hover .tooltip {
+    display: block;
+}
