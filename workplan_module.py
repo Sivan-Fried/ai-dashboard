@@ -115,7 +115,7 @@ BASE_HTML = """
 
         .today-indicator {
             position: absolute;
-            top: -10px;
+            top: -5px;
             RIGHT_PLACEHOLDER;
             display: flex;
             flex-direction: column;
@@ -125,7 +125,7 @@ BASE_HTML = """
         
         .today-line {
             width: 2px;
-            height: 200px;
+            height: 220px;
             border-left: 2px dashed #bfdbfe;
         }
         
