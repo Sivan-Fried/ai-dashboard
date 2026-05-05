@@ -125,7 +125,7 @@ BASE_HTML = """
         
         .today-line {
             width: 2px;
-            height: 220px;
+            height: 200px;
             border-left: 2px dashed #bfdbfe;
         }
         
