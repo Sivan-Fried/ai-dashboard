@@ -242,7 +242,7 @@ def build_timeline_html(project_name):
 .tooltip {
     display: none;
     position: absolute;
-    bottom: calc(100% + 8px);
+    bottom: calc(100%% + 8px);
     right: 50%;
     transform: translateX(50%);
     background: #1e293b;
