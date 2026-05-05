@@ -28,6 +28,12 @@ st.set_page_config(
 )
 float_init()
 
+#חזרה לדשבורד ראשי
+if "home" in st.query_params:
+    st.query_params.clear()
+    st.session_state.current_page = "main"
+    st.rerun()
+
 # 2. הגדרת עיצוב גלובלי לבלוקים
 st.markdown("""
     <style>
