@@ -296,7 +296,11 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
 <body>
 <div class="topbar">
   <div class="tb-right">
-    <a href="/" target="_self" class="tb-brand">Dashboard AI</a>
+    <div class="tb-brand-wrap" id="homeBtn" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+      <span style="font-family:'Material Symbols Outlined'; font-size:22px; color:#f0b8cb; 
+                   font-feature-settings:'liga'; -webkit-font-smoothing:antialiased;">blur_on</span>
+      <span class="tb-brand">Dashboard AI</span>
+    </div>
     <img class="tb-profile" src="{profile_src}"/>
     <div>
         <div class="tb-name">{greeting}, סיון</div>
@@ -481,6 +485,11 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
       s.style.display = 'block';
     }} else {{ s.style.display = 'none'; }}
     e.stopPropagation();
+  }});
+
+  document.getElementById('homeBtn').addEventListener('click', function() {{
+    var url = window.parent.location.href.split('?')[0];
+    window.parent.location.href = url;
   }});
 </script>
 </body>
