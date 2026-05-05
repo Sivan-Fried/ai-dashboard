@@ -115,10 +115,10 @@ BASE_HTML = """
 
         .today-indicator {
             position: absolute;
-            top: -5px;
+            bottom: -15px;
             RIGHT_PLACEHOLDER;
             display: flex;
-            flex-direction: column;
+            flex-direction: column-reverse;
             align-items: center;
             z-index: 5;
         }
