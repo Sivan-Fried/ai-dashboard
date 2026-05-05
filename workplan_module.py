@@ -115,20 +115,20 @@ BASE_HTML = """
 
         .today-indicator {
             position: absolute;
-            bottom: -15px;
+            top: -15px;
             RIGHT_PLACEHOLDER;
             display: flex;
             flex-direction: column;
             align-items: center;
             z-index: 5;
         }
-
+        
         .today-line {
             width: 2px;
-            height: 60px;
+            height: 220px;
             border-left: 2px dashed #bfdbfe;
         }
-
+        
         .today-text {
             color: #3b82f6;
             font-size: 11px;
@@ -172,7 +172,7 @@ BASE_HTML = """
             z-index: 4;
         }
 
-        .tag { font-size: 8px; font-weight: 700; padding: 1px 4px; border-radius: 2px; display: inline-block; margin-bottom: 2px; }
+        .tag { font-size: 11px; font-weight: 700; padding: 1px 4px; border-radius: 2px; display: inline-block; margin-bottom: 2px; }
         .amit { background: #eff6ff; color: #1e40af; }
         .measy { background: #f5f3ff; color: #5b21b6; }
         .soch { background: #ecfdf5; color: #065f46; }
