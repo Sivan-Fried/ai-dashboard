@@ -1274,7 +1274,7 @@ with main_col:
                                             border-radius: 12px !important;
                                             color: #6f5861 !important;
                                             font-weight: 600 !important;
-                                            font-size: 0.76rem !important;
+                                            font-size: 0.70rem !important;
                                             padding: 8px 16px !important;
                                             box-shadow: none !important;
                                             width: 100% !important;
