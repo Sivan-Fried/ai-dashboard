@@ -1266,7 +1266,6 @@ with main_col:
                         if is_open:
                             with st.container():
                                 if s_key not in st.session_state:
-                                    if s_key not in st.session_state:
                                     st.markdown("""
                                         <style>
                                         .st-key-gen_btn div[data-testid="stButton"] button {
@@ -1370,6 +1369,7 @@ document.getElementById('fathom-share-btn').addEventListener('click', function()
 </script>
 </body>
 </html>""", height=600, scrolling=True)   
+ 
     
             # ============================
             #      עוזר אישי AI — ורוד
