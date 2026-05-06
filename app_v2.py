@@ -1300,10 +1300,12 @@ with main_col:
                                     import html, re
                                     escaped = html.escape(st.session_state.get(s_key))
                                     formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
+                                    
+                                    # מנקה את הכותרת ומונע רווחים עודפים
                                     formatted = re.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re.MULTILINE)
                                     formatted = re.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re.MULTILINE)
                                     
-                                    # ניקוי מלא ואחיד של רווחים מיותרים
+                                    # עיבוד אחיד של ירידות שורה
                                     formatted = formatted.replace('\r\n', '\n').replace('\r', '\n')
                                     formatted = re.sub(r'\n+', '<br>', formatted)
                                     
