@@ -1175,12 +1175,14 @@ with main_col:
                     st.write("אין פגישות היום")
                 else:
                     now_time = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).time()
+                    now_time = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).time()
                     for _, r in t_m.iterrows():
                         s_t = fmt_time(r.get('start_time', ''))
                         e_t = fmt_time(r.get('end_time', ''))
                         try:
-                            end_time_obj = r.get('end_time')
-                            is_past = end_time_obj.time() < now_time if hasattr(end_time_obj, 'time') else False
+                            end_str = str(r.get('end_time', ''))
+                            end_time_obj = datetime.datetime.strptime(end_str, "%H:%M:%S").time()
+                            is_past = end_time_obj < now_time
                         except:
                             is_past = False
                         past_style = "opacity: 0.4; text-decoration: line-through;" if is_past else ""
