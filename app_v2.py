@@ -1330,7 +1330,7 @@ body {{ font-family: 'Plus Jakarta Sans', sans-serif; background: transparent; d
 <div class="ai-response-card">
     <div class="ai-response-topbar">
         <div class="ai-response-label">
-            <span class="material-symbols-outlined" style="font-size:18px; color:#64748b;">✦</span>
+            <span class="material-symbols-outlined" style="font-size:18px; color:#64748b;">smart_toy</span>
             <div class="ai-response-dot"></div>
         </div>
         <div class="ai-response-actions">
