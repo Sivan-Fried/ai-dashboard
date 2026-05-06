@@ -1375,8 +1375,4 @@ with main_col:
                 if st.session_state.ai_response:
                     st.info(st.session_state.ai_response)
     
-    
-    
-            # ============================
-           
-                        """, unsafe_allow_html=True)
+
