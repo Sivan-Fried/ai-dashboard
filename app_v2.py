@@ -1386,13 +1386,14 @@ document.getElementById('fathom-share-btn').addEventListener('click', function()
 </html>""", height=600, scrolling=True)
  
     
+
             # ============================
             #      עוזר אישי AI — ורוד
             # ============================
             st.markdown('<div id="section-ai"></div>', unsafe_allow_html=True)
+            st.markdown('### <span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b !important;">smart_toy</span> עוזר AI אישי', unsafe_allow_html=True)
             with st.container(border=True, key="ai_container"):
-                st.markdown('### <span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b !important;">smart_toy</span> עוזר AI אישי', unsafe_allow_html=True)
-    
+                
                 sel_p = st.selectbox(
                     "פרויקט",
                     ["בחר פרויקט לניתוח..."] + projects["project_name"].tolist(),
