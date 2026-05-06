@@ -1301,14 +1301,18 @@ with main_col:
                                     escaped = html.escape(st.session_state.get(s_key))
                                     formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
                                     
-                                    # עדכון הריווח לכותרות: הוספת שורת רווח אך ורק לפני הכותרת
+                                    # התאמת הכותרת: מרווח אך ורק מלמעלה, וללא רווח מלמטה
                                     formatted = re.sub(r'^#{1,3} (.+)$', r'<br><h3 class="ai-response-heading">\1</h3>', formatted, flags=re.MULTILINE)
                                     
                                     formatted = re.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re.MULTILINE)
                                     
-                                    # ניקוי ירידות שורה מרובות
+                                    # ניקוי וסידור ירידות השורה
                                     formatted = formatted.replace('\r\n', '\n').replace('\r', '\n')
                                     formatted = re.sub(r'\n+', '\n', formatted)
+                                    
+                                    # מניעת שורות ריקות מתחת לכותרות
+                                    formatted = re.sub(r'</h3>\s*<br>', '</h3>', formatted)
+                                    
                                     formatted = formatted.replace('\n', '<br>')
                                     
                                     components.html(f"""<!DOCTYPE html>
