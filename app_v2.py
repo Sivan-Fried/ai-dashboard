@@ -528,7 +528,7 @@ def render_sidebar(page="main"):
     else:
         nav_items = [
             {"icon": "calendar_month", "label": "תוכנית עבודה", "target": "tab-work"},
-            {"icon": "group", "label": "משאבים", "target": "resources"},
+            {"icon": "group", "label": "משאבים", "target": "?page=resources"},
             {"icon": "warning", "label": "סיכונים", "target": "tab-risks"},
             {"icon": "description", "label": "סיכומים", "target": "tab-meetings"},
         ]
@@ -540,11 +540,9 @@ def render_sidebar(page="main"):
     for item in nav_items:
         label_html = f'<span class="aura-nav-label">{item["label"]}</span>' if not collapsed else ''
         
-        # אם זהו כפתור המשאבים בעמוד פרויקט, נרצה להפנות ל-?page=resources בכתובת
-        if item["target"] == "resources":
-            target_attr = "?page=resources"
+        if item["target"].startswith("?"):
             items_html += f'''
-            <div class="aura-nav-item" onclick="window.parent.location.href='{target_attr}'">
+            <div class="aura-nav-item" onclick="window.parent.location.href='{item['target']}'">
                 <span class="aura-nav-icon">{item['icon']}</span>
                 {label_html}
             </div>'''
@@ -804,13 +802,21 @@ with sidebar_col:
     render_sidebar(page=st.session_state.current_page)
     
 with main_col:
-    # בדיקה האם נלחץ כפתור המשאבים
-    if st.session_state.current_page == "resources" or st.query_params.get("page") == "resources":
+    # 1. בדיקה האם המשתמש עבר לעמוד המשאבים (דרך הקישור בסרגל הצד)
+    if st.query_params.get("page") == "resources" or st.session_state.current_page == "resources":
         resources.show_resources_page()
         
+    # 2. אם אנחנו בעמוד של פרויקט ספציפי
     elif st.session_state.current_page == "project":
         p_name = st.session_state.get("selected_project", "פרויקט")
-        st.header(p_name)
+        
+        # התאמה אישית של כותרת הדשבורד (מימין/משמאל) לפי בחירתך
+        st.markdown(f"""
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <div style="visibility: hidden;"></div>
+            <h2 style="color: #1a1c1c; margin: 0;">{p_name}</h2>
+        </div>
+        """, unsafe_allow_html=True)
         
         with st.container(border=True):
             try:
@@ -818,15 +824,12 @@ with main_col:
                 st.components.v1.html(html, height=300, scrolling=False)
             except Exception as e:
                 st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
+                
+    # 3. כל שאר המקרים (הדף הראשי / דשבורד רגיל)
     else:
-                    
-            
-        # ── Daily Quote Section Logic & Display ──────────────────────────
-        import streamlit as st
-        import pandas as pd
         import os
-            
-        # 1. לוגיקה של שליפת הנתונים
+        import pandas as pd
+        
         quote_text = "מה שלא תעשה או שתחלום שאתה יכול לעשות - התחל עם זה"
         quote_author = "יוהאן וולפגנג פון גתה"
         try:
@@ -838,9 +841,9 @@ with main_col:
                     a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר']]
                     if q_col: quote_text = str(row[q_col[0]])
                     if a_col: quote_author = str(row[a_col[0]])
-        except: pass
+        except: 
+            pass
             
-        # 2. ה-CSS המלוטש והנקי
         st.markdown(f"""
         <style>
             header[data-testid="stHeader"] {{
@@ -856,7 +859,7 @@ with main_col:
             .premium-quote-box-refined {{
                 background: #ffffff;
                 background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
-                                    radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.3) 0%, transparent 45%);
+                                  radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.3) 0%, transparent 45%);
                 border-bottom: 1px solid #f1f5f9;
                 padding: 25px 60px 10px 60px !important;
                 text-align: center;
@@ -900,14 +903,14 @@ with main_col:
             
             .material-symbols-outlined {{
                 font-family: 'Material Symbols Outlined' !important;
-                color: #e59fb5 !important; /* ורוד עדין ומדויק לאייקון */
+                color: #e59fb5 !important;
                 font-size: 22px !important;
                 vertical-align: middle;
             }}
         </style>
-            
+        
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
-            
+        
         <div class="premium-quote-box-refined">
             <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9px; font-weight: 600; color: #6f5861; text-transform: uppercase; letter-spacing: 0.2em; display: block; margin-bottom: 5px; opacity: 0.6;">DAILY QUOTE</span>
             <div class="q-main-text">"{quote_text}"</div>
