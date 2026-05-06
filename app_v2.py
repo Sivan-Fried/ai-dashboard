@@ -1300,20 +1300,17 @@ with main_col:
                                     import html, re
                                     escaped = html.escape(st.session_state.get(s_key))
                                     
-                                    # 1. עיצוב הכותרות והרשימות בצורה נקייה
+                                    # עיבוד הטקסט: מוריד את תגיות הכותרות והרשימות בצורה נקייה
                                     formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
                                     formatted = re.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re.MULTILINE)
                                     formatted = re.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re.MULTILINE)
                                     
-                                    # 2. איחוד וסידור כל ירידות השורה
+                                    # ניקוי תווים כפולים או רווחים
                                     formatted = formatted.replace('\r\n', '\n').replace('\r', '\n')
-                                    formatted = re.sub(r'\n+', '\n', formatted)
+                                    formatted = re.sub(r'\n+', '<br>', formatted)
                                     
-                                    # 3. הסרת שורות רווח הנמצאות מיד לאחר כותרת
-                                    formatted = re.sub(r'</h3>\s*<br\s*/?>', '</h3>', formatted)
-                                    
-                                    # 4. המרת שארית ירידות השורה לתגיות <br>
-                                    formatted = formatted.replace('\n', '<br>')
+                                    # הסרת תגיות <br> מיותרות שנוצרות ישירות אחרי כותרות
+                                    formatted = re.sub(r'</h3><br\s*/?>', '</h3>', formatted)
                                     
                                     components.html(f"""<!DOCTYPE html>
 <html dir="rtl">
@@ -1333,7 +1330,7 @@ body {{ font-family: 'Plus Jakarta Sans', sans-serif; background: transparent; d
 .ai-action-btn:hover {{ background: #FADCE6; }}
 .ai-action-btn .material-symbols-outlined {{ font-size: 16px; color: #64748b; font-family: 'Material Symbols Outlined'; -webkit-font-feature-settings: 'liga'; font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased; }}
 .ai-response-body {{ font-size: 0.9rem; color: #4e4447; line-height: 1.75; text-align: right; }}
-.ai-response-heading {{ font-size: 1rem; font-weight: 700; color: #3f3f46; margin: 12px 0 6px 0; }}
+.ai-response-heading {{ font-size: 1rem; font-weight: 700; color: #3f3f46; margin: 0 0 4px 0 !important; padding: 12px 0 0 0 !important; }}
 .ai-response-li {{ color: #4e4447; margin-bottom: 4px; list-style: none; padding-right: 14px; position: relative; display: block; }}
 .ai-response-li::before {{ content: '●'; color: #f0b8cb; position: absolute; right: 0; font-size: 10px; top: 4px; }}
 </style>
