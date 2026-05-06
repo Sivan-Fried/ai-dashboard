@@ -1373,6 +1373,30 @@ with main_col:
                                 st.session_state.ai_response = f"שגיאה: {str(e)}"
     
                 if st.session_state.ai_response:
-                    st.info(st.session_state.ai_response)
-    
-
+                    import html, re
+                    escaped = html.escape(st.session_state.ai_response)
+                    formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
+                    formatted = re.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re.MULTILINE)
+                    formatted = re.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re.MULTILINE)
+                    formatted = formatted.replace('\n', '<br>')
+                    st.markdown(f"""
+                    <div class="ai-response-card">
+                        <div class="ai-response-topbar">
+                            <div class="ai-response-label">
+                                <div class="ai-response-dot"></div>
+                                <span>Aura AI</span>
+                            </div>
+                            <div class="ai-response-actions">
+                                <button class="ai-action-btn" onclick="navigator.clipboard.writeText(document.getElementById('ai-response-text').innerText)" title="העתק">
+                                    <span class="material-symbols-outlined">content_copy</span>
+                                </button>
+                                <button class="ai-action-btn" onclick="if(navigator.share){{navigator.share({{text: document.getElementById('ai-response-text').innerText}})}}" title="שתף">
+                                    <span class="material-symbols-outlined">share</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="ai-response-body" id="ai-response-text">{formatted}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                
