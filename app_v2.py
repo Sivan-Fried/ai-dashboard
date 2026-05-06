@@ -1090,9 +1090,8 @@ with main_col:
             # 📌 פרויקטים לדיווח (priority.xlsx)
             # ============================
             st.markdown('<div id="section-priority"></div>', unsafe_allow_html=True)
+            st.markdown('<h3><span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">edit</span> פרויקטים לדיווח</h3>', unsafe_allow_html=True)
             with st.container(border=True):
-                st.markdown('<h3><span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">edit</span> פרויקטים לדיווח</h3>', unsafe_allow_html=True)
-                
                 if priority_df.empty:
                     st.write("לא נמצאו פרויקטים לדיווח.")
                 else:
