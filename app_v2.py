@@ -1164,8 +1164,8 @@ with main_col:
         with col_left:
             #אזור פגישות
             st.markdown('<div id="section-meetings"></div>', unsafe_allow_html=True)
+            st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align: middle; margin-left: 8px; color: #6f5861;\">calendar_today</span> פגישות היום", unsafe_allow_html=True)
             with st.container(border=True):
-                st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align: middle; margin-left: 8px; color: #6f5861;\">calendar_today</span> פגישות היום", unsafe_allow_html=True)
                 t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today].sort_values("start_time")
                 if t_m.empty:
                     st.write("אין פגישות היום")
