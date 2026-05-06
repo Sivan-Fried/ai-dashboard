@@ -1144,7 +1144,7 @@ with main_col:
                                 border: none !important;
                                 box-shadow: none !important;
                                 color: #4facfe !important;
-                                font-size: 0.82rem !important;
+                                font-size: 0.80rem !important;
                                 font-weight: 600 !important;
                                 padding: 2px 0 !important;
                                 margin-top: 4px !important;
