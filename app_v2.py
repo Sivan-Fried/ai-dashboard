@@ -1285,7 +1285,6 @@ with main_col:
                                         }
                                         </style>
                                     """, unsafe_allow_html=True)
-                                    st.markdown(f'<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet"/>', unsafe_allow_html=True)
                                     if st.button("✦ צור סיכום עם AI", key=f"gen_{rec_id}"):
                                         with st.spinner("מנתח..."):
                                             raw = get_fathom_summary(rec_id)
