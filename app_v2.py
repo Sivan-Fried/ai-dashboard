@@ -1380,14 +1380,15 @@ with main_col:
                     formatted = re.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re.MULTILINE)
                     formatted = formatted.replace('\n', '<br>')
                     st.markdown(f"""
+                    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet"/>
                     <div class="ai-response-card">
                         <div class="ai-response-topbar">
                             <div class="ai-response-label">
+                                <span class="material-symbols-outlined" style="font-size:18px; color:#6f5861;">smart_toy</span>
                                 <div class="ai-response-dot"></div>
-                                <span>Aura AI</span>
                             </div>
                             <div class="ai-response-actions">
-                                <button class="ai-action-btn" onclick="navigator.clipboard.writeText(document.getElementById('ai-response-text').innerText)" title="העתק">
+                                <button class="ai-action-btn" id="ai-copy-btn" title="העתק">
                                     <span class="material-symbols-outlined">content_copy</span>
                                 </button>
                                 <button class="ai-action-btn" onclick="if(navigator.share){{navigator.share({{text: document.getElementById('ai-response-text').innerText}})}}" title="שתף">
@@ -1397,6 +1398,16 @@ with main_col:
                         </div>
                         <div class="ai-response-body" id="ai-response-text">{formatted}</div>
                     </div>
+                    <script>
+                    document.getElementById('ai-copy-btn').addEventListener('click', function() {{
+                        var text = document.getElementById('ai-response-text').innerText;
+                        navigator.clipboard.writeText(text).then(function() {{
+                            var btn = document.getElementById('ai-copy-btn');
+                            btn.querySelector('span').innerText = 'check';
+                            setTimeout(function() {{ btn.querySelector('span').innerText = 'content_copy'; }}, 1500);
+                        }});
+                    }});
+                    </script>
                     """, unsafe_allow_html=True)
                     
                 
