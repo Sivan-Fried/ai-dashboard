@@ -777,6 +777,7 @@ if 'status' in today_reminders.columns:
 elif 'is_read' not in today_reminders.columns:
     today_reminders['is_read'] = False
 
+# --- כאן המקום המדויק לשלב את הפונקציה (לפני חלוקת העמודות) ---
 render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders)
 
 if "sidebar_collapsed" not in st.session_state:
@@ -792,7 +793,7 @@ else:
 
 with sidebar_col:
     render_sidebar(page=st.session_state.current_page)
-
+    
 with main_col:
     if st.session_state.current_page == "project":
         p_name = st.session_state.get("selected_project", "פרויקט")
