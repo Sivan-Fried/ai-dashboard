@@ -1379,41 +1379,70 @@ with main_col:
                     formatted = re.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re.MULTILINE)
                     formatted = re.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re.MULTILINE)
                     formatted = formatted.replace('\n', '<br>')
-                    st.markdown(f"""
-                    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet"/>
-                    <div class="ai-response-card">
-                        <div class="ai-response-topbar">
-                            <div class="ai-response-label">
-                                <span class="material-symbols-outlined" style="font-size:18px; color:#64748b;">smart_toy</span>
-                                <div class="ai-response-dot"></div>
-                            </div>
-                            <div class="ai-response-actions">
-                                <button class="ai-action-btn" id="ai-copy-btn" title="העתק">
-                                    <span class="material-symbols-outlined">content_copy</span>
-                                </button>
-                                <button class="ai-action-btn" onclick="if(navigator.share){{navigator.share({{text: document.getElementById('ai-response-text').innerText}})}}" title="שתף">
-                                    <span class="material-symbols-outlined">share</span>
-                                </button>
-                            </div>
+                    components.html(f"""<!DOCTYPE html>
+                <html dir="rtl">
+                <head>
+                <meta charset="utf-8"/>
+                <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+                <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+                <style>
+                * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+                body {{ font-family: 'Plus Jakarta Sans', sans-serif; background: transparent; direction: rtl; }}
+                .ai-response-card {{ background: #ffffff; border: 1.5px solid #FADCE6; border-radius: 16px; padding: 20px 24px; direction: rtl; }}
+                .ai-response-topbar {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #fdf0f5; }}
+                .ai-response-label {{ display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 700; color: #6f5861; }}
+                .ai-response-dot {{ width: 8px; height: 8px; border-radius: 50%; background: #10b981; }}
+                .ai-response-actions {{ display: flex; gap: 6px; }}
+                .ai-action-btn {{ background: #fdf2f8; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }}
+                .ai-action-btn:hover {{ background: #FADCE6; }}
+                .ai-action-btn .material-symbols-outlined {{ font-size: 16px; color: #64748b; font-family: 'Material Symbols Outlined'; -webkit-font-feature-settings: 'liga'; font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased; }}
+                .ai-response-body {{ font-size: 0.9rem; color: #4e4447; line-height: 1.75; text-align: right; }}
+                .ai-response-heading {{ font-size: 1rem; font-weight: 700; color: #3f3f46; margin: 14px 0 6px 0; }}
+                .ai-response-li {{ color: #4e4447; margin-bottom: 4px; list-style: none; padding-right: 14px; position: relative; display: block; }}
+                .ai-response-li::before {{ content: '●'; color: #f0b8cb; position: absolute; right: 0; font-size: 10px; top: 4px; }}
+                </style>
+                </head>
+                <body>
+                <div class="ai-response-card">
+                    <div class="ai-response-topbar">
+                        <div class="ai-response-label">
+                            <span class="material-symbols-outlined" style="font-size:18px; color:#64748b;">smart_toy</span>
+                            <div class="ai-response-dot"></div>
                         </div>
-                        <div class="ai-response-body" id="ai-response-text">{formatted}</div>
+                        <div class="ai-response-actions">
+                            <button class="ai-action-btn" id="ai-copy-btn" title="העתק">
+                                <span class="material-symbols-outlined">content_copy</span>
+                            </button>
+                            <button class="ai-action-btn" id="ai-share-btn" title="שתף">
+                                <span class="material-symbols-outlined">share</span>
+                            </button>
+                        </div>
                     </div>
-                    <script>
-                    document.getElementById('ai-copy-btn').addEventListener('click', function() {{
-                        var text = document.getElementById('ai-response-text').innerText;
-                        var ta = document.createElement('textarea');
-                        ta.value = text;
-                        ta.style.position = 'fixed';
-                        ta.style.opacity = '0';
-                        document.body.appendChild(ta);
-                        ta.focus();
-                        ta.select();
+                    <div class="ai-response-body" id="ai-response-text">{formatted}</div>
+                </div>
+                <script>
+                document.getElementById('ai-copy-btn').addEventListener('click', function() {{
+                    var text = document.getElementById('ai-response-text').innerText;
+                    var ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.style.position = 'fixed';
+                    ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.focus();
+                    ta.select();
+                    try {{
                         document.execCommand('copy');
-                        document.body.removeChild(ta);
                         var btn = document.getElementById('ai-copy-btn');
                         btn.querySelector('span').innerText = 'check';
                         setTimeout(function() {{ btn.querySelector('span').innerText = 'content_copy'; }}, 1500);
-                    }});
-                    </script>
-                    """, unsafe_allow_html=True)
+                    }} catch(e) {{}}
+                    document.body.removeChild(ta);
+                }});
+                document.getElementById('ai-share-btn').addEventListener('click', function() {{
+                    var text = document.getElementById('ai-response-text').innerText;
+                    if (navigator.share) {{ navigator.share({{text: text}}); }}
+                }});
+                </script>
+                </body>
+                </html>""", height=400, scrolling=True)
                 
