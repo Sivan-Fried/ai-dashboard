@@ -1444,5 +1444,5 @@ with main_col:
                 }});
                 </script>
                 </body>
-                </html>""", height=min(200 + len(st.session_state.ai_response) // 3, 1200), scrolling=False)
+                </html>""", height=min(300 + len(st.session_state.ai_response) // 2, 3000), scrolling=False)
                 
