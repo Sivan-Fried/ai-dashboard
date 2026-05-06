@@ -1058,8 +1058,8 @@ with main_col:
             # --- משימות ---
             # --- משימות ---
             st.markdown('<div id="section-tasks"></div>', unsafe_allow_html=True)
+            st.markdown('<h3><span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">checklist</span> משימות חדשות azure </h3>', unsafe_allow_html=True)
             with st.container(border=True):
-                st.markdown('<h3><span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">checklist</span> משימות חדשות azure </h3>', unsafe_allow_html=True)
                 tasks_data = get_azure_tasks()
                 if tasks_data:
                     for t in tasks_data:
