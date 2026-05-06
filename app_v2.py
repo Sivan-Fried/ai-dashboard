@@ -1170,7 +1170,6 @@ with main_col:
             with st.container(border=True):
                 st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align: middle; margin-left: 8px; color: #6f5861;\">calendar_today</span> פגישות היום", unsafe_allow_html=True)
                 t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
-                st.write(t_m[['meeting_title', 'end_time']].head())
                 if t_m.empty:
                     st.write("אין פגישות היום")
                 else:
