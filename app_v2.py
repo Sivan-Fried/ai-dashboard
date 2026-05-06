@@ -1302,12 +1302,12 @@ with main_col:
                                     formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
                                     formatted = re.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re.MULTILINE)
                                     formatted = re.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re.MULTILINE)
-                                        
-                                    # תיקון הרווחים והפסקאות כך שייראה אחיד כמו ה-AI response card
+                                    
+                                    # שימוש בהחלפה זהה לזו של ה-AI
                                     formatted = formatted.replace('\n', '<br>')
-                                    formatted = re.sub(r'(<br\s*/?>\s*)+', '<br>', formatted)
-                                        
+                                    
                                     components.html(f"""<!DOCTYPE html>
+                                    
 <html dir="rtl">
 <head>
 <meta charset="utf-8"/>
