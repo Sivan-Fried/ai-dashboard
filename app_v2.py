@@ -1303,7 +1303,12 @@ with main_col:
                                     formatted = re.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re.MULTILINE)
                                     formatted = re.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re.MULTILINE)
                                     
-                                    # שימוש בהחלפה זהה לזו של ה-AI
+                                    # --- התיקון הקריטי כאן ---
+                                    # 1. הפיכת כל סוגי ירידות השורה ל-\n אחיד
+                                    formatted = formatted.replace('\r\n', '\n').replace('\r', '\n')
+                                    # 2. צמצום כל רצף של ירידות שורה מרובות לירידת שורה אחת בלבד
+                                    formatted = re.sub(r'\n+', '\n', formatted)
+                                    # 3. החלפה ל-br בדיוק כמו בעוזר האישי
                                     formatted = formatted.replace('\n', '<br>')
                                     
                                     components.html(f"""<!DOCTYPE html>
