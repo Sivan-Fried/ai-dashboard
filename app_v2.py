@@ -794,23 +794,19 @@ with sidebar_col:
     render_sidebar(page=st.session_state.current_page)
 
 with main_col:
-    if st.session_state.current_page == "project":
-        # בדיקה האם נלחץ כפתור המשאבים בזמן שאנחנו בפרויקט
-        if st.session_state.get("selected_page_override") == "resources":
-            resources.show_resources_page()
-        else:
-            p_name = st.session_state.get("selected_project", "פרויקט")
-            st.header(p_name)
-            
-            with st.container(border=True):
-                try:
-                    html = build_timeline_html(p_name)
-                    st.components.v1.html(html, height=300, scrolling=False)
-                except Exception as e:
-                    st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
-                    
-    elif st.session_state.current_page == "resources":
+    # בדיקה ראשונית של query params (אם בחרנו לראות את עמוד המשאבים)
+    if st.query_params.get("page") == "resources":
         resources.show_resources_page()
+
+    elif st.session_state.current_page == "project":
+        p_name = st.session_state.get("selected_project", "פרויקט")
+        st.header(p_name)
+
+        with st.container(border=True):
+            try:
+                html = build_timeline_html(p_name)
+                st.components.v1.html(html, height=300, scrolling=False)
+            except Exception as e:
     else:
                     
             
