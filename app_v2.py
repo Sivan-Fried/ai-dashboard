@@ -19,6 +19,7 @@ from streamlit_float import *
 
 import streamlit as st
 from streamlit_float import *
+import resources
 
 # 1. הגדרות דף - חייבות להיות ראשונות
 st.set_page_config(
@@ -523,6 +524,7 @@ def render_sidebar(page="main"):
             {"icon": "edit", "label": "דיווחים", "target": "section-priority"},
             {"icon": "description", "label": "סיכומים", "target": "section-fathom"},
             {"icon": "smart_toy", "label": "עוזר AI", "target": "section-ai"},
+            {"icon": "group", "label": "משאבים", "target": "section-resources"},
         ]
     else:
         nav_items = [
@@ -802,7 +804,10 @@ with main_col:
                 st.components.v1.html(html, height=300, scrolling=False)
             except Exception as e:
                 st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
-    
+    # הוספת התנאי לקריאה לעמוד המשאבים
+    elif st.session_state.current_page == "resources":
+        # קריאה לקובץ המשאבים שלנו
+        resources.show_resources_page()
     else:
                     
             
