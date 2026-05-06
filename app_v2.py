@@ -1173,11 +1173,18 @@ with main_col:
                 if t_m.empty:
                     st.write("אין פגישות היום")
                 else:
+                    now_time = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).time()
                     for _, r in t_m.iterrows():
                         s_t = fmt_time(r.get('start_time', ''))
                         e_t = fmt_time(r.get('end_time', ''))
+                        try:
+                            end_time_obj = r.get('end_time')
+                            is_past = end_time_obj.time() < now_time if hasattr(end_time_obj, 'time') else False
+                        except:
+                            is_past = False
+                        past_style = "opacity: 0.4; text-decoration: line-through;" if is_past else ""
                         st.markdown(f'''
-                            <div class="record-row">
+                            <div class="record-row" style="{past_style}">
                                 <span style="display: flex; align-items: center; gap: 8px; flex-grow: 1; text-align: right; font-size: 0.92rem; font-weight: normal;">
                                     <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #6f5861; transform: scale(0.8);">event_available</span>
                                     {r["meeting_title"]}
