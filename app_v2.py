@@ -802,42 +802,25 @@ with sidebar_col:
     render_sidebar(page=st.session_state.current_page)
     
 with main_col:
-    # אם אנחנו בעמוד פרויקט, נציג את אפשרויות הניווט הפנימיות של הפרויקט
+    # 1. אם אנחנו במסך פרויקט ספציפי
     if st.session_state.current_page == "project":
         p_name = st.session_state.get("selected_project", "פרויקט")
+        st.header(p_name)
         
-        # כותרת הפרויקט
-        st.markdown(f"<h2 style='color: #1a1c1c; margin-bottom: 24px;'>{p_name}</h2>", unsafe_allow_html=True)
+        with st.container(border=True):
+            try:
+                html = build_timeline_html(p_name)
+                st.components.v1.html(html, height=300, scrolling=False)
+            except Exception as e:
+                st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
+                
+    # 2. אם נלחץ כפתור המשאבים (בעמוד פרויקט)
+    elif st.session_state.current_page == "resources" or st.query_params.get("page") == "resources":
+        resources.show_resources_page()
         
-        # טאבים פשוטים של Streamlit (ללא שגיאות וללא Iframe)
-        tab_work, tab_resources, tab_risks, tab_meetings = st.tabs([
-            "תוכנית עבודה", 
-            "משאבים", 
-            "סיכונים", 
-            "סיכומים"
-        ])
-        
-        with tab_work:
-            with st.container(border=True):
-                try:
-                    html = build_timeline_html(p_name)
-                    st.components.v1.html(html, height=300, scrolling=False)
-                except Exception as e:
-                    st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
-                    
-        with tab_resources:
-            # קוראים ישירות לפונקציה מהקובץ
-            resources.show_resources_page()
-            
-        with tab_risks:
-            st.write("כאן יופיעו הסיכונים של הפרויקט...")
-            
-        with tab_meetings:
-            st.write("כאן יופיעו הסיכומים של הפרויקט...")
-
-                 
-    # 3. כל שאר המקרים (הדף הראשי / דשבורד רגיל)
+    # 3. מסך ראשי / דשבורד רגיל
     else:
+        # כל שאר הקוד של הדשבורד הראשי שלך
         import os
         import pandas as pd
         
