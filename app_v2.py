@@ -1274,9 +1274,10 @@ with main_col:
                                             border-radius: 12px !important;
                                             color: #6f5861 !important;
                                             font-weight: 600 !important;
-                                            font-size: 0.88rem !important;
+                                            font-size: 0.78rem !important;
                                             padding: 8px 16px !important;
                                             box-shadow: none !important;
+                                            width: 100% !important;
                                         }
                                         .st-key-gen_btn div[data-testid="stButton"] button:hover {
                                             background: #FADCE6 !important;
