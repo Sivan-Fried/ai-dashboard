@@ -1384,7 +1384,7 @@ with main_col:
                     <div class="ai-response-card">
                         <div class="ai-response-topbar">
                             <div class="ai-response-label">
-                                <span class="material-symbols-outlined" style="font-size:18px; color:#6f5861;">smart_toy</span>
+                                <span class="material-symbols-outlined" style="font-size:18px; color:#64748b;">smart_toy</span>
                                 <div class="ai-response-dot"></div>
                             </div>
                             <div class="ai-response-actions">
@@ -1401,13 +1401,19 @@ with main_col:
                     <script>
                     document.getElementById('ai-copy-btn').addEventListener('click', function() {{
                         var text = document.getElementById('ai-response-text').innerText;
-                        navigator.clipboard.writeText(text).then(function() {{
-                            var btn = document.getElementById('ai-copy-btn');
-                            btn.querySelector('span').innerText = 'check';
-                            setTimeout(function() {{ btn.querySelector('span').innerText = 'content_copy'; }}, 1500);
-                        }});
+                        var ta = document.createElement('textarea');
+                        ta.value = text;
+                        ta.style.position = 'fixed';
+                        ta.style.opacity = '0';
+                        document.body.appendChild(ta);
+                        ta.focus();
+                        ta.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(ta);
+                        var btn = document.getElementById('ai-copy-btn');
+                        btn.querySelector('span').innerText = 'check';
+                        setTimeout(function() {{ btn.querySelector('span').innerText = 'content_copy'; }}, 1500);
                     }});
                     </script>
                     """, unsafe_allow_html=True)
-                    
                 
