@@ -802,28 +802,43 @@ with sidebar_col:
     render_sidebar(page=st.session_state.current_page)
     
 with main_col:
-    # 1. בדיקה האם המשתמש עבר לעמוד המשאבים (דרך הקישור בסרגל הצד)
-    if st.query_params.get("page") == "resources" or st.session_state.current_page == "resources":
-        resources.show_resources_page()
-        
-    # 2. אם אנחנו בעמוד של פרויקט ספציפי
-    elif st.session_state.current_page == "project":
+    # אם אנחנו בעמוד פרויקט, נציג את אפשרויות הניווט הפנימיות של הפרויקט
+    if st.session_state.current_page == "project":
         p_name = st.session_state.get("selected_project", "פרויקט")
         
-        # התאמה אישית של כותרת הדשבורד (מימין/משמאל) לפי בחירתך
-        st.markdown(f"""
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-            <div style="visibility: hidden;"></div>
-            <h2 style="color: #1a1c1c; margin: 0;">{p_name}</h2>
-        </div>
-        """, unsafe_allow_html=True)
+        # כותרת הפרויקט
+        st.markdown(f"<h2 style='color: #1a1c1c; margin-bottom: 24px;'>{p_name}</h2>", unsafe_allow_html=True)
         
-        with st.container(border=True):
-            try:
-                html = build_timeline_html(p_name)
-                st.components.v1.html(html, height=300, scrolling=False)
-            except Exception as e:
-                st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
+        # טאבים פשוטים של Streamlit (ללא שגיאות וללא Iframe)
+        tab_work, tab_resources, tab_risks, tab_meetings = st.tabs([
+            "תוכנית עבודה", 
+            "משאבים", 
+            "סיכונים", 
+            "סיכומים"
+        ])
+        
+        with tab_work:
+            with st.container(border=True):
+                try:
+                    html = build_timeline_html(p_name)
+                    st.components.v1.html(html, height=300, scrolling=False)
+                except Exception as e:
+                    st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
+                    
+        with tab_resources:
+            # קוראים ישירות לפונקציה מהקובץ
+            resources.show_resources_page()
+            
+        with tab_risks:
+            st.write("כאן יופיעו הסיכונים של הפרויקט...")
+            
+        with tab_meetings:
+            st.write("כאן יופיעו הסיכומים של הפרויקט...")
+
+    # מסך ראשי / דשבורד רגיל
+    else:
+        # ציטוט יומי או שאר התוכן הרגיל שלך
+        st.write("ברוכים הבאים לדשבורד הראשי")
                 
     # 3. כל שאר המקרים (הדף הראשי / דשבורד רגיל)
     else:
