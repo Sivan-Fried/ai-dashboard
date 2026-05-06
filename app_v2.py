@@ -528,7 +528,7 @@ def render_sidebar(page="main"):
     else:
         nav_items = [
             {"icon": "calendar_month", "label": "תוכנית עבודה", "target": "tab-work"},
-            {"icon": "group", "label": "משאבים", "target": "?page=resources"},
+            {"icon": "group", "label": "משאבים", "target": "resources"},
             {"icon": "warning", "label": "סיכונים", "target": "tab-risks"},
             {"icon": "description", "label": "סיכומים", "target": "tab-meetings"},
         ]
