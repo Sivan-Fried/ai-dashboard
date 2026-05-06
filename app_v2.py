@@ -1189,8 +1189,6 @@ with main_col:
                     
                                             
             # ── Fathom ──────────────────────────────────────────
-            # ── Fathom ──────────────────────────────────────────
-            # ── Fathom ──────────────────────────────────────────
             st.markdown('<div id="section-fathom"></div>', unsafe_allow_html=True)
             with st.container(border=True):
                 col_title, col_refresh = st.columns([0.9, 0.1])
@@ -1222,6 +1220,11 @@ with main_col:
                         background: transparent !important; border: 1px solid transparent !important;
                         border-right: 5px solid transparent !important; width: 100% !important;
                         height: 45px !important; color: transparent !important; z-index: 20;
+                    }
+                    div.element-container:has(.fathom-row-ui) + div.element-container div[data-testid="stButton"] button:hover {
+                        background: transparent !important;
+                        box-shadow: none !important;
+                        transform: none !important;
                     }
                     div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-testid="stButton"] button:hover) .fathom-row-ui {
                         border-right-color: #f0b8cb !important;
