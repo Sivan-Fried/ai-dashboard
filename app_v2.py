@@ -1018,8 +1018,8 @@ with main_col:
             #אזור תזכורות
             # --- אזור תזכורות ---
             st.markdown('<div id="section-reminders"></div>', unsafe_allow_html=True)
+            st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;\">notifications</span> תזכורות", unsafe_allow_html=True)
             with st.container(border=True):
-                st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;\">notifications</span> תזכורות", unsafe_allow_html=True)
                 with st.container(border=False):
                     t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
                     if not t_r.empty:
