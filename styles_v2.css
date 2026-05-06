@@ -381,7 +381,7 @@ div[data-testid="stVerticalBlockBorderWrapper"],
     background: var(--card-bg) !important;
     padding: 10px 15px !important;
     border-radius: var(--radius-sm) !important;
-    margin-bottom: 8px !important;
+    margin-bottom: 10px !important;
     border: none !important;
     border-right: 4px solid var(--border-accent) !important;
     display: flex !important;
