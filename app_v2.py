@@ -1196,18 +1196,18 @@ with main_col:
                                             
             # ── Fathom ──────────────────────────────────────────
             st.markdown('<div id="section-fathom"></div>', unsafe_allow_html=True)
+            col_title, col_refresh = st.columns([0.9, 0.1])
+            with col_title:
+                st.markdown('<h3><span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">description</span> סיכומי פגישות Fathom</h3>', unsafe_allow_html=True)
+            with col_refresh:
+                if st.button("🔄", key="refresh_fathom"):
+                    try:
+                        items, status = get_fathom_meetings()
+                        if status == 200:
+                            st.session_state['fathom_meetings'] = items
+                            st.rerun()
+                    except: pass
             with st.container(border=True):
-                col_title, col_refresh = st.columns([0.9, 0.1])
-                with col_title:
-                    st.markdown('<h3><span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">description</span> סיכומי פגישות Fathom</h3>', unsafe_allow_html=True)
-                with col_refresh:
-                    if st.button("🔄", key="refresh_fathom"):
-                        try:
-                            items, status = get_fathom_meetings()
-                            if status == 200:
-                                st.session_state['fathom_meetings'] = items
-                                st.rerun()
-                        except: pass
     
                 if 'fathom_meetings' not in st.session_state:
                     try:
