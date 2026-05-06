@@ -524,12 +524,12 @@ def render_sidebar(page="main"):
             {"icon": "edit", "label": "דיווחים", "target": "section-priority"},
             {"icon": "description", "label": "סיכומים", "target": "section-fathom"},
             {"icon": "smart_toy", "label": "עוזר AI", "target": "section-ai"},
-            {"icon": "group", "label": "משאבים", "target": "section-resources"},
+            # הוסר מכאן
         ]
     else:
         nav_items = [
             {"icon": "calendar_month", "label": "תוכנית עבודה", "target": "tab-work"},
-            {"icon": "group", "label": "משאבים", "target": "tab-resources"},
+            {"icon": "group", "label": "משאבים", "target": "resources"}, # שינינו ל-resources כדי שיתאים ל-session_state
             {"icon": "warning", "label": "סיכונים", "target": "tab-risks"},
             {"icon": "description", "label": "סיכומים", "target": "tab-meetings"},
         ]
@@ -795,7 +795,11 @@ with sidebar_col:
     render_sidebar(page=st.session_state.current_page)
     
 with main_col:
-    if st.session_state.current_page == "project":
+    # בדיקה האם נלחץ כפתור המשאבים
+    if st.session_state.current_page == "resources" or st.query_params.get("page") == "resources":
+        resources.show_resources_page()
+        
+    elif st.session_state.current_page == "project":
         p_name = st.session_state.get("selected_project", "פרויקט")
         st.header(p_name)
         
@@ -805,9 +809,6 @@ with main_col:
                 st.components.v1.html(html, height=300, scrolling=False)
             except Exception as e:
                 st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
-                
-    elif st.session_state.current_page == "resources":
-        resources.show_resources_page()
     else:
                     
             
