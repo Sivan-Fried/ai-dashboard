@@ -540,7 +540,7 @@ def render_sidebar(page="main"):
     for item in nav_items:
         label_html = f'<span class="aura-nav-label">{item["label"]}</span>' if not collapsed else ''
         
-         if item["target"].startswith("?"):
+        if item["target"].startswith("?"):
             items_html += f'''
             <div class="aura-nav-item" onclick="window.parent.location.href='{item['target']}&proj=' + encodeURIComponent(new URLSearchParams(window.parent.location.search).get('proj') || '')">
                 <span class="aura-nav-icon">{item['icon']}</span>
