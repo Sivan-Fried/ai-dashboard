@@ -19,8 +19,8 @@ def show_resources_page(project_name):
     inactive_df = project_df[project_df['worker_status'].str.strip() != 'פעיל']
 
     total_workers    = len(project_df)
-    total_employment = project_df['%_employment'].str.replace('%','').astype(float).sum()
-
+    total_employment = pd.to_numeric(project_df['%_employment'].astype(str).str.replace('%',''), errors='coerce').sum()
+    
     col1, col2 = st.columns(2)
     with col1:
         st.markdown(f'''
