@@ -25,11 +25,11 @@ def show_resources_page(project_name):
     else:
         total_employment = emp_numeric.sum() / 100
 
-    def fmt_pct(val):
+    def get_pct(val):
         v = pd.to_numeric(str(val).replace('%',''), errors='coerce')
-        if pd.isna(v): return str(val)
-        if v <= 1: return f"{v*100:.0f}%"
-        return f"{v:.0f}%"
+        if pd.isna(v): return 0
+        if v <= 1: return v * 100
+        return v
 
     col1, col2 = st.columns(2)
     with col1:
@@ -70,30 +70,39 @@ def show_resources_page(project_name):
 
     st.markdown("<div style='margin-bottom:1rem;'></div>", unsafe_allow_html=True)
 
-    with st.container(border=True):
-        st.markdown('### צוות פעיל', unsafe_allow_html=True)
-        if not active_df.empty:
-            for _, row in active_df.iterrows():
-                st.markdown(f'''
-                <div class="record-row">
-                    <span style="font-size:0.92rem; font-weight:600; min-width:120px;">{row["worker_name"]}</span>
-                    <span style="font-size:0.82rem; color:#71717A; min-width:150px;">{row["job title"]}</span>
-                    <span style="font-size:0.78rem; color:#94a3b8; flex:1;">{row.get("notes", "")}</span>
-                    <span class="tag-pink">{fmt_pct(row["%_employment"])}</span>
-                </div>
-                ''', unsafe_allow_html=True)
-        else:
-            st.write("אין חברי צוות פעילים.")
-
-    if not inactive_df.empty:
+    def render_table(rows_df, title):
         with st.container(border=True):
-            st.markdown('### חברי צוות בעבר', unsafe_allow_html=True)
-            for _, row in inactive_df.iterrows():
+            st.markdown(f'### {title}', unsafe_allow_html=True)
+            st.markdown('''
+            <div style="display:grid; grid-template-columns: 2fr 2fr 1.5fr 2fr; gap:8px; padding:8px 16px; 
+                        border-bottom:1px solid #f1f5f9; direction:rtl; margin-bottom:4px;">
+                <span style="font-size:0.78rem; font-weight:700; color:#94a3b8;">שם העובד</span>
+                <span style="font-size:0.78rem; font-weight:700; color:#94a3b8;">תפקיד</span>
+                <span style="font-size:0.78rem; font-weight:700; color:#94a3b8;">אחוזי משרה</span>
+                <span style="font-size:0.78rem; font-weight:700; color:#94a3b8;">הערות</span>
+            </div>
+            ''', unsafe_allow_html=True)
+            
+            for _, row in rows_df.iterrows():
+                pct = get_pct(row["%_employment"])
+                color = "#f0b8cb" if pct >= 50 else "#fde68a" if pct > 0 else "#e2e8f0"
                 st.markdown(f'''
-                <div class="record-row">
-                    <span style="font-size:0.92rem; font-weight:600; min-width:120px;">{row["worker_name"]}</span>
-                    <span style="font-size:0.82rem; color:#71717A; min-width:150px;">{row["job title"]}</span>
-                    <span style="font-size:0.78rem; color:#94a3b8; flex:1;">{row.get("notes", "")}</span>
-                    <span class="tag-gray">{fmt_pct(row["%_employment"])}</span>
+                <div style="display:grid; grid-template-columns: 2fr 2fr 1.5fr 2fr; gap:8px; 
+                            padding:12px 16px; border-bottom:1px solid #f9f9f9; 
+                            direction:rtl; align-items:center;">
+                    <span style="font-size:0.9rem; font-weight:600; color:#3f3f46;">{row["worker_name"]}</span>
+                    <span style="font-size:0.85rem; color:#71717A;">{row["job title"]}</span>
+                    <div>
+                        <span style="font-size:0.9rem; font-weight:700; color:#3f3f46;">{pct:.0f}%</span>
+                        <div style="height:4px; background:#f1f5f9; border-radius:4px; margin-top:4px;">
+                            <div style="height:4px; width:{pct}%; background:{color}; border-radius:4px;"></div>
+                        </div>
+                    </div>
+                    <span style="font-size:0.78rem; color:#94a3b8;">{row.get("notes", "")}</span>
                 </div>
                 ''', unsafe_allow_html=True)
+
+    render_table(active_df, "צוות פעיל")
+    
+    if not inactive_df.empty:
+        render_table(inactive_df, "חברי צוות בעבר")
