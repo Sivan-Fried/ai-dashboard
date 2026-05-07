@@ -927,8 +927,7 @@ h2 {
 }
 
 /* ── כפתור נסתר עבור משאבים ────────────────── */
-.st-key-btn_resources {
-    position: absolute !important;
+.st-key-btn_resources, .st-key-btn_work {
+    position: fixed !important;
     left: -9999px !important;
-    top: -9999px !important;
 }
