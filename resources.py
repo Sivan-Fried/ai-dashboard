@@ -76,11 +76,9 @@ def show_resources_page(project_name):
             for _, row in active_df.iterrows():
                 st.markdown(f'''
                 <div class="record-row">
-                    <span style="font-size:0.92rem; display:flex; flex-direction:column; gap:2px;">
-                        <span style="font-weight:600;">{row["worker_name"]}</span>
-                        <span style="color:#94a3b8; font-size:0.82rem;">{row["job title"]}</span>
-                        <span style="color:#94a3b8; font-size:0.78rem;">{row.get("notes", "")}</span>
-                    </span>
+                    <span style="font-size:0.92rem; font-weight:600; min-width:120px;">{row["worker_name"]}</span>
+                    <span style="font-size:0.82rem; color:#71717A; min-width:150px;">{row["job title"]}</span>
+                    <span style="font-size:0.78rem; color:#94a3b8; flex:1;">{row.get("notes", "")}</span>
                     <span class="tag-pink">{fmt_pct(row["%_employment"])}</span>
                 </div>
                 ''', unsafe_allow_html=True)
@@ -93,11 +91,9 @@ def show_resources_page(project_name):
             for _, row in inactive_df.iterrows():
                 st.markdown(f'''
                 <div class="record-row">
-                    <span style="font-size:0.92rem; display:flex; flex-direction:column; gap:2px;">
-                        <span style="font-weight:600;">{row["worker_name"]}</span>
-                        <span style="color:#94a3b8; font-size:0.82rem;">{row["job title"]}</span>
-                        <span style="color:#94a3b8; font-size:0.78rem;">{row.get("notes", "")}</span>
-                    </span>
+                    <span style="font-size:0.92rem; font-weight:600; min-width:120px;">{row["worker_name"]}</span>
+                    <span style="font-size:0.82rem; color:#71717A; min-width:150px;">{row["job title"]}</span>
+                    <span style="font-size:0.78rem; color:#94a3b8; flex:1;">{row.get("notes", "")}</span>
                     <span class="tag-gray">{fmt_pct(row["%_employment"])}</span>
                 </div>
                 ''', unsafe_allow_html=True)
