@@ -528,7 +528,7 @@ def render_sidebar(page="main"):
     else:
         nav_items = [
             {"icon": "calendar_month", "label": "תוכנית עבודה", "target": "tab-work"},
-            {"icon": "group", "label": "משאבים", "target": "?page=resources"},
+            {"icon": "group", "label": "משאבים", "target": "btn_resources"},
             {"icon": "warning", "label": "סיכונים", "target": "tab-risks"},
             {"icon": "description", "label": "סיכומים", "target": "tab-meetings"},
         ]
@@ -540,9 +540,9 @@ def render_sidebar(page="main"):
     for item in nav_items:
         label_html = f'<span class="aura-nav-label">{item["label"]}</span>' if not collapsed else ''
         
-        if item["target"].startswith("?"):
+        if item["target"] == "btn_resources":
             items_html += f'''
-            <div class="aura-nav-item" onclick="window.parent.location.replace('{item['target']}&proj=' + encodeURIComponent(new URLSearchParams(window.parent.location.search).get('proj') || ''))">
+            <div class="aura-nav-item" onclick="var btn=Array.from(window.parent.document.querySelectorAll('button')).find(b=>b.innerText.trim()==='משאבים'); if(btn) btn.click();">
                 <span class="aura-nav-icon">{item['icon']}</span>
                 {label_html}
             </div>'''
@@ -803,6 +803,10 @@ else:
 
 with sidebar_col:
     render_sidebar(page=st.session_state.current_page)
+    if st.session_state.current_page == "project":
+        if st.button("משאבים", key="btn_resources"):
+            st.session_state.current_page = "resources"
+            st.rerun()
     
 with main_col:
     # 1. אם אנחנו במסך פרויקט ספציפי
