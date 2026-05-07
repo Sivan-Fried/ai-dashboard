@@ -541,6 +541,17 @@ div[data-testid="stButton"] button:hover {
     box-shadow: var(--shadow-lg) !important;
 }
 
+
+
+/* ── כפתור נסתר עבור משאבים ────────────────── */
+.st-key-btn_resources button {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
 /* ── Sidebar ────────────────── */
 
 .aura-sidebar-inner {
