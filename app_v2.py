@@ -818,6 +818,7 @@ with main_col:
     elif st.session_state.current_page == "resources" or st.query_params.get("page") == "resources":
         resources.show_resources_page()
         
+        
     # 3. מסך ראשי / דשבורד רגיל
     else:
         # כל שאר הקוד של הדשבורד הראשי שלך
