@@ -75,7 +75,7 @@ def show_resources_page(project_name):
             st.markdown(f'### {title}', unsafe_allow_html=True)
             st.markdown('''
             <div style="display:grid; grid-template-columns: 2fr 2fr 1.5fr 2fr; gap:8px; padding:8px 16px; 
-                        border-bottom:1px solid #f1f5f9; direction:rtl; margin-bottom:4px;">
+                        border-bottom:1px solid #f1f5f9; direction:rtl; margin-bottom:4px; text-align:right;">
                 <span style="font-size:0.78rem; font-weight:700; color:#94a3b8;">שם העובד</span>
                 <span style="font-size:0.78rem; font-weight:700; color:#94a3b8;">תפקיד</span>
                 <span style="font-size:0.78rem; font-weight:700; color:#94a3b8;">אחוזי משרה</span>
@@ -85,17 +85,16 @@ def show_resources_page(project_name):
             
             for _, row in rows_df.iterrows():
                 pct = get_pct(row["%_employment"])
-                color = "#f0b8cb" if pct >= 50 else "#fde68a" if pct > 0 else "#e2e8f0"
                 st.markdown(f'''
                 <div style="display:grid; grid-template-columns: 2fr 2fr 1.5fr 2fr; gap:8px; 
                             padding:12px 16px; border-bottom:1px solid #f9f9f9; 
-                            direction:rtl; align-items:center;">
+                            direction:rtl; align-items:center; text-align:right;">
                     <span style="font-size:0.9rem; font-weight:600; color:#3f3f46;">{row["worker_name"]}</span>
                     <span style="font-size:0.85rem; color:#71717A;">{row["job title"]}</span>
-                    <div>
+                    <div style="text-align:right;">
                         <span style="font-size:0.9rem; font-weight:700; color:#3f3f46;">{pct:.0f}%</span>
-                        <div style="height:4px; background:#f1f5f9; border-radius:4px; margin-top:4px;">
-                            <div style="height:4px; width:{pct}%; background:{color}; border-radius:4px;"></div>
+                        <div style="height:4px; background:#f1f5f9; border-radius:999px; margin-top:6px; max-width:80px;">
+                            <div style="height:4px; width:{pct}%; background:#f0b8cb; border-radius:999px;"></div>
                         </div>
                     </div>
                     <span style="font-size:0.78rem; color:#94a3b8;">{row.get("notes", "")}</span>
