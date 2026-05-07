@@ -804,8 +804,12 @@ else:
 with sidebar_col:
     render_sidebar(page=st.session_state.current_page)
     if st.session_state.current_page == "project":
+        p_name = st.session_state.get("selected_project", "")
         if st.button("משאבים", key="btn_resources"):
             st.session_state.current_page = "resources"
+            st.rerun()
+        if st.button("תוכנית עבודה", key="btn_work"):
+            st.session_state.current_page = "project"
             st.rerun()
     
 with main_col:
