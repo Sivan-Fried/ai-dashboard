@@ -31,7 +31,7 @@ def show_resources_page(project_name):
         if v <= 1: return v * 100
         return v
 
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     with col1:
         st.markdown(f'''
         <div class="kpi-container">
@@ -68,6 +68,28 @@ def show_resources_page(project_name):
         </div>
         ''', unsafe_allow_html=True)
 
+    with col3:
+        st.markdown(f'''
+        <div class="kpi-container">
+            <div class="kpi-header">
+                <div class="kpi-icon-box" style="background:#f0fdf4;">
+                    <span class="material-symbols-rounded" style="color:#86efac;">schedule</span>
+                </div>
+                <span class="kpi-badge" style="background:#f0fdf4; color:#16a34a;">Onboarding</span>
+            </div>
+            <div class="kpi-content">
+                <div class="kpi-value-row">
+                    <span class="kpi-unit">ימים</span>
+                    <span class="kpi-number">60</span>
+                </div>
+            </div>
+        </div>
+        ''', unsafe_allow_html=True)
+
+    st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
+
+    render_table(active_df, "צוות פעיל")
+    
     st.markdown("<div style='margin-bottom:1rem;'></div>", unsafe_allow_html=True)
 
     def render_table(rows_df, title):
@@ -104,4 +126,5 @@ def show_resources_page(project_name):
     render_table(active_df, "צוות פעיל")
     
     if not inactive_df.empty:
+        st.markdown("<div style='margin-bottom:1rem;'></div>", unsafe_allow_html=True)
         render_table(inactive_df, "חברי צוות בעבר")
