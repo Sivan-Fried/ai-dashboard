@@ -542,7 +542,7 @@ def render_sidebar(page="main"):
         
         if item["target"].startswith("?"):
             items_html += f'''
-            <div class="aura-nav-item" onclick="window.parent.location.href='{item['target']}&proj=' + encodeURIComponent(new URLSearchParams(window.parent.location.search).get('proj') || '')">
+            <div class="aura-nav-item" onclick="window.parent.location.replace('{item['target']}&proj=' + encodeURIComponent(new URLSearchParams(window.parent.location.search).get('proj') || ''))">
                 <span class="aura-nav-icon">{item['icon']}</span>
                 {label_html}
             </div>'''
