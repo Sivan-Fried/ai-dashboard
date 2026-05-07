@@ -528,7 +528,7 @@ def render_sidebar(page="main"):
     else:
         nav_items = [
             {"icon": "calendar_month", "label": "תוכנית עבודה", "target": "tab-work"},
-            {"icon": "group", "label": "משאבים", "target": "resources"},
+            {"icon": "group", "label": "משאבים", "target": "?page=resources"},
             {"icon": "warning", "label": "סיכונים", "target": "tab-risks"},
             {"icon": "description", "label": "סיכומים", "target": "tab-meetings"},
         ]
@@ -758,6 +758,9 @@ if "proj" in params:
     st.session_state.selected_project = params["proj"]
     st.session_state.current_page = "project"
 
+if "page" in params and params["page"] == "resources":
+    st.session_state.current_page = "resources"
+
 # =========================================================
 # 4. מבנה התצוגה
 # =========================================================
@@ -803,7 +806,12 @@ with sidebar_col:
     
 with main_col:
     # 1. אם אנחנו במסך פרויקט ספציפי
-    if st.session_state.current_page == "project":
+    if st.session_state.current_page == "resources":
+        from resources import show_resources_page
+        p_name = st.session_state.get("selected_project", "")
+        show_resources_page(p_name)
+
+    elif st.session_state.current_page == "project":
         p_name = st.session_state.get("selected_project", "פרויקט")
         st.header(p_name)
         
