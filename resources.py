@@ -18,9 +18,20 @@ def show_resources_page(project_name):
     active_df   = project_df[project_df['worker_status'].str.strip() == 'פעיל']
     inactive_df = project_df[project_df['worker_status'].str.strip() != 'פעיל']
 
-    total_workers    = len(project_df)
-    total_employment = pd.to_numeric(project_df['%_employment'].astype(str).str.replace('%',''), errors='coerce').sum()
+    total_workers = len(project_df)
     
+    # טיפול באחוזים — אם הם עשרוניים (0.33) נכפיל ב-100
+    emp_numeric = pd.to_numeric(project_df['%_employment'].astype(str).str.replace('%',''), errors='coerce')
+    if emp_numeric.max() <= 1:
+        emp_numeric = emp_numeric * 100
+    total_employment = emp_numeric.sum()
+
+    def fmt_pct(val):
+        v = pd.to_numeric(str(val).replace('%',''), errors='coerce')
+        if pd.isna(v): return str(val)
+        if v <= 1: v = v * 100
+        return f"{v:.0f}%"
+
     col1, col2 = st.columns(2)
     with col1:
         st.markdown(f'''
@@ -61,16 +72,15 @@ def show_resources_page(project_name):
     st.markdown("<div style='margin-bottom:1rem;'></div>", unsafe_allow_html=True)
 
     with st.container(border=True):
-        st.markdown('### <span class="material-symbols-outlined" style="vertical-align:middle; margin-left:8px; font-size:1.5rem; color:#64748b;">group</span> צוות פעיל', unsafe_allow_html=True)
+        st.markdown('### צוות פעיל', unsafe_allow_html=True)
         if not active_df.empty:
             for _, row in active_df.iterrows():
                 st.markdown(f'''
                 <div class="record-row">
-                    <span style="display:flex; align-items:center; gap:8px; font-size:0.92rem;">
-                        <span class="material-symbols-outlined" style="font-size:18px; color:#64748b;">person</span>
+                    <span style="font-size:0.92rem;">
                         {row["worker_name"]} — {row["job title"]}
                     </span>
-                    <span class="tag-pink">{row["%_employment"]}</span>
+                    <span class="tag-pink">{fmt_pct(row["%_employment"])}</span>
                 </div>
                 ''', unsafe_allow_html=True)
         else:
@@ -78,14 +88,13 @@ def show_resources_page(project_name):
 
     if not inactive_df.empty:
         with st.container(border=True):
-            st.markdown('### <span class="material-symbols-outlined" style="vertical-align:middle; margin-left:8px; font-size:1.5rem; color:#94a3b8;">group_off</span> חברי צוות בעבר', unsafe_allow_html=True)
+            st.markdown('### חברי צוות בעבר', unsafe_allow_html=True)
             for _, row in inactive_df.iterrows():
                 st.markdown(f'''
                 <div class="record-row" style="opacity:0.5;">
-                    <span style="display:flex; align-items:center; gap:8px; font-size:0.92rem;">
-                        <span class="material-symbols-outlined" style="font-size:18px; color:#94a3b8;">person_off</span>
+                    <span style="font-size:0.92rem;">
                         {row["worker_name"]} — {row["job title"]}
                     </span>
-                    <span class="tag-gray">{row["%_employment"]}</span>
+                    <span class="tag-gray">{fmt_pct(row["%_employment"])}</span>
                 </div>
                 ''', unsafe_allow_html=True)
