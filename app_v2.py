@@ -823,6 +823,10 @@ with main_col:
         p_name = st.session_state.get("selected_project", "פרויקט")
         st.header(p_name)
         
+        if st.button("משאבים"):
+            st.session_state.current_page = "resources"
+            st.rerun()
+        
         with st.container(border=True):
             try:
                 html = build_timeline_html(p_name)
