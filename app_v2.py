@@ -807,27 +807,17 @@ with main_col:
         p_name = st.session_state.get("selected_project", "פרויקט")
         st.header(p_name)
         
-        tab_work, tab_resources = st.tabs(["תוכנית עבודה", "משאבים"])
-        
-        with tab_work:
-            with st.container(border=True):
-                try:
-                    html = build_timeline_html(p_name)
-                    st.components.v1.html(html, height=300, scrolling=False)
-                except Exception as e:
-                    st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
-
-        with tab_resources:
-            from resources import show_resources_page
-            show_resources_page(p_name)
+        with st.container(border=True):
+            try:
+                html = build_timeline_html(p_name)
+                st.components.v1.html(html, height=300, scrolling=False)
+            except Exception as e:
+                st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
         
         
     # 3. מסך ראשי / דשבורד רגיל
     else:
-        # כל שאר הקוד של הדשבורד הראשי שלך
-        import os
-        import pandas as pd
-        
+        # כל שאר הקוד של הדשבורד הראשי שלך   
         quote_text = "מה שלא תעשה או שתחלום שאתה יכול לעשות - התחל עם זה"
         quote_author = "יוהאן וולפגנג פון גתה"
         try:
