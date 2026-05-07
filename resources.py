@@ -9,7 +9,7 @@ def show_resources_page(project_name):
         return
 
     df.columns = df.columns.str.strip()
-    project_df = df[df['project_name'].str.strip() == project_name.strip()]
+    project_df = df[df['project_name'].str.strip() == project_name.strip()].copy()
 
     if project_df.empty:
         st.info("לא נמצאו משאבים לפרויקט זה.")
@@ -18,18 +18,17 @@ def show_resources_page(project_name):
     active_df   = project_df[project_df['worker_status'].str.strip() == 'פעיל']
     inactive_df = project_df[project_df['worker_status'].str.strip() != 'פעיל']
 
-    total_workers = len(project_df)
-    
-    # טיפול באחוזים — אם הם עשרוניים (0.33) נכפיל ב-100
+    total_workers = len(active_df)
     emp_numeric = pd.to_numeric(project_df['%_employment'].astype(str).str.replace('%',''), errors='coerce')
     if emp_numeric.max() <= 1:
-        emp_numeric = emp_numeric * 100
-    total_employment = emp_numeric.sum()
+        total_employment = emp_numeric.sum()
+    else:
+        total_employment = emp_numeric.sum() / 100
 
     def fmt_pct(val):
         v = pd.to_numeric(str(val).replace('%',''), errors='coerce')
         if pd.isna(v): return str(val)
-        if v <= 1: v = v * 100
+        if v <= 1: return f"{v*100:.0f}%"
         return f"{v:.0f}%"
 
     col1, col2 = st.columns(2)
@@ -44,7 +43,7 @@ def show_resources_page(project_name):
             </div>
             <div class="kpi-content">
                 <div class="kpi-value-row">
-                    <span class="kpi-unit">חברי צוות</span>
+                    <span class="kpi-unit">חברי צוות פעילים</span>
                     <span class="kpi-number">{total_workers}</span>
                 </div>
             </div>
@@ -62,8 +61,8 @@ def show_resources_page(project_name):
             </div>
             <div class="kpi-content">
                 <div class="kpi-value-row">
-                    <span class="kpi-unit">סה"כ</span>
-                    <span class="kpi-number">{total_employment:.0f}%</span>
+                    <span class="kpi-unit">משרות אדם</span>
+                    <span class="kpi-number">{total_employment:.1f}</span>
                 </div>
             </div>
         </div>
@@ -77,8 +76,10 @@ def show_resources_page(project_name):
             for _, row in active_df.iterrows():
                 st.markdown(f'''
                 <div class="record-row">
-                    <span style="font-size:0.92rem;">
-                        {row["worker_name"]} — {row["job title"]}
+                    <span style="font-size:0.92rem; display:flex; flex-direction:column; gap:2px;">
+                        <span style="font-weight:600;">{row["worker_name"]}</span>
+                        <span style="color:#94a3b8; font-size:0.82rem;">{row["job title"]}</span>
+                        <span style="color:#94a3b8; font-size:0.78rem;">{row.get("notes", "")}</span>
                     </span>
                     <span class="tag-pink">{fmt_pct(row["%_employment"])}</span>
                 </div>
@@ -91,9 +92,11 @@ def show_resources_page(project_name):
             st.markdown('### חברי צוות בעבר', unsafe_allow_html=True)
             for _, row in inactive_df.iterrows():
                 st.markdown(f'''
-                <div class="record-row" style="opacity:0.5;">
-                    <span style="font-size:0.92rem;">
-                        {row["worker_name"]} — {row["job title"]}
+                <div class="record-row">
+                    <span style="font-size:0.92rem; display:flex; flex-direction:column; gap:2px;">
+                        <span style="font-weight:600;">{row["worker_name"]}</span>
+                        <span style="color:#94a3b8; font-size:0.82rem;">{row["job title"]}</span>
+                        <span style="color:#94a3b8; font-size:0.78rem;">{row.get("notes", "")}</span>
                     </span>
                     <span class="tag-gray">{fmt_pct(row["%_employment"])}</span>
                 </div>
