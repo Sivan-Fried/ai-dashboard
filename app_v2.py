@@ -807,16 +807,19 @@ with main_col:
         p_name = st.session_state.get("selected_project", "פרויקט")
         st.header(p_name)
         
-        with st.container(border=True):
-            try:
-                html = build_timeline_html(p_name)
-                st.components.v1.html(html, height=300, scrolling=False)
-            except Exception as e:
-                st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
-                
-    # 2. אם נלחץ כפתור המשאבים (בעמוד פרויקט)
-    elif st.session_state.current_page == "resources" or st.query_params.get("page") == "resources":
-        resources.show_resources_page()
+        tab_work, tab_resources = st.tabs(["תוכנית עבודה", "משאבים"])
+        
+        with tab_work:
+            with st.container(border=True):
+                try:
+                    html = build_timeline_html(p_name)
+                    st.components.v1.html(html, height=300, scrolling=False)
+                except Exception as e:
+                    st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
+
+        with tab_resources:
+            from resources import show_resources_page
+            show_resources_page(p_name)
         
         
     # 3. מסך ראשי / דשבורד רגיל
