@@ -94,7 +94,7 @@ BASE_HTML = """
     <meta charset="utf-8">
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@200;400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Assistant', sans-serif; background-color: white; margin: 0; padding: 0; overflow: hidden; }
+        body { font-family: 'Assistant', sans-serif; background-color: white; margin: 0; padding: 0; overflow: hidden; height: 320px; }
 
         .controls {
             display: flex;
@@ -125,7 +125,7 @@ BASE_HTML = """
 
         .toggle-btn.active {
             background: #FADCE6;
-            color: #831843;
+            color: ##475569;
         }
 
         .toggle-btn:hover:not(.active) {
