@@ -933,7 +933,7 @@ h2 {
 }
 
 /* ── Sidebar nav buttons ───────────────────────────────── */
-[data-testid="column"]:first-child > div:first-child {
+.st-key-aura_sidebar {
     background: #ffffff;
     border-radius: 16px;
     border: 1px solid #F4F4F5;
@@ -941,7 +941,7 @@ h2 {
     padding: 8px;
 }
 
-[data-testid="column"]:first-child div[data-testid="stButton"] button {
+.st-key-aura_sidebar div[data-testid="stButton"] button {
     background: transparent !important;
     border: none !important;
     border-radius: 12px !important;
@@ -956,31 +956,24 @@ h2 {
     min-height: 36px !important;
     height: 36px !important;
     transition: all 0.2s ease !important;
-    margin: 0 !important;
 }
 
-[data-testid="column"]:first-child div[data-testid="stButton"] button:hover {
+.st-key-aura_sidebar div[data-testid="stButton"] button:hover {
     background: #fdf2f8 !important;
     color: #3f3f46 !important;
     transform: none !important;
     box-shadow: none !important;
 }
 
-[data-testid="column"]:first-child div[data-testid="stButton"] button p {
+.st-key-aura_sidebar div[data-testid="stButton"] button p {
     color: inherit !important;
     font-size: inherit !important;
     font-weight: inherit !important;
     margin: 0 !important;
-    padding: 0 !important;
 }
 
-[data-testid="column"]:first-child [data-testid="stVerticalBlock"] {
+.st-key-aura_sidebar [data-testid="stVerticalBlock"] {
     gap: 2px !important;
-}
-
-[data-testid="column"]:first-child .element-container {
-    margin: 0 !important;
-    padding: 0 !important;
 }
 
 .st-key-sidebar_toggle button {
