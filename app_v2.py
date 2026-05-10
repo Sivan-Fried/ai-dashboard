@@ -536,6 +536,29 @@ def render_sidebar(page="main", project_name=None):
     else:
         default_idx = 0
 
+    if collapsed:
+        nav_link_styles = {
+            "font-size": "0px",
+            "color": "transparent",
+            "text-align": "center",
+            "direction": "rtl",
+            "padding": "8px",
+            "border-radius": "12px",
+            "--hover-color": "#fdf2f8",
+        }
+    else:
+        nav_link_styles = {
+            "font-family": "Plus Jakarta Sans, sans-serif",
+            "font-size": "0.82rem",
+            "font-weight": "500",
+            "color": "#71717A",
+            "text-align": "right",
+            "direction": "rtl",
+            "padding": "8px 12px",
+            "border-radius": "12px",
+            "--hover-color": "#fdf2f8",
+        }
+
     menu_styles = {
         "container": {
             "padding": "4px",
@@ -548,20 +571,10 @@ def render_sidebar(page="main", project_name=None):
             "color": "#94a3b8",
             "font-size": "16px",
         },
-        "nav-link": {
-            "font-family": "Plus Jakarta Sans, sans-serif",
-            "font-size": "0.82rem",
-            "font-weight": "500",
-            "color": "#71717A",
-            "text-align": "right",
-            "direction": "rtl",
-            "padding": "8px 12px",
-            "border-radius": "12px",
-            "--hover-color": "#fdf2f8",
-        },
+        "nav-link": nav_link_styles,
         "nav-link-selected": {
             "background-color": "#fdf2f8",
-            "color": "#3f3f46",
+            "color": "#3f3f46" if not collapsed else "transparent",
             "font-weight": "700",
             "border-right": "3px solid #f0b8cb",
         },
