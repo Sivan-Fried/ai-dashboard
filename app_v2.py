@@ -518,19 +518,19 @@ def render_sidebar(page="main", project_name=None):
     
     collapsed = st.session_state.get("sidebar_collapsed", False)
     if collapsed:
-    st.markdown("""
-        <style>
-        [data-testid="stSidebar"] .nav-link span:last-child,
-        section[data-testid="stSidebar"] ul span[class*="nav-link"] {
-            display: none !important;
-        }
-        /* כשמכווץ — מרכז את האייקונים */
-        section[data-testid="stSidebar"] ul li a {
-            justify-content: center !important;
-            padding: 8px 4px !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
+        st.markdown("""
+            <style>
+            [data-testid="stSidebar"] .nav-link span:last-child,
+            section[data-testid="stSidebar"] ul span[class*="nav-link"] {
+                display: none !important;
+            }
+            /* כשמכווץ — מרכז את האייקונים */
+            section[data-testid="stSidebar"] ul li a {
+                justify-content: center !important;
+                padding: 8px 4px !important;
+            }
+            </style>
+        """, unsafe_allow_html=True)
 
     if page == "main":
         options = ["דשבורד", "פרויקטים", "פגישות", "משימות", "תזכורות", "דיווחים", "סיכומים", "עוזר AI"]
