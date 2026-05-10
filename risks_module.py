@@ -370,14 +370,15 @@ def show_risks_page(project_name=None):
             pass
 
         # ── לפי פרויקט ──
-        proj_summary = df.groupby("project_name").apply(
-            lambda x: pd.Series({
-                "total": len(x),
-                "critical": len(x[(x["probability"] * x["impact"]) >= 15]),
-                "avg_score": (x["probability"] * x["impact"]).mean()
-            })
-        ).reset_index().sort_values("avg_score", ascending=False)
-
+        proj_summary = df.groupby("project_name").agg(
+            total=("risk_title", "count"),
+            avg_score=("probability", lambda x: (x * df.loc[x.index, "impact"]).mean())
+        ).reset_index()
+        proj_summary["critical"] = df.groupby("project_name").apply(
+            lambda x: ((x["probability"] * x["impact"]) >= 15).sum()
+        ).values
+        proj_summary = proj_summary.sort_values("avg_score", ascending=False)
+        
         proj_bars = ""
         for _, row in proj_summary.iterrows():
             bar_pct = min(int((row["avg_score"] / 25) * 100), 100)
