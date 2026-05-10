@@ -606,95 +606,95 @@ def render_sidebar(page="main", project_name=None):
             st.rerun()
 
         for item in nav_items:
-    if item["action"] == "page":
-        is_active = (st.session_state.current_page == item["target"])
-        btn_key = f"nav_{item['target']}"
-        if is_active:
-            st.markdown(f"""
-                <style>
-                .st-key-{btn_key} button {{
-                    background: #fdf2f8 !important;
-                    border-right: 3px solid #f0b8cb !important;
-                    color: #3f3f46 !important;
-                    font-weight: 700 !important;
-                }}
-                </style>
-            """, unsafe_allow_html=True)
-        # כפתור נסתר — הלחיצה האמיתית
-        st.markdown(f"""
-            <style>
-            .st-key-{btn_key} button {{
-                position: absolute !important;
-                opacity: 0 !important;
-                width: 100% !important;
-                height: 44px !important;
-                z-index: 10 !important;
-                cursor: pointer !important;
-            }}
-            .st-key-{btn_key} {{
-                position: relative !important;
-            }}
-            </style>
-        """, unsafe_allow_html=True)
-        if st.button("x", key=btn_key, use_container_width=True):
-            st.session_state.current_page = item["target"]
-            if project_name:
-                st.session_state.selected_project = project_name
-            st.rerun()
-        # ויזואל מעל הכפתור הנסתר
-        active_bg = "#fdf2f8" if is_active else "transparent"
-        active_border = "border-right: 3px solid #f0b8cb;" if is_active else ""
-        active_color = "#3f3f46" if is_active else "#71717A"
-        active_weight = "700" if is_active else "500"
-        components.html(f"""
-            <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
-            <div style="
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 8px 12px;
-                border-radius: 12px;
-                background: {active_bg};
-                {active_border}
-                direction: rtl;
-                height: 36px;
-                box-sizing: border-box;
-                margin-top: -44px;
-                pointer-events: none;
-            ">
-                <span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#94a3b8; line-height:1;">{item['icon']}</span>
-                {"" if collapsed else f'<span style="font-family:Plus Jakarta Sans,sans-serif; font-size:0.82rem; font-weight:{active_weight}; color:{active_color};">{item["label"]}</span>'}
-            </div>
-        """, height=36)
-
-    else:
-        label = item["icon"] if collapsed else item["label"]
-        components.html(f"""
-            <div onclick="
-                var el = window.parent.document.getElementById('{item['target']}');
-                if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
-            " style="
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 8px 12px;
-                border-radius: 12px;
-                cursor: pointer;
-                color: #71717A;
-                font-family: 'Plus Jakarta Sans', sans-serif;
-                font-size: 0.82rem;
-                font-weight: 500;
-                direction: rtl;
-                white-space: nowrap;
-                height: 36px;
-                box-sizing: border-box;
-            " onmouseover="this.style.background='#fdf2f8'; this.style.color='#3f3f46';"
-               onmouseout="this.style.background='transparent'; this.style.color='#71717A';">
-                <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
-                <span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#94a3b8; line-height:1;">{item['icon']}</span>
-                {"" if collapsed else f'<span>{item["label"]}</span>'}
-            </div>
-        """, height=36)
+            if item["action"] == "page":
+                is_active = (st.session_state.current_page == item["target"])
+                btn_key = f"nav_{item['target']}"
+                if is_active:
+                    st.markdown(f"""
+                        <style>
+                        .st-key-{btn_key} button {{
+                            background: #fdf2f8 !important;
+                            border-right: 3px solid #f0b8cb !important;
+                            color: #3f3f46 !important;
+                            font-weight: 700 !important;
+                        }}
+                        </style>
+                    """, unsafe_allow_html=True)
+                # כפתור נסתר — הלחיצה האמיתית
+                st.markdown(f"""
+                    <style>
+                    .st-key-{btn_key} button {{
+                        position: absolute !important;
+                        opacity: 0 !important;
+                        width: 100% !important;
+                        height: 44px !important;
+                        z-index: 10 !important;
+                        cursor: pointer !important;
+                    }}
+                    .st-key-{btn_key} {{
+                        position: relative !important;
+                    }}
+                    </style>
+                """, unsafe_allow_html=True)
+                if st.button("x", key=btn_key, use_container_width=True):
+                    st.session_state.current_page = item["target"]
+                    if project_name:
+                        st.session_state.selected_project = project_name
+                    st.rerun()
+                # ויזואל מעל הכפתור הנסתר
+                active_bg = "#fdf2f8" if is_active else "transparent"
+                active_border = "border-right: 3px solid #f0b8cb;" if is_active else ""
+                active_color = "#3f3f46" if is_active else "#71717A"
+                active_weight = "700" if is_active else "500"
+                components.html(f"""
+                    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+                    <div style="
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        padding: 8px 12px;
+                        border-radius: 12px;
+                        background: {active_bg};
+                        {active_border}
+                        direction: rtl;
+                        height: 36px;
+                        box-sizing: border-box;
+                        margin-top: -44px;
+                        pointer-events: none;
+                    ">
+                        <span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#94a3b8; line-height:1;">{item['icon']}</span>
+                        {"" if collapsed else f'<span style="font-family:Plus Jakarta Sans,sans-serif; font-size:0.82rem; font-weight:{active_weight}; color:{active_color};">{item["label"]}</span>'}
+                    </div>
+                """, height=36)
+        
+            else:
+                label = item["icon"] if collapsed else item["label"]
+                components.html(f"""
+                    <div onclick="
+                        var el = window.parent.document.getElementById('{item['target']}');
+                        if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
+                    " style="
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        padding: 8px 12px;
+                        border-radius: 12px;
+                        cursor: pointer;
+                        color: #71717A;
+                        font-family: 'Plus Jakarta Sans', sans-serif;
+                        font-size: 0.82rem;
+                        font-weight: 500;
+                        direction: rtl;
+                        white-space: nowrap;
+                        height: 36px;
+                        box-sizing: border-box;
+                    " onmouseover="this.style.background='#fdf2f8'; this.style.color='#3f3f46';"
+                       onmouseout="this.style.background='transparent'; this.style.color='#71717A';">
+                        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+                        <span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#94a3b8; line-height:1;">{item['icon']}</span>
+                        {"" if collapsed else f'<span>{item["label"]}</span>'}
+                    </div>
+                """, height=36)
 
 # ---תמונת פרופיל ---
 def get_base64_image(path):
