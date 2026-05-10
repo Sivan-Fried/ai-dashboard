@@ -857,83 +857,83 @@ else:
                                                                                       
 
         
-        # ── KPIs ────────────────────────────────────────────────
-        # ── KPIs New Compact Design ───────────────────────────────────────────
-        k1, k2, k3, k4 = st.columns(4)
-        
-        with k1:
-            val = len(projects[projects["status"]=="אדום"])
-            st.markdown(f'''
-            <div class="kpi-container">
-                <div class="kpi-header">
-                    <div class="kpi-icon-box" style="background:#fef2f2;"><span class="material-symbols-rounded" style="color:#f87171;">warning</span></div>
-                    <span class="kpi-badge" style="background:#fef2f2; color:#ef4444;">בסיכון</span>
-                </div>
-                <div class="kpi-content">
-                    <div class="kpi-value-row">
-                        <span class="kpi-unit">פרויקטים</span>
-                        <span class="kpi-number">{val}</span>
-                    </div>
-                </div>
-            </div>
-            ''', unsafe_allow_html=True)
-        
-        with k2:
-            val = len(projects[projects["status"]=="צהוב"])
-            st.markdown(f'''
-            <div class="kpi-container">
-                <div class="kpi-header">
-                    <div class="kpi-icon-box" style="background:#eff6ff;"><span class="material-symbols-rounded" style="color:#60a5fa;">info</span></div>
-                    <span class="kpi-badge" style="background:#eff6ff; color:#3b82f6;">במעקב</span>
-                </div>
-                <div class="kpi-content">
-                    <div class="kpi-value-row">
-                        <span class="kpi-unit">פרויקטים</span>
-                        <span class="kpi-number">{val}</span>
-                    </div>
-                </div>
-            </div>
-            ''', unsafe_allow_html=True)
-        
-        with k3:
-            val = len(projects[projects["status"]=="ירוק"])
-            st.markdown(f'''
-            <div class="kpi-container">
-                <div class="kpi-header">
-                    <div class="kpi-icon-box" style="background:#ecfdf5;"><span class="material-symbols-rounded" style="color:#34d399;">check_circle</span></div>
-                    <span class="kpi-badge" style="background:#ecfdf5; color:#10b981;">תקין</span>
-                </div>
-                <div class="kpi-content">
-                    <div class="kpi-value-row">
-                        <span class="kpi-unit">פרויקטים</span>
-                        <span class="kpi-number">{val}</span>
-                    </div>
-                </div>
-            </div>
-            ''', unsafe_allow_html=True)
-        
-        with k4:
-            val = len(projects)
-            st.markdown(f'''
-            <div class="kpi-container">
-                <div class="kpi-header">
-                    <div class="kpi-icon-box" style="background:#f8fafc;"><span class="material-symbols-rounded" style="color:#94a3b8;">folder</span></div>
-                    <span class="kpi-badge" style="background:#f8fafc; color:#64748b;">כללי</span>
-                </div>
-                <div class="kpi-content">
-                    <div class="kpi-value-row">
-                        <span class="kpi-unit">פעילים</span>
-                        <span class="kpi-number">{val}</span>
-                    </div>
-                </div>
-            </div>
-            ''', unsafe_allow_html=True)
-        
-        #st.markdown("<br>", unsafe_allow_html=True
-        st.markdown("<div style='margin-bottom: 0.5rem;'></div>", unsafe_allow_html=True)
+    # ── KPIs ────────────────────────────────────────────────
+    # ── KPIs New Compact Design ───────────────────────────────────────────
+    k1, k2, k3, k4 = st.columns(4)
     
-        #הגדרת עמודה ימנית - לא למחוק
-        col_right, col_left = st.columns([1, 1])
+    with k1:
+        val = len(projects[projects["status"]=="אדום"])
+        st.markdown(f'''
+        <div class="kpi-container">
+            <div class="kpi-header">
+                <div class="kpi-icon-box" style="background:#fef2f2;"><span class="material-symbols-rounded" style="color:#f87171;">warning</span></div>
+                <span class="kpi-badge" style="background:#fef2f2; color:#ef4444;">בסיכון</span>
+            </div>
+            <div class="kpi-content">
+                <div class="kpi-value-row">
+                    <span class="kpi-unit">פרויקטים</span>
+                    <span class="kpi-number">{val}</span>
+                </div>
+            </div>
+        </div>
+        ''', unsafe_allow_html=True)
+    
+    with k2:
+        val = len(projects[projects["status"]=="צהוב"])
+        st.markdown(f'''
+        <div class="kpi-container">
+            <div class="kpi-header">
+                <div class="kpi-icon-box" style="background:#eff6ff;"><span class="material-symbols-rounded" style="color:#60a5fa;">info</span></div>
+                <span class="kpi-badge" style="background:#eff6ff; color:#3b82f6;">במעקב</span>
+            </div>
+            <div class="kpi-content">
+                <div class="kpi-value-row">
+                    <span class="kpi-unit">פרויקטים</span>
+                    <span class="kpi-number">{val}</span>
+                </div>
+            </div>
+        </div>
+        ''', unsafe_allow_html=True)
+    
+    with k3:
+        val = len(projects[projects["status"]=="ירוק"])
+        st.markdown(f'''
+        <div class="kpi-container">
+            <div class="kpi-header">
+                <div class="kpi-icon-box" style="background:#ecfdf5;"><span class="material-symbols-rounded" style="color:#34d399;">check_circle</span></div>
+                <span class="kpi-badge" style="background:#ecfdf5; color:#10b981;">תקין</span>
+            </div>
+            <div class="kpi-content">
+                <div class="kpi-value-row">
+                    <span class="kpi-unit">פרויקטים</span>
+                    <span class="kpi-number">{val}</span>
+                </div>
+            </div>
+        </div>
+        ''', unsafe_allow_html=True)
+    
+    with k4:
+        val = len(projects)
+        st.markdown(f'''
+        <div class="kpi-container">
+            <div class="kpi-header">
+                <div class="kpi-icon-box" style="background:#f8fafc;"><span class="material-symbols-rounded" style="color:#94a3b8;">folder</span></div>
+                <span class="kpi-badge" style="background:#f8fafc; color:#64748b;">כללי</span>
+            </div>
+            <div class="kpi-content">
+                <div class="kpi-value-row">
+                    <span class="kpi-unit">פעילים</span>
+                    <span class="kpi-number">{val}</span>
+                </div>
+            </div>
+        </div>
+        ''', unsafe_allow_html=True)
+    
+    #st.markdown("<br>", unsafe_allow_html=True
+    st.markdown("<div style='margin-bottom: 0.5rem;'></div>", unsafe_allow_html=True)
+
+    #הגדרת עמודה ימנית - לא למחוק
+    col_right, col_left = st.columns([1, 1])
     
         # ══════════════════════════════════════════════════════
         # עמודה ימנית
