@@ -536,7 +536,16 @@ def render_sidebar(page="main", project_name=None):
     else:
         default_idx = 0
 
-    display_options = [""] * len(options) if collapsed else options
+    menu_key = f"nav_menu_{page}"
+    idx_key  = f"nav_idx_{page}"
+
+    if idx_key not in st.session_state:
+        st.session_state[idx_key] = default_idx
+
+    def on_change(key):
+        selected_val = st.session_state[key]
+        if selected_val in options:
+            st.session_state[idx_key] = options.index(selected_val)
 
     menu_styles = {
         "container": {
@@ -546,10 +555,7 @@ def render_sidebar(page="main", project_name=None):
             "border": "none",
             "box-shadow": "none",
         },
-        "icon": {
-            "color": "#94a3b8",
-            "font-size": "18px",
-        },
+        "icon": {"color": "#94a3b8", "font-size": "18px"},
         "nav-link": {
             "font-family": "Plus Jakarta Sans, sans-serif",
             "font-size": "0.82rem",
@@ -577,46 +583,37 @@ def render_sidebar(page="main", project_name=None):
 
         selected = option_menu(
             menu_title=None,
-            options=display_options,
+            options=options,
             icons=icons,
-            default_index=st.session_state.get(f"sidebar_idx_{page}", default_idx),
+            default_index=st.session_state[idx_key],
             styles=menu_styles,
-            key=f"nav_menu_{page}",
+            key=menu_key,
+            on_change=on_change,
         )
 
-        # מציאת ה-index הנבחר
-        if not collapsed and selected and selected in options:
-            selected_idx = options.index(selected)
-            st.session_state[f"sidebar_idx_{page}"] = selected_idx
-        else:
-            selected_idx = st.session_state.get(f"sidebar_idx_{page}", default_idx)
+        # עדכון index בכל בחירה
+        if selected in options:
+            st.session_state[idx_key] = options.index(selected)
 
-        # טיפול בבחירה — רק כשלא מצומצם או כשנלחץ במצב מצומצם
-        if selected_idx is not None:
-            if page == "main":
-                if not collapsed and selected and selected in options:
-                    anchor = anchors[selected_idx]
-                    components.html(f"""
-                        <script>
-                        var el = window.parent.document.getElementById('{anchor}');
-                        if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
-                        </script>
-                    """, height=0)
-                elif collapsed:
-                    anchor = anchors[selected_idx]
-                    components.html(f"""
-                        <script>
-                        var el = window.parent.document.getElementById('{anchor}');
-                        if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
-                        </script>
-                    """, height=0)
-            else:
-                target = targets[selected_idx]
-                if target != st.session_state.current_page:
-                    st.session_state.current_page = target
-                    if project_name:
-                        st.session_state.selected_project = project_name
-                    st.rerun()
+        selected_idx = st.session_state[idx_key]
+
+        # טיפול בבחירה
+        if page == "main":
+            if selected in options:
+                anchor = anchors[selected_idx]
+                components.html(f"""
+                    <script>
+                    var el = window.parent.document.getElementById('{anchor}');
+                    if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
+                    </script>
+                """, height=0)
+        else:
+            target = targets[selected_idx]
+            if target != st.session_state.current_page:
+                st.session_state.current_page = target
+                if project_name:
+                    st.session_state.selected_project = project_name
+                st.rerun()
 
 
 
