@@ -829,7 +829,8 @@ with main_col:
 
     elif st.session_state.current_page == "risks":
         from risks_module import show_risks_page
-        show_risks_page()
+        p_name = st.session_state.get("selected_project", "")
+        show_risks_page(p_name)
 
     elif st.session_state.current_page == "project":
         p_name = st.session_state.get("selected_project", "פרויקט")
