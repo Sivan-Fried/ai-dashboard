@@ -555,7 +555,10 @@ def render_sidebar(page="main", project_name=None):
             "border": "none",
             "box-shadow": "none",
         },
-        "icon": {"color": "#94a3b8", "font-size": "18px"},
+        "icon": {
+            "color": "#94a3b8",
+            "font-size": "18px",
+        },
         "nav-link": {
             "font-family": "Plus Jakarta Sans, sans-serif",
             "font-size": "0.001rem" if collapsed else "0.82rem",
@@ -571,7 +574,7 @@ def render_sidebar(page="main", project_name=None):
             "display": "flex",
             "align-items": "center",
             "justify-content": "center" if collapsed else "flex-end",
-            "flex-direction": "row-reverse" if not collapsed else "row",
+            "flex-direction": "row" if collapsed else "row-reverse",
         },
         "nav-link-selected": {
             "background-color": "#fdf2f8",
@@ -580,8 +583,6 @@ def render_sidebar(page="main", project_name=None):
             "border-right": "3px solid #f0b8cb",
         },
     }
-
-    with st.container(key="aura_sidebar", border=False):
 
     with st.container(key="aura_sidebar", border=False):
         toggle_label = "›" if collapsed else "‹"
@@ -599,13 +600,11 @@ def render_sidebar(page="main", project_name=None):
             on_change=on_change,
         )
 
-        # עדכון index בכל בחירה
         if selected in options:
             st.session_state[idx_key] = options.index(selected)
 
         selected_idx = st.session_state[idx_key]
 
-        # טיפול בבחירה
         if page == "main":
             if selected in options:
                 anchor = anchors[selected_idx]
