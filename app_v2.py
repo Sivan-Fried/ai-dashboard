@@ -517,20 +517,6 @@ def render_sidebar(page="main", project_name=None):
     from streamlit_option_menu import option_menu
     
     collapsed = st.session_state.get("sidebar_collapsed", False)
-    if collapsed:
-        st.markdown("""
-            <style>
-            [data-testid="stSidebar"] .nav-link span:last-child,
-            section[data-testid="stSidebar"] ul span[class*="nav-link"] {
-                display: none !important;
-            }
-            /* כשמכווץ — מרכז את האייקונים */
-            section[data-testid="stSidebar"] ul li a {
-                justify-content: center !important;
-                padding: 8px 4px !important;
-            }
-            </style>
-        """, unsafe_allow_html=True)
 
     if page == "main":
         options = ["דשבורד", "פרויקטים", "פגישות", "משימות", "תזכורות", "דיווחים", "סיכומים", "עוזר AI"]
@@ -578,14 +564,13 @@ def render_sidebar(page="main", project_name=None):
             "font-size": "0.001rem" if collapsed else "0.82rem",
             "font-weight": "500",
             "color": "rgba(0,0,0,0)" if collapsed else "#71717A",
-            "text-align": "center" if collapsed else "right",
+            "text-align": "right",
             "direction": "rtl",
-            "padding": "8px 4px" if collapsed else "8px 10px",
+            "padding": "8px 12px",
             "border-radius": "12px",
             "--hover-color": "#fdf2f8",
             "height": "36px",
             "overflow": "hidden",
-            "white-space": "nowrap",
         },
         "nav-link-selected": {
             "background-color": "#fdf2f8",
@@ -632,7 +617,6 @@ def render_sidebar(page="main", project_name=None):
                 if project_name:
                     st.session_state.selected_project = project_name
                 st.rerun()
-
 
 
 # ---תמונת פרופיל ---
