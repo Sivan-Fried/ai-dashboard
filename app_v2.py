@@ -563,12 +563,15 @@ def render_sidebar(page="main", project_name=None):
             "color": "rgba(0,0,0,0)" if collapsed else "#71717A",
             "text-align": "center" if collapsed else "right",
             "direction": "rtl",
-            "padding": "8px 0px" if collapsed else "8px 12px",
-            "margin": "0 auto" if collapsed else "0",
+            "padding": "8px" if collapsed else "8px 12px",
             "border-radius": "12px",
             "--hover-color": "#fdf2f8",
             "height": "36px",
             "overflow": "hidden",
+            "display": "flex",
+            "align-items": "center",
+            "justify-content": "center" if collapsed else "flex-end",
+            "flex-direction": "row-reverse" if not collapsed else "row",
         },
         "nav-link-selected": {
             "background-color": "#fdf2f8",
@@ -576,7 +579,6 @@ def render_sidebar(page="main", project_name=None):
             "font-weight": "700",
             "border-right": "3px solid #f0b8cb",
         },
-    }
 
     with st.container(key="aura_sidebar", border=False):
         toggle_label = "›" if collapsed else "‹"
