@@ -568,7 +568,7 @@ def render_sidebar(page="main", project_name=None):
         },
     }
 
-    with st.container(key="aura_sidebar"):
+    with st.container(key="aura_sidebar", border=False):
         # כפתור טוגל
         toggle_label = "›" if collapsed else "‹"
         if st.button(toggle_label, key="sidebar_toggle"):
