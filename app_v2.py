@@ -579,31 +579,37 @@ def render_sidebar(page="main", project_name=None):
             menu_title=None,
             options=display_options,
             icons=icons,
-            default_index=default_idx,
+            default_index=st.session_state.get(f"sidebar_idx_{page}", default_idx),
             styles=menu_styles,
             key=f"nav_menu_{page}",
         )
 
         # מציאת ה-index הנבחר
-        if collapsed:
-            # כשמצומצם selected הוא "" — משתמשים ב-default_index
-            selected_idx = default_idx
+        if not collapsed and selected and selected in options:
+            selected_idx = options.index(selected)
+            st.session_state[f"sidebar_idx_{page}"] = selected_idx
         else:
-            if selected and selected in options:
-                selected_idx = options.index(selected)
-            else:
-                selected_idx = None
+            selected_idx = st.session_state.get(f"sidebar_idx_{page}", default_idx)
 
-        # טיפול בבחירה
+        # טיפול בבחירה — רק כשלא מצומצם או כשנלחץ במצב מצומצם
         if selected_idx is not None:
             if page == "main":
-                anchor = anchors[selected_idx]
-                components.html(f"""
-                    <script>
-                    var el = window.parent.document.getElementById('{anchor}');
-                    if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
-                    </script>
-                """, height=0)
+                if not collapsed and selected and selected in options:
+                    anchor = anchors[selected_idx]
+                    components.html(f"""
+                        <script>
+                        var el = window.parent.document.getElementById('{anchor}');
+                        if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
+                        </script>
+                    """, height=0)
+                elif collapsed:
+                    anchor = anchors[selected_idx]
+                    components.html(f"""
+                        <script>
+                        var el = window.parent.document.getElementById('{anchor}');
+                        if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
+                        </script>
+                    """, height=0)
             else:
                 target = targets[selected_idx]
                 if target != st.session_state.current_page:
