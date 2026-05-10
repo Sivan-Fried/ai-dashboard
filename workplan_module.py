@@ -247,10 +247,10 @@ def build_timeline_html(project_name):
     project_name = clean_text(project_name)
 
     project_df = df[df["project_name"] == project_name].copy()
+    project_df = project_df.sort_values("date")  # ← התיקון
 
     if project_df.empty:
         return "<div style='text-align:right; font-size:16px; padding:10px;'>אין נתונים עבור הפרויקט</div>"
-
 
     today = datetime.date.today()
     today_str = today.strftime("%d.%m")
