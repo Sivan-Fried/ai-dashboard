@@ -125,7 +125,7 @@ BASE_HTML = """
 
         .toggle-btn.active {
             background: #FADCE6;
-            color: ##475569;
+            color: #63646c;
         }
 
         .toggle-btn:hover:not(.active) {
