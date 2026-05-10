@@ -535,6 +535,81 @@ def render_sidebar(page="main", project_name=None):
             {"icon": "description",    "label": "סיכומים",      "action": "page", "target": "meetings"},
         ]
 
+    # CSS גלובלי לסרגל — מלבן לבן + כפתורים
+    st.markdown(f"""
+        <style>
+        /* מלבן לבן לעמודת הסרגל */
+        [data-testid="column"]:first-child > div:first-child {{
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #F4F4F5;
+            box-shadow: 0 2px 20px rgba(225,200,210,0.2);
+            padding: 8px;
+            height: 100%;
+        }}
+        /* כפתורי ניווט */
+        [data-testid="column"]:first-child div[data-testid="stButton"] button {{
+            background: transparent !important;
+            border: none !important;
+            border-radius: 12px !important;
+            box-shadow: none !important;
+            color: #71717A !important;
+            font-size: 0.82rem !important;
+            font-weight: 500 !important;
+            text-align: right !important;
+            direction: rtl !important;
+            width: 100% !important;
+            padding: 8px 12px !important;
+            min-height: 36px !important;
+            height: 36px !important;
+            line-height: 1 !important;
+            transition: all 0.2s ease !important;
+            margin: 0 !important;
+        }}
+        [data-testid="column"]:first-child div[data-testid="stButton"] button:hover {{
+            background: #fdf2f8 !important;
+            color: #3f3f46 !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }}
+        [data-testid="column"]:first-child div[data-testid="stButton"] button p {{
+            color: inherit !important;
+            font-size: inherit !important;
+            font-weight: inherit !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }}
+        /* הסרת רווחים בין אלמנטים בסרגל */
+        [data-testid="column"]:first-child [data-testid="stVerticalBlock"] {{
+            gap: 2px !important;
+        }}
+        [data-testid="column"]:first-child .element-container {{
+            margin: 0 !important;
+            padding: 0 !important;
+        }}
+        /* כפתור טוגל */
+        .st-key-sidebar_toggle button {{
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 28px !important;
+            height: 28px !important;
+            min-height: 28px !important;
+            border-radius: 50% !important;
+            background: #9ca3af !important;
+            color: #ffffff !important;
+            font-size: 16px !important;
+            margin: 4px auto 8px auto !important;
+            padding: 0 !important;
+        }}
+        .st-key-sidebar_toggle button:hover {{
+            background: #6b7280 !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }}
+        </style>
+    """, unsafe_allow_html=True)
+
     # כפתור טוגל
     toggle_label = "›" if collapsed else "‹"
     if st.button(toggle_label, key="sidebar_toggle"):
@@ -565,46 +640,16 @@ def render_sidebar(page="main", project_name=None):
                 st.rerun()
 
         else:
-            # ניווט לעוגן — כפתור Streamlit רגיל שגולל דרך JS בדף עצמו
-            btn_key = f"anchor_{item['target']}"
             label = item["icon"] if collapsed else item["label"]
-            st.markdown(f"""
-                <style>
-                .st-key-{btn_key} button {{
-                    background: transparent !important;
-                    border: none !important;
-                    border-radius: 12px !important;
-                    box-shadow: none !important;
-                    color: #71717A !important;
-                    font-size: 0.82rem !important;
-                    font-weight: 500 !important;
-                    text-align: right !important;
-                    direction: rtl !important;
-                    width: 100% !important;
-                    padding: 10px 12px !important;
-                    transition: all 0.2s ease !important;
-                    min-height: unset !important;
-                }}
-                .st-key-{btn_key} button:hover {{
-                    background: #fdf2f8 !important;
-                    color: #3f3f46 !important;
-                    transform: none !important;
-                    box-shadow: none !important;
-                }}
-                </style>
-            """, unsafe_allow_html=True)
             components.html(f"""
-                <script>
-                function scrollTo_{item['target'].replace('-', '_')}() {{
+                <div onclick="
                     var el = window.parent.document.getElementById('{item['target']}');
                     if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
-                }}
-                </script>
-                <div onclick="scrollTo_{item['target'].replace('-', '_')}()" style="
+                " style="
                     display: flex;
                     align-items: center;
                     gap: 10px;
-                    padding: 10px 12px;
+                    padding: 8px 12px;
                     border-radius: 12px;
                     cursor: pointer;
                     color: #71717A;
@@ -613,15 +658,16 @@ def render_sidebar(page="main", project_name=None):
                     font-weight: 500;
                     direction: rtl;
                     white-space: nowrap;
-                    transition: all 0.2s ease;
+                    transition: background 0.2s;
+                    height: 36px;
+                    box-sizing: border-box;
                 " onmouseover="this.style.background='#fdf2f8'; this.style.color='#3f3f46';"
                    onmouseout="this.style.background='transparent'; this.style.color='#71717A';">
                     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
-                    <span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#94a3b8;">{item['icon']}</span>
+                    <span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#94a3b8; line-height:1;">{item['icon']}</span>
                     {"" if collapsed else f'<span>{item["label"]}</span>'}
                 </div>
-            """, height=44)
-
+            """, height=36)
 
 # ---תמונת פרופיל ---
 def get_base64_image(path):
