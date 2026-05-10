@@ -57,13 +57,14 @@ def milestone_to_html(row):
     }.get(row["status"], "")
 
     date_str = row["date"].strftime("%d.%m.%Y")
+    date_iso = row["date"].strftime("%Y-%m-%d")  # ← נוסף
 
     contents = str(row.get("version_contents", "")).strip()
     contents_html = contents.replace("\n", "<br>") if contents and contents != "nan" else ""
     tooltip_html = f"<div class='tooltip'>{contents_html}</div>" if contents_html else ""
 
     return (
-        "<div class='item'>"
+        "<div class='item' data-date='" + date_iso + "'>"  # ← data-date נוסף
         "<div class='card'>"
         + tooltip_html +
         "<span class='tag " + tag_class + "'>" + str(row['milestone_name']) + "</span>"
@@ -74,7 +75,6 @@ def milestone_to_html(row):
         "<div class='dot'></div>"
         "</div>"
     )
-
 
 
 # ---------------------------------------------------------
@@ -96,15 +96,71 @@ BASE_HTML = """
     <style>
         body { font-family: 'Assistant', sans-serif; background-color: white; margin: 0; padding: 0; overflow: hidden; }
 
+        .controls {
+            display: flex;
+            justify-content: flex-end;
+            padding: 16px 50px 0 50px;
+        }
+
+        .toggle-group {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            padding: 4px;
+        }
+
+        .toggle-btn {
+            padding: 6px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Assistant', sans-serif;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #94a3b8;
+            background: transparent;
+        }
+
+        .toggle-btn.active {
+            background: #FADCE6;
+            color: #831843;
+        }
+
+        .toggle-btn:hover:not(.active) {
+            color: #475569;
+        }
+
+        .timeline-scroll {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 0 50px;
+            scrollbar-width: thin;
+            scrollbar-color: #e2e8f0 transparent;
+        }
+
+        .timeline-scroll::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .timeline-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .timeline-scroll::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 2px;
+        }
+
         .timeline-wrapper {
             position: relative;
-            width: 1000px;
-            margin: 50px auto;
+            margin: 50px 0;
             height: 200px;
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            padding: 0 50px;
+            min-width: 1000px;
         }
 
         .main-line {
@@ -176,7 +232,6 @@ BASE_HTML = """
             box-shadow: 0 0 0 1px #475569;
             z-index: 4;
         }
-        
 
         .tag { font-size: 11px; font-weight: 700; padding: 1px 4px; border-radius: 2px; display: inline-block; margin-bottom: 2px; }
         .amit  { background: #FADCE6; color: #831843; }
@@ -187,7 +242,7 @@ BASE_HTML = """
         .live { color: #10b981; }
         .wip { color: #f59e0b; }
 
-         .tooltip {
+        .tooltip {
             display: none;
             position: absolute;
             bottom: 110%;
@@ -222,17 +277,58 @@ BASE_HTML = """
     </style>
 </head>
 <body>
-    <div class="timeline-wrapper">
-        <div class="main-line"></div>
-
-        <div class="today-indicator">
-            <span class="today-text">TODAY_PLACEHOLDER</span>
-            <div class="today-line"></div>
+    <div class="controls">
+        <div class="toggle-group">
+            <button class="toggle-btn active" onclick="filterView('all', this)">הכל</button>
+            <button class="toggle-btn" onclick="filterView('quarter', this)">רבעון נוכחי</button>
+            <button class="toggle-btn" onclick="filterView('month', this)">חודש נוכחי</button>
         </div>
-
-        ITEMS_PLACEHOLDER
-
     </div>
+
+    <div class="timeline-scroll">
+        <div class="timeline-wrapper">
+            <div class="main-line"></div>
+
+            <div class="today-indicator">
+                <span class="today-text">TODAY_PLACEHOLDER</span>
+                <div class="today-line"></div>
+            </div>
+
+            ITEMS_PLACEHOLDER
+
+        </div>
+    </div>
+
+    <script>
+        const today = new Date();
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
+        const currentQuarter = Math.floor(currentMonth / 3);
+
+        function filterView(mode, btn) {
+            document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            document.querySelectorAll('.item').forEach(item => {
+                const dateStr = item.dataset.date;
+                if (!dateStr) { item.style.display = ''; return; }
+
+                const date = new Date(dateStr);
+                const month = date.getMonth();
+                const year = date.getFullYear();
+                const quarter = Math.floor(month / 3);
+
+                let show = true;
+                if (mode === 'month') {
+                    show = month === currentMonth && year === currentYear;
+                } else if (mode === 'quarter') {
+                    show = quarter === currentQuarter && year === currentYear;
+                }
+
+                item.style.display = show ? '' : 'none';
+            });
+        }
+    </script>
 </body>
 </html>
 """
