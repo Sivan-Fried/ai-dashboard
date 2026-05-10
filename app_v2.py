@@ -514,89 +514,59 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
 </html>""", height=110)
 
 def render_sidebar(page="main", project_name=None):
+    from streamlit_option_menu import option_menu
+    
     collapsed = st.session_state.get("sidebar_collapsed", False)
 
     if page == "main":
-        nav_items = [
-            {"icon": "dashboard",      "label": "דשבורד",       "action": "anchor", "target": "section-projects"},
-            {"icon": "work",           "label": "פרויקטים",     "action": "anchor", "target": "section-projects"},
-            {"icon": "calendar_today", "label": "פגישות",       "action": "anchor", "target": "section-meetings"},
-            {"icon": "checklist",      "label": "משימות",       "action": "anchor", "target": "section-tasks"},
-            {"icon": "notifications",  "label": "תזכורות",      "action": "anchor", "target": "section-reminders"},
-            {"icon": "edit",           "label": "דיווחים",      "action": "anchor", "target": "section-priority"},
-            {"icon": "description",    "label": "סיכומים",      "action": "anchor", "target": "section-fathom"},
-            {"icon": "smart_toy",      "label": "עוזר AI",      "action": "anchor", "target": "section-ai"},
-        ]
+        options = ["דשבורד", "פרויקטים", "פגישות", "משימות", "תזכורות", "דיווחים", "סיכומים", "עוזר AI"]
+        icons   = ["grid", "briefcase", "calendar", "check2-square", "bell", "pencil", "file-text", "robot"]
+        anchors = ["section-projects", "section-projects", "section-meetings", "section-tasks",
+                   "section-reminders", "section-priority", "section-fathom", "section-ai"]
     else:
-        nav_items = [
-            {"icon": "calendar_month", "label": "תוכנית עבודה", "action": "page", "target": "project"},
-            {"icon": "group",          "label": "משאבים",       "action": "page", "target": "resources"},
-            {"icon": "warning",        "label": "סיכונים",      "action": "page", "target": "risks"},
-            {"icon": "description",    "label": "סיכומים",      "action": "page", "target": "meetings"},
-        ]
+        options = ["תוכנית עבודה", "משאבים", "סיכונים", "סיכומים"]
+        icons   = ["calendar-month", "people", "exclamation-triangle", "file-text"]
+        targets = ["project", "resources", "risks", "meetings"]
 
-    # עיצוב הסרגל דרך key ייחודי
-    st.markdown("""
-        <style>
-        .st-key-aura_sidebar {
-            background: #ffffff;
-            border-radius: 16px;
-            border: 1px solid #F4F4F5;
-            box-shadow: 0 2px 20px rgba(225,200,210,0.2);
-            padding: 8px;
-        }
-        .st-key-aura_sidebar div[data-testid="stButton"] button {
-            background: transparent !important;
-            border: none !important;
-            border-radius: 12px !important;
-            box-shadow: none !important;
-            color: #71717A !important;
-            font-size: 0.82rem !important;
-            font-weight: 500 !important;
-            text-align: right !important;
-            direction: rtl !important;
-            width: 100% !important;
-            padding: 8px 12px !important;
-            min-height: 36px !important;
-            height: 36px !important;
-            transition: all 0.2s ease !important;
-        }
-        .st-key-aura_sidebar div[data-testid="stButton"] button:hover {
-            background: #fdf2f8 !important;
-            color: #3f3f46 !important;
-            transform: none !important;
-            box-shadow: none !important;
-        }
-        .st-key-aura_sidebar div[data-testid="stButton"] button p {
-            color: inherit !important;
-            font-size: inherit !important;
-            font-weight: inherit !important;
-            margin: 0 !important;
-        }
-        .st-key-aura_sidebar [data-testid="stVerticalBlock"] {
-            gap: 2px !important;
-        }
-        .st-key-sidebar_toggle button {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            width: 28px !important;
-            height: 28px !important;
-            min-height: 28px !important;
-            border-radius: 50% !important;
-            background: #9ca3af !important;
-            color: #ffffff !important;
-            font-size: 16px !important;
-            margin: 4px auto 8px auto !important;
-            padding: 0 !important;
-        }
-        .st-key-sidebar_toggle button:hover {
-            background: #6b7280 !important;
-            transform: none !important;
-            box-shadow: none !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
+    # מציאת ה-default_index לפריט הפעיל
+    if page != "main":
+        try:
+            default_idx = targets.index(st.session_state.current_page)
+        except ValueError:
+            default_idx = 0
+    else:
+        default_idx = 0
+
+    menu_styles = {
+        "container": {
+            "padding": "8px",
+            "background-color": "#ffffff",
+            "border-radius": "16px",
+            "border": "1px solid #F4F4F5",
+            "box-shadow": "0 2px 20px rgba(225,200,210,0.2)",
+        },
+        "icon": {
+            "color": "#94a3b8",
+            "font-size": "16px",
+        },
+        "nav-link": {
+            "font-family": "Plus Jakarta Sans, sans-serif",
+            "font-size": "0.82rem",
+            "font-weight": "500",
+            "color": "#71717A",
+            "text-align": "right",
+            "direction": "rtl",
+            "padding": "8px 12px",
+            "border-radius": "12px",
+            "--hover-color": "#fdf2f8",
+        },
+        "nav-link-selected": {
+            "background-color": "#fdf2f8",
+            "color": "#3f3f46",
+            "font-weight": "700",
+            "border-right": "3px solid #f0b8cb",
+        },
+    }
 
     with st.container(key="aura_sidebar"):
         # כפתור טוגל
@@ -605,96 +575,37 @@ def render_sidebar(page="main", project_name=None):
             st.session_state.sidebar_collapsed = not collapsed
             st.rerun()
 
-        for item in nav_items:
-            if item["action"] == "page":
-                is_active = (st.session_state.current_page == item["target"])
-                btn_key = f"nav_{item['target']}"
-                if is_active:
-                    st.markdown(f"""
-                        <style>
-                        .st-key-{btn_key} button {{
-                            background: #fdf2f8 !important;
-                            border-right: 3px solid #f0b8cb !important;
-                            color: #3f3f46 !important;
-                            font-weight: 700 !important;
-                        }}
-                        </style>
-                    """, unsafe_allow_html=True)
-                # כפתור נסתר — הלחיצה האמיתית
-                st.markdown(f"""
-                    <style>
-                    .st-key-{btn_key} button {{
-                        position: absolute !important;
-                        opacity: 0 !important;
-                        width: 100% !important;
-                        height: 44px !important;
-                        z-index: 10 !important;
-                        cursor: pointer !important;
-                    }}
-                    .st-key-{btn_key} {{
-                        position: relative !important;
-                    }}
-                    </style>
-                """, unsafe_allow_html=True)
-                if st.button("x", key=btn_key, use_container_width=True):
-                    st.session_state.current_page = item["target"]
+        selected = option_menu(
+            menu_title=None,
+            options=options if not collapsed else [""] * len(options),
+            icons=icons,
+            default_index=default_idx,
+            styles=menu_styles,
+            key=f"nav_menu_{page}",
+        )
+
+        # טיפול בבחירה
+        if page == "main":
+            if selected and selected in options:
+                idx = options.index(selected)
+                anchor = anchors[idx]
+                components.html(f"""
+                    <script>
+                    var el = window.parent.document.getElementById('{anchor}');
+                    if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
+                    </script>
+                """, height=0)
+        else:
+            if selected and selected in options:
+                idx = options.index(selected)
+                target = targets[idx]
+                if target != st.session_state.current_page:
+                    st.session_state.current_page = target
                     if project_name:
                         st.session_state.selected_project = project_name
                     st.rerun()
-                # ויזואל מעל הכפתור הנסתר
-                active_bg = "#fdf2f8" if is_active else "transparent"
-                active_border = "border-right: 3px solid #f0b8cb;" if is_active else ""
-                active_color = "#3f3f46" if is_active else "#71717A"
-                active_weight = "700" if is_active else "500"
-                components.html(f"""
-                    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
-                    <div style="
-                        display: flex;
-                        align-items: center;
-                        gap: 10px;
-                        padding: 8px 12px;
-                        border-radius: 12px;
-                        background: {active_bg};
-                        {active_border}
-                        direction: rtl;
-                        height: 36px;
-                        box-sizing: border-box;
-                        margin-top: -44px;
-                        pointer-events: none;
-                    ">
-                        <span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#94a3b8; line-height:1;">{item['icon']}</span>
-                        {"" if collapsed else f'<span style="font-family:Plus Jakarta Sans,sans-serif; font-size:0.82rem; font-weight:{active_weight}; color:{active_color};">{item["label"]}</span>'}
-                    </div>
-                """, height=36)
-        
-            else:
-                label = item["icon"] if collapsed else item["label"]
-                components.html(f"""
-                    <div onclick="
-                        var el = window.parent.document.getElementById('{item['target']}');
-                        if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
-                    " style="
-                        display: flex;
-                        align-items: center;
-                        gap: 10px;
-                        padding: 8px 12px;
-                        border-radius: 12px;
-                        cursor: pointer;
-                        color: #71717A;
-                        font-family: 'Plus Jakarta Sans', sans-serif;
-                        font-size: 0.82rem;
-                        font-weight: 500;
-                        direction: rtl;
-                        white-space: nowrap;
-                        height: 36px;
-                        box-sizing: border-box;
-                    " onmouseover="this.style.background='#fdf2f8'; this.style.color='#3f3f46';"
-                       onmouseout="this.style.background='transparent'; this.style.color='#71717A';">
-                        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
-                        <span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#94a3b8; line-height:1;">{item['icon']}</span>
-                        {"" if collapsed else f'<span>{item["label"]}</span>'}
-                    </div>
-                """, height=36)
+
+
 
 # ---תמונת פרופיל ---
 def get_base64_image(path):
