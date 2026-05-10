@@ -155,7 +155,7 @@ BASE_HTML = """
 
         .timeline-wrapper {
             position: relative;
-            margin: 50px 0;
+            margin: 30px 0;
             height: 200px;
             display: flex;
             justify-content: space-between;
