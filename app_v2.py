@@ -163,7 +163,23 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+<style>
+/* מצב מורחב — רוחב קבוע */
+[data-testid="column"]:first-child {
+    min-width: 160px !important;
+    max-width: 160px !important;
+    width: 160px !important;
+    flex: 0 0 160px !important;
+}
 
+/* העמודה הראשית תמלא את השארית */
+[data-testid="column"]:last-child {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+}
+</style>
+""", unsafe_allow_html=True)
     
 # --- כאן מתחיל התוכן של הדשבורד הישן שלך ---
 # =========================================================
