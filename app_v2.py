@@ -587,24 +587,36 @@ def render_sidebar(page="main", project_name=None):
 
         # טיפול בבחירה
         if page == "main":
-            if selected and selected in options:
-                idx = options.index(selected)
-                anchor = anchors[idx]
-                components.html(f"""
-                    <script>
-                    var el = window.parent.document.getElementById('{anchor}');
-                    if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
-                    </script>
-                """, height=0)
+            if selected is not None:
+                if collapsed:
+                    idx = default_idx
+                elif selected in options:
+                    idx = options.index(selected)
+                else:
+                    idx = None
+                if idx is not None:
+                    anchor = anchors[idx]
+                    components.html(f"""
+                        <script>
+                        var el = window.parent.document.getElementById('{anchor}');
+                        if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
+                        </script>
+                    """, height=0)
         else:
-            if selected and selected in options:
-                idx = options.index(selected)
-                target = targets[idx]
-                if target != st.session_state.current_page:
-                    st.session_state.current_page = target
-                    if project_name:
-                        st.session_state.selected_project = project_name
-                    st.rerun()
+            if selected is not None:
+                if collapsed:
+                    idx = default_idx
+                elif selected in options:
+                    idx = options.index(selected)
+                else:
+                    idx = None
+                if idx is not None:
+                    target = targets[idx]
+                    if target != st.session_state.current_page:
+                        st.session_state.current_page = target
+                        if project_name:
+                            st.session_state.selected_project = project_name
+                        st.rerun()
 
 
 
