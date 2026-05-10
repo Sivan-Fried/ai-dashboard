@@ -439,7 +439,7 @@ def show_risks_page(project_name=None):
                 with st.spinner("מנתח..."):
                     insight = get_ai_insight(row, df)
                     save_insight(row["project_name"], row["risk_title"], insight)
-                    st.rerun()
+    
 
     with col_side:
         # מד סיכון כולל
