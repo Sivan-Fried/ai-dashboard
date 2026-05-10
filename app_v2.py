@@ -535,20 +535,17 @@ def render_sidebar(page="main", project_name=None):
             {"icon": "description",    "label": "סיכומים",      "action": "page", "target": "meetings"},
         ]
 
-    # CSS גלובלי לסרגל — מלבן לבן + כפתורים
-    st.markdown(f"""
+    # עיצוב הסרגל דרך key ייחודי
+    st.markdown("""
         <style>
-        /* מלבן לבן לעמודת הסרגל */
-        [data-testid="column"]:first-child > div:first-child {{
+        .st-key-aura_sidebar {
             background: #ffffff;
             border-radius: 16px;
             border: 1px solid #F4F4F5;
             box-shadow: 0 2px 20px rgba(225,200,210,0.2);
             padding: 8px;
-            height: 100%;
-        }}
-        /* כפתורי ניווט */
-        [data-testid="column"]:first-child div[data-testid="stButton"] button {{
+        }
+        .st-key-aura_sidebar div[data-testid="stButton"] button {
             background: transparent !important;
             border: none !important;
             border-radius: 12px !important;
@@ -562,33 +559,24 @@ def render_sidebar(page="main", project_name=None):
             padding: 8px 12px !important;
             min-height: 36px !important;
             height: 36px !important;
-            line-height: 1 !important;
             transition: all 0.2s ease !important;
-            margin: 0 !important;
-        }}
-        [data-testid="column"]:first-child div[data-testid="stButton"] button:hover {{
+        }
+        .st-key-aura_sidebar div[data-testid="stButton"] button:hover {
             background: #fdf2f8 !important;
             color: #3f3f46 !important;
             transform: none !important;
             box-shadow: none !important;
-        }}
-        [data-testid="column"]:first-child div[data-testid="stButton"] button p {{
+        }
+        .st-key-aura_sidebar div[data-testid="stButton"] button p {
             color: inherit !important;
             font-size: inherit !important;
             font-weight: inherit !important;
             margin: 0 !important;
-            padding: 0 !important;
-        }}
-        /* הסרת רווחים בין אלמנטים בסרגל */
-        [data-testid="column"]:first-child [data-testid="stVerticalBlock"] {{
+        }
+        .st-key-aura_sidebar [data-testid="stVerticalBlock"] {
             gap: 2px !important;
-        }}
-        [data-testid="column"]:first-child .element-container {{
-            margin: 0 !important;
-            padding: 0 !important;
-        }}
-        /* כפתור טוגל */
-        .st-key-sidebar_toggle button {{
+        }
+        .st-key-sidebar_toggle button {
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
@@ -601,73 +589,72 @@ def render_sidebar(page="main", project_name=None):
             font-size: 16px !important;
             margin: 4px auto 8px auto !important;
             padding: 0 !important;
-        }}
-        .st-key-sidebar_toggle button:hover {{
+        }
+        .st-key-sidebar_toggle button:hover {
             background: #6b7280 !important;
             transform: none !important;
             box-shadow: none !important;
-        }}
+        }
         </style>
     """, unsafe_allow_html=True)
 
-    # כפתור טוגל
-    toggle_label = "›" if collapsed else "‹"
-    if st.button(toggle_label, key="sidebar_toggle"):
-        st.session_state.sidebar_collapsed = not collapsed
-        st.rerun()
+    with st.container(key="aura_sidebar"):
+        # כפתור טוגל
+        toggle_label = "›" if collapsed else "‹"
+        if st.button(toggle_label, key="sidebar_toggle"):
+            st.session_state.sidebar_collapsed = not collapsed
+            st.rerun()
 
-    # פריטי ניווט
-    for item in nav_items:
-        if item["action"] == "page":
-            is_active = (st.session_state.current_page == item["target"])
-            btn_key = f"nav_{item['target']}"
-            if is_active:
-                st.markdown(f"""
-                    <style>
-                    .st-key-{btn_key} button {{
-                        background: #fdf2f8 !important;
-                        border-right: 3px solid #f0b8cb !important;
-                        color: #3f3f46 !important;
-                        font-weight: 700 !important;
-                    }}
-                    </style>
-                """, unsafe_allow_html=True)
-            label = item["icon"] if collapsed else item["label"]
-            if st.button(label, key=btn_key, use_container_width=True):
-                st.session_state.current_page = item["target"]
-                if project_name:
-                    st.session_state.selected_project = project_name
-                st.rerun()
+        for item in nav_items:
+            if item["action"] == "page":
+                is_active = (st.session_state.current_page == item["target"])
+                btn_key = f"nav_{item['target']}"
+                if is_active:
+                    st.markdown(f"""
+                        <style>
+                        .st-key-{btn_key} button {{
+                            background: #fdf2f8 !important;
+                            border-right: 3px solid #f0b8cb !important;
+                            color: #3f3f46 !important;
+                            font-weight: 700 !important;
+                        }}
+                        </style>
+                    """, unsafe_allow_html=True)
+                label = item["icon"] if collapsed else item["label"]
+                if st.button(label, key=btn_key, use_container_width=True):
+                    st.session_state.current_page = item["target"]
+                    if project_name:
+                        st.session_state.selected_project = project_name
+                    st.rerun()
 
-        else:
-            label = item["icon"] if collapsed else item["label"]
-            components.html(f"""
-                <div onclick="
-                    var el = window.parent.document.getElementById('{item['target']}');
-                    if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
-                " style="
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    padding: 8px 12px;
-                    border-radius: 12px;
-                    cursor: pointer;
-                    color: #71717A;
-                    font-family: 'Plus Jakarta Sans', sans-serif;
-                    font-size: 0.82rem;
-                    font-weight: 500;
-                    direction: rtl;
-                    white-space: nowrap;
-                    transition: background 0.2s;
-                    height: 36px;
-                    box-sizing: border-box;
-                " onmouseover="this.style.background='#fdf2f8'; this.style.color='#3f3f46';"
-                   onmouseout="this.style.background='transparent'; this.style.color='#71717A';">
-                    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
-                    <span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#94a3b8; line-height:1;">{item['icon']}</span>
-                    {"" if collapsed else f'<span>{item["label"]}</span>'}
-                </div>
-            """, height=36)
+            else:
+                label = item["icon"] if collapsed else item["label"]
+                components.html(f"""
+                    <div onclick="
+                        var el = window.parent.document.getElementById('{item['target']}');
+                        if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
+                    " style="
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        padding: 8px 12px;
+                        border-radius: 12px;
+                        cursor: pointer;
+                        color: #71717A;
+                        font-family: 'Plus Jakarta Sans', sans-serif;
+                        font-size: 0.82rem;
+                        font-weight: 500;
+                        direction: rtl;
+                        white-space: nowrap;
+                        height: 36px;
+                        box-sizing: border-box;
+                    " onmouseover="this.style.background='#fdf2f8'; this.style.color='#3f3f46';"
+                       onmouseout="this.style.background='transparent'; this.style.color='#71717A';">
+                        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+                        <span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#94a3b8; line-height:1;">{item['icon']}</span>
+                        {"" if collapsed else f'<span>{item["label"]}</span>'}
+                    </div>
+                """, height=36)
 
 # ---תמונת פרופיל ---
 def get_base64_image(path):
