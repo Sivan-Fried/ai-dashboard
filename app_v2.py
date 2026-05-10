@@ -623,7 +623,7 @@ def render_sidebar(page="main", project_name=None):
 
         selected_idx = st.session_state[idx_key]
 
-         if page == "main":
+        if page == "main":
             if selected in options:
                 anchor = anchors[selected_idx]
                 components.html(f"""
