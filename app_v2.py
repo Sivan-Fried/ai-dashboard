@@ -517,6 +517,20 @@ def render_sidebar(page="main", project_name=None):
     from streamlit_option_menu import option_menu
     
     collapsed = st.session_state.get("sidebar_collapsed", False)
+    if collapsed:
+    st.markdown("""
+        <style>
+        [data-testid="stSidebar"] .nav-link span:last-child,
+        section[data-testid="stSidebar"] ul span[class*="nav-link"] {
+            display: none !important;
+        }
+        /* כשמכווץ — מרכז את האייקונים */
+        section[data-testid="stSidebar"] ul li a {
+            justify-content: center !important;
+            padding: 8px 4px !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
 
     if page == "main":
         options = ["דשבורד", "פרויקטים", "פגישות", "משימות", "תזכורות", "דיווחים", "סיכומים", "עוזר AI"]
@@ -561,20 +575,21 @@ def render_sidebar(page="main", project_name=None):
         },
         "nav-link": {
             "font-family": "Plus Jakarta Sans, sans-serif",
-            "font-size": "0.001rem" if collapsed else "0.82rem",
+            "font-size": "0.82rem",
             "font-weight": "500",
-            "color": "rgba(0,0,0,0)" if collapsed else "#71717A",
+            "color": "#71717A",
             "text-align": "right",
             "direction": "rtl",
-            "padding": "8px 12px",
+            "padding": "8px 12px" if not collapsed else "8px 6px",
             "border-radius": "12px",
             "--hover-color": "#fdf2f8",
             "height": "36px",
             "overflow": "hidden",
+            "white-space": "nowrap",
         },
         "nav-link-selected": {
             "background-color": "#fdf2f8",
-            "color": "rgba(0,0,0,0)" if collapsed else "#3f3f46",
+            "color": "#3f3f46",
             "font-weight": "700",
             "border-right": "3px solid #f0b8cb",
         },
@@ -780,10 +795,10 @@ if "collapsed" in st.query_params:
     st.session_state.sidebar_collapsed = st.query_params["collapsed"] == "true"
 
 if st.session_state.sidebar_collapsed:
-    sidebar_col, main_col = st.columns([0.05, 0.95])
+    sidebar_col, main_col = st.columns([1, 11])
 else:
-    sidebar_col, main_col = st.columns([0.10, 0.90])
-
+    sidebar_col, main_col = st.columns([2, 9])
+    
 st.markdown("""
     <style>
     .st-key-aura_sidebar {
