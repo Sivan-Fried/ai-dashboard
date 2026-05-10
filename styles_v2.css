@@ -947,6 +947,8 @@ h2 {
     border-radius: 16px;
     border: 1px solid #F4F4F5;
     box-shadow: 0 2px 20px rgba(225,200,210,0.2);
+    min-width: 52px !important;
+    overflow: visible !important;
 }
 
 /* ביטול כל מסגרות פנימיות בסרגל */
