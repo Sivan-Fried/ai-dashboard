@@ -573,6 +573,7 @@ def render_sidebar(page="main", project_name=None):
             "--hover-color": "#fdf2f8",
             "height": "36px",
             "overflow": "hidden",
+            "white-space": "nowrap",
         },
         "nav-link-selected": {
             "background-color": "#fdf2f8",
