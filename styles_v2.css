@@ -947,8 +947,6 @@ h2 {
     border-radius: 16px;
     border: 1px solid #F4F4F5;
     box-shadow: 0 2px 20px rgba(225,200,210,0.2);
-    min-width: 52px !important;
-    overflow: visible !important;
 }
 
 /* ביטול כל מסגרות פנימיות בסרגל */
@@ -1005,4 +1003,9 @@ h2 {
     background: #6b7280 !important;
     transform: none !important;
     box-shadow: none !important;
+}
+/* תיקון רוחב עמודת סרגל */
+div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child {
+    min-width: 160px !important;
+    flex-shrink: 0 !important;
 }
