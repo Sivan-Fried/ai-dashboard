@@ -558,7 +558,9 @@ def render_sidebar(page="main", project_name=None):
         "icon": {
             "color": "#94a3b8",
             "font-size": "18px",
+            "margin": "0 auto" if collapsed else "0",
         },
+        
         "nav-link": {
             "font-family": "Plus Jakarta Sans, sans-serif",
             "font-size": "0.001rem" if collapsed else "0.82rem",
