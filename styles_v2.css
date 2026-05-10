@@ -933,7 +933,15 @@ h2 {
 }
 
 /* ── Sidebar nav buttons ───────────────────────────────── */
-section[data-testid="stSidebar"] div[data-testid="stButton"] button {
+[data-testid="column"]:first-child {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #F4F4F5;
+    box-shadow: -2px 0 20px rgba(225,200,210,0.2);
+    padding: 8px !important;
+}
+
+[data-testid="column"]:first-child div[data-testid="stButton"] button {
     background: transparent !important;
     border: none !important;
     border-radius: 12px !important;
@@ -947,16 +955,17 @@ section[data-testid="stSidebar"] div[data-testid="stButton"] button {
     padding: 10px 12px !important;
     justify-content: flex-end !important;
     transition: all 0.2s ease !important;
+    min-height: unset !important;
 }
 
-section[data-testid="stSidebar"] div[data-testid="stButton"] button:hover {
+[data-testid="column"]:first-child div[data-testid="stButton"] button:hover {
     background: #fdf2f8 !important;
     color: #3f3f46 !important;
     transform: none !important;
     box-shadow: none !important;
 }
 
-section[data-testid="stSidebar"] div[data-testid="stButton"] button p {
+[data-testid="column"]:first-child div[data-testid="stButton"] button p {
     color: inherit !important;
     font-size: inherit !important;
     font-weight: inherit !important;
@@ -983,3 +992,4 @@ section[data-testid="stSidebar"] div[data-testid="stButton"] button p {
     transform: none !important;
     box-shadow: none !important;
 }
+
