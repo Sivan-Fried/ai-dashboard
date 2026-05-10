@@ -940,6 +940,14 @@ h2 {
     box-shadow: 0 2px 20px rgba(225,200,210,0.2);
 }
 
+/* ביטול מסגרת פנימית בסרגל */
+.st-key-aura_sidebar [data-testid="stVerticalBlockBorderWrapper"] {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+}
+
 /* הסרת כל מסגרות פנימיות של option_menu */
 .st-key-aura_sidebar nav,
 .st-key-aura_sidebar ul,
