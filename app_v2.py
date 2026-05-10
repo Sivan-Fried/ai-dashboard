@@ -632,6 +632,13 @@ def render_sidebar(page="main", project_name=None):
                     if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
                     </script>
                 """, height=0)
+        else:
+            target = targets[selected_idx]
+            if target != st.session_state.current_page:
+                st.session_state.current_page = target
+                if project_name:
+                    st.session_state.selected_project = project_name
+                st.rerun()
 
 
 # ---תמונת פרופיל ---
