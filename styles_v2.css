@@ -363,6 +363,15 @@ div[data-testid="stVerticalBlockBorderWrapper"],
     box-shadow: var(--shadow-sm) !important;
 }
 
+.st-key-aura_sidebar div[data-testid="stVerticalBlockBorderWrapper"],
+.st-key-aura_sidebar .st-emotion-cache-1ne20ew {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
 /* ── Project Links ─────────────────────────────────────── */
 .project-link {
     text-decoration: none !important;
