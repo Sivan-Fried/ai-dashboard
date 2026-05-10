@@ -769,7 +769,7 @@ if "collapsed" in st.query_params:
 if st.session_state.sidebar_collapsed:
     sidebar_col, main_col = st.columns([0.05, 0.95])
 else:
-    sidebar_col, main_col = st.columns([0.13, 0.87])
+    sidebar_col, main_col = st.columns([0.10, 0.90])
 
 p_name = st.session_state.get("selected_project", "")
 
