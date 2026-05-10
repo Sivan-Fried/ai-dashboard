@@ -513,127 +513,66 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
 </body>
 </html>""", height=110)
 
-def render_sidebar(page="main"):
+def render_sidebar(page="main", project_name=None):
+    collapsed = st.session_state.get("sidebar_collapsed", False)
+
     if page == "main":
         nav_items = [
-            {"icon": "dashboard", "label": "דשבורד", "target": "section-projects"},
-            {"icon": "work", "label": "פרויקטים", "target": "section-projects"},
-            {"icon": "calendar_today", "label": "פגישות", "target": "section-meetings"},
-            {"icon": "checklist", "label": "משימות", "target": "section-tasks"},
-            {"icon": "notifications", "label": "תזכורות", "target": "section-reminders"},
-            {"icon": "edit", "label": "דיווחים", "target": "section-priority"},
-            {"icon": "description", "label": "סיכומים", "target": "section-fathom"},
-            {"icon": "smart_toy", "label": "עוזר AI", "target": "section-ai"},
+            {"icon": "dashboard",      "label": "דשבורד",       "action": "anchor", "target": "section-projects"},
+            {"icon": "work",           "label": "פרויקטים",     "action": "anchor", "target": "section-projects"},
+            {"icon": "calendar_today", "label": "פגישות",       "action": "anchor", "target": "section-meetings"},
+            {"icon": "checklist",      "label": "משימות",       "action": "anchor", "target": "section-tasks"},
+            {"icon": "notifications",  "label": "תזכורות",      "action": "anchor", "target": "section-reminders"},
+            {"icon": "edit",           "label": "דיווחים",      "action": "anchor", "target": "section-priority"},
+            {"icon": "description",    "label": "סיכומים",      "action": "anchor", "target": "section-fathom"},
+            {"icon": "smart_toy",      "label": "עוזר AI",      "action": "anchor", "target": "section-ai"},
         ]
     else:
         nav_items = [
-            {"icon": "calendar_month", "label": "תוכנית עבודה", "target": "tab-work"},
-            {"icon": "group", "label": "משאבים", "target": "btn_resources"},
-            {"icon": "warning", "label": "סיכונים", "target": "tab-risks"},
-            {"icon": "description", "label": "סיכומים", "target": "tab-meetings"},
+            {"icon": "calendar_month", "label": "תוכנית עבודה", "action": "page", "target": "project"},
+            {"icon": "group",          "label": "משאבים",       "action": "page", "target": "resources"},
+            {"icon": "warning",        "label": "סיכונים",      "action": "page", "target": "risks"},
+            {"icon": "description",    "label": "סיכומים",      "action": "page", "target": "meetings"},
         ]
 
-    collapsed = st.session_state.get("sidebar_collapsed", False)
-    toggle_icon = "›" if collapsed else "‹"
+    with st.sidebar:
+        # כפתור טוגל
+        if st.button("›" if collapsed else "‹", key="sidebar_toggle"):
+            st.session_state.sidebar_collapsed = not collapsed
+            st.rerun()
 
-    items_html = ""
-    for item in nav_items:
-        label_html = f'<span class="aura-nav-label">{item["label"]}</span>' if not collapsed else ''
-        
-        if item["target"] == "btn_resources":
-            items_html += f'''
-            <div class="aura-nav-item" onclick="var btn=Array.from(window.parent.document.querySelectorAll('button')).find(b=>b.innerText.trim()==='משאבים'); if(btn) btn.click();">
-                <span class="aura-nav-icon">{item['icon']}</span>
-                {label_html}
-            </div>'''
-        else:
-            items_html += f'''
-            <div class="aura-nav-item" onclick="window.parent.document.getElementById('{item['target']}').scrollIntoView({{behavior:'smooth'}})">
-                <span class="aura-nav-icon">{item['icon']}</span>
-                {label_html}
-            </div>'''
-
-    components.html(f"""
-    <html dir="rtl">
-    <head>
-    <meta charset="utf-8"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
-    <style>
-    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-    body {{ background: transparent; overflow: hidden; }}
-    .aura-sidebar-inner {{
-        background: #ffffff;
-        border-radius: 16px;
-        border: 1px solid #F4F4F5;
-        box-shadow: -2px 0 20px rgba(225,200,210,0.2);
-        padding: 8px;
-        min-height: 900px;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-    }}
-    .aura-toggle-btn {{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: #9ca3af;
-        border: none;
-        cursor: pointer;
-        margin: 0 auto 12px auto;
-        color: #ffffff;
-        font-size: 16px;
-    }}
-    .aura-toggle-btn:hover {{ background: #6b7280; }}
-    .aura-nav-item {{
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 12px;
-        border-radius: 12px;
-        cursor: pointer;
-        color: #71717A;
-        transition: all 0.2s ease;
-        white-space: nowrap;
-        direction: rtl;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-    }}
-    .aura-nav-item:hover {{ background: #fdf2f8; color: #3f3f46; }}
-    .aura-nav-icon {{
-        font-family: 'Material Symbols Outlined';
-        font-size: 20px;
-        flex-shrink: 0;
-        color: #94a3b8;
-        line-height: 1;
-        -webkit-font-feature-settings: 'liga';
-        font-feature-settings: 'liga';
-        -webkit-font-smoothing: antialiased;
-    }}
-    .aura-nav-label {{
-        font-size: 0.82rem;
-        font-weight: 500;
-    }}
-    </style>
-    </head>
-    <body>
-    <div class="aura-sidebar-inner">
-        <button class="aura-toggle-btn" id="toggleBtn">{toggle_icon}</button>
-        {items_html}
-    </div>
-    <script>
-    document.getElementById('toggleBtn').addEventListener('click', function() {{
-        var parentDoc = window.parent.document;
-        var btn = parentDoc.querySelector('.st-key-sidebar_toggle button');
-        if (btn) btn.click();
-    }});
-    </script>
-    </body>
-    </html>
-    """, height=900, scrolling=False)
-
-    if st.button(toggle_icon, key="sidebar_toggle"):
-        st.session_state.sidebar_collapsed = not collapsed
-        st.rerun()
+        for item in nav_items:
+            if item["action"] == "page":
+                is_active = (st.session_state.current_page == item["target"])
+                btn_key = f"nav_{item['target']}"
+                if is_active:
+                    st.markdown(f"""
+                        <style>
+                        .st-key-{btn_key} button {{
+                            background: #fdf2f8 !important;
+                            border-right: 3px solid #f0b8cb !important;
+                            color: #3f3f46 !important;
+                            font-weight: 700 !important;
+                        }}
+                        </style>
+                    """, unsafe_allow_html=True)
+                label = item["icon"] if collapsed else item["label"]
+                if st.button(label, key=btn_key, use_container_width=True):
+                    st.session_state.current_page = item["target"]
+                    if project_name:
+                        st.session_state.selected_project = project_name
+                    st.rerun()
+            else:
+                label_html = "" if collapsed else f'<span class="aura-nav-label">{item["label"]}</span>'
+                st.markdown(f"""
+                    <div class="aura-nav-item" onclick="
+                        var el = window.parent.document.getElementById('{item['target']}');
+                        if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
+                    ">
+                        <span class="aura-nav-icon">{item['icon']}</span>
+                        {label_html}
+                    </div>
+                """, unsafe_allow_html=True)
 
 
 # ---תמונת פרופיל ---
@@ -795,43 +734,28 @@ if "sidebar_collapsed" not in st.session_state:
 if "collapsed" in st.query_params:
     st.session_state.sidebar_collapsed = st.query_params["collapsed"] == "true"
 
-if st.session_state.sidebar_collapsed:
-    sidebar_col, main_col = st.columns([0.05, 0.95])
-else:
-    sidebar_col, main_col = st.columns([0.13, 0.87])
+p_name = st.session_state.get("selected_project", "")
+render_sidebar(
+    page=st.session_state.current_page,
+    project_name=p_name
+)
 
-with sidebar_col:
-    render_sidebar(page=st.session_state.current_page)
-    if st.session_state.current_page == "project":
-        p_name = st.session_state.get("selected_project", "")
-        if st.button("משאבים", key="btn_resources"):
-            st.session_state.current_page = "resources"
-            st.rerun()
-        if st.button("תוכנית עבודה", key="btn_work"):
-            st.session_state.current_page = "project"
-            st.rerun()
+# 1. אם אנחנו במסך פרויקט ספציפי
+if st.session_state.current_page == "resources":
+    from resources import show_resources_page
+    p_name = st.session_state.get("selected_project", "")
+    show_resources_page(p_name)
+
+elif st.session_state.current_page == "project":
+    p_name = st.session_state.get("selected_project", "פרויקט")
+    st.header(p_name)
     
-with main_col:
-    # 1. אם אנחנו במסך פרויקט ספציפי
-    if st.session_state.current_page == "resources":
-        from resources import show_resources_page
-        p_name = st.session_state.get("selected_project", "")
-        show_resources_page(p_name)
-
-    elif st.session_state.current_page == "project":
-        p_name = st.session_state.get("selected_project", "פרויקט")
-        st.header(p_name)
-        
-        with st.container(border=True):
-            try:
-                html = build_timeline_html(p_name)
-                st.components.v1.html(html, height=300, scrolling=False)
-            except Exception as e:
-                st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
-        
-        if st.button("משאבים"):
-            st.session_state.current_page = "resources"
-            st.rerun()
+    with st.container(border=True):
+        try:
+            html = build_timeline_html(p_name)
+            st.components.v1.html(html, height=300, scrolling=False)
+        except Exception as e:
+            st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
         
         
     # 3. מסך ראשי / דשבורד רגיל
