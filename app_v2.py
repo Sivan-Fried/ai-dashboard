@@ -528,7 +528,6 @@ def render_sidebar(page="main", project_name=None):
         icons   = ["calendar-month", "people", "exclamation-triangle", "file-text"]
         targets = ["project", "resources", "risks", "meetings"]
 
-    # מציאת ה-default_index לפריט הפעיל
     if page != "main":
         try:
             default_idx = targets.index(st.session_state.current_page)
@@ -545,7 +544,6 @@ def render_sidebar(page="main", project_name=None):
             "border": "none",
             "box-shadow": "none",
         },
-        
         "icon": {
             "color": "#94a3b8",
             "font-size": "16px",
@@ -569,8 +567,21 @@ def render_sidebar(page="main", project_name=None):
         },
     }
 
+    # הסתרת טקסט במצב מצומצם דרך CSS
+    if collapsed:
+        st.markdown("""
+            <style>
+            .st-key-aura_sidebar .nav-link span:last-child {
+                display: none !important;
+            }
+            .st-key-aura_sidebar .nav-link {
+                justify-content: center !important;
+                padding: 8px !important;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+
     with st.container(key="aura_sidebar", border=False):
-        # כפתור טוגל
         toggle_label = "›" if collapsed else "‹"
         if st.button(toggle_label, key="sidebar_toggle"):
             st.session_state.sidebar_collapsed = not collapsed
@@ -578,7 +589,7 @@ def render_sidebar(page="main", project_name=None):
 
         selected = option_menu(
             menu_title=None,
-            options=options if not collapsed else [""] * len(options),
+            options=options,
             icons=icons,
             default_index=default_idx,
             styles=menu_styles,
@@ -587,36 +598,24 @@ def render_sidebar(page="main", project_name=None):
 
         # טיפול בבחירה
         if page == "main":
-            if selected is not None:
-                if collapsed:
-                    idx = default_idx
-                elif selected in options:
-                    idx = options.index(selected)
-                else:
-                    idx = None
-                if idx is not None:
-                    anchor = anchors[idx]
-                    components.html(f"""
-                        <script>
-                        var el = window.parent.document.getElementById('{anchor}');
-                        if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
-                        </script>
-                    """, height=0)
+            if selected and selected in options:
+                idx = options.index(selected)
+                anchor = anchors[idx]
+                components.html(f"""
+                    <script>
+                    var el = window.parent.document.getElementById('{anchor}');
+                    if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
+                    </script>
+                """, height=0)
         else:
-            if selected is not None:
-                if collapsed:
-                    idx = default_idx
-                elif selected in options:
-                    idx = options.index(selected)
-                else:
-                    idx = None
-                if idx is not None:
-                    target = targets[idx]
-                    if target != st.session_state.current_page:
-                        st.session_state.current_page = target
-                        if project_name:
-                            st.session_state.selected_project = project_name
-                        st.rerun()
+            if selected and selected in options:
+                idx = options.index(selected)
+                target = targets[idx]
+                if target != st.session_state.current_page:
+                    st.session_state.current_page = target
+                    if project_name:
+                        st.session_state.selected_project = project_name
+                    st.rerun()
 
 
 
