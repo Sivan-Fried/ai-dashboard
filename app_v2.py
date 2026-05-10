@@ -536,28 +536,7 @@ def render_sidebar(page="main", project_name=None):
     else:
         default_idx = 0
 
-    if collapsed:
-        nav_link_styles = {
-            "font-size": "0px",
-            "color": "transparent",
-            "text-align": "center",
-            "direction": "rtl",
-            "padding": "8px",
-            "border-radius": "12px",
-            "--hover-color": "#fdf2f8",
-        }
-    else:
-        nav_link_styles = {
-            "font-family": "Plus Jakarta Sans, sans-serif",
-            "font-size": "0.82rem",
-            "font-weight": "500",
-            "color": "#71717A",
-            "text-align": "right",
-            "direction": "rtl",
-            "padding": "8px 12px",
-            "border-radius": "12px",
-            "--hover-color": "#fdf2f8",
-        }
+    display_options = [""] * len(options) if collapsed else options
 
     menu_styles = {
         "container": {
@@ -569,30 +548,26 @@ def render_sidebar(page="main", project_name=None):
         },
         "icon": {
             "color": "#94a3b8",
-            "font-size": "16px",
+            "font-size": "18px",
         },
-        "nav-link": nav_link_styles,
+        "nav-link": {
+            "font-family": "Plus Jakarta Sans, sans-serif",
+            "font-size": "0.82rem",
+            "font-weight": "500",
+            "color": "#71717A",
+            "text-align": "right" if not collapsed else "center",
+            "direction": "rtl",
+            "padding": "8px 12px" if not collapsed else "8px 4px",
+            "border-radius": "12px",
+            "--hover-color": "#fdf2f8",
+        },
         "nav-link-selected": {
             "background-color": "#fdf2f8",
-            "color": "#3f3f46" if not collapsed else "transparent",
+            "color": "#3f3f46",
             "font-weight": "700",
             "border-right": "3px solid #f0b8cb",
         },
     }
-
-    # הסתרת טקסט במצב מצומצם דרך CSS
-    if collapsed:
-        st.markdown("""
-            <style>
-            .st-key-aura_sidebar .nav-link span:last-child {
-                display: none !important;
-            }
-            .st-key-aura_sidebar .nav-link {
-                justify-content: center !important;
-                padding: 8px !important;
-            }
-            </style>
-        """, unsafe_allow_html=True)
 
     with st.container(key="aura_sidebar", border=False):
         toggle_label = "›" if collapsed else "‹"
@@ -602,28 +577,35 @@ def render_sidebar(page="main", project_name=None):
 
         selected = option_menu(
             menu_title=None,
-            options=options,
+            options=display_options,
             icons=icons,
             default_index=default_idx,
             styles=menu_styles,
             key=f"nav_menu_{page}",
         )
 
-        # טיפול בבחירה
-        if page == "main":
+        # מציאת ה-index הנבחר
+        if collapsed:
+            # כשמצומצם selected הוא "" — משתמשים ב-default_index
+            selected_idx = default_idx
+        else:
             if selected and selected in options:
-                idx = options.index(selected)
-                anchor = anchors[idx]
+                selected_idx = options.index(selected)
+            else:
+                selected_idx = None
+
+        # טיפול בבחירה
+        if selected_idx is not None:
+            if page == "main":
+                anchor = anchors[selected_idx]
                 components.html(f"""
                     <script>
                     var el = window.parent.document.getElementById('{anchor}');
                     if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
                     </script>
                 """, height=0)
-        else:
-            if selected and selected in options:
-                idx = options.index(selected)
-                target = targets[idx]
+            else:
+                target = targets[selected_idx]
                 if target != st.session_state.current_page:
                     st.session_state.current_page = target
                     if project_name:
