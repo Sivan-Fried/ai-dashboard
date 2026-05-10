@@ -558,14 +558,12 @@ def render_sidebar(page="main", project_name=None):
         "icon": {
             "color": "#94a3b8",
             "font-size": "18px",
-            "margin": "0 auto" if collapsed else "0",
         },
-        
         "nav-link": {
             "font-family": "Plus Jakarta Sans, sans-serif",
-            "font-size": "0px" if collapsed else "0.82rem",
+            "font-size": "0.82rem",
             "font-weight": "500",
-            "color": "rgba(0,0,0,0)" if collapsed else "#71717A",
+            "color": "#71717A",
             "text-align": "right",
             "direction": "rtl",
             "padding": "8px 12px",
@@ -575,9 +573,12 @@ def render_sidebar(page="main", project_name=None):
             "overflow": "hidden",
             "white-space": "nowrap",
         },
+        "nav-link-text": {
+            "display": "none" if collapsed else "inline",
+        },
         "nav-link-selected": {
             "background-color": "#fdf2f8",
-            "color": "rgba(0,0,0,0)" if collapsed else "#3f3f46",
+            "color": "#3f3f46",
             "font-weight": "700",
             "border-right": "3px solid #f0b8cb",
         },
