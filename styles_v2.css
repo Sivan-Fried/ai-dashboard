@@ -973,7 +973,7 @@ h2 {
 }
 
 .st-key-aura_sidebar [data-testid="stVerticalBlock"] {
-    gap: 2px !important;
+    gap: 0px !important;
 }
 
 .st-key-sidebar_toggle button {
