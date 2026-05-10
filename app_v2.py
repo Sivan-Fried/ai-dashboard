@@ -623,17 +623,15 @@ def render_sidebar(page="main", project_name=None):
 
         selected_idx = st.session_state[idx_key]
 
-        if page == "main":
+         if page == "main":
             if selected in options:
                 anchor = anchors[selected_idx]
-                components.html(...)
-        else:
-            target = targets[selected_idx]
-            if target != st.session_state.current_page:
-                st.session_state.current_page = target
-                if project_name:
-                    st.session_state.selected_project = project_name
-                st.rerun()
+                components.html(f"""
+                    <script>
+                    var el = window.parent.document.getElementById('{anchor}');
+                    if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
+                    </script>
+                """, height=0)
 
 
 # ---תמונת פרופיל ---
