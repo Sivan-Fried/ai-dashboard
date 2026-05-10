@@ -931,3 +931,55 @@ h2 {
     position: fixed !important;
     left: -9999px !important;
 }
+
+/* ── Sidebar nav buttons ───────────────────────────────── */
+section[data-testid="stSidebar"] div[data-testid="stButton"] button {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+    color: #71717A !important;
+    font-size: 0.82rem !important;
+    font-weight: 500 !important;
+    text-align: right !important;
+    direction: rtl !important;
+    width: 100% !important;
+    padding: 10px 12px !important;
+    justify-content: flex-end !important;
+    transition: all 0.2s ease !important;
+}
+
+section[data-testid="stSidebar"] div[data-testid="stButton"] button:hover {
+    background: #fdf2f8 !important;
+    color: #3f3f46 !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+section[data-testid="stSidebar"] div[data-testid="stButton"] button p {
+    color: inherit !important;
+    font-size: inherit !important;
+    font-weight: inherit !important;
+}
+
+/* כפתור טוגל */
+.st-key-sidebar_toggle button {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 50% !important;
+    background: #9ca3af !important;
+    color: #ffffff !important;
+    font-size: 16px !important;
+    margin: 0 auto 12px auto !important;
+    padding: 0 !important;
+    min-height: unset !important;
+}
+
+.st-key-sidebar_toggle button:hover {
+    background: #6b7280 !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
