@@ -8,8 +8,8 @@ from zoneinfo import ZoneInfo
 INSIGHTS_FILE = "risks_ai_insights.xlsx"
 
 def show_risks_page(project_name=None):
-    st.write("דף סיכונים נטען")  # ← הוסיפי שורה זו
-    df = load_risks()
+    st.write("TEST")
+    return
 
 def load_risks():
     try:
