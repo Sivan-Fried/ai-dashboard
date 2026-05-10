@@ -5,3 +5,4 @@ google-generativeai
 geocoder
 streamlit-js-eval
 streamlit-float
+streamlit-option-menu
