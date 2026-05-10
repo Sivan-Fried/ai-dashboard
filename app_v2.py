@@ -795,7 +795,7 @@ if "collapsed" in st.query_params:
     st.session_state.sidebar_collapsed = st.query_params["collapsed"] == "true"
 
 if st.session_state.sidebar_collapsed:
-    sidebar_col, main_col = st.columns([0.08, 0.92])
+    sidebar_col, main_col = st.columns([0.06, 0.94])
 else:
     sidebar_col, main_col = st.columns([0.15, 0.85])
 
