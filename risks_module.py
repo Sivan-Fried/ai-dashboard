@@ -363,7 +363,7 @@ def show_risks_page(project_name=None):
     with col_main:
         # מטריצה
         matrix_html = render_risk_matrix(df)
-        components.html(matrix_html, height=380, scrolling=False)
+        st.markdown(matrix_html, unsafe_allow_html=True)
 
         st.markdown("<div style='margin-bottom:1rem;'></div>", unsafe_allow_html=True)
 
