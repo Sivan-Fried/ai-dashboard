@@ -940,6 +940,21 @@ h2 {
     box-shadow: 0 2px 20px rgba(225,200,210,0.2);
 }
 
+/* הסרת מסגרת פנימית של option_menu */
+.st-key-aura_sidebar nav {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+/* כפתור טוגל — ממורכז בתוך הסרגל */
+.st-key-sidebar_toggle {
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+}
+
 .st-key-sidebar_toggle button {
     display: flex !important;
     align-items: center !important;
@@ -953,6 +968,10 @@ h2 {
     font-size: 16px !important;
     margin: 4px auto 8px auto !important;
     padding: 0 !important;
+}
+
+.st-key-sidebar_toggle button p {
+    color: #ffffff !important;
 }
 
 .st-key-sidebar_toggle button:hover {
