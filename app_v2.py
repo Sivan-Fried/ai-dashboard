@@ -579,6 +579,9 @@ def render_sidebar(page="main", project_name=None):
             "font-weight": "700",
             "border-right": "3px solid #f0b8cb",
         },
+    }
+
+    with st.container(key="aura_sidebar", border=False):
 
     with st.container(key="aura_sidebar", border=False):
         toggle_label = "›" if collapsed else "‹"
