@@ -940,18 +940,23 @@ h2 {
     box-shadow: 0 2px 20px rgba(225,200,210,0.2);
 }
 
-/* ביטול מסגרת פנימית בסרגל */
-.st-key-aura_sidebar [data-testid="stVerticalBlockBorderWrapper"] {
+/* ביטול כל מסגרות פנימיות בסרגל */
+.st-key-aura_sidebar [data-testid="stVerticalBlockBorderWrapper"],
+.st-key-aura_sidebar [data-testid="stVerticalBlockBorderWrapper"] > div,
+.st-key-aura_sidebar div[data-testid="stVerticalBlockBorderWrapper"] {
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
     background: transparent !important;
+    border-radius: 0 !important;
 }
 
-/* הסרת כל מסגרות פנימיות של option_menu */
+/* הסרת מסגרות option_menu */
 .st-key-aura_sidebar nav,
 .st-key-aura_sidebar ul,
-.st-key-aura_sidebar .nav-pills {
+.st-key-aura_sidebar .nav-pills,
+.st-key-aura_sidebar > div,
+.st-key-aura_sidebar > div > div {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
@@ -959,12 +964,7 @@ h2 {
     margin: 0 !important;
 }
 
-.st-key-aura_sidebar > div {
-    border: none !important;
-    box-shadow: none !important;
-}
-
-/* כפתור טוגל — ממורכז בתוך הסרגל */
+/* כפתור טוגל — ממורכז */
 .st-key-sidebar_toggle {
     display: flex !important;
     justify-content: center !important;
