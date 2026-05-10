@@ -561,13 +561,7 @@ def render_sidebar(page="main", project_name=None):
     def on_change(key):
         selected_val = st.session_state[key]
         if selected_val in options:
-            new_idx = options.index(selected_val)
-            st.session_state[idx_key] = new_idx
-            if page != "main":
-                target = targets[new_idx]
-                if target != st.session_state.current_page:
-                    st.session_state.current_page = target
-                    st.rerun()
+            st.session_state[idx_key] = options.index(selected_val)
 
     menu_styles = {
         "container": {
@@ -825,7 +819,6 @@ with sidebar_col:
         page=st.session_state.current_page,
         project_name=p_name
     )
-st.write(st.session_state.current_page)
 
 with main_col:
     # 1. אם אנחנו במסך פרויקט ספציפי
