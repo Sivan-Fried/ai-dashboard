@@ -539,12 +539,13 @@ def render_sidebar(page="main", project_name=None):
 
     menu_styles = {
         "container": {
-            "padding": "8px",
-            "background-color": "#ffffff",
-            "border-radius": "16px",
-            "border": "1px solid #F4F4F5",
-            "box-shadow": "0 2px 20px rgba(225,200,210,0.2)",
+            "padding": "4px",
+            "background-color": "transparent",
+            "border-radius": "0",
+            "border": "none",
+            "box-shadow": "none",
         },
+        
         "icon": {
             "color": "#94a3b8",
             "font-size": "16px",
