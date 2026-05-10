@@ -804,6 +804,11 @@ st.markdown("""
     .st-key-aura_sidebar {
         min-height: calc(100vh - 200px) !important;
     }
+    div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child {
+        min-width: 155px !important;
+        max-width: 155px !important;
+        width: 155px !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
