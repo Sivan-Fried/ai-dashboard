@@ -940,12 +940,20 @@ h2 {
     box-shadow: 0 2px 20px rgba(225,200,210,0.2);
 }
 
-/* הסרת מסגרת פנימית של option_menu */
-.st-key-aura_sidebar nav {
+/* הסרת כל מסגרות פנימיות של option_menu */
+.st-key-aura_sidebar nav,
+.st-key-aura_sidebar ul,
+.st-key-aura_sidebar .nav-pills {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
+    margin: 0 !important;
+}
+
+.st-key-aura_sidebar > div {
+    border: none !important;
+    box-shadow: none !important;
 }
 
 /* כפתור טוגל — ממורכז בתוך הסרגל */
