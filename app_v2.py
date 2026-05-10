@@ -825,6 +825,7 @@ with sidebar_col:
         page=st.session_state.current_page,
         project_name=p_name
     )
+st.write(st.session_state.current_page)
 
 with main_col:
     # 1. אם אנחנו במסך פרויקט ספציפי
