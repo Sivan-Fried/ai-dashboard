@@ -563,7 +563,7 @@ def render_sidebar(page="main", project_name=None):
         
         "nav-link": {
             "font-family": "Plus Jakarta Sans, sans-serif",
-            "font-size": "0.001rem" if collapsed else "0.82rem",
+            "font-size": "0px" if collapsed else "0.82rem",
             "font-weight": "500",
             "color": "rgba(0,0,0,0)" if collapsed else "#71717A",
             "text-align": "right",
