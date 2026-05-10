@@ -771,6 +771,14 @@ if st.session_state.sidebar_collapsed:
 else:
     sidebar_col, main_col = st.columns([0.10, 0.90])
 
+st.markdown("""
+    <style>
+    .st-key-aura_sidebar {
+        min-height: calc(100vh - 200px) !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 p_name = st.session_state.get("selected_project", "")
 
 with sidebar_col:
