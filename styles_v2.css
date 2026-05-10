@@ -353,8 +353,8 @@ header, [data-testid="stHeader"], .st-emotion-cache-18ni7ap {
 }
 
 /* ── Containers / כרטיסים ──────────────────────────────── */
-div[data-testid="stVerticalBlockBorderWrapper"],
-.st-emotion-cache-1ne20ew {
+div[data-testid="stVerticalBlockBorderWrapper"]:not(.st-key-aura_sidebar):not(.st-key-aura_sidebar *),
+.st-emotion-cache-1ne20ew:not(.st-key-aura_sidebar):not(.st-key-aura_sidebar *) {
     background: var(--card-bg) !important;
     border: none !important;
     border-radius: var(--radius-lg) !important;
