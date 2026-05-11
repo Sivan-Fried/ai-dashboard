@@ -1031,21 +1031,23 @@ with main_col:
             with st.container(border=True):
                 with st.container(border=False):
                     for _, row in projects.iterrows():
-                        p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
                         st.markdown(f'''
-                            <a href="{p_url}" target="_self" class="project-link">
-                                <div class="record-row">
-                                    <span style="display: flex; align-items: center; gap: 10px; font-size: 0.92rem; font-weight: normal;">
-                                        <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #64748b; transform: scale(0.8);">work</span>
-                                        {row["project_name"]}
-                                    </span>
-                                    <span style="display: flex; align-items: center; gap: 10px;">
-                                        <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
-                                        <span style="color: #94a3b8; font-size: 22px; line-height: 1; flex-shrink: 0; margin-right: 2px;">&#8250;</span>
-                                    </span>
-                                </div>
-                            </a>
+                            <div class="record-row">
+                                <span style="display: flex; align-items: center; gap: 10px; font-size: 0.92rem; font-weight: normal;">
+                                    <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #64748b; transform: scale(0.8);">work</span>
+                                    {row["project_name"]}
+                                </span>
+                                <span style="display: flex; align-items: center; gap: 10px;">
+                                    <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
+                                    <span style="color: #94a3b8; font-size: 22px; line-height: 1; flex-shrink: 0; margin-right: 2px;">&#8250;</span>
+                                </span>
+                            </div>
                         ''', unsafe_allow_html=True)
+                        if st.button("", key=f"proj_{row['project_name']}", use_container_width=True):
+                            st.session_state.selected_project = row['project_name']
+                            st.session_state.current_page = "project"
+                            st.session_state["nav_idx_not main"] = 0
+                            st.rerun()
     
     
             #אזור תזכורות
