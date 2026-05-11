@@ -626,7 +626,7 @@ def render_sidebar(page="main", project_name=None):
                     var el = window.parent.document.getElementById('{anchor}');
                     if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
                     </script>
-                """, height=0
+                """, height=0)
         else:
             target = targets[selected_idx]
             if target != st.session_state.current_page:
