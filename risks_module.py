@@ -383,11 +383,14 @@ def show_risks_page(project_name=None):
         ).values
         proj_summary = proj_summary.sort_values("avg_score", ascending=False)
         
-        proj_bars = ""
+        st.markdown("""
+        <div class="side-box">
+            <div style="font-size:0.95rem;font-weight:700;color:#3f3f46;margin-bottom:12px;">לפי פרויקט</div>
+        """, unsafe_allow_html=True)
         for _, row in proj_summary.iterrows():
             bar_pct = min(int((row["avg_score"] / 25) * 100), 100)
             bar_color = "#ef4444" if row["critical"] > 0 else "#f59e0b" if row["avg_score"] >= 9 else "#6f5861"
-            proj_bars += f"""
+            st.markdown(f"""
             <div style="margin-bottom:10px;">
                 <div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:3px;">
                     <span style="font-weight:600;color:#3f3f46;">{row['project_name']}</span>
@@ -396,7 +399,9 @@ def show_risks_page(project_name=None):
                 <div style="height:5px;background:#f4f4f5;border-radius:4px;overflow:hidden;">
                     <div style="height:100%;width:{bar_pct}%;background:{bar_color};border-radius:4px;"></div>
                 </div>
-            </div>"""
+            </div>
+            """, unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
         st.markdown(f"""
         <div class="side-box">
