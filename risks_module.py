@@ -62,8 +62,6 @@ def show_risks_page(project_name=None):
         df = df[df["project_name"] == project_name]
 
     insights_df = load_insights()
-    st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
-    st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
 
     st.markdown("""
     <style>
@@ -87,15 +85,19 @@ def show_risks_page(project_name=None):
     .r-badge-high     { background:#fffbeb; color:#f59e0b; }
     .r-badge-medium   { background:#fdf2f8; color:#6f5861; }
     .r-badge-low      { background:#f8fafc; color:#94a3b8; }
+    .st-key-ai_risks_container {
+        background-color: #fadce6 !important;
+        border-radius: 20px !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-    # ── כותרת ──
+    # כותרת
     title = f"ניהול סיכונים — {project_name}" if project_name else "ניהול סיכונים"
-    st.markdown(f'### <span class="material-symbols-outlined" style="vertical-align:middle;margin-left:8px;font-size:1.5rem;color:#64748b;">gpp_maybe</span> {title}', unsafe_allow_html=True)
-    st.markdown("<p style='font-size:0.82rem;color:#a1a1aa;margin-top:-4px;text-align:right;'>מעקב, ניתוח וניהול סיכונים</p>", unsafe_allow_html=True)
+    st.markdown(f"### <span class='material-symbols-outlined' style='vertical-align:middle;margin-left:8px;font-size:1.5rem;color:#64748b;'>gpp_maybe</span> {title}", unsafe_allow_html=True)
+    st.markdown("<p style='font-size:0.82rem;color:#a1a1aa;margin-top:-4px;text-align:right;padding-right:18px;'>מעקב, ניתוח וניהול סיכונים</p>", unsafe_allow_html=True)
 
-    # ── חישובים ──
+    # חישובים
     df["score"] = df["probability"] * df["impact"]
     critical_risks = len(df[df["score"] >= 15])
     high_risks     = len(df[(df["score"] >= 9) & (df["score"] < 15)])
@@ -111,48 +113,64 @@ def show_risks_page(project_name=None):
     gauge_color = "#ef4444" if pct >= 60 else "#f59e0b" if pct >= 35 else "#10b981"
     gauge_label = "גבוה" if pct >= 60 else "בינוני" if pct >= 35 else "נמוך"
 
-    # ── KPIs ──
+    # KPIs
     k0, k1, k2, k3, k4 = st.columns(5)
 
     with k0:
-        st.markdown(f'''<div class="kpi-container">
+        st.markdown(f'''
+        <div class="kpi-container">
             <div class="kpi-header">
-                <div class="kpi-icon-box" style="background:#fef2f2;"><span class="material-symbols-rounded" style="color:#ef4444;">crisis_alert</span></div>
+                <div class="kpi-icon-box" style="background:#fef2f2;">
+                    <span class="material-symbols-rounded" style="color:#ef4444;">crisis_alert</span>
+                </div>
                 <span class="kpi-badge" style="background:#fef2f2;color:#ef4444;">קריטי</span>
             </div>
             <div class="kpi-content"><div class="kpi-value-row">
                 <span class="kpi-unit">סיכונים</span><span class="kpi-number">{critical_risks}</span>
-            </div></div></div>''', unsafe_allow_html=True)
+            </div></div>
+        </div>''', unsafe_allow_html=True)
 
     with k1:
-        st.markdown(f'''<div class="kpi-container">
+        st.markdown(f'''
+        <div class="kpi-container">
             <div class="kpi-header">
-                <div class="kpi-icon-box" style="background:#fffbeb;"><span class="material-symbols-rounded" style="color:#f59e0b;">warning</span></div>
+                <div class="kpi-icon-box" style="background:#fffbeb;">
+                    <span class="material-symbols-rounded" style="color:#f59e0b;">warning</span>
+                </div>
                 <span class="kpi-badge" style="background:#fffbeb;color:#f59e0b;">גבוה</span>
             </div>
             <div class="kpi-content"><div class="kpi-value-row">
                 <span class="kpi-unit">סיכונים</span><span class="kpi-number">{high_risks}</span>
-            </div></div></div>''', unsafe_allow_html=True)
+            </div></div>
+        </div>''', unsafe_allow_html=True)
 
     with k2:
-        st.markdown(f'''<div class="kpi-container">
+        st.markdown(f'''
+        <div class="kpi-container">
             <div class="kpi-header">
-                <div class="kpi-icon-box" style="background:#fdf2f8;"><span class="material-symbols-rounded" style="color:#6f5861;">info</span></div>
+                <div class="kpi-icon-box" style="background:#fdf2f8;">
+                    <span class="material-symbols-rounded" style="color:#6f5861;">info</span>
+                </div>
                 <span class="kpi-badge" style="background:#fdf2f8;color:#6f5861;">בינוני</span>
             </div>
             <div class="kpi-content"><div class="kpi-value-row">
                 <span class="kpi-unit">סיכונים</span><span class="kpi-number">{medium_risks}</span>
-            </div></div></div>''', unsafe_allow_html=True)
+            </div></div>
+        </div>''', unsafe_allow_html=True)
 
     with k3:
-        st.markdown(f'''<div class="kpi-container">
+        st.markdown(f'''
+        <div class="kpi-container">
             <div class="kpi-header">
-                <div class="kpi-icon-box" style="background:#f8fafc;"><span class="material-symbols-rounded" style="color:#94a3b8;">check_circle</span></div>
+                <div class="kpi-icon-box" style="background:#f8fafc;">
+                    <span class="material-symbols-rounded" style="color:#94a3b8;">check_circle</span>
+                </div>
                 <span class="kpi-badge" style="background:#f8fafc;color:#94a3b8;">נמוך</span>
             </div>
             <div class="kpi-content"><div class="kpi-value-row">
                 <span class="kpi-unit">סיכונים</span><span class="kpi-number">{low_risks}</span>
-            </div></div></div>''', unsafe_allow_html=True)
+            </div></div>
+        </div>''', unsafe_allow_html=True)
 
     with k4:
         st.markdown(f"""
@@ -171,8 +189,8 @@ def show_risks_page(project_name=None):
 
     st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
 
-    # ── טבלת סיכונים ──
-    st.markdown('### <span class="material-symbols-outlined" style="vertical-align:middle;margin-left:8px;font-size:1.5rem;color:#64748b;">list</span> פירוט סיכונים', unsafe_allow_html=True)
+    # טבלת סיכונים
+    st.markdown("### <span class='material-symbols-outlined' style='vertical-align:middle;margin-left:8px;font-size:1.5rem;color:#64748b;'>list</span> פירוט סיכונים", unsafe_allow_html=True)
 
     filtered = df.copy().sort_values("score", ascending=False)
 
@@ -203,12 +221,12 @@ def show_risks_page(project_name=None):
 
     st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
 
-    # ── תחתית ──
+    # תחתית
     col_right, col_left = st.columns([1, 1])
 
     with col_right:
         top3 = active_df.sort_values("score", ascending=False).head(3)
-        st.markdown('### <span class="material-symbols-outlined" style="vertical-align:middle;margin-left:8px;font-size:1.5rem;color:#64748b;">priority_high</span> דורשים טיפול עכשיו', unsafe_allow_html=True)
+        st.markdown("### <span class='material-symbols-outlined' style='vertical-align:middle;margin-left:8px;font-size:1.5rem;color:#64748b;'>priority_high</span> דורשים טיפול עכשיו", unsafe_allow_html=True)
         with st.container(border=True):
             for i, (_, row) in enumerate(top3.iterrows()):
                 color, label = get_risk_color(row["probability"], row["impact"])
@@ -235,7 +253,7 @@ def show_risks_page(project_name=None):
                 saved_analysis = insights_df[mask].iloc[0]["insight"]
                 analysis_date = insights_df[mask].iloc[0]["created_at"]
 
-        st.markdown('### <span class="material-symbols-outlined" style="vertical-align:middle;margin-left:8px;font-size:1.5rem;color:#64748b;">smart_toy</span> ניתוח AI כולל', unsafe_allow_html=True)
+        st.markdown("### <span class='material-symbols-outlined' style='vertical-align:middle;margin-left:8px;font-size:1.5rem;color:#64748b;'>smart_toy</span> ניתוח AI כולל", unsafe_allow_html=True)
 
         with st.container(border=True, key="ai_risks_container"):
             st.markdown("""
