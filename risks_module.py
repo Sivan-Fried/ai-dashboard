@@ -275,6 +275,8 @@ def show_risks_page(project_name=None):
         st.markdown('<div class="side-box"><div class="side-box-title">דורשים טיפול עכשיו</div>', unsafe_allow_html=True)
         for i, (_, row) in enumerate(top3.iterrows()):
             color, label = get_risk_color(row["probability"], row["impact"])
+            badge_map = {"קריטי": "badge-critical", "גבוה": "badge-high", "בינוני": "badge-medium", "נמוך": "badge-low"}
+            badge_cls = badge_map.get(label, "badge-low")
             st.markdown(f"""
             <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f4f4f5;direction:rtl;text-align:right;">
                 <div style="width:24px;height:24px;border-radius:50%;background:#94a3b8;color:white;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">{i+1}</div>
@@ -282,11 +284,10 @@ def show_risks_page(project_name=None):
                     <div style="font-size:0.8rem;font-weight:600;color:#3f3f46;margin-bottom:2px;">{row['risk_title']}</div>
                     <div style="font-size:0.7rem;color:#a1a1aa;">{row['category']} · ציון {int(row['score'])}/25</div>
                 </div>
-                <span class="badge badge-{{'קריטי':'critical','גבוה':'high','בינוני':'medium','נמוך':'low'}.get(label,'low')}">{label}</span>
+                <span class="badge {badge_cls}">{label}</span>
             </div>
             """, unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
+            
     with col_left:
         # ── ניתוח AI כולל ──
         saved_analysis = None
