@@ -80,8 +80,6 @@ def show_risks_page(project_name=None):
         font-weight:700;
         color:#3f3f46;
         margin-bottom:12px;
-        text-align:right;
-        direction:rtl;
     }
     .ai-insight-box {
         background:#fdf2f8;
@@ -122,6 +120,14 @@ def show_risks_page(project_name=None):
     .badge-high     { background:#fffbeb; color:#f59e0b; }
     .badge-medium   { background:#fdf2f8; color:#6f5861; }
     .badge-low      { background:#f8fafc; color:#94a3b8; }
+    .filter-label {
+        font-size:0.75rem;
+        font-weight:600;
+        color:#94a3b8;
+        margin-bottom:4px;
+        text-align:right;
+        direction:rtl;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -136,13 +142,37 @@ def show_risks_page(project_name=None):
     </div>
     """, unsafe_allow_html=True)
 
-    # ── KPIs ──
+    # ── KPIs — 5 עמודות כולל מד סיכון ──
     open_risks     = len(df[df["status"] == "פתוח"])
     critical_risks = len(df[(df["probability"] * df["impact"]) >= 15])
     in_progress    = len(df[df["status"] == "בטיפול"])
     closed         = len(df[df["status"] == "סגור"])
 
-    k1, k2, k3, k4 = st.columns(4)
+    active_df = df[df["status"] != "סגור"]
+    total_score = (active_df["probability"] * active_df["impact"]).mean() if not active_df.empty else 0
+    pct = min(int((total_score / 25) * 100), 100)
+    dash = 2 * 3.14159 * 54
+    offset = dash * (1 - pct / 100)
+    gauge_color = "#ef4444" if pct >= 60 else "#f59e0b" if pct >= 35 else "#10b981"
+    gauge_label = "גבוה" if pct >= 60 else "בינוני" if pct >= 35 else "נמוך"
+
+    k0, k1, k2, k3, k4 = st.columns(5)
+
+    with k0:
+        st.markdown(f"""
+        <div class="kpi-container" style="text-align:center;">
+            <div style="font-size:0.82rem;font-weight:700;color:#3f3f46;margin-bottom:8px;">מד סיכון</div>
+            <svg width="80" height="80" viewBox="0 0 80 80" style="display:block;margin:0 auto;">
+                <circle cx="40" cy="40" r="34" fill="none" stroke="#f4f4f5" stroke-width="7"/>
+                <circle cx="40" cy="40" r="34" fill="none" stroke="{gauge_color}"
+                    stroke-width="7" stroke-dasharray="{2*3.14159*34:.1f}" stroke-dashoffset="{2*3.14159*34*(1-pct/100):.1f}"
+                    stroke-linecap="round" transform="rotate(-90 40 40)"/>
+                <text x="40" y="36" text-anchor="middle" font-size="14" font-weight="800" fill="{gauge_color}" font-family="Plus Jakarta Sans">{pct}%</text>
+                <text x="40" y="50" text-anchor="middle" font-size="7" fill="#a1a1aa" font-family="Plus Jakarta Sans">{gauge_label}</text>
+            </svg>
+        </div>
+        """, unsafe_allow_html=True)
+
     with k1:
         st.markdown(f'''<div class="kpi-container">
             <div class="kpi-header">
@@ -152,6 +182,7 @@ def show_risks_page(project_name=None):
             <div class="kpi-content"><div class="kpi-value-row">
                 <span class="kpi-unit">סיכונים</span><span class="kpi-number">{critical_risks}</span>
             </div></div></div>''', unsafe_allow_html=True)
+
     with k2:
         st.markdown(f'''<div class="kpi-container">
             <div class="kpi-header">
@@ -161,6 +192,7 @@ def show_risks_page(project_name=None):
             <div class="kpi-content"><div class="kpi-value-row">
                 <span class="kpi-unit">סיכונים</span><span class="kpi-number">{open_risks}</span>
             </div></div></div>''', unsafe_allow_html=True)
+
     with k3:
         st.markdown(f'''<div class="kpi-container">
             <div class="kpi-header">
@@ -170,6 +202,7 @@ def show_risks_page(project_name=None):
             <div class="kpi-content"><div class="kpi-value-row">
                 <span class="kpi-unit">סיכונים</span><span class="kpi-number">{in_progress}</span>
             </div></div></div>''', unsafe_allow_html=True)
+
     with k4:
         st.markdown(f'''<div class="kpi-container">
             <div class="kpi-header">
@@ -180,103 +213,82 @@ def show_risks_page(project_name=None):
                 <span class="kpi-unit">סיכונים</span><span class="kpi-number">{closed}</span>
             </div></div></div>''', unsafe_allow_html=True)
 
-    st.markdown("<div style='margin-bottom:1rem;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
 
-    col_main, col_side = st.columns([2, 1])
+    # ── טבלת סיכונים — רוחב מלא ──
+    st.markdown("<div style='font-size:0.95rem;font-weight:700;color:#3f3f46;margin-bottom:8px;text-align:right;'>פירוט סיכונים</div>", unsafe_allow_html=True)
 
-    with col_main:
-        # ── טבלת סיכונים ──
-        st.markdown("<div style='font-size:0.95rem;font-weight:700;color:#3f3f46;margin-bottom:8px;text-align:right;'>פירוט סיכונים</div>", unsafe_allow_html=True)
+    fc1, fc2 = st.columns(2)
+    with fc1:
+        st.markdown('<div class="filter-label">סוג סיכון</div>', unsafe_allow_html=True)
+        sel_cat = st.selectbox("סוג סיכון", ["הכל — כל הסוגים"] + sorted(df["category"].unique().tolist()), label_visibility="collapsed", key="risk_cat_filter")
+    with fc2:
+        st.markdown('<div class="filter-label">סטטוס סיכון</div>', unsafe_allow_html=True)
+        sel_status = st.selectbox("סטטוס", ["הכל — כל הסטטוסים", "פתוח", "בטיפול", "סגור"], label_visibility="collapsed", key="risk_status_filter")
 
-        fc1, fc2 = st.columns(2)
-        with fc1:
-            sel_cat = st.selectbox("קטגוריה", ["הכל"] + sorted(df["category"].unique().tolist()), label_visibility="collapsed", key="risk_cat_filter")
-        with fc2:
-            sel_status = st.selectbox("סטטוס", ["הכל", "פתוח", "בטיפול", "סגור"], label_visibility="collapsed", key="risk_status_filter")
+    filtered = df.copy()
+    if sel_cat != "הכל — כל הסוגים":
+        filtered = filtered[filtered["category"] == sel_cat]
+    if sel_status != "הכל — כל הסטטוסים":
+        filtered = filtered[filtered["status"] == sel_status]
+    filtered["score"] = filtered["probability"] * filtered["impact"]
+    filtered = filtered.sort_values("score", ascending=False)
 
-        filtered = df.copy()
-        if sel_cat != "הכל":
-            filtered = filtered[filtered["category"] == sel_cat]
-        if sel_status != "הכל":
-            filtered = filtered[filtered["status"] == sel_status]
-        filtered["score"] = filtered["probability"] * filtered["impact"]
-        filtered = filtered.sort_values("score", ascending=False)
-
-        with st.container(border=True):
-            st.markdown("""
-            <div class="risk-header">
-                <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">סיכון</span>
-                <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">קטגוריה</span>
-                <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">הסתברות</span>
-                <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">השפעה</span>
-                <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">סטטוס</span>
-                <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">רמה</span>
-            </div>
-            """, unsafe_allow_html=True)
-
-            for _, row in filtered.iterrows():
-                color, label = get_risk_color(row["probability"], row["impact"])
-                badge_map = {"קריטי": "badge-critical", "גבוה": "badge-high", "בינוני": "badge-medium", "נמוך": "badge-low"}
-                badge_cls = badge_map.get(label, "badge-low")
-
-                st.markdown(f"""
-                <div class="risk-row">
-                    <span style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{row['risk_title']}</span>
-                    <span style="font-size:0.78rem;color:#71717A;">{row['category']}</span>
-                    <span style="font-size:0.82rem;color:#3f3f46;">{row['probability']}/5</span>
-                    <span style="font-size:0.82rem;color:#3f3f46;">{row['impact']}/5</span>
-                    <span style="font-size:0.78rem;color:#71717A;">{row['status']}</span>
-                    <span class="badge {badge_cls}">{label}</span>
-                </div>
-                """, unsafe_allow_html=True)
-
-    with col_side:
-        # ── מד סיכון ──
-        active_df = df[df["status"] != "סגור"]
-        total_score = (active_df["probability"] * active_df["impact"]).mean() if not active_df.empty else 0
-        pct = min(int((total_score / 25) * 100), 100)
-        dash = 2 * 3.14159 * 54
-        offset = dash * (1 - pct / 100)
-        gauge_color = "#ef4444" if pct >= 60 else "#f59e0b" if pct >= 35 else "#10b981"
-        gauge_label = "גבוה — דורש תשומת לב" if pct >= 60 else "בינוני — דורש ניטור" if pct >= 35 else "נמוך — תחת שליטה"
-
-        st.markdown(f"""
-        <div class="side-box" style="text-align:center;">
-            <div class="side-box-title" style="text-align:center;">מד סיכון כולל</div>
-            <svg width="120" height="120" viewBox="0 0 120 120" style="display:block;margin:0 auto;">
-                <circle cx="60" cy="60" r="54" fill="none" stroke="#f4f4f5" stroke-width="10"/>
-                <circle cx="60" cy="60" r="54" fill="none" stroke="{gauge_color}"
-                    stroke-width="10" stroke-dasharray="{dash:.1f}" stroke-dashoffset="{offset:.1f}"
-                    stroke-linecap="round" transform="rotate(-90 60 60)"/>
-                <text x="60" y="56" text-anchor="middle" font-size="20" font-weight="800" fill="{gauge_color}" font-family="Plus Jakarta Sans">{pct}%</text>
-                <text x="60" y="72" text-anchor="middle" font-size="9" fill="#a1a1aa" font-family="Plus Jakarta Sans">רמת סיכון</text>
-            </svg>
-            <div style="font-size:0.75rem;color:{gauge_color};font-weight:600;margin-top:6px;">{gauge_label}</div>
+    with st.container(border=True):
+        st.markdown("""
+        <div class="risk-header">
+            <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">סיכון</span>
+            <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">קטגוריה</span>
+            <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">הסתברות</span>
+            <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">השפעה</span>
+            <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">סטטוס</span>
+            <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">רמה</span>
         </div>
         """, unsafe_allow_html=True)
 
+        for _, row in filtered.iterrows():
+            color, label = get_risk_color(row["probability"], row["impact"])
+            badge_map = {"קריטי": "badge-critical", "גבוה": "badge-high", "בינוני": "badge-medium", "נמוך": "badge-low"}
+            badge_cls = badge_map.get(label, "badge-low")
+            st.markdown(f"""
+            <div class="risk-row">
+                <span style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{row['risk_title']}</span>
+                <span style="font-size:0.78rem;color:#71717A;">{row['category']}</span>
+                <span style="font-size:0.82rem;color:#3f3f46;">{row['probability']}/5</span>
+                <span style="font-size:0.82rem;color:#3f3f46;">{row['impact']}/5</span>
+                <span style="font-size:0.78rem;color:#71717A;">{row['status']}</span>
+                <span class="badge {badge_cls}">{label}</span>
+            </div>
+            """, unsafe_allow_html=True)
+
+    st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
+
+    # ── תחתית — שתי עמודות ──
+    col_left, col_right = st.columns([1, 1])
+
+    with col_right:
         # ── Top 3 דחופים ──
         top3 = active_df.copy()
         top3["score"] = top3["probability"] * top3["impact"]
         top3 = top3.sort_values("score", ascending=False).head(3)
 
-        st.markdown('<div class="side-box"><div class="side-box-title">🚨 דורשים טיפול עכשיו</div>', unsafe_allow_html=True)
+        st.markdown('<div class="side-box"><div class="side-box-title">דורשים טיפול עכשיו</div>', unsafe_allow_html=True)
         for i, (_, row) in enumerate(top3.iterrows()):
             color, label = get_risk_color(row["probability"], row["impact"])
             st.markdown(f"""
             <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f4f4f5;direction:rtl;text-align:right;">
-                <div style="width:24px;height:24px;border-radius:50%;background:{color};color:white;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">{i+1}</div>
+                <div style="width:24px;height:24px;border-radius:50%;background:#94a3b8;color:white;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">{i+1}</div>
                 <div style="flex:1;">
                     <div style="font-size:0.8rem;font-weight:600;color:#3f3f46;margin-bottom:2px;">{row['risk_title']}</div>
                     <div style="font-size:0.7rem;color:#a1a1aa;">{row['category']} · ציון {int(row['score'])}/25</div>
                 </div>
+                <span class="badge badge-{{'קריטי':'critical','גבוה':'high','בינוני':'medium','נמוך':'low'}.get(label,'low')}">{label}</span>
             </div>
             """, unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
+    with col_left:
         # ── ניתוח AI כולל ──
-        st.markdown('<div class="side-box"><div class="side-box-title">✦ ניתוח AI כולל</div><div style="font-size:0.78rem;color:#a1a1aa;margin-bottom:12px;">ניתוח מעמיק של כל הסיכונים עם המלצות</div>', unsafe_allow_html=True)
-
         saved_analysis = None
         analysis_date = ""
         if not insights_df.empty:
@@ -286,13 +298,17 @@ def show_risks_page(project_name=None):
                 saved_analysis = insights_df[mask].iloc[0]["insight"]
                 analysis_date = insights_df[mask].iloc[0]["created_at"]
 
+        st.markdown('<div class="side-box"><div class="side-box-title">✦ ניתוח AI כולל</div>', unsafe_allow_html=True)
+
         if saved_analysis:
             formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', saved_analysis)
             formatted = formatted.replace('\n', '<br>')
             st.markdown(f"""
-            <div style="font-size:0.72rem;color:#a1a1aa;margin-bottom:6px;text-align:right;">נשמר ב-{analysis_date}</div>
-            <div style="font-size:0.82rem;color:#4e4447;line-height:1.7;text-align:right;">{formatted}</div>
+            <div style="font-size:0.7rem;color:#a1a1aa;margin-bottom:8px;">נשמר ב-{analysis_date}</div>
+            <div style="font-size:0.82rem;color:#4e4447;line-height:1.7;">{formatted}</div>
             """, unsafe_allow_html=True)
+        else:
+            st.markdown('<div style="font-size:0.78rem;color:#a1a1aa;margin-bottom:12px;">לחצי על הכפתור לקבלת ניתוח מעמיק של כל הסיכונים</div>', unsafe_allow_html=True)
 
         st.markdown("</div>", unsafe_allow_html=True)
 
