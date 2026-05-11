@@ -757,7 +757,6 @@ params = st.query_params
 if "proj" in params and st.session_state.current_page not in ["resources", "risks", "meetings", "project"]:
     st.session_state.selected_project = params["proj"]
     st.session_state.current_page = "project"
-    st.session_state["nav_idx_not main"] = 0
 if "page" in params and params["page"] == "resources":
     st.session_state.current_page = "resources"
 
