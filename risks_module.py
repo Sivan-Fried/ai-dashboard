@@ -88,13 +88,36 @@ def show_risks_page(project_name=None):
     .st-key-ai_risks_container {
         background-color: #fadce6 !important;
         border-radius: 20px !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    .st-key-ai_risks_container div[data-testid="stVerticalBlockBorderWrapper"] {
+        background: #ffffff !important;
+        border: 1.5px solid #FADCE6 !important;
+        border-radius: 16px !important;
+        padding: 20px !important;
+        box-shadow: none !important;
+    }
+    .st-key-ai_risks_send button {
+        background-color: #9ca3af !important;
+        border: none !important;
+        border-radius: 50% !important;
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
+        color: #ffffff !important;
+        font-size: 1.3rem !important;
+    }
+    .st-key-ai_risks_send button p {
+        color: #ffffff !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
     # כותרת
     title = f"ניהול סיכונים — {project_name}" if project_name else "ניהול סיכונים"
-    st.markdown(f"### <span class='material-symbols-outlined' style='vertical-align:middle;margin-left:8px;font-size:1.5rem;color:#64748b;'>gpp_maybe</span> {title}", unsafe_allow_html=True)
+    st.markdown(f"### {title}", unsafe_allow_html=True)
     st.markdown("<p style='font-size:0.82rem;color:#a1a1aa;margin-top:-4px;text-align:right;padding-right:18px;'>מעקב, ניתוח וניהול סיכונים</p>", unsafe_allow_html=True)
 
     # חישובים
@@ -190,7 +213,7 @@ def show_risks_page(project_name=None):
     st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
 
     # טבלת סיכונים
-    st.markdown("### <span class='material-symbols-outlined' style='vertical-align:middle;margin-left:8px;font-size:1.5rem;color:#64748b;'>list</span> פירוט סיכונים", unsafe_allow_html=True)
+    st.markdown("### פירוט סיכונים", unsafe_allow_html=True)
 
     filtered = df.copy().sort_values("score", ascending=False)
 
@@ -226,7 +249,7 @@ def show_risks_page(project_name=None):
 
     with col_right:
         top3 = active_df.sort_values("score", ascending=False).head(3)
-        st.markdown("### <span class='material-symbols-outlined' style='vertical-align:middle;margin-left:8px;font-size:1.5rem;color:#64748b;'>priority_high</span> דורשים טיפול עכשיו", unsafe_allow_html=True)
+        st.markdown("### דורשים טיפול עכשיו", unsafe_allow_html=True)
         with st.container(border=True):
             for i, (_, row) in enumerate(top3.iterrows()):
                 color, label = get_risk_color(row["probability"], row["impact"])
