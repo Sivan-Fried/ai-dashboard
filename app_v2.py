@@ -763,7 +763,10 @@ if "page" in params and params["page"] == "resources":
 # =========================================================
 # 4. מבנה התצוגה
 # =========================================================
-loc = get_geolocation()
+if st.session_state.current_page not in ["resources", "risks", "meetings", "project"]:
+    loc = get_geolocation()
+else:
+    loc = None
 
 # ── מזג אוויר ──────────────────────────────────────────
 if loc:
