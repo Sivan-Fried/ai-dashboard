@@ -92,20 +92,12 @@ def show_risks_page(project_name=None):
     .r-badge-high     { background:#fffbeb; color:#f59e0b; }
     .r-badge-medium   { background:#fdf2f8; color:#6f5861; }
     .r-badge-low      { background:#f8fafc; color:#94a3b8; }
-    .filter-label { font-size:0.75rem; font-weight:600; color:#94a3b8; margin-bottom:4px; text-align:right; direction:rtl; }
     </style>
     """, unsafe_allow_html=True)
 
-    # ── כותרת ──
+    # ── כותרת — זהה ל-resources.py ──
     title = f"ניהול סיכונים — {project_name}" if project_name else "ניהול סיכונים"
-    st.markdown(f"""
-    <div style="margin-bottom:20px;direction:rtl;text-align:right;">
-        <h2 style="font-size:1.5rem;font-weight:800;color:#3f3f46;margin:0;text-align:right;">
-            <span style="color:#f0b8cb;">⬥</span> {title}
-        </h2>
-        <p style="font-size:0.82rem;color:#a1a1aa;margin:4px 0 0 0;text-align:right;">מעקב, ניתוח וניהול סיכונים</p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(f'### <span class="material-symbols-outlined" style="vertical-align:middle;margin-left:8px;font-size:1.5rem;color:#64748b;">gpp_maybe</span> {title}', unsafe_allow_html=True)
 
     # ── חישובים ──
     df["score"] = df["probability"] * df["impact"]
@@ -117,13 +109,13 @@ def show_risks_page(project_name=None):
     active_df = df[df["status"] != "סגור"]
     total_score = active_df["score"].mean() if not active_df.empty else 0
     pct = min(int((total_score / 25) * 100), 100)
-    r = 40
+    r = 34
     circ = 2 * 3.14159 * r
     offset = circ * (1 - pct / 100)
     gauge_color = "#ef4444" if pct >= 60 else "#f59e0b" if pct >= 35 else "#10b981"
     gauge_label = "גבוה" if pct >= 60 else "בינוני" if pct >= 35 else "נמוך"
 
-    # ── KPIs ──
+    # ── KPIs — 5 עמודות ──
     k4, k3, k2, k1, k0 = st.columns(5)
 
     with k0:
@@ -168,45 +160,25 @@ def show_risks_page(project_name=None):
 
     with k4:
         st.markdown(f"""
-        <div class="kpi-container">
-            <div class="kpi-header">
-                <div class="kpi-icon-box" style="background:#fdf2f8;">
-                    <svg width="20" height="20" viewBox="0 0 20 20">
-                        <circle cx="10" cy="10" r="8" fill="none" stroke="#f4f4f5" stroke-width="3"/>
-                        <circle cx="10" cy="10" r="8" fill="none" stroke="{gauge_color}"
-                            stroke-width="3"
-                            stroke-dasharray="{2*3.14159*8:.1f}"
-                            stroke-dashoffset="{2*3.14159*8*(1-pct/100):.1f}"
-                            stroke-linecap="round"
-                            transform="rotate(-90 10 10)"/>
-                    </svg>
-                </div>
-                <span class="kpi-badge" style="background:#fdf2f8;color:{gauge_color};">מד סיכון</span>
-            </div>
-            <div class="kpi-content">
-                <div class="kpi-value-row">
-                    <span class="kpi-unit">{gauge_label}</span>
-                    <span class="kpi-number" style="color:{gauge_color};">{pct}%</span>
-                </div>
-            </div>
+        <div class="kpi-container" style="align-items:center;justify-content:center;text-align:center;">
+            <div style="font-size:0.75rem;font-weight:700;color:#3f3f46;margin-bottom:4px;">מד סיכון כולל</div>
+            <svg width="70" height="70" viewBox="0 0 70 70" style="display:block;margin:0 auto;">
+                <circle cx="35" cy="35" r="{r}" fill="none" stroke="#f4f4f5" stroke-width="7"/>
+                <circle cx="35" cy="35" r="{r}" fill="none" stroke="{gauge_color}"
+                    stroke-width="7" stroke-dasharray="{circ:.1f}" stroke-dashoffset="{offset:.1f}"
+                    stroke-linecap="round" transform="rotate(-90 35 35)"/>
+                <text x="35" y="32" text-anchor="middle" font-size="13" font-weight="800" fill="{gauge_color}" font-family="Plus Jakarta Sans">{pct}%</text>
+                <text x="35" y="46" text-anchor="middle" font-size="9" fill="{gauge_color}" font-family="Plus Jakarta Sans" font-weight="700">{gauge_label}</text>
+            </svg>
         </div>
         """, unsafe_allow_html=True)
 
     st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
 
     # ── טבלת סיכונים ──
-    st.markdown("<div style='font-size:0.95rem;font-weight:700;color:#3f3f46;margin-bottom:8px;text-align:right;'>פירוט סיכונים</div>", unsafe_allow_html=True)
+    st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align:middle;margin-left:8px;font-size:1.5rem;color:#64748b;\">list</span> פירוט סיכונים", unsafe_allow_html=True)
 
-    fc1, _ = st.columns([1, 1])
-    with fc1:
-        st.markdown('<div class="filter-label">סוג</div>', unsafe_allow_html=True)
-        categories = ["הכל"] + sorted(df["category"].unique().tolist())
-        sel_cat = st.selectbox("סוג", categories, label_visibility="collapsed", key="risk_cat_filter")
-
-    filtered = df.copy()
-    if sel_cat != "הכל":
-        filtered = filtered[filtered["category"] == sel_cat]
-    filtered = filtered.sort_values("score", ascending=False)
+    filtered = df.copy().sort_values("score", ascending=False)
 
     with st.container(border=True):
         st.markdown("""
@@ -240,7 +212,7 @@ def show_risks_page(project_name=None):
 
     with col_right:
         top3 = active_df.sort_values("score", ascending=False).head(3)
-        st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align:middle;font-size:1.5rem;color:#64748b;margin-left:8px;\">priority_high</span> דורשים טיפול עכשיו", unsafe_allow_html=True)
+        st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align:middle;margin-left:8px;font-size:1.5rem;color:#64748b;\">priority_high</span> דורשים טיפול עכשיו", unsafe_allow_html=True)
         with st.container(border=True):
             for i, (_, row) in enumerate(top3.iterrows()):
                 color, label = get_risk_color(row["probability"], row["impact"])
@@ -267,35 +239,24 @@ def show_risks_page(project_name=None):
                 saved_analysis = insights_df[mask].iloc[0]["insight"]
                 analysis_date = insights_df[mask].iloc[0]["created_at"]
 
-        st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align:middle;font-size:1.5rem;color:#64748b;margin-left:8px;\">smart_toy</span> עוזר AI — ניתוח סיכונים", unsafe_allow_html=True)
+        st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align:middle;margin-left:8px;font-size:1.5rem;color:#64748b;\">smart_toy</span> ניתוח AI כולל", unsafe_allow_html=True)
 
         with st.container(border=True, key="ai_risks_container"):
-            if saved_analysis:
-                formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', saved_analysis)
-                formatted = re.sub(r'^#{1,3} (.+)$', r'<div class="ai-response-heading">\1</div>', formatted, flags=re.MULTILINE)
-                formatted = re.sub(r'^- (.+)$', r'<div class="ai-response-li">\1</div>', formatted, flags=re.MULTILINE)
-                formatted = formatted.replace('\n', '<br>')
-                st.markdown(f"""
-                <div class="ai-response-card">
-                    <div class="ai-response-topbar">
-                        <div class="ai-response-label">
-                            <span class="material-symbols-outlined" style="font-size:18px;color:#64748b;">smart_toy</span>
-                            <div class="ai-response-dot"></div>
-                        </div>
-                        <span style="font-size:0.7rem;color:#a1a1aa;">נשמר ב-{analysis_date}</span>
-                    </div>
-                    <div class="ai-response-body">{formatted}</div>
-                </div>
-                """, unsafe_allow_html=True)
-            else:
-                st.markdown("""
-                <div style="text-align:center;padding:16px;direction:rtl;">
-                    <div style="font-size:0.82rem;color:#a1a1aa;">לחצי על הכפתור לקבלת ניתוח מעמיק של כל הסיכונים עם המלצות מעשיות</div>
-                </div>
-                """, unsafe_allow_html=True)
+            sel_p = st.selectbox(
+                "פרויקט",
+                [project_name or "כל הפרויקטים"],
+                label_visibility="collapsed",
+                key="ai_risks_proj",
+                disabled=True
+            )
 
             btn_label = "🔄 עדכן ניתוח" if saved_analysis else "✦ נתח את כל הסיכונים עם AI"
-            if st.button(btn_label, key="full_ai_analysis", use_container_width=True):
+
+            col_empty, col_btn = st.columns([0.89, 0.11])
+            with col_btn:
+                send = st.button("↩", key="ai_risks_send", use_container_width=True)
+
+            if send:
                 with st.spinner("מנתח..."):
                     try:
                         genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
@@ -317,6 +278,25 @@ def show_risks_page(project_name=None):
 היה תמציתי."""
                         response = model.generate_content(prompt)
                         save_insight(project_name or "כללי", "__full_analysis__", response.text)
-                        st.rerun()
+                        saved_analysis = response.text
+                        analysis_date = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).strftime("%d/%m/%Y %H:%M")
                     except Exception as e:
                         st.error(f"שגיאה: {str(e)}")
+
+            if saved_analysis:
+                formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', saved_analysis)
+                formatted = re.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re.MULTILINE)
+                formatted = re.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re.MULTILINE)
+                formatted = formatted.replace('\n', '<br>')
+                st.markdown(f"""
+                <div class="ai-response-card">
+                    <div class="ai-response-topbar">
+                        <div class="ai-response-label">
+                            <span class="material-symbols-outlined" style="font-size:18px;color:#64748b;">smart_toy</span>
+                            <div class="ai-response-dot"></div>
+                        </div>
+                        <span style="font-size:0.7rem;color:#a1a1aa;">נשמר ב-{analysis_date}</span>
+                    </div>
+                    <div class="ai-response-body">{formatted}</div>
+                </div>
+                """, unsafe_allow_html=True)
