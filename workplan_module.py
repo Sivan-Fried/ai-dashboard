@@ -1,315 +1,370 @@
-# -*- coding: utf-8 -*-
-import streamlit as st
 import pandas as pd
 import datetime
 import re
-import google.generativeai as genai
-from zoneinfo import ZoneInfo
 
-INSIGHTS_FILE = "risks_ai_insights.xlsx"
 
-def load_risks():
-    try:
-        return pd.read_excel("risks.xlsx")
-    except Exception as e:
-        st.error(f"שגיאה בטעינת קובץ סיכונים: {e}")
-        return pd.DataFrame()
+# ---------------------------------------------------------
+# ניקוי טקסט מתווים נסתרים, RTL, רווחים וכו'
+# ---------------------------------------------------------
+def clean_text(x):
+    if not isinstance(x, str):
+        x = str(x)
 
-def load_insights():
-    try:
-        return pd.read_excel(INSIGHTS_FILE)
-    except:
-        return pd.DataFrame(columns=["project_name", "risk_title", "insight", "created_at"])
+    x = x.strip()
 
-def save_insight(project_name, risk_title, insight_text):
-    new_row = {
-        "project_name": project_name,
-        "risk_title": risk_title,
-        "insight": insight_text,
-        "created_at": datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).strftime("%d/%m/%Y %H:%M")
-    }
-    try:
-        existing = pd.read_excel(INSIGHTS_FILE)
-        mask = (existing["project_name"] == project_name) & (existing["risk_title"] == risk_title)
-        if mask.any():
-            existing.loc[mask, "insight"] = insight_text
-            existing.loc[mask, "created_at"] = new_row["created_at"]
-            updated = existing
-        else:
-            updated = pd.concat([existing, pd.DataFrame([new_row])], ignore_index=True)
-    except:
-        updated = pd.DataFrame([new_row])
-    updated.to_excel(INSIGHTS_FILE, index=False)
+    # תווי RTL נסתרים
+    x = re.sub(r'[\u200f\u202b\u202c\u202d\u202e]', '', x)
 
-def get_risk_color(probability, impact):
-    score = probability * impact
-    if score >= 15:
-        return "#ef4444", "קריטי"
-    elif score >= 9:
-        return "#f59e0b", "גבוה"
-    elif score >= 4:
-        return "#6f5861", "בינוני"
+    # תווים לא מודפסים
+    x = re.sub(r'[\x00-\x1F\x7F]', '', x)
+
+    return x
+
+
+# ---------------------------------------------------------
+# 1. טעינת קובץ ה־Excel
+# ---------------------------------------------------------
+def load_workplan_df():
+    df = pd.read_excel("work_plans.xlsx")
+
+    df["date"] = pd.to_datetime(df["date"], dayfirst=False, errors="coerce")
+
+    df["project_name"] = df["project_name"].apply(clean_text)
+
+    return df
+
+
+# ---------------------------------------------------------
+# 2. יצירת HTML עבור milestone בודד
+# ---------------------------------------------------------
+def milestone_to_html(row):
+
+    name = str(row["milestone_name"])
+
+    if "עמיתים" in name:
+        tag_class = "amit"
+    elif "מעסיקים" in name:
+        tag_class = "measy"
+    elif "סוכנים" in name:
+        tag_class = "soch"
     else:
-        return "#94a3b8", "נמוך"
+        tag_class = "amit"
 
-def show_risks_page(project_name=None):
-    df = load_risks()
-    if df.empty:
-        st.error("לא נמצא קובץ risks.xlsx")
-        return
+    status_class = {
+        "LIVE": "live",
+        "WIP": "wip",
+        "HOLD": ""
+    }.get(row["status"], "")
 
-    if project_name:
-        df = df[df["project_name"] == project_name]
+    date_str = row["date"].strftime("%d.%m.%Y")
+    date_iso = row["date"].strftime("%Y-%m-%d")  # ← נוסף
 
-    insights_df = load_insights()
+    contents = str(row.get("version_contents", "")).strip()
+    contents_html = contents.replace("\n", "<br>") if contents and contents != "nan" else ""
+    tooltip_html = f"<div class='tooltip'>{contents_html}</div>" if contents_html else ""
 
-    st.markdown("""
+    return (
+        "<div class='item' data-date='" + date_iso + "'>"  # ← data-date נוסף
+        "<div class='card'>"
+        + tooltip_html +
+        "<span class='tag " + tag_class + "'>" + str(row['milestone_name']) + "</span>"
+        "<div class='date'>" + date_str + "</div>"
+        "<span class='status " + status_class + "'>" + str(row['status']) + "</span>"
+        "</div>"
+        "<div class='connector'></div>"
+        "<div class='dot'></div>"
+        "</div>"
+    )
+
+
+# ---------------------------------------------------------
+# 3. בניית HTML של כל ה־items מתוך ה־Excel
+# ---------------------------------------------------------
+def build_items_html(project_df):
+    return "\n".join(project_df.apply(milestone_to_html, axis=1))
+
+
+# ---------------------------------------------------------
+# 4. תבנית HTML ללא f-string
+# ---------------------------------------------------------
+BASE_HTML = """
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@200;400;600;700&display=swap" rel="stylesheet">
     <style>
-    .risk-header {
-        display:grid;
-        grid-template-columns:2.5fr 1fr 0.7fr 0.7fr 0.8fr;
-        gap:8px;
-        padding:10px 16px;
-        background:#f8fafc;
-        border-radius:10px;
-        margin-bottom:4px;
-        direction:rtl;
-        text-align:right;
-    }
-    .risk-row {
-        display:grid;
-        grid-template-columns:2.5fr 1fr 0.7fr 0.7fr 0.8fr;
-        gap:8px;
-        padding:12px 16px;
-        border-bottom:1px solid #f4f4f5;
-        direction:rtl;
-        text-align:right;
-        align-items:center;
-    }
-    .risk-row:hover { background:#fdf6f9; border-radius:8px; }
-    .r-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.72rem; font-weight:700; }
-    .r-badge-critical { background:#fef2f2; color:#ef4444; }
-    .r-badge-high     { background:#fffbeb; color:#f59e0b; }
-    .r-badge-medium   { background:#fdf2f8; color:#6f5861; }
-    .r-badge-low      { background:#f8fafc; color:#94a3b8; }
-    .filter-label {
-        font-size:0.75rem; font-weight:600; color:#94a3b8;
-        margin-bottom:4px; text-align:right; direction:rtl;
-    }
+        body { font-family: 'Assistant', sans-serif; background-color: white; margin: 0; padding: 0; overflow: hidden; height: 320px; }
+
+        .controls {
+            display: flex;
+            justify-content: flex-end;
+            padding: 16px 50px 0 50px;
+        }
+
+        .toggle-group {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            padding: 4px;
+        }
+
+        .toggle-btn {
+            padding: 6px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Assistant', sans-serif;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #94a3b8;
+            background: transparent;
+        }
+
+        .toggle-btn.active {
+            background: #FADCE6;
+            color: #63646c;
+        }
+
+        .toggle-btn:hover:not(.active) {
+            color: #475569;
+        }
+
+        .timeline-scroll {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 0 50px;
+            scrollbar-width: thin;
+            scrollbar-color: #e2e8f0 transparent;
+        }
+
+        .timeline-scroll::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .timeline-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .timeline-scroll::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 2px;
+        }
+
+        .timeline-wrapper {
+            position: relative;
+            margin: 30px 0;
+            height: 200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            min-width: 1000px;
+        }
+
+        .main-line {
+            position: absolute;
+            bottom: 6px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #cbd5e1;
+            z-index: 1;
+        }
+
+        .today-indicator {
+            position: absolute;
+            bottom: -10px;
+            RIGHT_PLACEHOLDER;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+        }
+        
+        .today-line {
+            width: 2px;
+            height: 220px;
+            border-left: 2px dashed #cbd5e1;
+        }
+        
+        .today-text {
+            color: #94a3b8;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90px;
+            z-index: 3;
+            position: relative;
+        }
+
+        .card {
+            background: white;
+            padding: 4px 6px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            border: 1px solid #f1f5f9;
+            text-align: center;
+            width: 100%;
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .connector {
+            width: 1px;
+            height: 15px;
+            background: #e2e8f0;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            background: #475569;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 1px #475569;
+            z-index: 4;
+        }
+
+        .tag { font-size: 11px; font-weight: 700; padding: 1px 4px; border-radius: 2px; display: inline-block; margin-bottom: 2px; }
+        .amit  { background: #FADCE6; color: #831843; }
+        .measy { background: #eff6ff; color: #1e40af; }
+        .soch  { background: #fff7ed; color: #9a3412; }
+        .date { font-size: 13px; font-weight: 600; color: #1e293b; margin: 0; }
+        .status { font-size: 10px; font-weight: 700; margin-top: 2px; }
+        .live { color: #10b981; }
+        .wip { color: #f59e0b; }
+
+        .tooltip {
+            display: none;
+            position: absolute;
+            bottom: 110%;
+            right: 50%;
+            transform: translateX(50%);
+            background: #1e293b;
+            color: white;
+            font-size: 11px;
+            line-height: 1.6;
+            padding: 8px 12px;
+            border-radius: 8px;
+            white-space: nowrap;
+            text-align: right;
+            direction: rtl;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            right: 50%;
+            transform: translateX(50%);
+            border: 5px solid transparent;
+            border-top-color: #1e293b;
+        }
+
+        .card:hover .tooltip {
+            display: block;
+        }
     </style>
-    """, unsafe_allow_html=True)
-
-    # ── כותרת ──
-    title = f"ניהול סיכונים — {project_name}" if project_name else "ניהול סיכונים"
-    st.markdown(f"""
-    <div style="margin-bottom:20px;direction:rtl;text-align:right;">
-        <h2 style="font-size:1.5rem;font-weight:800;color:#3f3f46;margin:0;text-align:right;">
-            <span style="color:#f0b8cb;">⬥</span> {title}
-        </h2>
-        <p style="font-size:0.82rem;color:#a1a1aa;margin:4px 0 0 0;text-align:right;">מעקב, ניתוח וניהול סיכונים</p>
+</head>
+<body>
+    <div class="controls">
+        <div class="toggle-group">
+            <button class="toggle-btn active" onclick="filterView('all', this)">הכל</button>
+            <button class="toggle-btn" onclick="filterView('quarter', this)">רבעון נוכחי</button>
+            <button class="toggle-btn" onclick="filterView('month', this)">חודש נוכחי</button>
+        </div>
     </div>
-    """, unsafe_allow_html=True)
 
-    # ── חישובי KPI ──
-    df["score"] = df["probability"] * df["impact"]
-    critical_risks = len(df[df["score"] >= 15])
-    high_risks     = len(df[(df["score"] >= 9) & (df["score"] < 15)])
-    medium_risks   = len(df[(df["score"] >= 4) & (df["score"] < 9)])
-    low_risks      = len(df[df["score"] < 4])
+    <div class="timeline-scroll">
+        <div class="timeline-wrapper">
+            <div class="main-line"></div>
 
-    active_df = df[df["status"] != "סגור"]
-    total_score = active_df["score"].mean() if not active_df.empty else 0
-    pct = min(int((total_score / 25) * 100), 100)
-    r = 34
-    circ = 2 * 3.14159 * r
-    offset = circ * (1 - pct / 100)
-    gauge_color = "#ef4444" if pct >= 60 else "#f59e0b" if pct >= 35 else "#10b981"
-    gauge_label = "גבוה" if pct >= 60 else "בינוני" if pct >= 35 else "נמוך"
-
-    # ── KPIs — מד סיכון בשמאל, 4 רמות חומרה ──
-    k4, k3, k2, k1, k0 = st.columns(5)
-
-    with k0:
-        st.markdown(f'''<div class="kpi-container">
-            <div class="kpi-header">
-                <div class="kpi-icon-box" style="background:#fef2f2;"><span class="material-symbols-rounded" style="color:#ef4444;">crisis_alert</span></div>
-                <span class="kpi-badge" style="background:#fef2f2;color:#ef4444;">קריטי</span>
+            <div class="today-indicator">
+                <span class="today-text">TODAY_PLACEHOLDER</span>
+                <div class="today-line"></div>
             </div>
-            <div class="kpi-content"><div class="kpi-value-row">
-                <span class="kpi-unit">סיכונים</span><span class="kpi-number">{critical_risks}</span>
-            </div></div></div>''', unsafe_allow_html=True)
 
-    with k1:
-        st.markdown(f'''<div class="kpi-container">
-            <div class="kpi-header">
-                <div class="kpi-icon-box" style="background:#fffbeb;"><span class="material-symbols-rounded" style="color:#f59e0b;">warning</span></div>
-                <span class="kpi-badge" style="background:#fffbeb;color:#f59e0b;">גבוה</span>
-            </div>
-            <div class="kpi-content"><div class="kpi-value-row">
-                <span class="kpi-unit">סיכונים</span><span class="kpi-number">{high_risks}</span>
-            </div></div></div>''', unsafe_allow_html=True)
+            ITEMS_PLACEHOLDER
 
-    with k2:
-        st.markdown(f'''<div class="kpi-container">
-            <div class="kpi-header">
-                <div class="kpi-icon-box" style="background:#fdf2f8;"><span class="material-symbols-rounded" style="color:#6f5861;">info</span></div>
-                <span class="kpi-badge" style="background:#fdf2f8;color:#6f5861;">בינוני</span>
-            </div>
-            <div class="kpi-content"><div class="kpi-value-row">
-                <span class="kpi-unit">סיכונים</span><span class="kpi-number">{medium_risks}</span>
-            </div></div></div>''', unsafe_allow_html=True)
-
-    with k3:
-        st.markdown(f'''<div class="kpi-container">
-            <div class="kpi-header">
-                <div class="kpi-icon-box" style="background:#f8fafc;"><span class="material-symbols-rounded" style="color:#94a3b8;">check_circle</span></div>
-                <span class="kpi-badge" style="background:#f8fafc;color:#94a3b8;">נמוך</span>
-            </div>
-            <div class="kpi-content"><div class="kpi-value-row">
-                <span class="kpi-unit">סיכונים</span><span class="kpi-number">{low_risks}</span>
-            </div></div></div>''', unsafe_allow_html=True)
-
-    with k4:
-        st.markdown(f"""
-        <div class="kpi-container" style="text-align:center;justify-content:center;align-items:center;">
-            <div style="font-size:0.82rem;font-weight:700;color:#3f3f46;margin-bottom:6px;">מד סיכון</div>
-            <svg width="80" height="80" viewBox="0 0 80 80" style="display:block;margin:0 auto;">
-                <circle cx="40" cy="40" r="{r}" fill="none" stroke="#f4f4f5" stroke-width="8"/>
-                <circle cx="40" cy="40" r="{r}" fill="none" stroke="{gauge_color}"
-                    stroke-width="8" stroke-dasharray="{circ:.1f}" stroke-dashoffset="{offset:.1f}"
-                    stroke-linecap="round" transform="rotate(-90 40 40)"/>
-                <text x="40" y="37" text-anchor="middle" font-size="15" font-weight="800" fill="{gauge_color}" font-family="Plus Jakarta Sans">{pct}%</text>
-                <text x="40" y="53" text-anchor="middle" font-size="10" fill="{gauge_color}" font-family="Plus Jakarta Sans" font-weight="700">{gauge_label}</text>
-            </svg>
         </div>
-        """, unsafe_allow_html=True)
+    </div>
 
-    st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
+    <script>
+        const today = new Date();
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
+        const currentQuarter = Math.floor(currentMonth / 3);
 
-    # ── טבלת סיכונים ──
-    st.markdown("<div style='font-size:0.95rem;font-weight:700;color:#3f3f46;margin-bottom:8px;text-align:right;'>פירוט סיכונים</div>", unsafe_allow_html=True)
+        function filterView(mode, btn) {
+            document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
 
-    fc1, _ = st.columns([1, 1])
-    with fc1:
-        st.markdown('<div class="filter-label">סוג</div>', unsafe_allow_html=True)
-        categories = ["הכל"] + sorted(df["category"].unique().tolist())
-        sel_cat = st.selectbox("סוג", categories, label_visibility="collapsed", key="risk_cat_filter")
+            document.querySelectorAll('.item').forEach(item => {
+                const dateStr = item.dataset.date;
+                if (!dateStr) { item.style.display = ''; return; }
 
-    filtered = df.copy()
-    if sel_cat != "הכל":
-        filtered = filtered[filtered["category"] == sel_cat]
-    filtered = filtered.sort_values("score", ascending=False)
+                const date = new Date(dateStr);
+                const month = date.getMonth();
+                const year = date.getFullYear();
+                const quarter = Math.floor(month / 3);
 
-    with st.container(border=True):
-        st.markdown("""
-        <div class="risk-header">
-            <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">סיכון</span>
-            <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">קטגוריה</span>
-            <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">הסתברות</span>
-            <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">השפעה</span>
-            <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">רמה</span>
-        </div>
-        """, unsafe_allow_html=True)
+                let show = true;
+                if (mode === 'month') {
+                    show = month === currentMonth && year === currentYear;
+                } else if (mode === 'quarter') {
+                    show = quarter === currentQuarter && year === currentYear;
+                }
 
-        for _, row in filtered.iterrows():
-            color, label = get_risk_color(row["probability"], row["impact"])
-            badge_map = {"קריטי": "r-badge-critical", "גבוה": "r-badge-high", "בינוני": "r-badge-medium", "נמוך": "r-badge-low"}
-            badge_cls = badge_map.get(label, "r-badge-low")
-            st.markdown(f"""
-            <div class="risk-row">
-                <span style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{row['risk_title']}</span>
-                <span style="font-size:0.78rem;color:#71717A;">{row['category']}</span>
-                <span style="font-size:0.82rem;color:#3f3f46;">{row['probability']}/5</span>
-                <span style="font-size:0.82rem;color:#3f3f46;">{row['impact']}/5</span>
-                <span class="r-badge {badge_cls}">{label}</span>
-            </div>
-            """, unsafe_allow_html=True)
+                item.style.display = show ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>
+"""
 
-    st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
 
-    # ── תחתית ──
-    col_right, col_left = st.columns([1, 1])
+# ---------------------------------------------------------
+# 5. בניית HTML מלא
+# ---------------------------------------------------------
+def build_timeline_html(project_name):
 
-    with col_right:
-        top3 = active_df.sort_values("score", ascending=False).head(3)
-        st.markdown("### <span class='material-symbols-outlined' style='vertical-align:middle;font-size:1.2rem;color:#64748b;margin-left:6px;'>priority_high</span> דורשים טיפול עכשיו", unsafe_allow_html=True)
-        with st.container(border=True):
-            for i, (_, row) in enumerate(top3.iterrows()):
-                color, label = get_risk_color(row["probability"], row["impact"])
-                badge_map = {"קריטי": "r-badge-critical", "גבוה": "r-badge-high", "בינוני": "r-badge-medium", "נמוך": "r-badge-low"}
-                badge_cls = badge_map.get(label, "r-badge-low")
-                st.markdown(f"""
-                <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f4f4f5;direction:rtl;text-align:right;">
-                    <div style="width:24px;height:24px;border-radius:50%;background:#94a3b8;color:white;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">{i+1}</div>
-                    <div style="flex:1;">
-                        <div style="font-size:0.82rem;font-weight:600;color:#3f3f46;margin-bottom:2px;">{row['risk_title']}</div>
-                        <div style="font-size:0.7rem;color:#a1a1aa;">{row['category']} · ציון {int(row['score'])}/25</div>
-                    </div>
-                    <span class="r-badge {badge_cls}">{label}</span>
-                </div>
-                """, unsafe_allow_html=True)
+    df = load_workplan_df()
+    project_name = clean_text(project_name)
 
-    with col_left:
-        saved_analysis = None
-        analysis_date = ""
-        if not insights_df.empty:
-            mask = (insights_df["project_name"] == (project_name or "כללי")) & \
-                   (insights_df["risk_title"] == "__full_analysis__")
-            if mask.any():
-                saved_analysis = insights_df[mask].iloc[0]["insight"]
-                analysis_date = insights_df[mask].iloc[0]["created_at"]
+    project_df = df[df["project_name"] == project_name].copy()
+    project_df = project_df.sort_values("date")  # ← התיקון
 
-        st.markdown("### <span class='material-symbols-outlined' style='vertical-align:middle;font-size:1.2rem;color:#64748b;margin-left:6px;'>smart_toy</span> ניתוח AI כולל", unsafe_allow_html=True)
+    if project_df.empty:
+        return "<div style='text-align:right; font-size:16px; padding:10px;'>אין נתונים עבור הפרויקט</div>"
 
-        if saved_analysis:
-            formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', saved_analysis)
-            formatted = re.sub(r'^#{1,3} (.+)$', r'<div class="ai-response-heading">\1</div>', formatted, flags=re.MULTILINE)
-            formatted = re.sub(r'^- (.+)$', r'<div class="ai-response-li">\1</div>', formatted, flags=re.MULTILINE)
-            formatted = formatted.replace('\n', '<br>')
-            st.markdown(f"""
-            <div class="ai-response-card">
-                <div class="ai-response-topbar">
-                    <div class="ai-response-label">
-                        <span class="material-symbols-outlined" style="font-size:18px;color:#64748b;">smart_toy</span>
-                        <span class="ai-response-dot"></span>
-                        ניתוח AI כולל
-                    </div>
-                    <span style="font-size:0.7rem;color:#a1a1aa;">נשמר ב-{analysis_date}</span>
-                </div>
-                <div class="ai-response-body">{formatted}</div>
-            </div>
-            """, unsafe_allow_html=True)
-        else:
-            with st.container(border=True):
-                st.markdown("""
-                <div style="text-align:center;padding:20px;direction:rtl;">
-                    <div style="font-size:0.82rem;color:#a1a1aa;">לחצי על הכפתור לקבלת ניתוח מעמיק של כל הסיכונים עם המלצות מעשיות</div>
-                </div>
-                """, unsafe_allow_html=True)
+    today = datetime.date.today()
+    today_str = today.strftime("%d.%m")
 
-        btn_label = "🔄 עדכן ניתוח" if saved_analysis else "✦ נתח את כל הסיכונים עם AI"
-        if st.button(btn_label, key="full_ai_analysis", use_container_width=True):
-            with st.spinner("מנתח..."):
-                try:
-                    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-                    model = genai.GenerativeModel('gemini-2.5-flash-lite')
-                    risks_text = "\n".join([
-                        f"- {r['risk_title']} | הסתברות {r['probability']}/5 | השפעה {r['impact']}/5 | {r['category']} | {r.get('notes','')}"
-                        for _, r in df.iterrows()
-                    ])
-                    prompt = f"""אתה יועץ ניהול סיכונים בכיר. נתח את כל הסיכונים של הפרויקט "{project_name}" ותן דוח מסכם קצר בעברית עסקית:
+    timeline_start = datetime.date(today.year, 3, 8)
+    timeline_end   = datetime.date(today.year, 10, 1)
+    total_days     = (timeline_end - timeline_start).days
+    timeline_width = 900
 
-סיכונים:
-{risks_text}
+    days_passed = (today - timeline_start).days
+    days_passed = max(0, min(days_passed, total_days))
+    today_right = int(timeline_width - (days_passed / total_days * timeline_width)) + 50
 
-1. **תמונת מצב** — משפט אחד
-2. **3 סיכונים דחופים** — ומדוע
-3. **דפוסים** — קשרים בין הסיכונים
-4. **המלצות מיידיות** — 2-3 פעולות
+    items_html = build_items_html(project_df)
 
-היה תמציתי."""
-                    response = model.generate_content(prompt)
-                    save_insight(project_name or "כללי", "__full_analysis__", response.text)
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"שגיאה: {str(e)}")
+    html = BASE_HTML
+    html = html.replace("RIGHT_PLACEHOLDER", f"right: {today_right}px;")
+    html = html.replace("TODAY_PLACEHOLDER", f"היום {today_str}")
+    html = html.replace("ITEMS_PLACEHOLDER", items_html)
+
+    return html
