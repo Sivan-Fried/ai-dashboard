@@ -299,26 +299,45 @@ def show_risks_page(project_name=None):
                             <span class="material-symbols-outlined" style="font-size:18px;color:#64748b;">smart_toy</span>
                             <div class="ai-response-dot"></div>
                         </div>
-                        <span style="font-size:0.7rem;color:#a1a1aa;">נשמר ב-{analysis_date}</span>
+                        <div class="ai-response-actions">
+                            <button class="ai-action-btn" id="risks-copy-btn" title="העתק">
+                                <span class="material-symbols-outlined">content_copy</span>
+                            </button>
+                            <button class="ai-action-btn" id="risks-share-btn" title="שתף">
+                                <span class="material-symbols-outlined">share</span>
+                            </button>
+                        </div>
                     </div>
-                    <div class="ai-response-body">{formatted}</div>
+                    <div class="ai-response-body" id="risks-response-text">{formatted}</div>
                 </div>
+                <script>
+                document.getElementById('risks-copy-btn').addEventListener('click', function() {{
+                    var text = document.getElementById('risks-response-text').innerText;
+                    navigator.clipboard.writeText(text);
+                    this.querySelector('span').innerText = 'check';
+                    var btn = this;
+                    setTimeout(function() {{ btn.querySelector('span').innerText = 'content_copy'; }}, 1500);
+                }});
+                document.getElementById('risks-share-btn').addEventListener('click', function() {{
+                    var text = document.getElementById('risks-response-text').innerText;
+                    if (navigator.share) navigator.share({{text: text}});
+                }});
+                </script>
                 """, unsafe_allow_html=True)
-
-            col_empty, col_btn = st.columns([0.89, 0.11])
-            with col_btn:
-                send = st.button("↩", key="ai_risks_send", use_container_width=True)
-
-            if send:
-                with st.spinner("מנתח..."):
-                    try:
-                        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-                        model = genai.GenerativeModel('gemini-2.5-flash-lite')
-                        risks_text = "\n".join([
-                            f"- {r['risk_title']} | הסתברות {r['probability']}/5 | השפעה {r['impact']}/5 | {r['category']} | {r.get('notes','')}"
-                            for _, r in df.iterrows()
-                        ])
-                        prompt = f"""אתה יועץ ניהול סיכונים בכיר. נתח את כל הסיכונים של הפרויקט "{project_name}" ותן דוח מסכם קצר בעברית עסקית:
+            else:
+                col_empty, col_btn = st.columns([0.89, 0.11])
+                with col_btn:
+                    send = st.button("↩", key="ai_risks_send", use_container_width=True)
+                if send:
+                    with st.spinner("מנתח..."):
+                        try:
+                            genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+                            model = genai.GenerativeModel('gemini-2.5-flash-lite')
+                            risks_text = "\n".join([
+                                f"- {r['risk_title']} | הסתברות {r['probability']}/5 | השפעה {r['impact']}/5 | {r['category']} | {r.get('notes','')}"
+                                for _, r in df.iterrows()
+                            ])
+                            prompt = f"""אתה יועץ ניהול סיכונים בכיר. נתח את כל הסיכונים של הפרויקט "{project_name}" ותן דוח מסכם קצר בעברית עסקית:
 
 סיכונים:
 {risks_text}
@@ -329,8 +348,8 @@ def show_risks_page(project_name=None):
 4. **המלצות מיידיות** — 2-3 פעולות
 
 היה תמציתי."""
-                        response = model.generate_content(prompt)
-                        save_insight(project_name or "כללי", "__full_analysis__", response.text)
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"שגיאה: {str(e)}")
+                            response = model.generate_content(prompt)
+                            save_insight(project_name or "כללי", "__full_analysis__", response.text)
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"שגיאה: {str(e)}")
