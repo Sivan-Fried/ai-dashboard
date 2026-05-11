@@ -287,9 +287,7 @@ def show_risks_page(project_name=None):
                 formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
                 formatted = re.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re.MULTILINE)
                 formatted = re.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re.MULTILINE)
-                formatted = formatted.replace('\r\n', '\n').replace('\r', '\n')
-                formatted = re.sub(r'\n+', '<br>', formatted)
-                formatted = re.sub(r'</h3><br\s*/?>', '</h3>', formatted)
+                formatted = formatted.replace('\n', '<br>')
 
                 components.html(f"""<!DOCTYPE html>
 <html dir="rtl">
