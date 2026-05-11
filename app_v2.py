@@ -763,12 +763,7 @@ if "page" in params and params["page"] == "resources":
 # =========================================================
 # 4. מבנה התצוגה
 # =========================================================
-if "geoloc_done" not in st.session_state:
-    loc = get_geolocation()
-    if loc:
-        st.session_state.geoloc_done = loc
-else:
-    loc = st.session_state.geoloc_done
+loc = get_geolocation(component_key="geo_fixed")
 
 
 # ── מזג אוויר ──────────────────────────────────────────
