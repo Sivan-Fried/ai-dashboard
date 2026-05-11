@@ -562,7 +562,14 @@ def render_sidebar(page="main", project_name=None):
     def on_change(key):
         selected_val = st.session_state[key]
         if selected_val in options:
-            st.session_state[idx_key] = options.index(selected_val)
+            new_idx = options.index(selected_val)
+            st.session_state[idx_key] = new_idx
+            if page != "main":
+                target = targets[new_idx]
+                st.session_state.current_page = target
+                if project_name:
+                    st.session_state.selected_project = project_name
+                st.rerun()
 
     menu_styles = {
         "container": {
@@ -627,13 +634,7 @@ def render_sidebar(page="main", project_name=None):
                     if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
                     </script>
                 """, height=0)
-        else:
-            target = targets[selected_idx]
-            if target != st.session_state.current_page:
-                st.session_state.current_page = target
-                if project_name:
-                    st.session_state.selected_project = project_name
-                st.rerun()
+       
 
 
 # ---תמונת פרופיל ---
