@@ -308,7 +308,7 @@ def show_risks_page(project_name=None):
         dash = 2 * 3.14159 * 54
         offset = dash * (1 - pct / 100)
         gauge_color = "#ef4444" if pct >= 60 else "#f59e0b" if pct >= 35 else "#10b981"
-        gauge_label = "גבוה" if pct >= 60 else "בינוני" if pct >= 35 else "נמוך"
+        gauge_label = "גבוה — דורש תשומת לב" if pct >= 60 else "בינוני — דורש ניטור" if pct >= 35 else "נמוך — תחת שליטה"
 
         st.markdown(f"""
         <div class="side-box" style="text-align:center;">
@@ -325,63 +325,89 @@ def show_risks_page(project_name=None):
         </div>
         """, unsafe_allow_html=True)
 
-        # ── ציר זמן ──
-        try:
-            upcoming = df[df["status"] != "סגור"].copy()
-            upcoming["due_date_parsed"] = pd.to_datetime(upcoming["due_date"], format="%d/%m/%Y", errors="coerce")
-            upcoming = upcoming.dropna(subset=["due_date_parsed"]).sort_values("due_date_parsed").head(7)
+        # ── Top 3 סיכונים דחופים ──
+        top3 = active_df.copy()
+        top3["score"] = top3["probability"] * top3["impact"]
+        top3 = top3.sort_values("score", ascending=False).head(3)
 
-            st.markdown("""
-            <div class="side-box">
-                <div style="font-size:0.95rem;font-weight:700;color:#3f3f46;margin-bottom:10px;">דדליינים קרובים</div>
-            """, unsafe_allow_html=True)
-
-            for _, row in upcoming.iterrows():
-                color, _ = get_risk_color(row["probability"], row["impact"])
-                days_left = (row["due_date_parsed"].date() - today).days
-                days_txt = "עבר!" if days_left < 0 else "היום!" if days_left == 0 else f"{days_left}י'"
-                txt_color = "#ef4444" if days_left <= 7 else "#71717A"
-                title_short = row['risk_title'][:25] + ("..." if len(row['risk_title']) > 25 else "")
-                st.markdown(f"""
-                <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f5;direction:rtl;">
-                    <div style="width:8px;height:8px;border-radius:50%;background:{color};flex-shrink:0;"></div>
-                    <div style="flex:1;min-width:0;">
-                        <div style="font-size:0.75rem;font-weight:600;color:#3f3f46;">{title_short}</div>
-                    </div>
-                    <div style="font-size:0.68rem;font-weight:700;color:{txt_color};white-space:nowrap;">{days_txt}</div>
-                </div>
-                """, unsafe_allow_html=True)
-
-            st.markdown("</div>", unsafe_allow_html=True)
-        except:
-            pass
-
-        # ── סיכום קטגוריות ──
         st.markdown("""
         <div class="side-box">
-            <div style="font-size:0.95rem;font-weight:700;color:#3f3f46;margin-bottom:12px;">לפי קטגוריה</div>
+            <div style="font-size:0.95rem;font-weight:700;color:#3f3f46;margin-bottom:12px;">🚨 דורשים טיפול עכשיו</div>
         """, unsafe_allow_html=True)
 
-        cat_summary = df.groupby("category").apply(
-            lambda x: pd.Series({
-                "total": len(x),
-                "avg_score": (x["probability"] * x["impact"]).mean()
-            })
-        ).reset_index().sort_values("avg_score", ascending=False)
-
-        for _, row in cat_summary.iterrows():
-            bar_pct = min(int((row["avg_score"] / 25) * 100), 100)
-            bar_color = "#ef4444" if row["avg_score"] >= 15 else "#f59e0b" if row["avg_score"] >= 9 else "#6f5861"
+        for i, (_, row) in enumerate(top3.iterrows()):
+            color, label = get_risk_color(row["probability"], row["impact"])
             st.markdown(f"""
-            <div style="margin-bottom:10px;">
-                <div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:3px;direction:rtl;">
-                    <span style="font-weight:600;color:#3f3f46;">{row['category']}</span>
-                    <span style="color:#a1a1aa;">{int(row['total'])}</span>
-                </div>
-                <div style="height:5px;background:#f4f4f5;border-radius:4px;overflow:hidden;">
-                    <div style="height:100%;width:{bar_pct}%;background:{bar_color};border-radius:4px;"></div>
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f4f4f5;direction:rtl;">
+                <div style="width:24px;height:24px;border-radius:50%;background:{color};color:white;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">{i+1}</div>
+                <div style="flex:1;">
+                    <div style="font-size:0.8rem;font-weight:600;color:#3f3f46;margin-bottom:2px;">{row['risk_title']}</div>
+                    <div style="font-size:0.7rem;color:#a1a1aa;">{row['category']} · ציון {int(row['score'])}/25</div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        # ── ניתוח AI כולל ──
+        st.markdown("""
+        <div class="side-box">
+            <div style="font-size:0.95rem;font-weight:700;color:#3f3f46;margin-bottom:8px;">ניתוח AI כולל</div>
+            <div style="font-size:0.78rem;color:#a1a1aa;margin-bottom:12px;">ניתוח מעמיק של כל הסיכונים עם המלצות</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        ai_key = f"full_analysis_{project_name}"
+        saved_analysis = None
+        analysis_date = ""
+        if not insights_df.empty:
+            mask = (insights_df["project_name"] == (project_name or "כללי")) & \
+                   (insights_df["risk_title"] == "__full_analysis__")
+            if mask.any():
+                saved_analysis = insights_df[mask].iloc[0]["insight"]
+                analysis_date = insights_df[mask].iloc[0]["created_at"]
+
+        if saved_analysis:
+            import re
+            formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', saved_analysis)
+            formatted = formatted.replace('\n', '<br>')
+            st.markdown(f"""
+            <div class="ai-insight-box">
+                <div style="display:flex;align-items:center;gap:8px;font-size:0.72rem;font-weight:700;color:#6f5861;margin-bottom:8px;">
+                    <span class="material-symbols-outlined" style="font-size:16px;color:#6f5861;">smart_toy</span>
+                    <span style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;"></span>
+                    נשמר ב-{analysis_date}
+                </div>
+                {formatted}
+            </div>
+            """, unsafe_allow_html=True)
+
+        btn_label = "🔄 עדכן ניתוח" if saved_analysis else "✦ נתח את כל הסיכונים עם AI"
+        if st.button(btn_label, key="full_ai_analysis", use_container_width=True):
+            with st.spinner("מנתח את כל הסיכונים..."):
+                try:
+                    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+                    model = genai.GenerativeModel('gemini-2.5-flash-lite')
+                    risks_text = "\n".join([
+                        f"- {r['risk_title']} | הסתברות {r['probability']}/5 | השפעה {r['impact']}/5 | {r['category']} | {r.get('notes','')}"
+                        for _, r in df.iterrows()
+                    ])
+                    prompt = f"""אתה יועץ ניהול סיכונים בכיר. נתח את כל הסיכונים הבאים של הפרויקט "{project_name}" ותן דוח מסכם.
+
+סיכונים:
+{risks_text}
+
+תן דוח קצר ומעשי בעברית עסקית:
+1. **תמונת מצב כוללת** — משפט אחד
+2. **3 הסיכונים הדחופים ביותר** — ומדוע
+3. **דפוסים שמזהה ה-AI** — האם יש קשר בין הסיכונים?
+4. **המלצות מיידיות** — 2-3 פעולות קונקרטיות
+
+היה תמציתי וממוקד."""
+                    response = model.generate_content(prompt)
+                    save_insight(project_name or "כללי", "__full_analysis__", response.text)
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"שגיאה: {str(e)}")
 
         st.markdown("</div>", unsafe_allow_html=True)
