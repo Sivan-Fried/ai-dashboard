@@ -364,12 +364,27 @@ def show_risks_page(project_name=None):
                     <div style="font-size:0.68rem;font-weight:700;color:{txt_color};white-space:nowrap;">{days_txt}</div>
                 </div>"""
 
-            st.markdown(f"""
+            st.markdown("""
             <div class="side-box">
                 <div style="font-size:0.95rem;font-weight:700;color:#3f3f46;margin-bottom:10px;">דדליינים קרובים</div>
-                {timeline_items}
-            </div>
             """, unsafe_allow_html=True)
+            for _, row in upcoming.iterrows():
+                color, _ = get_risk_color(row["probability"], row["impact"])
+                days_left = (row["due_date_parsed"].date() - today).days
+                days_txt = "עבר!" if days_left < 0 else "היום!" if days_left == 0 else f"{days_left}י'"
+                txt_color = "#ef4444" if days_left <= 7 else "#71717A"
+                title_short = row['risk_title'][:25] + ("..." if len(row['risk_title']) > 25 else "")
+                st.markdown(f"""
+                <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f4f4f5;direction:rtl;">
+                    <div style="width:8px;height:8px;border-radius:50%;background:{color};flex-shrink:0;"></div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-size:0.75rem;font-weight:600;color:#3f3f46;">{title_short}</div>
+                        <div style="font-size:0.68rem;color:#a1a1aa;">{row['project_name']}</div>
+                    </div>
+                    <div style="font-size:0.68rem;font-weight:700;color:{txt_color};">{days_txt}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
         except:
             pass
 
