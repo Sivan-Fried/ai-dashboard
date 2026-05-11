@@ -91,6 +91,8 @@ def get_risk_color(probability, impact):
 
 def show_risks_page(project_name=None):
     df = load_risks()
+    if project_name:
+        df = df[df["project_name"] == project_name]
     if df.empty:
         st.error("לא נמצא קובץ risks.xlsx")
         return
