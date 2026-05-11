@@ -15,6 +15,20 @@ def show_resources_page(project_name):
         st.info("לא נמצאו משאבים לפרויקט זה.")
         return
 
+    # נתוני הפרויקט מ-my_projects.xlsx
+    onboarding_days = 60
+    skills_list = []
+    try:
+        projects_df = pd.read_excel("my_projects.xlsx")
+        proj_row = projects_df[projects_df['project_name'].str.strip() == project_name.strip()]
+        if not proj_row.empty:
+            onboarding_days = int(proj_row.iloc[0].get('onboarding', 60))
+            skills_raw = str(proj_row.iloc[0].get('skills', ''))
+            if skills_raw and skills_raw != 'nan':
+                skills_list = [s.strip() for s in skills_raw.split(',') if s.strip()]
+    except:
+        pass
+
     active_df   = project_df[project_df['worker_status'].str.strip() == 'פעיל']
     inactive_df = project_df[project_df['worker_status'].str.strip() != 'פעיל']
 
@@ -80,7 +94,7 @@ def show_resources_page(project_name):
             <div class="kpi-content">
                 <div class="kpi-value-row">
                     <span class="kpi-unit">ימים</span>
-                    <span class="kpi-number">60</span>
+                    <span class="kpi-number">{onboarding_days}</span>
                 </div>
             </div>
         </div>
@@ -124,3 +138,31 @@ def show_resources_page(project_name):
     if not inactive_df.empty:
         st.markdown("<div style='margin-bottom:1rem;'></div>", unsafe_allow_html=True)
         render_table(inactive_df, "חברי צוות בעבר")
+
+    # Skills
+    if skills_list:
+        st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
+        st.markdown("### כישורים נדרשים", unsafe_allow_html=True)
+        
+        pills_html = ""
+        for skill in skills_list:
+            pills_html += f'''
+            <span style="
+                display:inline-flex;
+                align-items:center;
+                background:#fdf2f8;
+                border:1.5px solid #FADCE6;
+                border-radius:999px;
+                padding:6px 16px;
+                font-size:0.82rem;
+                font-weight:600;
+                color:#6f5861;
+                margin:4px;
+                white-space:nowrap;
+            ">{skill}</span>'''
+        
+        st.markdown(f'''
+        <div style="display:flex; flex-wrap:wrap; direction:rtl; margin-top:8px;">
+            {pills_html}
+        </div>
+        ''', unsafe_allow_html=True)
