@@ -253,7 +253,7 @@ def show_risks_page(project_name=None):
                 saved_analysis = insights_df[mask].iloc[0]["insight"]
                 analysis_date = insights_df[mask].iloc[0]["created_at"]
 
-        st.markdown("### <span class='material-symbols-outlined' style='vertical-align:middle;margin-left:8px;font-size:1.5rem;color:#64748b;'>smart_toy</span> ניתוח AI כולל", unsafe_allow_html=True)
+        st.markdown("### ניתוח AI כולל", unsafe_allow_html=True)
 
         with st.container(border=True, key="ai_risks_container"):
             st.markdown("""
