@@ -634,9 +634,6 @@ def render_sidebar(page="main", project_name=None):
                 if project_name:
                     st.session_state.selected_project = project_name
                 st.rerun()
-            elif target == "project" and selected == "תוכנית עבודה":
-                st.session_state.current_page = "project"
-                st.rerun()
 
 
 # ---תמונת פרופיל ---
