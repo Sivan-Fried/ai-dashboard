@@ -1008,4 +1008,20 @@ h2 {
     background-color: #fadce6 !important;
     border-radius: var(--radius-lg) !important;
 }
-
+.st-key-ai_risks_send button {
+    background-color: #9ca3af !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 44px !important;
+    height: 44px !important;
+    color: #ffffff !important;
+}
+.st-key-ai_risks_send button p {
+    color: #ffffff !important;
+}
+.st-key-ai_risks_container div[data-testid="stVerticalBlockBorderWrapper"] {
+    background: #ffffff !important;
+    border: 1.5px solid #FADCE6 !important;
+    border-radius: 16px !important;
+    padding: 20px !important;
+}
