@@ -562,10 +562,7 @@ def render_sidebar(page="main", project_name=None):
     def on_change(key):
         selected_val = st.session_state[key]
         if selected_val in options:
-            new_idx = options.index(selected_val)
-            st.session_state[idx_key] = new_idx
-            if page != "main" and targets[new_idx] == "project":
-                st.rerun()
+            st.session_state[idx_key] = options.index(selected_val)
 
     menu_styles = {
         "container": {
