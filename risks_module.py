@@ -62,6 +62,8 @@ def show_risks_page(project_name=None):
         df = df[df["project_name"] == project_name]
 
     insights_df = load_insights()
+    st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
+    st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
 
     st.markdown("""
     <style>
@@ -110,7 +112,7 @@ def show_risks_page(project_name=None):
     gauge_label = "גבוה" if pct >= 60 else "בינוני" if pct >= 35 else "נמוך"
 
     # ── KPIs ──
-    k4, k3, k2, k1, k0 = st.columns(5)
+    k0, k1, k2, k3, k4 = st.columns(5)
 
     with k0:
         st.markdown(f'''<div class="kpi-container">
