@@ -629,7 +629,7 @@ def render_sidebar(page="main", project_name=None):
                 """, height=0)
         else:
             target = targets[selected_idx]
-            if target != st.session_state.current_page:
+            if target != st.session_state.current_page or target == "project":
                 st.session_state.current_page = target
                 if project_name:
                     st.session_state.selected_project = project_name
