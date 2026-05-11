@@ -92,10 +92,7 @@ def show_risks_page(project_name=None):
     .r-badge-high     { background:#fffbeb; color:#f59e0b; }
     .r-badge-medium   { background:#fdf2f8; color:#6f5861; }
     .r-badge-low      { background:#f8fafc; color:#94a3b8; }
-    .filter-label {
-        font-size:0.75rem; font-weight:600; color:#94a3b8;
-        margin-bottom:4px; text-align:right; direction:rtl;
-    }
+    .filter-label { font-size:0.75rem; font-weight:600; color:#94a3b8; margin-bottom:4px; text-align:right; direction:rtl; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -110,7 +107,7 @@ def show_risks_page(project_name=None):
     </div>
     """, unsafe_allow_html=True)
 
-    # ── חישובי KPI ──
+    # ── חישובים ──
     df["score"] = df["probability"] * df["impact"]
     critical_risks = len(df[df["score"] >= 15])
     high_risks     = len(df[(df["score"] >= 9) & (df["score"] < 15)])
@@ -120,13 +117,13 @@ def show_risks_page(project_name=None):
     active_df = df[df["status"] != "סגור"]
     total_score = active_df["score"].mean() if not active_df.empty else 0
     pct = min(int((total_score / 25) * 100), 100)
-    r = 34
+    r = 40
     circ = 2 * 3.14159 * r
     offset = circ * (1 - pct / 100)
     gauge_color = "#ef4444" if pct >= 60 else "#f59e0b" if pct >= 35 else "#10b981"
     gauge_label = "גבוה" if pct >= 60 else "בינוני" if pct >= 35 else "נמוך"
 
-    # ── KPIs — מד סיכון בשמאל, 4 רמות חומרה ──
+    # ── KPIs ──
     k4, k3, k2, k1, k0 = st.columns(5)
 
     with k0:
@@ -171,16 +168,27 @@ def show_risks_page(project_name=None):
 
     with k4:
         st.markdown(f"""
-        <div class="kpi-container" style="text-align:center;justify-content:center;align-items:center;">
-            <div style="font-size:0.82rem;font-weight:700;color:#3f3f46;margin-bottom:6px;">מד סיכון</div>
-            <svg width="80" height="80" viewBox="0 0 80 80" style="display:block;margin:0 auto;">
-                <circle cx="40" cy="40" r="{r}" fill="none" stroke="#f4f4f5" stroke-width="8"/>
-                <circle cx="40" cy="40" r="{r}" fill="none" stroke="{gauge_color}"
-                    stroke-width="8" stroke-dasharray="{circ:.1f}" stroke-dashoffset="{offset:.1f}"
-                    stroke-linecap="round" transform="rotate(-90 40 40)"/>
-                <text x="40" y="37" text-anchor="middle" font-size="15" font-weight="800" fill="{gauge_color}" font-family="Plus Jakarta Sans">{pct}%</text>
-                <text x="40" y="53" text-anchor="middle" font-size="10" fill="{gauge_color}" font-family="Plus Jakarta Sans" font-weight="700">{gauge_label}</text>
-            </svg>
+        <div class="kpi-container">
+            <div class="kpi-header">
+                <div class="kpi-icon-box" style="background:#fdf2f8;">
+                    <svg width="20" height="20" viewBox="0 0 20 20">
+                        <circle cx="10" cy="10" r="8" fill="none" stroke="#f4f4f5" stroke-width="3"/>
+                        <circle cx="10" cy="10" r="8" fill="none" stroke="{gauge_color}"
+                            stroke-width="3"
+                            stroke-dasharray="{2*3.14159*8:.1f}"
+                            stroke-dashoffset="{2*3.14159*8*(1-pct/100):.1f}"
+                            stroke-linecap="round"
+                            transform="rotate(-90 10 10)"/>
+                    </svg>
+                </div>
+                <span class="kpi-badge" style="background:#fdf2f8;color:{gauge_color};">מד סיכון</span>
+            </div>
+            <div class="kpi-content">
+                <div class="kpi-value-row">
+                    <span class="kpi-unit">{gauge_label}</span>
+                    <span class="kpi-number" style="color:{gauge_color};">{pct}%</span>
+                </div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -232,7 +240,7 @@ def show_risks_page(project_name=None):
 
     with col_right:
         top3 = active_df.sort_values("score", ascending=False).head(3)
-        st.markdown("### <span class='material-symbols-outlined' style='vertical-align:middle;font-size:1.2rem;color:#64748b;margin-left:6px;'>priority_high</span> דורשים טיפול עכשיו", unsafe_allow_html=True)
+        st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align:middle;font-size:1.5rem;color:#64748b;margin-left:8px;\">priority_high</span> דורשים טיפול עכשיו", unsafe_allow_html=True)
         with st.container(border=True):
             for i, (_, row) in enumerate(top3.iterrows()):
                 color, label = get_risk_color(row["probability"], row["impact"])
@@ -259,45 +267,44 @@ def show_risks_page(project_name=None):
                 saved_analysis = insights_df[mask].iloc[0]["insight"]
                 analysis_date = insights_df[mask].iloc[0]["created_at"]
 
-        st.markdown("### <span class='material-symbols-outlined' style='vertical-align:middle;font-size:1.2rem;color:#64748b;margin-left:6px;'>smart_toy</span> ניתוח AI כולל", unsafe_allow_html=True)
+        st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align:middle;font-size:1.5rem;color:#64748b;margin-left:8px;\">smart_toy</span> עוזר AI — ניתוח סיכונים", unsafe_allow_html=True)
 
-        if saved_analysis:
-            formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', saved_analysis)
-            formatted = re.sub(r'^#{1,3} (.+)$', r'<div class="ai-response-heading">\1</div>', formatted, flags=re.MULTILINE)
-            formatted = re.sub(r'^- (.+)$', r'<div class="ai-response-li">\1</div>', formatted, flags=re.MULTILINE)
-            formatted = formatted.replace('\n', '<br>')
-            st.markdown(f"""
-            <div class="ai-response-card">
-                <div class="ai-response-topbar">
-                    <div class="ai-response-label">
-                        <span class="material-symbols-outlined" style="font-size:18px;color:#64748b;">smart_toy</span>
-                        <span class="ai-response-dot"></span>
-                        ניתוח AI כולל
+        with st.container(border=True, key="ai_risks_container"):
+            if saved_analysis:
+                formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', saved_analysis)
+                formatted = re.sub(r'^#{1,3} (.+)$', r'<div class="ai-response-heading">\1</div>', formatted, flags=re.MULTILINE)
+                formatted = re.sub(r'^- (.+)$', r'<div class="ai-response-li">\1</div>', formatted, flags=re.MULTILINE)
+                formatted = formatted.replace('\n', '<br>')
+                st.markdown(f"""
+                <div class="ai-response-card">
+                    <div class="ai-response-topbar">
+                        <div class="ai-response-label">
+                            <span class="material-symbols-outlined" style="font-size:18px;color:#64748b;">smart_toy</span>
+                            <div class="ai-response-dot"></div>
+                        </div>
+                        <span style="font-size:0.7rem;color:#a1a1aa;">נשמר ב-{analysis_date}</span>
                     </div>
-                    <span style="font-size:0.7rem;color:#a1a1aa;">נשמר ב-{analysis_date}</span>
+                    <div class="ai-response-body">{formatted}</div>
                 </div>
-                <div class="ai-response-body">{formatted}</div>
-            </div>
-            """, unsafe_allow_html=True)
-        else:
-            with st.container(border=True):
+                """, unsafe_allow_html=True)
+            else:
                 st.markdown("""
-                <div style="text-align:center;padding:20px;direction:rtl;">
+                <div style="text-align:center;padding:16px;direction:rtl;">
                     <div style="font-size:0.82rem;color:#a1a1aa;">לחצי על הכפתור לקבלת ניתוח מעמיק של כל הסיכונים עם המלצות מעשיות</div>
                 </div>
                 """, unsafe_allow_html=True)
 
-        btn_label = "🔄 עדכן ניתוח" if saved_analysis else "✦ נתח את כל הסיכונים עם AI"
-        if st.button(btn_label, key="full_ai_analysis", use_container_width=True):
-            with st.spinner("מנתח..."):
-                try:
-                    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-                    model = genai.GenerativeModel('gemini-2.5-flash-lite')
-                    risks_text = "\n".join([
-                        f"- {r['risk_title']} | הסתברות {r['probability']}/5 | השפעה {r['impact']}/5 | {r['category']} | {r.get('notes','')}"
-                        for _, r in df.iterrows()
-                    ])
-                    prompt = f"""אתה יועץ ניהול סיכונים בכיר. נתח את כל הסיכונים של הפרויקט "{project_name}" ותן דוח מסכם קצר בעברית עסקית:
+            btn_label = "🔄 עדכן ניתוח" if saved_analysis else "✦ נתח את כל הסיכונים עם AI"
+            if st.button(btn_label, key="full_ai_analysis", use_container_width=True):
+                with st.spinner("מנתח..."):
+                    try:
+                        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+                        model = genai.GenerativeModel('gemini-2.5-flash-lite')
+                        risks_text = "\n".join([
+                            f"- {r['risk_title']} | הסתברות {r['probability']}/5 | השפעה {r['impact']}/5 | {r['category']} | {r.get('notes','')}"
+                            for _, r in df.iterrows()
+                        ])
+                        prompt = f"""אתה יועץ ניהול סיכונים בכיר. נתח את כל הסיכונים של הפרויקט "{project_name}" ותן דוח מסכם קצר בעברית עסקית:
 
 סיכונים:
 {risks_text}
@@ -308,8 +315,8 @@ def show_risks_page(project_name=None):
 4. **המלצות מיידיות** — 2-3 פעולות
 
 היה תמציתי."""
-                    response = model.generate_content(prompt)
-                    save_insight(project_name or "כללי", "__full_analysis__", response.text)
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"שגיאה: {str(e)}")
+                        response = model.generate_content(prompt)
+                        save_insight(project_name or "כללי", "__full_analysis__", response.text)
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"שגיאה: {str(e)}")
