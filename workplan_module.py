@@ -1,7 +1,8 @@
 import pandas as pd
 import datetime
 import re
-
+import streamlit as st
+import streamlit.components.v1 as components
 
 # ---------------------------------------------------------
 # ניקוי טקסט מתווים נסתרים, RTL, רווחים וכו'
@@ -368,3 +369,12 @@ def build_timeline_html(project_name):
     html = html.replace("ITEMS_PLACEHOLDER", items_html)
 
     return html
+
+
+def show_workplan_page(project_name=None):
+    st.markdown(f"### תוכנית עבודה — {project_name}", unsafe_allow_html=True)
+    try:
+        html = build_timeline_html(project_name)
+        components.html(html, height=320, scrolling=False)
+    except Exception as e:
+        st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
