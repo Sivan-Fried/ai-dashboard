@@ -103,8 +103,8 @@ def show_resources_page(project_name):
     st.markdown("<div style='margin-bottom:2.5rem;'></div>", unsafe_allow_html=True)
 
     def render_table(rows_df, title):
+        st.markdown(f'### {title}', unsafe_allow_html=True)
         with st.container(border=True):
-            st.markdown(f'### {title}', unsafe_allow_html=True)
             st.markdown('''
             <div style="display:grid; grid-template-columns: 2fr 2fr 1.5fr 2fr; gap:8px; padding:8px 16px; 
                         border-bottom:1px solid #f1f5f9; direction:rtl; margin-bottom:4px; text-align:right;">
