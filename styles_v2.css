@@ -1004,3 +1004,7 @@ h2 {
     transform: none !important;
     box-shadow: none !important;
 }
+.st-key-ai_risks_container {
+    background-color: #fadce6 !important;
+    border-radius: var(--radius-lg) !important;
+}
