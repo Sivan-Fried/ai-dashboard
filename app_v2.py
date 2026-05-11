@@ -834,9 +834,13 @@ with main_col:
         show_risks_page(p_name)
 
     elif st.session_state.current_page == "project":
-        from workplan_module import show_workplan_page
-        p_name = st.session_state.get("selected_project", "")
-        show_workplan_page(p_name)
+        p_name = st.session_state.get("selected_project", "פרויקט")
+        with st.container(border=True):
+            try:
+                html = build_timeline_html(p_name)
+                st.components.v1.html(html, height=300, scrolling=False)
+            except Exception as e:
+                st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
 
     # 3. מסך ראשי / דשבורד רגיל
     else:
