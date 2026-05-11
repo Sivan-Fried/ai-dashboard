@@ -100,7 +100,7 @@ def show_resources_page(project_name):
         </div>
         ''', unsafe_allow_html=True)
 
-    st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-bottom:2.5rem;'></div>", unsafe_allow_html=True)
 
     def render_table(rows_df, title):
         with st.container(border=True):
@@ -146,6 +146,6 @@ def show_resources_page(project_name):
         
         pills_html = ""
         for skill in skills_list:
-            pills_html += f"<span style='display:inline-flex;align-items:center;background:#fdf2f8;border:1.5px solid #FADCE6;border-radius:999px;padding:6px 16px;font-size:0.82rem;font-weight:600;color:#6f5861;margin:4px;white-space:nowrap;'>{skill}</span>"
+            pills_html += f"<span style='display:inline-flex;align-items:center;background:#ffffff;border:1.5px solid #FADCE6;border-radius:999px;padding:6px 16px;font-size:0.82rem;font-weight:600;color:#71717A;margin:4px;white-space:nowrap;'>{skill}</span>"
         
         st.markdown(f"<div style='display:flex;flex-wrap:wrap;direction:rtl;margin-top:8px;'>{pills_html}</div>", unsafe_allow_html=True)
