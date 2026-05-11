@@ -621,12 +621,12 @@ def render_sidebar(page="main", project_name=None):
         if page == "main":
             if selected in options:
                 anchor = anchors[selected_idx]
-                components.html(f"""
+                st.markdown(f"""
                     <script>
                     var el = window.parent.document.getElementById('{anchor}');
                     if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
                     </script>
-                """, height=0)
+                """, unsafe_allow_html=True)
         else:
             target = targets[selected_idx]
             if target != st.session_state.current_page:
