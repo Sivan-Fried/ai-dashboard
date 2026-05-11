@@ -635,6 +635,7 @@ def render_sidebar(page="main", project_name=None):
                     st.session_state.selected_project = project_name
                 st.rerun()
 
+
 # ---תמונת פרופיל ---
 def get_base64_image(path):
     try:
@@ -642,7 +643,6 @@ def get_base64_image(path):
             return base64.b64encode(img_file.read()).decode()
     except:
         return ""
-
 
 # =========================================================
 # 2. פונקציות עזר ונתונים
@@ -754,7 +754,7 @@ if "ai_response"     not in st.session_state: st.session_state.ai_response     =
 if "adding_reminder" not in st.session_state: st.session_state.adding_reminder = False
 
 params = st.query_params
-if "proj" in params and st.session_state.current_page not in ["resources", "risks", "meetings", "project"]:
+if "proj" in params and st.session_state.current_page not in ["resources", "risks", "meetings"]:
     st.session_state.selected_project = params["proj"]
     st.session_state.current_page = "project"
 if "page" in params and params["page"] == "resources":
@@ -835,6 +835,8 @@ with main_col:
 
     elif st.session_state.current_page == "project":
         p_name = st.session_state.get("selected_project", "פרויקט")
+        st.header(p_name)
+        
         with st.container(border=True):
             try:
                 html = build_timeline_html(p_name)
