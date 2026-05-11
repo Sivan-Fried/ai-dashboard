@@ -1025,3 +1025,11 @@ h2 {
     border-radius: 16px !important;
     padding: 20px !important;
 }
+.st-key-ai_risks_container > div > div[data-testid="stVerticalBlockBorderWrapper"] {
+    background: #ffffff !important;
+    border: 1.5px solid #FADCE6 !important;
+    border-radius: 16px !important;
+    padding: 20px 24px !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+}
