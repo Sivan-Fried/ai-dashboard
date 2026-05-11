@@ -199,69 +199,29 @@ def show_risks_page(project_name=None):
     col_main, col_side = st.columns([2, 1])
 
     with col_main:
-        # ── גרף בועות ──
+        # ── מפת סיכונים ויזואלית ──
         with st.container(border=True):
             st.markdown("<div style='font-size:0.95rem;font-weight:700;color:#3f3f46;margin-bottom:4px;text-align:right;'>מפת סיכונים</div>", unsafe_allow_html=True)
-            st.markdown("<div style='font-size:0.75rem;color:#a1a1aa;margin-bottom:12px;text-align:right;'>הסתברות מול השפעה — גודל הבועה = רמת הסיכון</div>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size:0.75rem;color:#a1a1aa;margin-bottom:12px;text-align:right;'>ממוינים לפי רמת סיכון — הסתברות × השפעה</div>", unsafe_allow_html=True)
 
-            # בניית SVG
             df_active = df[df["status"] != "סגור"].copy()
             df_active["score"] = df_active["probability"] * df_active["impact"]
+            df_active = df_active.sort_values("score", ascending=False)
 
-            svg_width = 500
-            svg_height = 300
-            pad = 40
-
-            dots_svg = ""
             for _, row in df_active.iterrows():
                 color, label = get_risk_color(row["probability"], row["impact"])
-                x = pad + ((row["probability"] - 1) / 4) * (svg_width - 2 * pad)
-                y = svg_height - pad - ((row["impact"] - 1) / 4) * (svg_height - 2 * pad)
-                r = 8 + row["score"] * 1.2
-                title_short = str(row["risk_title"])[:20]
-                dots_svg += f"""
-                <circle cx="{x:.0f}" cy="{y:.0f}" r="{r:.0f}" fill="{color}" opacity="0.75" stroke="white" stroke-width="2">
-                    <title>{row['risk_title']}</title>
-                </circle>
-                <text x="{x:.0f}" y="{y + r + 12:.0f}" text-anchor="middle" font-size="9" fill="#3f3f46" font-family="Plus Jakarta Sans">{title_short}</text>
-                """
-
-            st.markdown(f"""
-            <svg width="100%" viewBox="0 0 {svg_width} {svg_height}" style="direction:ltr;">
-                <!-- רקע אזורים -->
-                <rect x="{pad}" y="{pad}" width="{(svg_width-2*pad)*0.6:.0f}" height="{(svg_height-2*pad)*0.6:.0f}" fill="#fef2f2" opacity="0.5" rx="4"/>
-                <rect x="{pad}" y="{pad + (svg_height-2*pad)*0.6:.0f}" width="{(svg_width-2*pad)*0.6:.0f}" height="{(svg_height-2*pad)*0.4:.0f}" fill="#fef9c3" opacity="0.5" rx="4"/>
-                <rect x="{pad + (svg_width-2*pad)*0.6:.0f}" y="{pad}" width="{(svg_width-2*pad)*0.4:.0f}" height="{svg_height-2*pad:.0f}" fill="#f0fdf4" opacity="0.5" rx="4"/>
-                <!-- קווי רשת -->
-                <line x1="{pad}" y1="{pad}" x2="{pad}" y2="{svg_height-pad}" stroke="#e2e8f0" stroke-width="1"/>
-                <line x1="{pad}" y1="{svg_height-pad}" x2="{svg_width-pad}" y2="{svg_height-pad}" stroke="#e2e8f0" stroke-width="1"/>
-                <!-- ציר X תוויות -->
-                <text x="{pad}" y="{svg_height-10}" text-anchor="middle" font-size="10" fill="#a1a1aa" font-family="Plus Jakarta Sans">1</text>
-                <text x="{pad + (svg_width-2*pad)*0.25:.0f}" y="{svg_height-10}" text-anchor="middle" font-size="10" fill="#a1a1aa" font-family="Plus Jakarta Sans">2</text>
-                <text x="{pad + (svg_width-2*pad)*0.5:.0f}" y="{svg_height-10}" text-anchor="middle" font-size="10" fill="#a1a1aa" font-family="Plus Jakarta Sans">3</text>
-                <text x="{pad + (svg_width-2*pad)*0.75:.0f}" y="{svg_height-10}" text-anchor="middle" font-size="10" fill="#a1a1aa" font-family="Plus Jakarta Sans">4</text>
-                <text x="{svg_width-pad}" y="{svg_height-10}" text-anchor="middle" font-size="10" fill="#a1a1aa" font-family="Plus Jakarta Sans">5</text>
-                <!-- ציר Y תוויות -->
-                <text x="{pad-8}" y="{svg_height-pad}" text-anchor="end" font-size="10" fill="#a1a1aa" font-family="Plus Jakarta Sans">1</text>
-                <text x="{pad-8}" y="{svg_height-pad-(svg_height-2*pad)*0.25:.0f}" text-anchor="end" font-size="10" fill="#a1a1aa" font-family="Plus Jakarta Sans">2</text>
-                <text x="{pad-8}" y="{svg_height-pad-(svg_height-2*pad)*0.5:.0f}" text-anchor="end" font-size="10" fill="#a1a1aa" font-family="Plus Jakarta Sans">3</text>
-                <text x="{pad-8}" y="{svg_height-pad-(svg_height-2*pad)*0.75:.0f}" text-anchor="end" font-size="10" fill="#a1a1aa" font-family="Plus Jakarta Sans">4</text>
-                <text x="{pad-8}" y="{pad}" text-anchor="end" font-size="10" fill="#a1a1aa" font-family="Plus Jakarta Sans">5</text>
-                <!-- כותרות צירים -->
-                <text x="{svg_width/2:.0f}" y="{svg_height-2}" text-anchor="middle" font-size="10" fill="#71717A" font-family="Plus Jakarta Sans" font-weight="600">הסתברות ←</text>
-                <text x="12" y="{svg_height/2:.0f}" text-anchor="middle" font-size="10" fill="#71717A" font-family="Plus Jakarta Sans" font-weight="600" transform="rotate(-90, 12, {svg_height/2:.0f})">↑ השפעה</text>
-                {dots_svg}
-            </svg>
-            <div style="display:flex;gap:16px;margin-top:8px;flex-wrap:wrap;justify-content:flex-end;">
-                <span style="display:flex;align-items:center;gap:4px;font-size:0.7rem;color:#ef4444;"><span style="width:10px;height:10px;border-radius:50%;background:#ef4444;display:inline-block;opacity:0.75;"></span>קריטי</span>
-                <span style="display:flex;align-items:center;gap:4px;font-size:0.7rem;color:#f59e0b;"><span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;display:inline-block;opacity:0.75;"></span>גבוה</span>
-                <span style="display:flex;align-items:center;gap:4px;font-size:0.7rem;color:#6f5861;"><span style="width:10px;height:10px;border-radius:50%;background:#6f5861;display:inline-block;opacity:0.75;"></span>בינוני</span>
-                <span style="display:flex;align-items:center;gap:4px;font-size:0.7rem;color:#94a3b8;"><span style="width:10px;height:10px;border-radius:50%;background:#94a3b8;display:inline-block;opacity:0.75;"></span>נמוך</span>
-            </div>
-            """, unsafe_allow_html=True)
-
-        st.markdown("<div style='margin-bottom:1rem;'></div>", unsafe_allow_html=True)
-
+                bar_w = min(int((row["score"] / 25) * 100), 100)
+                st.markdown(f"""
+                <div style="display:flex;align-items:center;gap:12px;padding:6px 0;border-bottom:1px solid #f4f4f5;direction:rtl;">
+                    <div style="width:8px;height:8px;border-radius:50%;background:{color};flex-shrink:0;"></div>
+                    <div style="flex:1;font-size:0.8rem;font-weight:600;color:#3f3f46;">{row['risk_title'][:35]}</div>
+                    <div style="width:100px;height:6px;background:#f4f4f5;border-radius:4px;overflow:hidden;flex-shrink:0;">
+                        <div style="height:100%;width:{bar_w}%;background:{color};border-radius:4px;opacity:0.8;"></div>
+                    </div>
+                    <div style="font-size:0.7rem;font-weight:700;color:{color};width:30px;text-align:center;flex-shrink:0;">{int(row['score'])}</div>
+                </div>
+                """, unsafe_allow_html=True)
+                
         # ── טבלת סיכונים ──
         st.markdown("<div style='font-size:0.95rem;font-weight:700;color:#3f3f46;margin-bottom:8px;text-align:right;'>פירוט סיכונים</div>", unsafe_allow_html=True)
 
