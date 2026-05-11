@@ -280,8 +280,10 @@ def show_risks_page(project_name=None):
 
         with st.container(border=True, key="ai_risks_container"):
             st.markdown("""
-            <div style="font-size:0.82rem;color:#6f5861;opacity:0.85;margin-bottom:12px;text-align:right;">
-                ניתוח מעמיק של כל הסיכונים עם המלצות מעשיות
+            <div style="background:white;border-radius:16px;padding:16px 20px;margin-bottom:12px;">
+                <div style="font-size:0.82rem;color:#6f5861;opacity:0.85;text-align:right;">
+                    ניתוח מעמיק של כל הסיכונים עם המלצות מעשיות
+                </div>
             </div>
             """, unsafe_allow_html=True)
 
