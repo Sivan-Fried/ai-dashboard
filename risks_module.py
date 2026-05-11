@@ -41,6 +41,36 @@ def save_insight(project_name, risk_title, insight_text):
     except:
         updated = pd.DataFrame([new_row])
     updated.to_excel(INSIGHTS_FILE, index=False)
+    
+    # שמירה ל-GitHub
+    try:
+        import requests, base64
+        token = st.secrets["GITHUB_TOKEN"]
+        repo = "Sivan-Fried/ai-dashboard"
+        branch = "main"
+        path = INSIGHTS_FILE
+        
+        with open(INSIGHTS_FILE, "rb") as f:
+            content = base64.b64encode(f.read()).decode()
+        
+        headers = {"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json"}
+        url = f"https://api.github.com/repos/{repo}/contents/{path}"
+        
+        # קבלת SHA הקיים
+        r = requests.get(url, headers=headers)
+        sha = r.json().get("sha") if r.status_code == 200 else None
+        
+        payload = {
+            "message": f"Update AI insights - {project_name}",
+            "content": content,
+            "branch": branch
+        }
+        if sha:
+            payload["sha"] = sha
+            
+        requests.put(url, json=payload, headers=headers)
+    except Exception as e:
+        st.warning(f"לא ניתן לשמור ל-GitHub: {str(e)}")
 
 def get_risk_color(probability, impact):
     score = probability * impact
@@ -380,4 +410,7 @@ document.getElementById('risks-share-btn').addEventListener('click', function() 
                             save_insight(project_name or "כללי", "__full_analysis__", response.text)
                             st.rerun()
                         except Exception as e:
-                            st.error(f"שגיאה: {str(e)}")
+                            if saved_analysis:
+                                st.info("לא ניתן לעדכן כעת — מציג ניתוח קודם")
+                            else:
+                                st.error(f"שגיאה: {str(e)}")
