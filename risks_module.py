@@ -309,7 +309,7 @@ body {{ font-family: 'Plus Jakarta Sans', sans-serif; background: transparent; d
 .ai-action-btn:hover {{ background: #FADCE6; }}
 .ai-action-btn .material-symbols-outlined {{ font-size: 16px; color: #64748b; font-family: 'Material Symbols Outlined'; -webkit-font-feature-settings: 'liga'; font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased; }}
 .ai-response-body {{ font-size: 0.9rem; color: #4e4447; line-height: 1.75; text-align: right; }}
-.ai-response-heading {{ font-size: 1rem; font-weight: 700; color: #3f3f46; margin: 0 0 4px 0 !important; padding: 12px 0 0 0 !important; }}
+.ai-response-heading {{ font-size: 1rem; font-weight: 700; color: #3f3f46; margin: 14px 0 6px 0; }}
 .ai-response-li {{ color: #4e4447; margin-bottom: 4px; list-style: none; padding-right: 14px; position: relative; display: block; }}
 .ai-response-li::before {{ content: '●'; color: #f0b8cb; position: absolute; right: 0; font-size: 10px; top: 4px; }}
 </style>
