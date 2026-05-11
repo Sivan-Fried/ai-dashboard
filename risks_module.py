@@ -423,6 +423,5 @@ def show_risks_page(project_name=None):
         st.markdown(f"""
         <div class="side-box">
             <div style="font-size:0.95rem;font-weight:700;color:#3f3f46;margin-bottom:12px;">לפי פרויקט</div>
-            {proj_bars}
         </div>
         """, unsafe_allow_html=True)
