@@ -20,6 +20,7 @@ from streamlit_float import *
 import streamlit as st
 from streamlit_float import *
 import resources
+import os
 
 # 1. הגדרות דף - חייבות להיות ראשונות
 st.set_page_config(
