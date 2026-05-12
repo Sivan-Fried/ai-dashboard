@@ -316,7 +316,7 @@ def show_risks_page(project_name=None):
 
         st.markdown("### ניתוח AI כולל", unsafe_allow_html=True)
 
-       with st.container(border=True, key="ai_risks_container"):
+        with st.container(border=True, key="ai_risks_container"):
             st.markdown("""
             <div style="background:white;border-radius:16px;padding:16px 20px;margin-bottom:12px;">
                 <div style="font-size:0.82rem;color:#71717A;text-align:right;">
