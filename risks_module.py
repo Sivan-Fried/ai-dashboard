@@ -320,21 +320,19 @@ def show_risks_page(project_name=None):
             </div>
             """, unsafe_allow_html=True)
 
-            if saved_analysis:
-                if not st.session_state.get(f"hide_analysis_{project_name}", False):
-                    # כפתור נסתר לסגירה — ה-X בתוך הכרטיס ילחץ עליו
-                    if st.button("__close__", key="close_analysis_hidden"):
-                        st.session_state[f"hide_analysis_{project_name}"] = True
-                        st.rerun()
-
-                    import html as html_module
-                    escaped = html_module.escape(saved_analysis)
-                    formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
-                    formatted = re.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re.MULTILINE)
-                    formatted = re.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re.MULTILINE)
-                    formatted = formatted.replace('\n', '<br>')
-
-                    components.html(f"""<!DOCTYPE html>
+            if saved_analysis and not st.session_state.get(f"hide_analysis_{project_name}", False):
+                # כפתור נסתר לסגירה — ה-X בתוך הכרטיס ילחץ עליו
+                if st.button("__close__", key="close_analysis_hidden"):
+                    st.session_state[f"hide_analysis_{project_name}"] = True
+                    st.rerun()
+                import html as html_module
+                escaped = html_module.escape(saved_analysis)
+                formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
+                formatted = re.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re.MULTILINE)
+                formatted = re.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re.MULTILINE)
+                formatted = formatted.replace('\n', '<br>')
+                components.html(f"""<!DOCTYPE html>
+                
 <html dir="rtl">
 <head>
 <meta charset="utf-8"/>
