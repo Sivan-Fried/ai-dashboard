@@ -155,42 +155,7 @@ BASE_HTML = """
             });
         }
 
-        // מיקום today כפריט על ציר הזמן - אותה שיטה כמו שאר הפריטים
-        window.addEventListener('load', function() {
-            var today = new Date();
-            today.setHours(0,0,0,0);
 
-            var items = Array.from(document.querySelectorAll('.item[data-date]'));
-            var wrapper = document.querySelector('.timeline-wrapper');
-            var todayEl = document.querySelector('.today-indicator');
-
-            if (!wrapper || !todayEl || items.length === 0) return;
-
-            var dates = items.map(function(item) {
-                var d = new Date(item.dataset.date);
-                d.setHours(0,0,0,0);
-                return d;
-            }).sort(function(a, b) { return a - b; });
-
-            var firstDate = dates[0];
-            var lastDate  = dates[dates.length - 1];
-            var N = dates.length;
-            var wrapperWidth = wrapper.offsetWidth;
-            var totalRange = lastDate - firstDate;
-            var todayRight;
-
-            if (N === 1 || totalRange === 0) {
-                todayRight = wrapperWidth / 2;
-            } else {
-                // frac יכול להיות מחוץ ל-[0,1] אם today לפני/אחרי כל הפריטים
-                var frac = (today - firstDate) / totalRange;
-                var todayLeft = frac * wrapperWidth;
-                todayRight = wrapperWidth - todayLeft;
-            }
-
-            // הגבל לתוך ה-wrapper עם מרווח קטן
-            todayEl.style.right = Math.max(5, Math.min(wrapperWidth - 5, todayRight)) + 'px';
-        });
     </script>
 </body>
 </html>
@@ -217,9 +182,21 @@ def build_timeline_html(project_name):
     total_days     = (timeline_end - timeline_start).days
     timeline_width = 900
 
-    days_passed = (today - timeline_start).days
-    days_passed = max(0, min(days_passed, total_days))
-    today_right = int(timeline_width - (days_passed / total_days * timeline_width)) + 50
+    # חישוב today_right לפי אותה שיטה כמו space-between
+    N = len(project_df)
+    dates_sorted = sorted(project_df["date"].dt.date.tolist())
+    first_item_date = dates_sorted[0]
+    last_item_date  = dates_sorted[-1]
+    item_date_range = (last_item_date - first_item_date).days
+    padding = 50
+
+    if N == 1 or item_date_range == 0:
+        today_right = padding + timeline_width // 2
+    else:
+        frac = (today - first_item_date).days / item_date_range
+        today_right = int(padding + (1 - frac) * timeline_width)
+        today_right = min(padding + timeline_width, today_right)
+        today_right = max(10, today_right)
 
     items_html = build_items_html(project_df)
 
