@@ -98,14 +98,14 @@ def show_risks_page(project_name=None):
     <style>
     .risk-header {
         display:grid;
-        grid-template-columns:2.5fr 1fr 0.7fr 0.7fr 0.8fr;
+        grid-template-columns:2.5fr 1fr 0.7fr 0.7fr 0.7fr 0.8fr;
         gap:8px; padding:10px 16px;
         background:#f8fafc; border-radius:10px;
         margin-bottom:4px; direction:rtl; text-align:right;
     }
     .risk-row {
         display:grid;
-        grid-template-columns:2.5fr 1fr 0.7fr 0.7fr 0.8fr;
+        grid-template-columns:2.5fr 1fr 0.7fr 0.7fr 0.7fr 0.8fr;
         gap:8px; padding:12px 16px;
         border-bottom:1px solid #f4f4f5;
         direction:rtl; text-align:right; align-items:center;
@@ -248,6 +248,7 @@ def show_risks_page(project_name=None):
             <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">קטגוריה</span>
             <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">הסתברות</span>
             <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">השפעה</span>
+            <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">סיכון משוקלל</span>
             <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">רמה</span>
         </div>
         """, unsafe_allow_html=True)
@@ -262,6 +263,7 @@ def show_risks_page(project_name=None):
                 <span style="font-size:0.78rem;color:#71717A;">{row['category']}</span>
                 <span style="font-size:0.82rem;color:#3f3f46;">{row['probability']}/5</span>
                 <span style="font-size:0.82rem;color:#3f3f46;">{row['impact']}/5</span>
+                <span style="font-size:0.82rem;font-weight:700;color:#3f3f46;">{int(row['score'])}/25</span>
                 <span class="r-badge {badge_cls}">{label}</span>
             </div>
             """, unsafe_allow_html=True)
