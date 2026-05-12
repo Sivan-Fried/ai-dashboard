@@ -56,7 +56,6 @@ def save_insight(project_name, risk_title, insight_text):
         headers = {"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json"}
         url = f"https://api.github.com/repos/{repo}/contents/{path}"
         
-        # קבלת SHA הקיים
         r = requests.get(url, headers=headers)
         sha = r.json().get("sha") if r.status_code == 200 else None
         
@@ -147,6 +146,29 @@ def show_risks_page(project_name=None):
         margin: 0 !important;
         padding: 0 !important;
         overflow: hidden !important;
+    }
+    div.element-container:has(.fathom-row-ui) + div.element-container {
+        margin-top: -45px !important;
+        margin-bottom: 0px !important;
+    }
+    div.element-container:has(.fathom-row-ui) + div.element-container div[data-testid="stButton"] button {
+        background: transparent !important;
+        border: 1px solid transparent !important;
+        border-right: 5px solid transparent !important;
+        width: 100% !important;
+        height: 45px !important;
+        color: transparent !important;
+        z-index: 20;
+    }
+    div.element-container:has(.fathom-row-ui) + div.element-container div[data-testid="stButton"] button:hover {
+        background: transparent !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+    div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-testid="stButton"] button:hover) .fathom-row-ui {
+        border-right-color: #f0b8cb !important;
+        background-color: #fdf6f9 !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -448,37 +470,3 @@ document.getElementById('risks-share-btn').addEventListener('click', function() 
 </script>
 </body>
 </html>""", height=600, scrolling=True)
-
-            else:
-                col_empty, col_btn = st.columns([0.89, 0.11])
-                with col_btn:
-                    send = st.button("↩", key="ai_risks_send", use_container_width=True)
-                force = st.session_state.pop(f"force_rerun_{project_name}", False)
-                if send or force:
-                    with st.spinner("מנתח..."):
-                        try:
-                            genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-                            model = genai.GenerativeModel('gemini-2.5-flash-lite')
-                            risks_text = "\n".join([
-                                f"- {r['risk_title']} | הסתברות {r['probability']}/5 | השפעה {r['impact']}/5 | {r['category']} | {r.get('notes','')}"
-                                for _, r in df.iterrows()
-                            ])
-                            prompt = f"""אתה יועץ ניהול סיכונים בכיר. נתח את כל הסיכונים של הפרויקט "{project_name}" ותן דוח מסכם קצר בעברית עסקית:
-
-סיכונים:
-{risks_text}
-
-1. **תמונת מצב** — משפט אחד
-2. **3 סיכונים דחופים** — ומדוע
-3. **דפוסים** — קשרים בין הסיכונים
-4. **המלצות מיידיות** — 2-3 פעולות
-
-היה תמציתי."""
-                            response = model.generate_content(prompt)
-                            save_insight(project_name or "כללי", "__full_analysis__", response.text)
-                            st.rerun()
-                        except Exception as e:
-                            if saved_analysis:
-                                st.info("לא ניתן לעדכן כעת — מציג ניתוח קודם")
-                            else:
-                                st.error(f"שגיאה: {str(e)}")
