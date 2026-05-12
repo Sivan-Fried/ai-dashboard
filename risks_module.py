@@ -82,6 +82,7 @@ def show_risks_page(project_name=None):
         df = df[df["project_name"] == project_name]
 
     insights_df = load_insights()
+    st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
 
     st.markdown("""
     <style>
