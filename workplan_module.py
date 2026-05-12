@@ -3,9 +3,6 @@ import datetime
 import re
 
 
-# ---------------------------------------------------------
-# ניקוי טקסט מתווים נסתרים, RTL, רווחים וכו'
-# ---------------------------------------------------------
 def clean_text(x):
     if not isinstance(x, str):
         x = str(x)
@@ -15,9 +12,6 @@ def clean_text(x):
     return x
 
 
-# ---------------------------------------------------------
-# 1. טעינת קובץ ה־Excel
-# ---------------------------------------------------------
 def load_workplan_df():
     df = pd.read_excel("work_plans.xlsx")
     df["date"] = pd.to_datetime(df["date"], dayfirst=False, errors="coerce")
@@ -25,10 +19,7 @@ def load_workplan_df():
     return df
 
 
-# ---------------------------------------------------------
-# 2. יצירת HTML עבור milestone בודד
-# ---------------------------------------------------------
-def milestone_to_html(row):
+def milestone_to_html(row, above=True, right_px=0):
     name = str(row["milestone_name"])
     if "עמיתים" in name:
         tag_class = "amit"
@@ -52,8 +43,10 @@ def milestone_to_html(row):
     contents_html = contents.replace("\n", "<br>") if contents and contents != "nan" else ""
     tooltip_html = f"<div class='tooltip'>{contents_html}</div>" if contents_html else ""
 
+    position_class = "item-above" if above else "item-below"
+
     return (
-        "<div class='item' data-date='" + date_iso + "'>"
+        f"<div class='item {position_class}' data-date='{date_iso}' style='right:{right_px}px;'>"
         "<div class='card'>"
         + tooltip_html +
         "<span class='tag " + tag_class + "'>" + str(row['milestone_name']) + "</span>"
@@ -66,16 +59,26 @@ def milestone_to_html(row):
     )
 
 
-# ---------------------------------------------------------
-# 3. בניית HTML של כל ה־items מתוך ה־Excel
-# ---------------------------------------------------------
-def build_items_html(project_df):
-    return "\n".join(project_df.apply(milestone_to_html, axis=1))
+def build_items_html(project_df, timeline_start, total_days, timeline_width, padding):
+    # קבץ לפי תאריך
+    from collections import defaultdict
+    date_groups = defaultdict(list)
+    for _, row in project_df.iterrows():
+        date_groups[row["date"].date()].append(row)
+
+    items = []
+    for date, rows in sorted(date_groups.items()):
+        days = (date - timeline_start).days
+        days = max(0, min(days, total_days))
+        right_px = int(timeline_width - (days / total_days * timeline_width)) + padding - 45
+
+        for i, row in enumerate(rows):
+            above = (i % 2 == 0)  # ראשון מעל, שני מתחת
+            items.append(milestone_to_html(row, above=above, right_px=right_px))
+
+    return "\n".join(items)
 
 
-# ---------------------------------------------------------
-# 4. תבנית HTML ללא f-string
-# ---------------------------------------------------------
 BASE_HTML = """
 <!DOCTYPE html>
 <html dir="rtl" lang="he">
@@ -84,24 +87,138 @@ BASE_HTML = """
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@200;400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Assistant', sans-serif; background-color: white; margin: 0; padding: 0; overflow: hidden; height: 320px; }
-        .controls { display: flex; justify-content: flex-end; padding: 16px 50px 0 50px; }
-        .toggle-group { display: flex; background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); padding: 4px; }
-        .toggle-btn { padding: 6px 16px; font-size: 13px; font-weight: 600; font-family: 'Assistant', sans-serif; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; color: #94a3b8; background: transparent; }
+
+        .controls {
+            display: flex;
+            justify-content: flex-end;
+            padding: 16px 50px 0 50px;
+        }
+
+        .toggle-group {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            padding: 4px;
+        }
+
+        .toggle-btn {
+            padding: 6px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Assistant', sans-serif;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #94a3b8;
+            background: transparent;
+        }
+
         .toggle-btn.active { background: #FADCE6; color: #63646c; }
         .toggle-btn:hover:not(.active) { color: #475569; }
-        .timeline-scroll { overflow-x: auto; overflow-y: hidden; padding: 0 50px; scrollbar-width: thin; scrollbar-color: #e2e8f0 transparent; }
+
+        .timeline-scroll {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 0 50px;
+            scrollbar-width: thin;
+            scrollbar-color: #e2e8f0 transparent;
+        }
+
         .timeline-scroll::-webkit-scrollbar { height: 4px; }
         .timeline-scroll::-webkit-scrollbar-track { background: transparent; }
         .timeline-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 2px; }
-        .timeline-wrapper { position: relative; margin: 30px 0; height: 200px; display: flex; justify-content: space-between; align-items: flex-end; min-width: 1000px; }
-        .main-line { position: absolute; bottom: 6px; left: 0; right: 0; height: 1px; background: #cbd5e1; z-index: 1; }
-        .today-indicator { position: absolute; bottom: -10px; RIGHT_PLACEHOLDER; display: flex; flex-direction: column; align-items: center; z-index: 2; }
-        .today-line { width: 2px; height: 220px; border-left: 2px dashed #cbd5e1; }
-        .today-text { color: #94a3b8; font-size: 11px; font-weight: 700; margin-bottom: 4px; }
-        .item { display: flex; flex-direction: column; align-items: center; width: 90px; z-index: 3; position: relative; }
-        .card { background: white; padding: 4px 6px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; text-align: center; width: 100%; margin-bottom: 8px; position: relative; }
-        .connector { width: 1px; height: 15px; background: #e2e8f0; }
-        .dot { width: 12px; height: 12px; background: #475569; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 1px #475569; z-index: 4; }
+
+        .timeline-wrapper {
+            position: relative;
+            margin: 10px 0;
+            height: 260px;
+            min-width: 1000px;
+        }
+
+        .main-line {
+            position: absolute;
+            bottom: 80px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #cbd5e1;
+            z-index: 1;
+        }
+
+        .today-indicator {
+            position: absolute;
+            bottom: -10px;
+            RIGHT_PLACEHOLDER;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .today-line {
+            width: 2px;
+            height: 280px;
+            border-left: 2px dashed #cbd5e1;
+        }
+
+        .today-text {
+            color: #94a3b8;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        /* פריטים מעל הציר */
+        .item-above {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90px;
+            z-index: 3;
+            position: absolute;
+            bottom: 80px;
+        }
+
+        .item-above .card { margin-bottom: 8px; }
+        .item-above .connector { width: 1px; height: 15px; background: #e2e8f0; }
+        .item-above .dot {
+            width: 12px; height: 12px; background: #475569;
+            border-radius: 50%; border: 2px solid white;
+            box-shadow: 0 0 0 1px #475569; z-index: 4;
+        }
+
+        /* פריטים מתחת לציר */
+        .item-below {
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            width: 90px;
+            z-index: 3;
+            position: absolute;
+            bottom: 0px;
+        }
+
+        .item-below .card { margin-top: 8px; }
+        .item-below .connector { width: 1px; height: 15px; background: #e2e8f0; }
+        .item-below .dot {
+            width: 12px; height: 12px; background: #475569;
+            border-radius: 50%; border: 2px solid white;
+            box-shadow: 0 0 0 1px #475569; z-index: 4;
+        }
+
+        .card {
+            background: white;
+            padding: 4px 6px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            border: 1px solid #f1f5f9;
+            text-align: center;
+            width: 100%;
+            position: relative;
+        }
+
         .tag { font-size: 11px; font-weight: 700; padding: 1px 4px; border-radius: 2px; display: inline-block; margin-bottom: 2px; }
         .amit  { background: #FADCE6; color: #831843; }
         .measy { background: #eff6ff; color: #1e40af; }
@@ -110,8 +227,36 @@ BASE_HTML = """
         .status { font-size: 10px; font-weight: 700; margin-top: 2px; }
         .live { color: #10b981; }
         .wip { color: #f59e0b; }
-        .tooltip { display: none; position: absolute; bottom: 110%; right: 50%; transform: translateX(50%); background: #1e293b; color: white; font-size: 11px; line-height: 1.6; padding: 8px 12px; border-radius: 8px; white-space: nowrap; text-align: right; direction: rtl; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .tooltip::after { content: ''; position: absolute; top: 100%; right: 50%; transform: translateX(50%); border: 5px solid transparent; border-top-color: #1e293b; }
+
+        .tooltip {
+            display: none;
+            position: absolute;
+            bottom: 110%;
+            right: 50%;
+            transform: translateX(50%);
+            background: #1e293b;
+            color: white;
+            font-size: 11px;
+            line-height: 1.6;
+            padding: 8px 12px;
+            border-radius: 8px;
+            white-space: nowrap;
+            text-align: right;
+            direction: rtl;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            right: 50%;
+            transform: translateX(50%);
+            border: 5px solid transparent;
+            border-top-color: #1e293b;
+        }
+
         .card:hover .tooltip { display: block; }
     </style>
 </head>
@@ -123,48 +268,56 @@ BASE_HTML = """
             <button class="toggle-btn" onclick="filterView('month', this)">חודש נוכחי</button>
         </div>
     </div>
+
     <div class="timeline-scroll">
         <div class="timeline-wrapper">
             <div class="main-line"></div>
+
             <div class="today-indicator">
                 <span class="today-text">TODAY_PLACEHOLDER</span>
                 <div class="today-line"></div>
             </div>
+
             ITEMS_PLACEHOLDER
+
         </div>
     </div>
+
     <script>
         const today = new Date();
         const currentMonth = today.getMonth();
         const currentYear = today.getFullYear();
         const currentQuarter = Math.floor(currentMonth / 3);
+
         function filterView(mode, btn) {
             document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            document.querySelectorAll('.item').forEach(item => {
+
+            document.querySelectorAll('.item-above, .item-below').forEach(item => {
                 const dateStr = item.dataset.date;
                 if (!dateStr) { item.style.display = ''; return; }
+
                 const date = new Date(dateStr);
                 const month = date.getMonth();
                 const year = date.getFullYear();
                 const quarter = Math.floor(month / 3);
+
                 let show = true;
-                if (mode === 'month') { show = month === currentMonth && year === currentYear; }
-                else if (mode === 'quarter') { show = quarter === currentQuarter && year === currentYear; }
+                if (mode === 'month') {
+                    show = month === currentMonth && year === currentYear;
+                } else if (mode === 'quarter') {
+                    show = quarter === currentQuarter && year === currentYear;
+                }
+
                 item.style.display = show ? '' : 'none';
             });
         }
-
-
     </script>
 </body>
 </html>
 """
 
 
-# ---------------------------------------------------------
-# 5. בניית HTML מלא
-# ---------------------------------------------------------
 def build_timeline_html(project_name):
     df = load_workplan_df()
     project_name = clean_text(project_name)
@@ -181,24 +334,13 @@ def build_timeline_html(project_name):
     timeline_end   = datetime.date(today.year, 10, 1)
     total_days     = (timeline_end - timeline_start).days
     timeline_width = 900
+    padding        = 50
 
-    # חישוב today_right לפי אותה שיטה כמו space-between
-    N = len(project_df)
-    dates_sorted = sorted(project_df["date"].dt.date.tolist())
-    first_item_date = dates_sorted[0]
-    last_item_date  = dates_sorted[-1]
-    item_date_range = (last_item_date - first_item_date).days
-    padding = 50
+    days_passed = (today - timeline_start).days
+    days_passed = max(0, min(days_passed, total_days))
+    today_right = int(timeline_width - (days_passed / total_days * timeline_width)) + padding
 
-    if N == 1 or item_date_range == 0:
-        today_right = padding + timeline_width // 2
-    else:
-        frac = (today - first_item_date).days / item_date_range
-        today_right = int(padding + (1 - frac) * timeline_width)
-        today_right = min(padding + timeline_width, today_right)
-        today_right = max(10, today_right)
-
-    items_html = build_items_html(project_df)
+    items_html = build_items_html(project_df, timeline_start, total_days, timeline_width, padding)
 
     html = BASE_HTML
     html = html.replace("RIGHT_PLACEHOLDER", f"right: {today_right}px;")
