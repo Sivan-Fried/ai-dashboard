@@ -397,8 +397,7 @@ document.getElementById('risks-share-btn').addEventListener('click', function() 
     if (navigator.share) {{ navigator.share({{text: text}}); }}
 }});
 document.getElementById('risks-close-btn').addEventListener('click', function() {{
-    var allBtns = window.parent.document.querySelectorAll('button');
-    var closeBtn = Array.from(allBtns).find(function(b) {{ return b.innerText.trim() === '__close__'; }});
+    var closeBtn = window.parent.document.querySelector('.st-key-close_analysis_hidden button');
     if (closeBtn) closeBtn.click();
 }});
 </script>
