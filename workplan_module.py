@@ -160,7 +160,7 @@ BASE_HTML = """
             var today = new Date();
             today.setHours(0,0,0,0);
 
-            var items = document.querySelectorAll('.item[data-date]');
+            var items = Array.from(document.querySelectorAll('.item[data-date]'));
             var wrapper = document.querySelector('.timeline-wrapper');
             var todayEl = document.querySelector('.today-indicator');
 
@@ -168,29 +168,29 @@ BASE_HTML = """
 
             var wrapperRect = wrapper.getBoundingClientRect();
 
-            // מצא את הפריט שתאריכו הכי קרוב לפני today
-            var bestItem = null;
-            var bestDate = null;
-
-            items.forEach(function(item) {
-                var itemDate = new Date(item.dataset.date);
-                itemDate.setHours(0,0,0,0);
-                if (itemDate <= today) {
-                    if (!bestDate || itemDate > bestDate) {
-                        bestDate = itemDate;
-                        bestItem = item;
-                    }
-                }
+            // מיין פריטים לפי מיקום ויזואלי מימין לשמאל
+            items.sort(function(a, b) {
+                return b.getBoundingClientRect().left - a.getBoundingClientRect().left;
             });
+
+            // מצא את הפריט הכי שמאלי שתאריכו לפני today
+            var bestItem = null;
+            for (var i = items.length - 1; i >= 0; i--) {
+                var itemDate = new Date(items[i].dataset.date);
+                itemDate.setHours(0,0,0,0);
+                if (itemDate < today) {
+                    bestItem = items[i];
+                    break;
+                }
+            }
 
             if (bestItem) {
                 var itemRect = bestItem.getBoundingClientRect();
-                var todayRight = wrapperRect.right - itemRect.left - itemRect.width - 30;
+                var todayRight = wrapperRect.right - itemRect.left - 30;
                 todayEl.style.right = Math.max(10, todayRight) + 'px';
             } else {
-                // כל הפריטים אחרי today
                 var firstRect = items[0].getBoundingClientRect();
-                todayEl.style.right = (wrapperRect.right - firstRect.right + firstRect.width + 20) + 'px';
+                todayEl.style.right = (wrapperRect.right - firstRect.left + 20) + 'px';
             }
         });
     </script>
