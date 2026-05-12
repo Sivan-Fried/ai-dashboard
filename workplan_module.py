@@ -155,7 +155,7 @@ BASE_HTML = """
             });
         }
 
-        // מיקום today indicator לפי DOM
+        // מיקום today כפריט על ציר הזמן - אותה שיטה כמו שאר הפריטים
         window.addEventListener('load', function() {
             var today = new Date();
             today.setHours(0,0,0,0);
@@ -166,32 +166,30 @@ BASE_HTML = """
 
             if (!wrapper || !todayEl || items.length === 0) return;
 
-            var wrapperRect = wrapper.getBoundingClientRect();
+            var dates = items.map(function(item) {
+                var d = new Date(item.dataset.date);
+                d.setHours(0,0,0,0);
+                return d;
+            }).sort(function(a, b) { return a - b; });
 
-            // מיין פריטים לפי מיקום ויזואלי מימין לשמאל
-            items.sort(function(a, b) {
-                return b.getBoundingClientRect().left - a.getBoundingClientRect().left;
-            });
+            var firstDate = dates[0];
+            var lastDate  = dates[dates.length - 1];
+            var N = dates.length;
+            var wrapperWidth = wrapper.offsetWidth;
+            var totalRange = lastDate - firstDate;
+            var todayRight;
 
-            // מצא את הפריט הכי שמאלי שתאריכו לפני today
-            var bestItem = null;
-            for (var i = items.length - 1; i >= 0; i--) {
-                var itemDate = new Date(items[i].dataset.date);
-                itemDate.setHours(0,0,0,0);
-                if (itemDate < today) {
-                    bestItem = items[i];
-                    break;
-                }
-            }
-
-            if (bestItem) {
-                var itemRect = bestItem.getBoundingClientRect();
-                var todayRight = wrapperRect.right - itemRect.left - 30;
-                todayEl.style.right = Math.max(10, todayRight) + 'px';
+            if (N === 1 || totalRange === 0) {
+                todayRight = wrapperWidth / 2;
             } else {
-                var firstRect = items[0].getBoundingClientRect();
-                todayEl.style.right = (wrapperRect.right - firstRect.left + 20) + 'px';
+                // frac יכול להיות מחוץ ל-[0,1] אם today לפני/אחרי כל הפריטים
+                var frac = (today - firstDate) / totalRange;
+                var todayLeft = frac * wrapperWidth;
+                todayRight = wrapperWidth - todayLeft;
             }
+
+            // הגבל לתוך ה-wrapper עם מרווח קטן
+            todayEl.style.right = Math.max(5, Math.min(wrapperWidth - 5, todayRight)) + 'px';
         });
     </script>
 </body>
