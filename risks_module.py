@@ -42,31 +42,21 @@ def save_insight(project_name, risk_title, insight_text):
         updated = pd.DataFrame([new_row])
     updated.to_excel(INSIGHTS_FILE, index=False)
     
-    # שמירה ל-GitHub
     try:
         import requests, base64
         token = st.secrets["GITHUB_TOKEN"]
         repo = "Sivan-Fried/ai-dashboard"
         branch = "main"
         path = INSIGHTS_FILE
-        
         with open(INSIGHTS_FILE, "rb") as f:
             content = base64.b64encode(f.read()).decode()
-        
         headers = {"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json"}
         url = f"https://api.github.com/repos/{repo}/contents/{path}"
-        
         r = requests.get(url, headers=headers)
         sha = r.json().get("sha") if r.status_code == 200 else None
-        
-        payload = {
-            "message": f"Update AI insights - {project_name}",
-            "content": content,
-            "branch": branch
-        }
+        payload = {"message": f"Update AI insights - {project_name}", "content": content, "branch": branch}
         if sha:
             payload["sha"] = sha
-            
         requests.put(url, json=payload, headers=headers)
     except Exception as e:
         st.warning(f"לא ניתן לשמור ל-GitHub: {str(e)}")
@@ -173,12 +163,10 @@ def show_risks_page(project_name=None):
     </style>
     """, unsafe_allow_html=True)
 
-    # כותרת
     title = f"ניהול סיכונים — {project_name}" if project_name else "ניהול סיכונים"
     st.markdown(f"### {title}", unsafe_allow_html=True)
     st.markdown("<p style='font-size:0.82rem;color:#a1a1aa;margin-top:-4px;text-align:right;padding-right:18px;'>מעקב, ניתוח וניהול סיכונים</p>", unsafe_allow_html=True)
 
-    # חישובים
     df["score"] = df["probability"] * df["impact"]
     critical_risks = len(df[df["score"] >= 15])
     high_risks     = len(df[(df["score"] >= 9) & (df["score"] < 15)])
@@ -194,7 +182,6 @@ def show_risks_page(project_name=None):
     gauge_color = "#ef4444" if pct >= 60 else "#f59e0b" if pct >= 35 else "#10b981"
     gauge_label = "גבוה" if pct >= 60 else "בינוני" if pct >= 35 else "נמוך"
 
-    # KPIs
     k0, k1, k2, k3, k4 = st.columns(5)
 
     with k0:
@@ -270,7 +257,6 @@ def show_risks_page(project_name=None):
 
     st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
 
-    # טבלת סיכונים
     st.markdown("### פירוט סיכונים", unsafe_allow_html=True)
 
     filtered = df.copy().sort_values("score", ascending=False)
@@ -304,7 +290,6 @@ def show_risks_page(project_name=None):
 
     st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
 
-    # תחתית
     col_right, col_left = st.columns([1, 1])
 
     with col_right:
@@ -350,47 +335,13 @@ def show_risks_page(project_name=None):
             open_key = f"analysis_open_{project_name}"
             is_open = st.session_state.get(open_key, False)
 
-            # כפתור ניתוח תמיד מוצג
-            col_empty, col_btn = st.columns([0.89, 0.11])
-            with col_btn:
-                send = st.button("↩", key="ai_risks_send", use_container_width=True)
-            force = st.session_state.pop(f"force_rerun_{project_name}", False)
-            if send or force:
-                with st.spinner("מנתח..."):
-                    try:
-                        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-                        model = genai.GenerativeModel('gemini-2.5-flash-lite')
-                        risks_text = "\n".join([
-                            f"- {r['risk_title']} | הסתברות {r['probability']}/5 | השפעה {r['impact']}/5 | {r['category']} | {r.get('notes','')}"
-                            for _, r in df.iterrows()
-                        ])
-                        prompt = f"""אתה יועץ ניהול סיכונים בכיר. נתח את כל הסיכונים של הפרויקט "{project_name}" ותן דוח מסכם קצר בעברית עסקית:
-
-סיכונים:
-{risks_text}
-
-1. **תמונת מצב** — משפט אחד
-2. **3 סיכונים דחופים** — ומדוע
-3. **דפוסים** — קשרים בין הסיכונים
-4. **המלצות מיידיות** — 2-3 פעולות
-
-היה תמציתי."""
-                        response = model.generate_content(prompt)
-                        save_insight(project_name or "כללי", "__full_analysis__", response.text)
-                        st.session_state[open_key] = True
-                        st.rerun()
-                    except Exception as e:
-                        if saved_analysis:
-                            st.info("לא ניתן לעדכן כעת — מציג ניתוח קודם")
-                        else:
-                            st.error(f"שגיאה: {str(e)}")
-
+            # רשומת ניתוח קיים — מעל הכפתור
             if saved_analysis:
                 arrow = "&#8249;" if is_open else "&#8250;"
                 st.markdown(f"""
-                <div class="fathom-row-ui" style="font-size:0.92rem; font-weight:normal;">
+                <div class="fathom-row-ui" style="font-size:0.92rem;font-weight:normal;border-radius:12px;">
                     <div style="display:flex;align-items:center;gap:8px;">
-                        <span class="material-symbols-outlined" style="font-size:18px;color:#64748b;transform:scale(0.8);">smart_toy</span>
+                        <span class="material-symbols-rounded" style="font-size:18px;color:#64748b;transform:scale(0.8);">smart_toy</span>
                         <span style="font-size:0.88rem;">ניתוח AI — {analysis_date}</span>
                     </div>
                     <div></div>
@@ -470,3 +421,38 @@ document.getElementById('risks-share-btn').addEventListener('click', function() 
 </script>
 </body>
 </html>""", height=600, scrolling=True)
+
+            # כפתור ↩ תמיד מתחת
+            col_empty, col_btn = st.columns([0.89, 0.11])
+            with col_btn:
+                send = st.button("↩", key="ai_risks_send", use_container_width=True)
+            force = st.session_state.pop(f"force_rerun_{project_name}", False)
+            if send or force:
+                with st.spinner("מנתח..."):
+                    try:
+                        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+                        model = genai.GenerativeModel('gemini-2.5-flash-lite')
+                        risks_text = "\n".join([
+                            f"- {r['risk_title']} | הסתברות {r['probability']}/5 | השפעה {r['impact']}/5 | {r['category']} | {r.get('notes','')}"
+                            for _, r in df.iterrows()
+                        ])
+                        prompt = f"""אתה יועץ ניהול סיכונים בכיר. נתח את כל הסיכונים של הפרויקט "{project_name}" ותן דוח מסכם קצר בעברית עסקית:
+
+סיכונים:
+{risks_text}
+
+1. **תמונת מצב** — משפט אחד
+2. **3 סיכונים דחופים** — ומדוע
+3. **דפוסים** — קשרים בין הסיכונים
+4. **המלצות מיידיות** — 2-3 פעולות
+
+היה תמציתי."""
+                        response = model.generate_content(prompt)
+                        save_insight(project_name or "כללי", "__full_analysis__", response.text)
+                        st.session_state[open_key] = True
+                        st.rerun()
+                    except Exception as e:
+                        if saved_analysis:
+                            st.info("לא ניתן לעדכן כעת — מציג ניתוח קודם")
+                        else:
+                            st.error(f"שגיאה: {str(e)}")
