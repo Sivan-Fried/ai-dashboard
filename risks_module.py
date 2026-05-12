@@ -328,6 +328,41 @@ def show_risks_page(project_name=None):
             open_key = f"analysis_open_{project_name}"
             is_open = st.session_state.get(open_key, False)
 
+            # כפתור ניתוח תמיד מוצג
+            col_empty, col_btn = st.columns([0.89, 0.11])
+            with col_btn:
+                send = st.button("↩", key="ai_risks_send", use_container_width=True)
+            force = st.session_state.pop(f"force_rerun_{project_name}", False)
+            if send or force:
+                with st.spinner("מנתח..."):
+                    try:
+                        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+                        model = genai.GenerativeModel('gemini-2.5-flash-lite')
+                        risks_text = "\n".join([
+                            f"- {r['risk_title']} | הסתברות {r['probability']}/5 | השפעה {r['impact']}/5 | {r['category']} | {r.get('notes','')}"
+                            for _, r in df.iterrows()
+                        ])
+                        prompt = f"""אתה יועץ ניהול סיכונים בכיר. נתח את כל הסיכונים של הפרויקט "{project_name}" ותן דוח מסכם קצר בעברית עסקית:
+
+סיכונים:
+{risks_text}
+
+1. **תמונת מצב** — משפט אחד
+2. **3 סיכונים דחופים** — ומדוע
+3. **דפוסים** — קשרים בין הסיכונים
+4. **המלצות מיידיות** — 2-3 פעולות
+
+היה תמציתי."""
+                        response = model.generate_content(prompt)
+                        save_insight(project_name or "כללי", "__full_analysis__", response.text)
+                        st.session_state[open_key] = True
+                        st.rerun()
+                    except Exception as e:
+                        if saved_analysis:
+                            st.info("לא ניתן לעדכן כעת — מציג ניתוח קודם")
+                        else:
+                            st.error(f"שגיאה: {str(e)}")
+
             if saved_analysis:
                 arrow = "&#8249;" if is_open else "&#8250;"
                 st.markdown(f"""
