@@ -325,7 +325,15 @@ def show_risks_page(project_name=None):
             </div>
             """, unsafe_allow_html=True)
 
-            if saved_analysis and not st.session_state.get(f"hide_analysis_{project_name}", False):
+            if f"hide_analysis_{project_name}" not in st.session_state:
+                st.session_state[f"hide_analysis_{project_name}"] = True
+
+            if saved_analysis and st.session_state.get(f"hide_analysis_{project_name}", True):
+                if st.button("הצג ניתוח AI ▼", key=f"show_analysis_{project_name}"):
+                    st.session_state[f"hide_analysis_{project_name}"] = False
+                    st.rerun()
+
+            if saved_analysis and not st.session_state.get(f"hide_analysis_{project_name}", True):
                 # כפתור נסתר לסגירה — ה-X בתוך הכרטיס ילחץ עליו
                 if st.button("__close__", key="close_analysis_hidden"):
                     st.session_state[f"hide_analysis_{project_name}"] = True
