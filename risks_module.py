@@ -106,6 +106,11 @@ def show_risks_page(project_name=None):
     .r-badge-high     { background:#fffbeb; color:#f59e0b; }
     .r-badge-medium   { background:#fdf2f8; color:#6f5861; }
     .r-badge-low      { background:#f8fafc; color:#94a3b8; }
+    .fathom-row-ui .material-symbols-rounded {
+        font-family: 'Material Symbols Rounded' !important;
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24 !important;
+        -webkit-font-smoothing: antialiased !important;
+    }
     .st-key-ai_risks_container {
         background-color: #fadce6 !important;
         border-radius: 20px !important;
