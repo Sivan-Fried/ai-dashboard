@@ -136,6 +136,11 @@ def show_risks_page(project_name=None):
     .st-key-ai_risks_send button p {
         color: #ffffff !important;
     }
+    .st-key-ai_risks_send {
+        display: flex !important;
+        justify-content: flex-end !important;
+        margin-top: 8px !important;
+    }
     .st-key-close_analysis_hidden {
         display: none !important;
         height: 0 !important;
