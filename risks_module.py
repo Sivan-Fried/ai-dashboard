@@ -136,6 +136,9 @@ def show_risks_page(project_name=None):
     .st-key-ai_risks_send button p {
         color: #ffffff !important;
     }
+    .st-key-close_analysis_hidden button {
+        display: none !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -261,9 +264,9 @@ def show_risks_page(project_name=None):
             <div class="risk-row">
                 <span style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{row['risk_title']}</span>
                 <span style="font-size:0.78rem;color:#71717A;">{row['category']}</span>
-                <span style="font-size:0.82rem;color:#3f3f46;">{row['probability']}/5</span>
-                <span style="font-size:0.82rem;color:#3f3f46;">{row['impact']}/5</span>
-                <span style="font-size:0.82rem;font-weight:700;color:#3f3f46;">{int(row['score'])}/25</span>
+                <span style="font-size:0.82rem;color:#3f3f46;">{row['probability']}</span>
+                <span style="font-size:0.82rem;color:#3f3f46;">{row['impact']}</span>
+                <span style="font-size:0.82rem;font-weight:700;color:#3f3f46;">{int(row['score'])}</span>
                 <span class="r-badge {badge_cls}">{label}</span>
             </div>
             """, unsafe_allow_html=True)
@@ -314,17 +317,12 @@ def show_risks_page(project_name=None):
             """, unsafe_allow_html=True)
 
             if saved_analysis:
-                col_close, col_rerun, _ = st.columns([0.2, 0.25, 0.55])
-                with col_close:
-                    if st.button("סגור ✕", key=f"close_analysis_{project_name}"):
+                if not st.session_state.get(f"hide_analysis_{project_name}", False):
+                    # כפתור נסתר לסגירה — ה-X בתוך הכרטיס ילחץ עליו
+                    if st.button("__close__", key="close_analysis_hidden"):
                         st.session_state[f"hide_analysis_{project_name}"] = True
                         st.rerun()
-                with col_rerun:
-                    if st.button("🔄 נתח מחדש", key=f"rerun_{project_name}"):
-                        st.session_state[f"force_rerun_{project_name}"] = True
-                        st.rerun()
 
-                if not st.session_state.get(f"hide_analysis_{project_name}", False):
                     import html as html_module
                     escaped = html_module.escape(saved_analysis)
                     formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
@@ -369,6 +367,9 @@ body {{ font-family: 'Plus Jakarta Sans', sans-serif; background: transparent; d
         <button class="ai-action-btn" id="risks-share-btn" title="שתף">
             <span class="material-symbols-outlined">share</span>
         </button>
+        <button class="ai-action-btn" id="risks-close-btn" title="סגור">
+            <span class="material-symbols-outlined">close</span>
+        </button>
     </div>
 </div>
 <div class="ai-response-body" id="risks-response-text">{formatted}</div>
@@ -390,6 +391,11 @@ document.getElementById('risks-copy-btn').addEventListener('click', function() {
 document.getElementById('risks-share-btn').addEventListener('click', function() {{
     var text = document.getElementById('risks-response-text').innerText;
     if (navigator.share) {{ navigator.share({{text: text}}); }}
+}});
+document.getElementById('risks-close-btn').addEventListener('click', function() {{
+    var allBtns = window.parent.document.querySelectorAll('button');
+    var closeBtn = Array.from(allBtns).find(function(b) {{ return b.innerText.trim() === '__close__'; }});
+    if (closeBtn) closeBtn.click();
 }});
 </script>
 </body>
