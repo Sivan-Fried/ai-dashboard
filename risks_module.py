@@ -316,7 +316,7 @@ def show_risks_page(project_name=None):
 
         st.markdown("### ניתוח AI כולל", unsafe_allow_html=True)
 
-        with st.container(border=True, key="ai_risks_container"):
+       with st.container(border=True, key="ai_risks_container"):
             st.markdown("""
             <div style="background:white;border-radius:16px;padding:16px 20px;margin-bottom:12px;">
                 <div style="font-size:0.82rem;color:#71717A;text-align:right;">
@@ -325,27 +325,33 @@ def show_risks_page(project_name=None):
             </div>
             """, unsafe_allow_html=True)
 
-            if f"hide_analysis_{project_name}" not in st.session_state:
-                st.session_state[f"hide_analysis_{project_name}"] = True
+            open_key = f"analysis_open_{project_name}"
+            is_open = st.session_state.get(open_key, False)
 
-            if saved_analysis and st.session_state.get(f"hide_analysis_{project_name}", True):
-                if st.button("הצג ניתוח AI ▼", key=f"show_analysis_{project_name}"):
-                    st.session_state[f"hide_analysis_{project_name}"] = False
+            if saved_analysis:
+                arrow = "&#8249;" if is_open else "&#8250;"
+                st.markdown(f"""
+                <div class="fathom-row-ui" style="font-size:0.92rem; font-weight:normal;">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span class="material-symbols-outlined" style="font-size:18px;color:#64748b;transform:scale(0.8);">smart_toy</span>
+                        <span style="font-size:0.88rem;">ניתוח AI — {analysis_date}</span>
+                    </div>
+                    <div></div>
+                    <span style="color:#94a3b8;font-size:22px;line-height:1;flex-shrink:0;margin-right:8px;">{arrow}</span>
+                </div>
+                """, unsafe_allow_html=True)
+                if st.button("", key=f"toggle_analysis_{project_name}", use_container_width=True):
+                    st.session_state[open_key] = not is_open
                     st.rerun()
 
-            if saved_analysis and not st.session_state.get(f"hide_analysis_{project_name}", True):
-                # כפתור נסתר לסגירה — ה-X בתוך הכרטיס ילחץ עליו
-                if st.button("__close__", key="close_analysis_hidden"):
-                    st.session_state[f"hide_analysis_{project_name}"] = True
-                    st.rerun()
-                import html as html_module
-                escaped = html_module.escape(saved_analysis)
-                formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
-                formatted = re.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re.MULTILINE)
-                formatted = re.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re.MULTILINE)
-                formatted = formatted.replace('\n', '<br>')
-                components.html(f"""<!DOCTYPE html>
-                
+                if is_open:
+                    import html as html_module
+                    escaped = html_module.escape(saved_analysis)
+                    formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
+                    formatted = re.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re.MULTILINE)
+                    formatted = re.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re.MULTILINE)
+                    formatted = formatted.replace('\n', '<br>')
+                    components.html(f"""<!DOCTYPE html>
 <html dir="rtl">
 <head>
 <meta charset="utf-8"/>
@@ -382,9 +388,6 @@ body {{ font-family: 'Plus Jakarta Sans', sans-serif; background: transparent; d
         <button class="ai-action-btn" id="risks-share-btn" title="שתף">
             <span class="material-symbols-outlined">share</span>
         </button>
-        <button class="ai-action-btn" id="risks-close-btn" title="סגור">
-            <span class="material-symbols-outlined">close</span>
-        </button>
     </div>
 </div>
 <div class="ai-response-body" id="risks-response-text">{formatted}</div>
@@ -406,10 +409,6 @@ document.getElementById('risks-copy-btn').addEventListener('click', function() {
 document.getElementById('risks-share-btn').addEventListener('click', function() {{
     var text = document.getElementById('risks-response-text').innerText;
     if (navigator.share) {{ navigator.share({{text: text}}); }}
-}});
-document.getElementById('risks-close-btn').addEventListener('click', function() {{
-    var closeBtn = window.parent.document.querySelector('.st-key-close_analysis_hidden button');
-    if (closeBtn) closeBtn.click();
 }});
 </script>
 </body>
