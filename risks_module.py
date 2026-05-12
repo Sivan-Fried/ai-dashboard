@@ -314,14 +314,25 @@ def show_risks_page(project_name=None):
             """, unsafe_allow_html=True)
 
             if saved_analysis:
-                import html as html_module
-                escaped = html_module.escape(saved_analysis)
-                formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
-                formatted = re.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re.MULTILINE)
-                formatted = re.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re.MULTILINE)
-                formatted = formatted.replace('\n', '<br>')
+                col_close, col_rerun, _ = st.columns([0.2, 0.25, 0.55])
+                with col_close:
+                    if st.button("סגור ✕", key=f"close_analysis_{project_name}"):
+                        st.session_state[f"hide_analysis_{project_name}"] = True
+                        st.rerun()
+                with col_rerun:
+                    if st.button("🔄 נתח מחדש", key=f"rerun_{project_name}"):
+                        st.session_state[f"force_rerun_{project_name}"] = True
+                        st.rerun()
 
-                components.html(f"""<!DOCTYPE html>
+                if not st.session_state.get(f"hide_analysis_{project_name}", False):
+                    import html as html_module
+                    escaped = html_module.escape(saved_analysis)
+                    formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
+                    formatted = re.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re.MULTILINE)
+                    formatted = re.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re.MULTILINE)
+                    formatted = formatted.replace('\n', '<br>')
+
+                    components.html(f"""<!DOCTYPE html>
 <html dir="rtl">
 <head>
 <meta charset="utf-8"/>
@@ -388,7 +399,8 @@ document.getElementById('risks-share-btn').addEventListener('click', function() 
                 col_empty, col_btn = st.columns([0.89, 0.11])
                 with col_btn:
                     send = st.button("↩", key="ai_risks_send", use_container_width=True)
-                if send:
+                force = st.session_state.pop(f"force_rerun_{project_name}", False)
+                if send or force:
                     with st.spinner("מנתח..."):
                         try:
                             genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
