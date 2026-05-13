@@ -70,24 +70,28 @@ def show_tasks_page(project_name=None):
 
     st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
 
-    # ── הכנת DataFrame ────────────────────────────────────
+    # ── הכנת DataFrame לטבלה ──────────────────────────────
     df_display = df[["description", "status", "responsible", "start_date", "due_date", "notes"]].copy()
     df_display["start_date"] = df_display["start_date"].apply(fmt_date)
     df_display["due_date"]   = df_display["due_date"].apply(fmt_date)
-    df_display["notes"]      = df_display["notes"].fillna("").astype(str).replace({"nan": ""})
+    df_display["notes"]      = df_display["notes"].fillna("").astype(str).replace("nan", "")
 
-    # ── cellRenderer לבאדג' סטטוס ─────────────────────────
-    status_renderer = JsCode("""
+    # ── צביעת סטטוס ──────────────────────────────────────
+    cell_style_jscode = JsCode("""
     function(params) {
-        if (!params.value) return '';
-        var colors = {
-            '\u05d4\u05d5\u05e9\u05dc\u05dd':  {bg: '#ecfdf5', color: '#10b981'},
-            '\u05d1\u05d1\u05d9\u05e6\u05d5\u05e2': {bg: '#eff6ff', color: '#3b82f6'},
-            '\u05de\u05de\u05ea\u05d9\u05df':  {bg: '#f8fafc', color: '#94a3b8'},
-            '\u05d1\u05d0\u05d9\u05d7\u05d5\u05e8': {bg: '#fef2f2', color: '#ef4444'}
-        };
-        var c = colors[params.value] || {bg: '#f8fafc', color: '#94a3b8'};
-        return '<span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:' + c.bg + ';color:' + c.color + ';">' + params.value + '</span>';
+        if (params.value === 'הושלם')  return {'color': '#10b981', 'fontWeight': '700', 'background': '#ecfdf5', 'borderRadius': '20px', 'padding': '2px 10px'};
+        if (params.value === 'בביצוע') return {'color': '#3b82f6', 'fontWeight': '700', 'background': '#eff6ff', 'borderRadius': '20px', 'padding': '2px 10px'};
+        if (params.value === 'ממתין')  return {'color': '#94a3b8', 'fontWeight': '700', 'background': '#f8fafc', 'borderRadius': '20px', 'padding': '2px 10px'};
+        if (params.value === 'באיחור') return {'color': '#ef4444', 'fontWeight': '700', 'background': '#fef2f2', 'borderRadius': '20px', 'padding': '2px 10px'};
+        return {};
+    }
+    """)
+
+    due_style_jscode = JsCode("""
+    function(params) {
+        var row = params.data;
+        if (row && row['סטטוס'] === 'באיחור') return {'color': '#ef4444', 'fontWeight': '600'};
+        return {};
     }
     """)
 
@@ -98,49 +102,50 @@ def show_tasks_page(project_name=None):
         filterable=True,
         sortable=True,
         resizable=True,
-        floatingFilter=True,
         filter="agTextColumnFilter",
-        suppressMenu=True,
+        floatingFilter=True,
+        suppressMenu=False,
+        wrapText=True,
+        autoHeight=True,
     )
 
-    gb.configure_column("description",  header_name="משימה",        flex=2)
-    gb.configure_column("status",       header_name="סטטוס",        flex=1,   cellRenderer=status_renderer, filter="agSetColumnFilter")
-    gb.configure_column("responsible",  header_name="אחראי",         flex=1,   filter="agSetColumnFilter")
-    gb.configure_column("start_date",   header_name="תאריך התחלה",  flex=1,   filter="agSetColumnFilter")
-    gb.configure_column("due_date",     header_name="תאריך יעד",    flex=1,   filter="agSetColumnFilter")
-    gb.configure_column("notes",        header_name="הערות",         flex=1.5)
+    gb.configure_column("description",  header_name="משימה",         flex=2)
+    gb.configure_column("status",       header_name="סטטוס",         flex=1,   cellStyle=cell_style_jscode, filter="agSetColumnFilter")
+    gb.configure_column("responsible",  header_name="אחראי",          flex=1,   filter="agSetColumnFilter")
+    gb.configure_column("start_date",   header_name="תאריך התחלה",   flex=1)
+    gb.configure_column("due_date",     header_name="תאריך יעד",     flex=1,   cellStyle=due_style_jscode)
+    gb.configure_column("notes",        header_name="הערות",          flex=1.5)
 
     gb.configure_grid_options(
         enableRtl=True,
         rowHeight=44,
-        headerHeight=44,
+        headerHeight=48,
         domLayout="autoHeight",
         suppressRowClickSelection=True,
-        suppressCellFocus=True,
     )
 
+    grid_options = gb.build()
+
     custom_css = {
-        ".ag-header":            {"background-color": "#f8fafc !important", "border-bottom": "1px solid #f4f4f5 !important"},
-        ".ag-header-cell-label": {"font-size": "12px !important", "font-weight": "700 !important", "color": "#94a3b8 !important", "font-family": "'Plus Jakarta Sans', sans-serif !important", "justify-content": "flex-end !important"},
-        ".ag-cell":              {"font-size": "13px !important", "font-family": "'Plus Jakarta Sans', sans-serif !important", "color": "#3f3f46 !important", "border": "none !important", "display": "flex !important", "align-items": "center !important", "justify-content": "flex-end !important"},
-        ".ag-row":               {"border-bottom": "1px solid #f4f4f5 !important"},
-        ".ag-row:hover":         {"background-color": "#fdf6f9 !important"},
-        ".ag-root-wrapper":      {"border": "none !important", "border-radius": "0 !important"},
-        ".ag-floating-filter-input input": {"border": "1px solid #FADCE6 !important", "border-radius": "8px !important", "font-size": "11px !important"},
+        ".ag-header": {"background-color": "#f8fafc !important", "border-bottom": "1px solid #f4f4f5 !important"},
+        ".ag-header-cell-label": {"font-size": "12px !important", "font-weight": "700 !important", "color": "#94a3b8 !important", "font-family": "'Plus Jakarta Sans', sans-serif !important"},
+        ".ag-cell": {"font-size": "13px !important", "font-family": "'Plus Jakarta Sans', sans-serif !important", "color": "#3f3f46 !important", "border": "none !important"},
+        ".ag-row": {"border-bottom": "1px solid #f4f4f5 !important"},
+        ".ag-row:hover": {"background-color": "#fdf6f9 !important"},
+        ".ag-root-wrapper": {"border": "none !important", "border-radius": "0 !important"},
+        ".ag-floating-filter-input": {"font-family": "'Plus Jakarta Sans', sans-serif !important", "font-size": "12px !important"},
+        ".ag-input-field-input": {"border-radius": "8px !important", "border": "1px solid #FADCE6 !important"},
     }
 
-    # ── מיכל לבן כמו בסיכונים ─────────────────────────────
-    with st.container(border=True):
-        AgGrid(
-            df_display,
-            gridOptions=gb.build(),
-            update_mode=GridUpdateMode.NO_UPDATE,
-            allow_unsafe_jscode=True,
-            custom_css=custom_css,
-            theme="streamlit",
-            fit_columns_on_grid_load=True,
-            height=44 * (len(df_display) + 3) + 60,
-        )
+    AgGrid(
+        df_display,
+        gridOptions=grid_options,
+        update_mode=GridUpdateMode.NO_UPDATE,
+        allow_unsafe_jscode=True,
+        custom_css=custom_css,
+        theme="streamlit",
+        fit_columns_on_grid_load=True,
+    )
 
     st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
 
