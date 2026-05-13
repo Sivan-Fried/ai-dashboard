@@ -756,7 +756,7 @@ if "ai_response"     not in st.session_state: st.session_state.ai_response     =
 if "adding_reminder" not in st.session_state: st.session_state.adding_reminder = False
 
 params = st.query_params
-if "proj" in params and st.session_state.current_page not in ["resources", "risks", "meetings"]:
+if "proj" in params and st.session_state.current_page not in ["resources", "risks", "meetings", "tasks"]:
     st.session_state.selected_project = params["proj"]
     st.session_state.current_page = "project"
 if "page" in params and params["page"] == "resources":
