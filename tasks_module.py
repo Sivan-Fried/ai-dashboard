@@ -66,7 +66,7 @@ def show_tasks_page(project_name=None):
     with k4:
         st.markdown(f'''<div class="kpi-container"><div class="kpi-header"><div class="kpi-icon-box" style="background:#fef2f2;"><span class="material-symbols-rounded" style="color:#ef4444;">warning</span></div><span class="kpi-badge" style="background:#fef2f2;color:#ef4444;">באיחור</span></div><div class="kpi-content"><div class="kpi-value-row"><span class="kpi-unit">משימות</span><span class="kpi-number">{late}</span></div></div></div>''', unsafe_allow_html=True)
 
-    st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-bottom:2rem;'></div>", unsafe_allow_html=True)
 
     df_display = df[["description", "status", "responsible", "start_date", "due_date", "notes"]].copy()
     df_display["start_date"] = df_display["start_date"].apply(fmt_date)
