@@ -834,9 +834,9 @@ with main_col:
         show_risks_page(p_name)
 
     elif st.session_state.current_page == "tasks":
-    from tasks_module import show_tasks_page
-    p_name = st.session_state.get("selected_project", "")
-    show_tasks_page(p_name)
+        from tasks_module import show_tasks_page
+        p_name = st.session_state.get("selected_project", "")
+        show_tasks_page(p_name)
 
     elif st.session_state.current_page == "project":
         p_name = st.session_state.get("selected_project", "פרויקט")
