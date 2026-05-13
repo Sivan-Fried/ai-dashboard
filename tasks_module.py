@@ -149,7 +149,7 @@ def show_tasks_page(project_name=None):
             custom_css=custom_css,
             theme="streamlit",
             fit_columns_on_grid_load=True,
-            height=48 + 44 + (len(df_display) * 44) + 4,
+            height=48 + 48 + (len(df_display) * 44),
         )
 
     st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
