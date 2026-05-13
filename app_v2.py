@@ -558,6 +558,8 @@ def render_sidebar(page="main", project_name=None):
 
     if idx_key not in st.session_state:
         st.session_state[idx_key] = default_idx
+    elif st.session_state.current_page in targets:
+        st.session_state[idx_key] = targets.index(st.session_state.current_page)
 
     def on_change(key):
         selected_val = st.session_state[key]
