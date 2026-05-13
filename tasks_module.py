@@ -81,23 +81,13 @@ def show_tasks_page(project_name=None):
     function(params) {
         if (!params.value) return '';
         var colors = {
-            'הושלם':  {bg: '#ecfdf5', color: '#10b981'},
-            'בביצוע': {bg: '#eff6ff', color: '#3b82f6'},
-            'ממתין':  {bg: '#f8fafc', color: '#94a3b8'},
-            'באיחור': {bg: '#fef2f2', color: '#ef4444'}
+            '\u05d4\u05d5\u05e9\u05dc\u05dd':  {bg: '#ecfdf5', color: '#10b981'},
+            '\u05d1\u05d1\u05d9\u05e6\u05d5\u05e2': {bg: '#eff6ff', color: '#3b82f6'},
+            '\u05de\u05de\u05ea\u05d9\u05df':  {bg: '#f8fafc', color: '#94a3b8'},
+            '\u05d1\u05d0\u05d9\u05d7\u05d5\u05e8': {bg: '#fef2f2', color: '#ef4444'}
         };
         var c = colors[params.value] || {bg: '#f8fafc', color: '#94a3b8'};
         return '<span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:' + c.bg + ';color:' + c.color + ';">' + params.value + '</span>';
-    }
-    """)
-
-    # ── cellStyle לתאריך יעד אם באיחור ───────────────────
-    due_style = JsCode("""
-    function(params) {
-        if (params.data && params.data['\u05e1\u05d8\u05d8\u05d5\u05e1'] === '\u05d1\u05d0\u05d9\u05d7\u05d5\u05e8') {
-            return {'color': '#ef4444', 'fontWeight': '600'};
-        }
-        return {'color': '#71717a'};
     }
     """)
 
@@ -110,7 +100,6 @@ def show_tasks_page(project_name=None):
         resizable=True,
         floatingFilter=True,
         filter="agTextColumnFilter",
-        wrapText=False,
         suppressMenu=True,
     )
 
@@ -118,8 +107,8 @@ def show_tasks_page(project_name=None):
     gb.configure_column("status",       header_name="סטטוס",        flex=1,   cellRenderer=status_renderer, filter="agSetColumnFilter")
     gb.configure_column("responsible",  header_name="אחראי",         flex=1,   filter="agSetColumnFilter")
     gb.configure_column("start_date",   header_name="תאריך התחלה",  flex=1,   filter="agSetColumnFilter")
-    gb.configure_column("due_date",     header_name="תאריך יעד",    flex=1,   filter="agSetColumnFilter", cellStyle=due_style)
-    gb.configure_column("notes",        header_name="הערות",         flex=1.5, filter="agTextColumnFilter")
+    gb.configure_column("due_date",     header_name="תאריך יעד",    flex=1,   filter="agSetColumnFilter")
+    gb.configure_column("notes",        header_name="הערות",         flex=1.5)
 
     gb.configure_grid_options(
         enableRtl=True,
@@ -136,22 +125,22 @@ def show_tasks_page(project_name=None):
         ".ag-cell":              {"font-size": "13px !important", "font-family": "'Plus Jakarta Sans', sans-serif !important", "color": "#3f3f46 !important", "border": "none !important", "display": "flex !important", "align-items": "center !important", "justify-content": "flex-end !important"},
         ".ag-row":               {"border-bottom": "1px solid #f4f4f5 !important"},
         ".ag-row:hover":         {"background-color": "#fdf6f9 !important"},
-        ".ag-root-wrapper":      {"border": "1px solid #f4f4f5 !important", "border-radius": "16px !important"},
-        ".ag-floating-filter-input input": {"border": "1px solid #FADCE6 !important", "border-radius": "8px !important", "font-size": "11px !important", "font-family": "'Plus Jakarta Sans', sans-serif !important"},
-        ".ag-header-cell":       {"border-right": "none !important"},
-        ".ag-cell-value":        {"direction": "rtl !important"},
+        ".ag-root-wrapper":      {"border": "none !important", "border-radius": "0 !important"},
+        ".ag-floating-filter-input input": {"border": "1px solid #FADCE6 !important", "border-radius": "8px !important", "font-size": "11px !important"},
     }
 
-    AgGrid(
-        df_display,
-        gridOptions=gb.build(),
-        update_mode=GridUpdateMode.NO_UPDATE,
-        allow_unsafe_jscode=True,
-        custom_css=custom_css,
-        theme="streamlit",
-        fit_columns_on_grid_load=True,
-        height=400,
-    )
+    # ── מיכל לבן כמו בסיכונים ─────────────────────────────
+    with st.container(border=True):
+        AgGrid(
+            df_display,
+            gridOptions=gb.build(),
+            update_mode=GridUpdateMode.NO_UPDATE,
+            allow_unsafe_jscode=True,
+            custom_css=custom_css,
+            theme="streamlit",
+            fit_columns_on_grid_load=True,
+            height=44 * (len(df_display) + 3) + 60,
+        )
 
     st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
 
