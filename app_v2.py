@@ -834,6 +834,8 @@ with main_col:
         show_risks_page(p_name)
 
     elif st.session_state.current_page == "tasks":
+        if st.session_state.get("nav_idx_project") != 3:
+            st.session_state["nav_idx_project"] = 3
         from tasks_module import show_tasks_page
         p_name = st.session_state.get("selected_project", "")
         show_tasks_page(p_name)
