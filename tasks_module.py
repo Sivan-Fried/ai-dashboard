@@ -74,12 +74,21 @@ def show_tasks_page(project_name=None):
     df_display["notes"]      = df_display["notes"].fillna("").astype(str).replace("nan", "")
 
     cell_style_jscode = JsCode("""
-    function(params) {
-        if (params.value === '\u05d4\u05d5\u05e9\u05dc\u05dd')  return {'color': '#10b981', 'fontWeight': '700', 'background': '#ecfdf5', 'borderRadius': '20px', 'padding': '2px 10px'};
-        if (params.value === '\u05d1\u05d1\u05d9\u05e6\u05d5\u05e2') return {'color': '#3b82f6', 'fontWeight': '700', 'background': '#eff6ff', 'borderRadius': '20px', 'padding': '2px 10px'};
-        if (params.value === '\u05de\u05de\u05ea\u05d9\u05df')  return {'color': '#94a3b8', 'fontWeight': '700', 'background': '#f8fafc', 'borderRadius': '20px', 'padding': '2px 10px'};
-        if (params.value === '\u05d1\u05d0\u05d9\u05d7\u05d5\u05e8') return {'color': '#ef4444', 'fontWeight': '700', 'background': '#fef2f2', 'borderRadius': '20px', 'padding': '2px 10px'};
-        return {};
+    class StatusRenderer {
+        init(params) {
+            var map = {
+                '\u05d4\u05d5\u05e9\u05dc\u05dd':  ['\u0023ecfdf5','\u002310b981'],
+                '\u05d1\u05d1\u05d9\u05e6\u05d5\u05e2': ['\u0023eff6ff','\u00233b82f6'],
+                '\u05de\u05de\u05ea\u05d9\u05df':  ['\u0023f8fafc','\u002394a3b8'],
+                '\u05d1\u05d0\u05d9\u05d7\u05d5\u05e8': ['\u0023fef2f2','\u0023ef4444']
+            };
+            var c = map[params.value] || ['\u0023f8fafc','\u002394a3b8'];
+            this.eGui = document.createElement('span');
+            this.eGui.style.cssText = 'display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:' + c[0] + ';color:' + c[1];
+            this.eGui.textContent = params.value || '';
+        }
+        getGui() { return this.eGui; }
+        refresh() { return false; }
     }
     """)
 
@@ -105,7 +114,7 @@ def show_tasks_page(project_name=None):
     )
 
     gb.configure_column("description",  header_name="משימה",        flex=2)
-    gb.configure_column("status",       header_name="סטטוס",        flex=1,   cellStyle=cell_style_jscode, filter="agSetColumnFilter")
+    gb.configure_column("status",       header_name="סטטוס",        flex=1,   cellRenderer=cell_style_jscode, filter="agSetColumnFilter")
     gb.configure_column("responsible",  header_name="אחראי",         flex=1,   filter="agSetColumnFilter")
     gb.configure_column("start_date",   header_name="תאריך התחלה",  flex=1)
     gb.configure_column("due_date",     header_name="תאריך יעד",    flex=1,   cellStyle=due_style_jscode)
