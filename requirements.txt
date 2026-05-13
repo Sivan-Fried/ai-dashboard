@@ -6,3 +6,4 @@ geocoder
 streamlit-js-eval
 streamlit-float
 streamlit-option-menu
+streamlit-aggrid
