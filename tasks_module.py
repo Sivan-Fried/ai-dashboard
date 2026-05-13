@@ -43,7 +43,6 @@ def show_tasks_page(project_name=None):
             except:
                 pass
 
-    # כותרת
     title = f"ניהול משימות — {project_name}" if project_name else "ניהול משימות"
     st.markdown(f"### {title}", unsafe_allow_html=True)
     st.markdown(
@@ -52,7 +51,6 @@ def show_tasks_page(project_name=None):
         unsafe_allow_html=True,
     )
 
-    # ── KPIs ──────────────────────────────────────────────
     total   = len(df)
     done    = len(df[df["status"] == "הושלם"])
     in_prog = len(df[df["status"] == "בביצוע"])
@@ -70,24 +68,26 @@ def show_tasks_page(project_name=None):
 
     st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
 
-    # ── הכנת DataFrame לטבלה ──────────────────────────────
     df_display = df[["description", "status", "responsible", "start_date", "due_date", "notes"]].copy()
     df_display["start_date"] = df_display["start_date"].apply(fmt_date)
     df_display["due_date"]   = df_display["due_date"].apply(fmt_date)
     df_display["notes"]      = df_display["notes"].fillna("").astype(str).replace("nan", "")
 
-    # ── cellRenderer לסטטוס — pill בדיוק כמו עמודת "רמה" בסיכונים ──
-    status_renderer = JsCode("""
+    cell_style_jscode = JsCode("""
     function(params) {
-        if (!params.value) return '';
-        var styles = {
-            '\u05d4\u05d5\u05e9\u05dc\u05dd':  'background:#ecfdf5;color:#10b981;',
-            '\u05d1\u05d1\u05d9\u05e6\u05d5\u05e2': 'background:#eff6ff;color:#3b82f6;',
-            '\u05de\u05de\u05ea\u05d9\u05df':  'background:#f8fafc;color:#94a3b8;',
-            '\u05d1\u05d0\u05d9\u05d7\u05d5\u05e8': 'background:#fef2f2;color:#ef4444;'
+        if (!params.value) return params.value;
+        var map = {
+            "\u05d4\u05d5\u05e9\u05dc\u05dd":  ["#ecfdf5","#10b981"],
+            "\u05d1\u05d1\u05d9\u05e6\u05d5\u05e2": ["#eff6ff","#3b82f6"],
+            "\u05de\u05de\u05ea\u05d9\u05df":  ["#f8fafc","#94a3b8"],
+            "\u05d1\u05d0\u05d9\u05d7\u05d5\u05e8": ["#fef2f2","#ef4444"]
         };
-        var s = styles[params.value] || 'background:#f8fafc;color:#94a3b8;';
-        return '<span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:700;' + s + '">' + params.value + '</span>';
+        var c = map[params.value];
+        if (!c) return params.value;
+        var el = document.createElement("span");
+        el.style.cssText = "display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:" + c[0] + ";color:" + c[1];
+        el.textContent = params.value;
+        return el;
     }
     """)
 
@@ -99,7 +99,6 @@ def show_tasks_page(project_name=None):
     }
     """)
 
-    # ── הגדרת AgGrid ──────────────────────────────────────
     gb = GridOptionsBuilder.from_dataframe(df_display)
 
     gb.configure_default_column(
@@ -114,7 +113,7 @@ def show_tasks_page(project_name=None):
     )
 
     gb.configure_column("description",  header_name="משימה",        flex=2)
-    gb.configure_column("status",       header_name="סטטוס",        flex=1,   cellRenderer=status_renderer, filter="agSetColumnFilter")
+    gb.configure_column("status",       header_name="סטטוס",        flex=1,   cellRenderer=cell_style_jscode, filter="agSetColumnFilter")
     gb.configure_column("responsible",  header_name="אחראי",         flex=1,   filter="agSetColumnFilter")
     gb.configure_column("start_date",   header_name="תאריך התחלה",  flex=1)
     gb.configure_column("due_date",     header_name="תאריך יעד",    flex=1,   cellStyle=due_style_jscode)
@@ -154,7 +153,6 @@ def show_tasks_page(project_name=None):
 
     st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
 
-    # ── הוספת משימה חדשה ─────────────────────────────────
     add_key = f"adding_task_{project_name}"
     if add_key not in st.session_state:
         st.session_state[add_key] = False
