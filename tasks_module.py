@@ -150,7 +150,7 @@ def show_tasks_page(project_name=None):
         custom_css=custom_css,
         theme="streamlit",
         fit_columns_on_grid_load=True,
-        height=None,
+        height=400,
     )
 
     st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
