@@ -140,7 +140,7 @@ def show_tasks_page(project_name=None):
         ".ag-input-field-input": {"border-radius": "8px !important", "border": "1px solid #FADCE6 !important"},
     }
 
-    st.markdown("### <span class='material-symbols-outlined' style='vertical-align:middle;margin-left:8px;font-size:1.5rem;color:#64748b;'>checklist</span> משימות הפרויקט", unsafe_allow_html=True)
+    st.markdown("### משימות הפרויקט", unsafe_allow_html=True)
 
     with st.container(border=True):
         AgGrid(
