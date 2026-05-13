@@ -124,7 +124,6 @@ def show_tasks_page(project_name=None):
         enableRtl=True,
         rowHeight=44,
         headerHeight=48,
-        domLayout="autoHeight",
         suppressRowClickSelection=True,
     )
 
@@ -150,6 +149,7 @@ def show_tasks_page(project_name=None):
             custom_css=custom_css,
             theme="streamlit",
             fit_columns_on_grid_load=True,
+            height=None,
         )
 
     st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
