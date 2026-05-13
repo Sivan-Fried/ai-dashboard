@@ -74,20 +74,21 @@ def show_tasks_page(project_name=None):
     df_display["notes"]      = df_display["notes"].fillna("").astype(str).replace("nan", "")
 
     cell_style_jscode = JsCode("""
-    function(params) {
-        if (!params.value) return params.value;
-        var map = {
-            "\u05d4\u05d5\u05e9\u05dc\u05dd":  ["#ecfdf5","#10b981"],
-            "\u05d1\u05d1\u05d9\u05e6\u05d5\u05e2": ["#eff6ff","#3b82f6"],
-            "\u05de\u05de\u05ea\u05d9\u05df":  ["#f8fafc","#94a3b8"],
-            "\u05d1\u05d0\u05d9\u05d7\u05d5\u05e8": ["#fef2f2","#ef4444"]
-        };
-        var c = map[params.value];
-        if (!c) return params.value;
-        var el = document.createElement("span");
-        el.style.cssText = "display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:" + c[0] + ";color:" + c[1];
-        el.textContent = params.value;
-        return el;
+    class StatusRenderer {
+        init(params) {
+            var map = {
+                '\u05d4\u05d5\u05e9\u05dc\u05dd':  ['#ecfdf5','#10b981'],
+                '\u05d1\u05d1\u05d9\u05e6\u05d5\u05e2': ['#eff6ff','#3b82f6'],
+                '\u05de\u05de\u05ea\u05d9\u05df':  ['#f8fafc','#94a3b8'],
+                '\u05d1\u05d0\u05d9\u05d7\u05d5\u05e8': ['#fef2f2','#ef4444']
+            };
+            var c = map[params.value] || ['#f8fafc','#94a3b8'];
+            this.eGui = document.createElement('span');
+            this.eGui.style.cssText = 'display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:' + c[0] + ';color:' + c[1];
+            this.eGui.textContent = params.value || '';
+        }
+        getGui() { return this.eGui; }
+        refresh() { return false; }
     }
     """)
 
