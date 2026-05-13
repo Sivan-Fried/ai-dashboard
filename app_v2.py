@@ -541,9 +541,9 @@ def render_sidebar(page="main", project_name=None):
         anchors = ["section-projects", "section-projects", "section-meetings", "section-tasks",
                    "section-reminders", "section-priority", "section-fathom", "section-ai"]
     else:
-        options = ["תוכנית עבודה", "משאבים", "סיכונים", "סיכומים"]
-        icons   = ["calendar-month", "people", "exclamation-triangle", "file-text"]
-        targets = ["project", "resources", "risks", "meetings"]
+        options = ["תוכנית עבודה", "משאבים", "סיכונים", "משימות", "סיכומים"]
+        icons   = ["calendar-month", "people", "exclamation-triangle", "check2-square", "file-text"]
+        targets = ["project", "resources", "risks", "tasks", "meetings"]
 
     if page != "main":
         try:
@@ -832,6 +832,11 @@ with main_col:
         from risks_module import show_risks_page
         p_name = st.session_state.get("selected_project", "")
         show_risks_page(p_name)
+
+    elif st.session_state.current_page == "tasks":
+    from tasks_module import show_tasks_page
+    p_name = st.session_state.get("selected_project", "")
+    show_tasks_page(p_name)
 
     elif st.session_state.current_page == "project":
         p_name = st.session_state.get("selected_project", "פרויקט")
