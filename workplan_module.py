@@ -125,7 +125,7 @@ body {{ font-family: 'Assistant', sans-serif; background: white; padding-bottom:
 .toggle-btn:hover:not(.active) {{ color: #475569; }}
 
 /* ציר — LTR כדי ש-left:50% יעבוד נכון */
-.tl {{ position: relative; width: 100%; direction: ltr; }}
+.tl {{ position: relative; width: 100%; direction: ltr; padding-top: 20px; }}
 .tl::before {{
   content: '';
   position: absolute;
@@ -147,14 +147,14 @@ body {{ font-family: 'Assistant', sans-serif; background: white; padding-bottom:
   width: calc(50% - 6px);
   display: flex;
   justify-content: flex-end;
-  padding-right: 36px;
+  padding-right: 50px;
   position: relative; z-index: 1;
 }}
 .cr {{
   width: calc(50% - 6px);
   display: flex;
   justify-content: flex-start;
-  padding-left: 36px;
+  padding-left: 50px;
   margin-left: 12px;
   position: relative; z-index: 1;
 }}
@@ -188,16 +188,16 @@ body {{ font-family: 'Assistant', sans-serif; background: white; padding-bottom:
 .cl .card::after {{
   content: '';
   position: absolute;
-  top: 50%; right: -36px;
-  width: 36px; height: 2px;
+  top: 50%; right: -50px;
+  width: 50px; height: 2px;
   background: #cbd5e1;
   transform: translateY(-50%);
 }}
 .cr .card::before {{
   content: '';
   position: absolute;
-  top: 50%; left: -36px;
-  width: 36px; height: 2px;
+  top: 50%; left: -50px;
+  width: 50px; height: 2px;
   background: #cbd5e1;
   transform: translateY(-50%);
 }}
