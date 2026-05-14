@@ -125,13 +125,22 @@ body {{ font-family: 'Assistant', sans-serif; background: white; padding-bottom:
 .toggle-btn:hover:not(.active) {{ color: #475569; }}
 
 /* ציר — LTR כדי ש-left:50% יעבוד נכון */
-.tl {{ position: relative; width: 100%; direction: ltr; padding-top: 20px; }}
+.tl {{ position: relative; width: 100%; direction: ltr; padding-top: 40px; }}
 .tl::before {{
   content: '';
   position: absolute;
-  top: 0; bottom: 0;
+  top: -16px; bottom: -16px;
   left: 50%; width: 2px; margin-left: -1px;
   background: #cbd5e1; z-index: 0;
+}}
+.tl::after {{
+  content: '';
+  position: absolute;
+  top: -16px; bottom: -16px;
+  left: calc(50% - 4px);
+  width: 0;
+  z-index: 1;
+  pointer-events: none;
 }}
 
 .row {{
@@ -258,6 +267,15 @@ var CM=new Date().getMonth(),CY=new Date().getFullYear(),CQ=Math.floor(CM/3);
 
 (function(){{
   var rows=document.querySelectorAll('.row'),tl=document.getElementById('tl');
+
+  // עיגולים בקצוות הציר
+  var topDot = document.createElement('div');
+  topDot.style.cssText = 'position:absolute;top:-21px;left:50%;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;background:white;border:2px solid #94a3b8;z-index:2;';
+  tl.style.position = 'relative';
+  tl.appendChild(topDot);
+  var botDot = document.createElement('div');
+  botDot.style.cssText = 'position:absolute;bottom:-21px;left:50%;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;background:white;border:2px solid #94a3b8;z-index:2;';
+  tl.appendChild(botDot);
   var m=document.createElement('div');
   m.className='today';m.id='today-el';
   m.innerHTML='<span>היום {today_str}</span>';
