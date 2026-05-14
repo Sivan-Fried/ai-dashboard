@@ -227,7 +227,7 @@ def build_timeline_html(project_name):
         /* שורת ציר */
         .timeline-row {{
             display: grid;
-            grid-template-columns: 1fr 40px 1fr;
+            grid-template-columns: 1fr 12px 1fr;
             align-items: center;
             min-height: 90px;
             position: relative;
@@ -238,12 +238,15 @@ def build_timeline_html(project_name):
             display: none !important;
         }}
 
-        /* עמודת מרכז */
+        /* עמודת מרכז — רוחב אפס כדי שהנקודה תצמד לקו */
         .center-col {{
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 3;
+            width: 0;
+            overflow: visible;
+            position: relative;
         }}
 
         .dot {{
@@ -255,6 +258,7 @@ def build_timeline_html(project_name):
             box-shadow: 0 0 0 2px #475569;
             flex-shrink: 0;
             z-index: 4;
+            position: relative;
         }}
 
         /* צדדים */
@@ -278,19 +282,19 @@ def build_timeline_html(project_name):
             align-items: center;
         }}
 
-        /* כרטיס שמאל: קונקטור אחרי הכרטיס (בצד ימין של הכרטיס = כיוון המרכז) */
+        /* כרטיס שמאל: קונקטור מימין הכרטיס (כלפי הציר) */
         .card-wrap.left {{
             flex-direction: row-reverse;
         }}
 
-        /* כרטיס ימין: קונקטור לפני הכרטיס (בצד שמאל של הכרטיס = כיוון המרכז) */
+        /* כרטיס ימין: קונקטור משמאל הכרטיס (כלפי הציר) */
         .card-wrap.right {{
             flex-direction: row;
         }}
 
         .connector {{
             height: 2px;
-            width: 16px;
+            width: 20px;
             background: #cbd5e1;
             flex-shrink: 0;
         }}
@@ -478,7 +482,13 @@ def show_workplan_page(project_name=None):
     import streamlit.components.v1 as components
     st.markdown(f"### תוכנית עבודה — {project_name}", unsafe_allow_html=True)
     try:
+        # חישוב גובה דינמי לפי כמות אבני הדרך
+        df = load_workplan_df()
+        p = clean_text(project_name) if project_name else ""
+        project_df = df[df["project_name"] == p]
+        num_rows = max(len(project_df), 1)
+        dynamic_height = 120 + (num_rows * 95) + 60  # כפתורים + שורות + padding
         html = build_timeline_html(project_name)
-        components.html(html, height=700, scrolling=True)
+        components.html(html, height=dynamic_height, scrolling=False)
     except Exception as e:
         st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
