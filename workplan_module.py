@@ -30,6 +30,7 @@ def build_timeline_html(project_name):
 
     today = datetime.date.today()
     today_str = today.strftime("%d.%m")
+    today_iso = today.strftime("%Y-%m-%d")
 
     # בניית רשימת אבני הדרך
     items_data = []
@@ -64,80 +65,57 @@ def build_timeline_html(project_name):
             "tooltip_html": tooltip_html,
         })
 
-    # בניית HTML לאבני הדרך — חלופי שמאל/ימין
-    # אבני דרך באותו תאריך יוצאות מאותה נקודה (זוג)
+    def make_card(it, side):
+        return f"""<div class="card-wrap {side}">
+                    <div class="connector"></div>
+                    <div class="card" data-date="{it['date_iso']}">
+                        {it['tooltip_html']}
+                        <span class="tag {it['tag_class']}">{it['name']}</span>
+                        <div class="date">{it['date_str']}</div>
+                        <span class="status {it['status_class']}">{it['status_val']}</span>
+                    </div>
+                </div>"""
+
+    # בניית שורות
     items_html_parts = []
     i = 0
-    side_counter = 0  # מונה גלובלי לקביעת צד
+    side_counter = 0
 
     while i < len(items_data):
         item = items_data[i]
-        # בדיקה אם הפריט הבא באותו תאריך
         same_date_group = [item]
         j = i + 1
         while j < len(items_data) and items_data[j]["date_iso"] == item["date_iso"]:
             same_date_group.append(items_data[j])
             j += 1
 
-        if len(same_date_group) == 2:
-            # שניים באותו תאריך — ימין ושמאל מאותה נקודה
-            left_item = same_date_group[0]
-            right_item = same_date_group[1]
-
-            left_card = f"""
-                <div class="card" data-date="{left_item['date_iso']}">
-                    {left_item['tooltip_html']}
-                    <span class="tag {left_item['tag_class']}">{left_item['name']}</span>
-                    <div class="date">{left_item['date_str']}</div>
-                    <span class="status {left_item['status_class']}">{left_item['status_val']}</span>
-                </div>"""
-
-            right_card = f"""
-                <div class="card" data-date="{right_item['date_iso']}">
-                    {right_item['tooltip_html']}
-                    <span class="tag {right_item['tag_class']}">{right_item['name']}</span>
-                    <div class="date">{right_item['date_str']}</div>
-                    <span class="status {right_item['status_class']}">{right_item['status_val']}</span>
-                </div>"""
-
+        if len(same_date_group) >= 2:
+            left_card = make_card(same_date_group[0], "left")
+            right_card = make_card(same_date_group[1], "right")
             items_html_parts.append(f"""
-            <div class="timeline-row paired" data-date="{item['date_iso']}">
-                <div class="side left">{left_card}</div>
-                <div class="center-col">
-                    <div class="dot"></div>
-                </div>
-                <div class="side right">{right_card}</div>
-            </div>""")
+        <div class="timeline-row paired" data-date="{item['date_iso']}">
+            <div class="side left">{left_card}</div>
+            <div class="center-col"><div class="dot"></div></div>
+            <div class="side right">{right_card}</div>
+        </div>""")
             side_counter += 2
         else:
-            # אבן דרך יחידה — צד מתחלף
             side = "left" if side_counter % 2 == 0 else "right"
-            card = f"""
-                <div class="card" data-date="{item['date_iso']}">
-                    {item['tooltip_html']}
-                    <span class="tag {item['tag_class']}">{item['name']}</span>
-                    <div class="date">{item['date_str']}</div>
-                    <span class="status {item['status_class']}">{item['status_val']}</span>
-                </div>"""
-
+            card = make_card(item, side)
             if side == "left":
                 items_html_parts.append(f"""
-            <div class="timeline-row single" data-date="{item['date_iso']}">
-                <div class="side left">{card}</div>
-                <div class="center-col">
-                    <div class="dot"></div>
-                </div>
-                <div class="side right"></div>
-            </div>""")
+        <div class="timeline-row single" data-date="{item['date_iso']}">
+            <div class="side left">{card}</div>
+            <div class="center-col"><div class="dot"></div></div>
+            <div class="side right"></div>
+        </div>""")
             else:
                 items_html_parts.append(f"""
-            <div class="timeline-row single" data-date="{item['date_iso']}">
-                <div class="side left"></div>
-                <div class="center-col">
-                    <div class="dot"></div>
-                </div>
-                <div class="side right">{card}</div>
-            </div>""")
+        <div class="timeline-row single" data-date="{item['date_iso']}">
+            <div class="side left"></div>
+            <div class="center-col"><div class="dot"></div></div>
+            <div class="side right">{card}</div>
+        </div>""")
             side_counter += 1
 
         i = j
@@ -157,18 +135,12 @@ def build_timeline_html(project_name):
             font-family: 'Assistant', sans-serif;
             background-color: white;
             direction: rtl;
-            overflow-x: hidden;
         }}
 
-        /* ── כפתורי סינון ── */
         .controls {{
             display: flex;
             justify-content: flex-end;
-            padding: 16px 24px 0 24px;
-            position: sticky;
-            top: 0;
-            background: white;
-            z-index: 10;
+            padding: 14px 20px 8px 20px;
         }}
 
         .toggle-group {{
@@ -180,7 +152,7 @@ def build_timeline_html(project_name):
         }}
 
         .toggle-btn {{
-            padding: 6px 14px;
+            padding: 5px 12px;
             font-size: 12px;
             font-weight: 600;
             font-family: 'Assistant', sans-serif;
@@ -201,13 +173,13 @@ def build_timeline_html(project_name):
             color: #475569;
         }}
 
-        /* ── מיכל ציר הזמן ── */
+        /* ציר הזמן */
         .timeline-container {{
             position: relative;
-            padding: 24px 0 32px 0;
+            padding: 16px 0 32px 0;
         }}
 
-        /* קו ציר אנכי במרכז */
+        /* קו ציר אנכי */
         .timeline-container::before {{
             content: '';
             position: absolute;
@@ -220,13 +192,14 @@ def build_timeline_html(project_name):
             z-index: 0;
         }}
 
-        /* ── חיווי היום ── */
+        /* חיווי היום */
         .today-marker {{
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 8px 0;
+            height: 28px;
+            margin: 6px 0;
             z-index: 5;
         }}
 
@@ -235,8 +208,7 @@ def build_timeline_html(project_name):
             position: absolute;
             left: 0;
             right: 0;
-            height: 2px;
-            background: #FADCE6;
+            border-top: 2px dashed #f0b8cb;
             z-index: 1;
         }}
 
@@ -252,13 +224,12 @@ def build_timeline_html(project_name):
             white-space: nowrap;
         }}
 
-        /* ── שורת ציר הזמן ── */
+        /* שורת ציר */
         .timeline-row {{
             display: grid;
             grid-template-columns: 1fr 40px 1fr;
             align-items: center;
-            gap: 0;
-            margin: 8px 0;
+            min-height: 90px;
             position: relative;
             z-index: 2;
         }}
@@ -267,12 +238,11 @@ def build_timeline_html(project_name):
             display: none !important;
         }}
 
-        /* עמודת מרכז עם נקודה */
+        /* עמודת מרכז */
         .center-col {{
             display: flex;
             justify-content: center;
             align-items: center;
-            position: relative;
             z-index: 3;
         }}
 
@@ -284,13 +254,14 @@ def build_timeline_html(project_name):
             border: 2px solid white;
             box-shadow: 0 0 0 2px #475569;
             flex-shrink: 0;
+            z-index: 4;
         }}
 
         /* צדדים */
         .side {{
-            padding: 4px 12px;
             display: flex;
             align-items: center;
+            padding: 8px 0;
         }}
 
         .side.left {{
@@ -301,24 +272,44 @@ def build_timeline_html(project_name):
             justify-content: flex-start;
         }}
 
-        /* כרטיס אבן דרך */
+        /* עטיפת כרטיס */
+        .card-wrap {{
+            display: flex;
+            align-items: center;
+        }}
+
+        /* כרטיס שמאל: קונקטור אחרי הכרטיס (בצד ימין של הכרטיס = כיוון המרכז) */
+        .card-wrap.left {{
+            flex-direction: row-reverse;
+        }}
+
+        /* כרטיס ימין: קונקטור לפני הכרטיס (בצד שמאל של הכרטיס = כיוון המרכז) */
+        .card-wrap.right {{
+            flex-direction: row;
+        }}
+
+        .connector {{
+            height: 2px;
+            width: 16px;
+            background: #cbd5e1;
+            flex-shrink: 0;
+        }}
+
+        /* כרטיס */
         .card {{
             background: white;
             padding: 6px 8px;
             border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.07);
             border: 1px solid #f1f5f9;
             text-align: center;
-            width: 130px;
+            width: 120px;
             position: relative;
             flex-shrink: 0;
         }}
 
-        .card:hover .tooltip {{
-            display: block;
-        }}
+        .card:hover .tooltip {{ display: block; }}
 
-        /* תגית */
         .tag {{
             font-size: 10px;
             font-weight: 700;
@@ -336,7 +327,7 @@ def build_timeline_html(project_name):
             font-size: 12px;
             font-weight: 600;
             color: #1e293b;
-            margin: 1px 0;
+            margin: 2px 0;
         }}
 
         .status {{
@@ -344,11 +335,11 @@ def build_timeline_html(project_name):
             font-weight: 700;
             margin-top: 1px;
             display: block;
+            color: #94a3b8;
         }}
         .live {{ color: #10b981; }}
         .wip  {{ color: #f59e0b; }}
 
-        /* טולטיפ */
         .tooltip {{
             display: none;
             position: absolute;
@@ -379,12 +370,11 @@ def build_timeline_html(project_name):
             border-top-color: #1e293b;
         }}
 
-        /* ── רספונסיביות ── */
-        @media (max-width: 600px) {{
-            .card {{ width: 110px; }}
+        @media (max-width: 500px) {{
+            .card {{ width: 90px; }}
             .tag {{ font-size: 9px; }}
-            .date {{ font-size: 11px; }}
-            .side {{ padding: 4px 6px; }}
+            .date {{ font-size: 10px; }}
+            .connector {{ width: 8px; }}
         }}
     </style>
 </head>
@@ -402,82 +392,78 @@ def build_timeline_html(project_name):
     </div>
 
     <script>
-        const today = new Date();
-        const todayISO = today.toISOString().split('T')[0];
-        const currentMonth = today.getMonth();
-        const currentYear = today.getFullYear();
-        const currentQuarter = Math.floor(currentMonth / 3);
+        var todayISO = '{today_iso}';
+        var currentMonth = new Date().getMonth();
+        var currentYear = new Date().getFullYear();
+        var currentQuarter = Math.floor(currentMonth / 3);
 
-        // הוספת חיווי היום במיקום הנכון
         function insertTodayMarker() {{
-            const rows = document.querySelectorAll('.timeline-row');
-            const timeline = document.getElementById('timeline');
-            let inserted = false;
+            var rows = document.querySelectorAll('.timeline-row');
+            var timeline = document.getElementById('timeline');
+            var marker = document.createElement('div');
+            marker.className = 'today-marker';
+            marker.id = 'today-marker';
+            marker.innerHTML = '<span class="today-badge">היום {today_str}</span>';
 
-            for (let i = 0; i < rows.length; i++) {{
-                const dateStr = rows[i].getAttribute('data-date');
-                if (dateStr && dateStr > todayISO) {{
-                    const marker = document.createElement('div');
-                    marker.className = 'today-marker';
-                    marker.id = 'today-marker';
-                    marker.innerHTML = '<span class="today-badge">היום {today_str}</span>';
+            var inserted = false;
+            for (var i = 0; i < rows.length; i++) {{
+                var d = rows[i].getAttribute('data-date');
+                if (d && d > todayISO) {{
                     timeline.insertBefore(marker, rows[i]);
                     inserted = true;
                     break;
                 }}
             }}
-
-            if (!inserted) {{
-                const marker = document.createElement('div');
-                marker.className = 'today-marker';
-                marker.id = 'today-marker';
-                marker.innerHTML = '<span class="today-badge">היום {today_str}</span>';
-                timeline.appendChild(marker);
-            }}
+            if (!inserted) timeline.appendChild(marker);
         }}
 
         insertTodayMarker();
 
         function filterView(mode, btn) {{
-            document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.toggle-btn').forEach(function(b) {{
+                b.classList.remove('active');
+            }});
             btn.classList.add('active');
 
-            const rows = document.querySelectorAll('.timeline-row');
+            var rows = document.querySelectorAll('.timeline-row');
             rows.forEach(function(row) {{
-                const dateStr = row.getAttribute('data-date');
-                // עבור שורות paired — בודקים את הכרטיסים הפנימיים
-                const cards = row.querySelectorAll('.card');
-                let anyVisible = false;
+                if (mode === 'all') {{
+                    row.classList.remove('hidden');
+                    row.querySelectorAll('.card-wrap').forEach(function(w) {{
+                        w.style.visibility = 'visible';
+                    }});
+                    return;
+                }}
+
+                var cards = row.querySelectorAll('.card');
+                var anyVisible = false;
 
                 cards.forEach(function(card) {{
-                    const cDate = card.getAttribute('data-date');
+                    var cDate = card.getAttribute('data-date');
                     if (!cDate) {{ anyVisible = true; return; }}
-                    const date = new Date(cDate);
-                    const month = date.getMonth();
-                    const year = date.getFullYear();
-                    const quarter = Math.floor(month / 3);
-
-                    let show = true;
+                    var date = new Date(cDate);
+                    var month = date.getMonth();
+                    var year = date.getFullYear();
+                    var quarter = Math.floor(month / 3);
+                    var show = true;
                     if (mode === 'month') {{
-                        show = month === currentMonth && year === currentYear;
+                        show = (month === currentMonth && year === currentYear);
                     }} else if (mode === 'quarter') {{
-                        show = quarter === currentQuarter && year === currentYear;
+                        show = (quarter === currentQuarter && year === currentYear);
                     }}
-
-                    card.style.visibility = show ? 'visible' : 'hidden';
+                    var wrap = card.closest('.card-wrap');
+                    if (wrap) wrap.style.visibility = show ? 'visible' : 'hidden';
                     if (show) anyVisible = true;
                 }});
 
-                // מסתיר את השורה כולה אם אין כרטיסים גלויים
-                row.classList.toggle('hidden', !anyVisible && mode !== 'all');
-                if (mode === 'all') {{
+                if (anyVisible) {{
                     row.classList.remove('hidden');
-                    row.querySelectorAll('.card').forEach(c => c.style.visibility = 'visible');
+                }} else {{
+                    row.classList.add('hidden');
                 }}
             }});
 
-            // חיווי היום — תמיד גלוי
-            const marker = document.getElementById('today-marker');
+            var marker = document.getElementById('today-marker');
             if (marker) marker.style.display = 'flex';
         }}
     </script>
@@ -493,6 +479,6 @@ def show_workplan_page(project_name=None):
     st.markdown(f"### תוכנית עבודה — {project_name}", unsafe_allow_html=True)
     try:
         html = build_timeline_html(project_name)
-        components.html(html, height=600, scrolling=True)
+        components.html(html, height=700, scrolling=True)
     except Exception as e:
         st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
