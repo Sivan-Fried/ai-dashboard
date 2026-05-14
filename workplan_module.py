@@ -147,14 +147,14 @@ body {{ font-family: 'Assistant', sans-serif; background: white; padding-bottom:
   width: calc(50% - 6px);
   display: flex;
   justify-content: flex-end;
-  padding-right: 50px;
+  padding-right: 80px;
   position: relative; z-index: 1;
 }}
 .cr {{
   width: calc(50% - 6px);
   display: flex;
   justify-content: flex-start;
-  padding-left: 50px;
+  padding-left: 80px;
   margin-left: 12px;
   position: relative; z-index: 1;
 }}
@@ -188,16 +188,16 @@ body {{ font-family: 'Assistant', sans-serif; background: white; padding-bottom:
 .cl .card::after {{
   content: '';
   position: absolute;
-  top: 50%; right: -50px;
-  width: 50px; height: 2px;
+  top: 50%; right: -80px;
+  width: 80px; height: 2px;
   background: #cbd5e1;
   transform: translateY(-50%);
 }}
 .cr .card::before {{
   content: '';
   position: absolute;
-  top: 50%; left: -50px;
-  width: 50px; height: 2px;
+  top: 50%; left: -80px;
+  width: 80px; height: 2px;
   background: #cbd5e1;
   transform: translateY(-50%);
 }}
