@@ -311,8 +311,27 @@ def show_workplan_page(project_name=None):
     st.markdown(f"### תוכנית עבודה — {project_name}", unsafe_allow_html=True)
     try:
         df = load_workplan_df()
-        p  = clean_text(project_name) if project_name else ""
-        n  = max(len(df[df["project_name"] == p]), 1)
+        p   = clean_text(project_name) if project_name else ""
+        _pf = df[df["project_name"] == p]
+        n   = max(len(_pf), 1)
+        _yr    = datetime.date.today().year
+        _live  = len(_pf[_pf["status"].str.strip() == "LIVE"])
+        _wip   = len(_pf[_pf["status"].str.strip().isin(["בעבודה", "WIP"])])
+        _tbd   = len(_pf[_pf["status"].str.strip() == "TBD"])
+        _total = len(_pf[_pf["date"].dt.year == _yr])
+
+        k0, k1, k2, k3 = st.columns(4)
+        with k0:
+            st.markdown(f'''<div class="kpi-container"><div class="kpi-header"><div class="kpi-icon-box" style="background:#ecfdf5;"><span class="material-symbols-rounded" style="color:#10b981;">check_circle</span></div><span class="kpi-badge" style="background:#ecfdf5;color:#10b981;">LIVE</span></div><div class="kpi-content"><div class="kpi-value-row"><span class="kpi-unit">גרסאות</span><span class="kpi-number">{_live}</span></div></div></div>''', unsafe_allow_html=True)
+        with k1:
+            st.markdown(f'''<div class="kpi-container"><div class="kpi-header"><div class="kpi-icon-box" style="background:#fffbeb;"><span class="material-symbols-rounded" style="color:#f59e0b;">pending</span></div><span class="kpi-badge" style="background:#fffbeb;color:#f59e0b;">בעבודה</span></div><div class="kpi-content"><div class="kpi-value-row"><span class="kpi-unit">גרסאות</span><span class="kpi-number">{_wip}</span></div></div></div>''', unsafe_allow_html=True)
+        with k2:
+            st.markdown(f'''<div class="kpi-container"><div class="kpi-header"><div class="kpi-icon-box" style="background:#f8fafc;"><span class="material-symbols-rounded" style="color:#94a3b8;">schedule</span></div><span class="kpi-badge" style="background:#f8fafc;color:#94a3b8;">TBD</span></div><div class="kpi-content"><div class="kpi-value-row"><span class="kpi-unit">גרסאות</span><span class="kpi-number">{_tbd}</span></div></div></div>''', unsafe_allow_html=True)
+        with k3:
+            st.markdown(f'''<div class="kpi-container"><div class="kpi-header"><div class="kpi-icon-box" style="background:#eff6ff;"><span class="material-symbols-rounded" style="color:#3b82f6;">calendar_today</span></div><span class="kpi-badge" style="background:#eff6ff;color:#3b82f6;">סה״כ השנה</span></div><div class="kpi-content"><div class="kpi-value-row"><span class="kpi-unit">גרסאות</span><span class="kpi-number">{_total}</span></div></div></div>''', unsafe_allow_html=True)
+
+        st.markdown("<div style='margin-bottom:0.5rem;'></div>", unsafe_allow_html=True)
+
         height = 60 + n * 95 + 60 + 60
         html = build_timeline_html(project_name)
         components.html(html, height=height, scrolling=False)
