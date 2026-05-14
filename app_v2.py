@@ -847,11 +847,8 @@ with main_col:
         st.header(p_name)
         
         with st.container(border=True):
-            try:
-                html = build_timeline_html(p_name)
-                st.components.v1.html(html, height=300, scrolling=False)
-            except Exception as e:
-                st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
+            from workplan_module import show_workplan_page
+            show_workplan_page(p_name)
 
     # 3. מסך ראשי / דשבורד רגיל
     else:
