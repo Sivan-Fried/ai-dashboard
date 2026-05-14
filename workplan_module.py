@@ -232,45 +232,6 @@ body {{ font-family: 'Assistant', sans-serif; background: white; padding-bottom:
   transform: translateX(50%); border: 5px solid transparent; border-top-color: #1e293b;
 }}
 
-.kpi-bar {{
-  display: flex;
-  gap: 8px;
-  padding: 12px 20px 8px;
-  direction: rtl;
-  flex-direction: row-reverse;
-}}
-.kpi-box {{
-  background: white;
-  border-radius: 10px;
-  border: 1px solid #f1f5f9;
-  box-shadow: 0 2px 6px rgba(0,0,0,.06);
-  padding: 8px 16px;
-  text-align: center;
-  min-width: 70px;
-  flex: 1;
-}}
-.kpi-label {{
-  font-size: 10px;
-  font-weight: 700;
-  color: #94a3b8;
-  margin-bottom: 2px;
-}}
-.kpi-val {{
-  font-size: 22px;
-  font-weight: 800;
-  color: #3f3f46;
-}}
-#kpi-live .kpi-label {{ color: #10b981; }}
-#kpi-live .kpi-val   {{ color: #10b981; }}
-#kpi-wip .kpi-label  {{ color: #f59e0b; }}
-#kpi-wip .kpi-val    {{ color: #f59e0b; }}
-#kpi-tbd .kpi-label  {{ color: #94a3b8; }}
-.kpi-total {{
-  background: #f8fafc;
-  border-color: #e2e8f0;
-}}
-.kpi-total .kpi-label {{ color: #64748b; }}
-.kpi-total .kpi-val   {{ color: #1e293b; }}
 .today {{
   position: relative; display: flex; align-items: center; justify-content: center;
   height: 28px; margin: 4px 0; width: 100%;
@@ -288,24 +249,6 @@ body {{ font-family: 'Assistant', sans-serif; background: white; padding-bottom:
 </head>
 <body>
 
-<div class="kpi-bar">
-  <div class="kpi-box" id="kpi-live">
-    <div class="kpi-label">LIVE</div>
-    <div class="kpi-val" id="kv-live">0</div>
-  </div>
-  <div class="kpi-box" id="kpi-wip">
-    <div class="kpi-label">בעבודה</div>
-    <div class="kpi-val" id="kv-wip">0</div>
-  </div>
-  <div class="kpi-box" id="kpi-tbd">
-    <div class="kpi-label">TBD</div>
-    <div class="kpi-val" id="kv-tbd">0</div>
-  </div>
-  <div class="kpi-box kpi-total" id="kpi-total">
-    <div class="kpi-label">סה"כ השנה</div>
-    <div class="kpi-val" id="kv-total">0</div>
-  </div>
-</div>
 <div class="controls">
   <div class="toggle-group">
     <button class="toggle-btn active" onclick="fv('all',this)">הכל</button>
@@ -341,28 +284,6 @@ var CM=new Date().getMonth(),CY=new Date().getFullYear(),CQ=Math.floor(CM/3);
     if(rows[i].getAttribute('data-date')>todayISO){{tl.insertBefore(m,rows[i]);placed=true;break;}}
   }}
   if(!placed)tl.appendChild(m);
-}})();
-
-(function(){{
-  var cards = document.querySelectorAll('.card');
-  var cy = new Date().getFullYear();
-  var live=0, wip=0, tbd=0, total=0;
-  cards.forEach(function(c){{
-    var d = c.getAttribute('data-date');
-    if (!d) return;
-    var yr = new Date(d).getFullYear();
-    if (yr === cy) total++;
-    var st = c.querySelector('.st');
-    if (!st) return;
-    var s = st.textContent.trim();
-    if (s === 'LIVE') live++;
-    else if (s === 'בעבודה' || s === 'WIP') wip++;
-    else if (s === 'TBD') tbd++;
-  }});
-  document.getElementById('kv-live').textContent  = live;
-  document.getElementById('kv-wip').textContent   = wip;
-  document.getElementById('kv-tbd').textContent   = tbd;
-  document.getElementById('kv-total').textContent = total;
 }})();
 
 function fv(mode,btn){{
