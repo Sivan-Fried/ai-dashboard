@@ -846,8 +846,9 @@ with main_col:
         p_name = st.session_state.get("selected_project", "פרויקט")
         st.header(p_name)
         
-        from workplan_module import show_workplan_page
-        show_workplan_page(p_name)
+        with st.container(border=True):
+            from workplan_module import show_workplan_page
+            show_workplan_page(p_name)
 
     # 3. מסך ראשי / דשבורד רגיל
     else:
