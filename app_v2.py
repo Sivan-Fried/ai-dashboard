@@ -843,12 +843,10 @@ with main_col:
         show_tasks_page(p_name)
 
     elif st.session_state.current_page == "project":
-        p_name = st.session_state.get("selected_project", "פרויקט")
-        st.header(p_name)
-        
-        with st.container(border=True):
-            from workplan_module import show_workplan_page
-            show_workplan_page(p_name)
+    p_name = st.session_state.get("selected_project", "פרויקט")
+    # הסרנו את ה-container מכאן!
+    from workplan_module import show_workplan_page
+    show_workplan_page(p_name)
 
     # 3. מסך ראשי / דשבורד רגיל
     else:
