@@ -82,8 +82,99 @@ def show_risks_page(project_name=None):
         df = df[df["project_name"] == project_name]
 
     insights_df = load_insights()
-    st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
 
+    # ── חישובים ──────────────────────────────────────────────
+    df["score"] = df["probability"] * df["impact"]
+    critical_risks = len(df[df["score"] >= 15])
+    high_risks     = len(df[(df["score"] >= 9) & (df["score"] < 15)])
+    medium_risks   = len(df[(df["score"] >= 4) & (df["score"] < 9)])
+    low_risks      = len(df[df["score"] < 4])
+
+    active_df = df[df["status"] != "סגור"]
+    total_score = active_df["score"].mean() if not active_df.empty else 0
+    pct = min(int((total_score / 25) * 100), 100)
+    r = 26
+    circ = 2 * 3.14159 * r
+    offset = circ * (1 - pct / 100)
+    gauge_color = "#ef4444" if pct >= 60 else "#f59e0b" if pct >= 35 else "#10b981"
+    gauge_label = "גבוה" if pct >= 60 else "בינוני" if pct >= 35 else "נמוך"
+
+    # ── KPI — מוצג ראשון ללא CSS לפניו ──────────────────────
+    k0, k1, k2, k3, k4 = st.columns(5)
+
+    with k0:
+        st.markdown(f'''
+        <div class="kpi-container">
+            <div class="kpi-header">
+                <div class="kpi-icon-box" style="background:#fef2f2;">
+                    <span class="material-symbols-rounded" style="color:#ef4444;">crisis_alert</span>
+                </div>
+                <span class="kpi-badge" style="background:#fef2f2;color:#ef4444;">קריטי</span>
+            </div>
+            <div class="kpi-content"><div class="kpi-value-row">
+                <span class="kpi-unit">סיכונים</span><span class="kpi-number">{critical_risks}</span>
+            </div></div>
+        </div>''', unsafe_allow_html=True)
+
+    with k1:
+        st.markdown(f'''
+        <div class="kpi-container">
+            <div class="kpi-header">
+                <div class="kpi-icon-box" style="background:#fffbeb;">
+                    <span class="material-symbols-rounded" style="color:#f59e0b;">warning</span>
+                </div>
+                <span class="kpi-badge" style="background:#fffbeb;color:#f59e0b;">גבוה</span>
+            </div>
+            <div class="kpi-content"><div class="kpi-value-row">
+                <span class="kpi-unit">סיכונים</span><span class="kpi-number">{high_risks}</span>
+            </div></div>
+        </div>''', unsafe_allow_html=True)
+
+    with k2:
+        st.markdown(f'''
+        <div class="kpi-container">
+            <div class="kpi-header">
+                <div class="kpi-icon-box" style="background:#fdf2f8;">
+                    <span class="material-symbols-rounded" style="color:#6f5861;">info</span>
+                </div>
+                <span class="kpi-badge" style="background:#fdf2f8;color:#6f5861;">בינוני</span>
+            </div>
+            <div class="kpi-content"><div class="kpi-value-row">
+                <span class="kpi-unit">סיכונים</span><span class="kpi-number">{medium_risks}</span>
+            </div></div>
+        </div>''', unsafe_allow_html=True)
+
+    with k3:
+        st.markdown(f'''
+        <div class="kpi-container">
+            <div class="kpi-header">
+                <div class="kpi-icon-box" style="background:#f8fafc;">
+                    <span class="material-symbols-rounded" style="color:#94a3b8;">check_circle</span>
+                </div>
+                <span class="kpi-badge" style="background:#f8fafc;color:#94a3b8;">נמוך</span>
+            </div>
+            <div class="kpi-content"><div class="kpi-value-row">
+                <span class="kpi-unit">סיכונים</span><span class="kpi-number">{low_risks}</span>
+            </div></div>
+        </div>''', unsafe_allow_html=True)
+
+    with k4:
+        st.markdown(f"""
+        <div class="kpi-container" style="text-align:center;align-items:center;">
+            <div style="font-size:0.75rem;font-weight:700;color:#3f3f46;margin-bottom:4px;">מד סיכון כולל</div>
+            <svg width="75" height="75" viewBox="0 0 60 60" style="display:block;margin:0 auto;">
+                <circle cx="30" cy="30" r="{r}" fill="none" stroke="#f4f4f5" stroke-width="6"/>
+                <circle cx="30" cy="30" r="{r}" fill="none" stroke="{gauge_color}"
+                    stroke-width="6" stroke-dasharray="{circ:.1f}" stroke-dashoffset="{offset:.1f}"
+                    stroke-linecap="round" transform="rotate(-90 30 30)"/>
+                <text x="30" y="27" text-anchor="middle" font-size="11" font-weight="800" fill="{gauge_color}" font-family="Plus Jakarta Sans">{pct}%</text>
+                <text x="30" y="40" text-anchor="middle" font-size="8" fill="{gauge_color}" font-family="Plus Jakarta Sans" font-weight="700">{gauge_label}</text>
+            </svg>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # ── CSS ו-link — אחרי ה-KPI ──────────────────────────────
+    st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
     st.markdown("""
     <style>
     .risk-header {
@@ -169,101 +260,9 @@ def show_risks_page(project_name=None):
     </style>
     """, unsafe_allow_html=True)
 
-    #title = f"ניהול סיכונים — {project_name}" if project_name else "ניהול סיכונים"
-    #st.markdown(f"### {title}", unsafe_allow_html=True)
-    #st.markdown("<p style='font-size:0.82rem;color:#a1a1aa;margin-top:-4px;text-align:right;padding-right:18px;'>מעקב, ניתוח וניהול סיכונים</p>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-bottom:2.5rem;'></div>", unsafe_allow_html=True)
 
-    df["score"] = df["probability"] * df["impact"]
-    critical_risks = len(df[df["score"] >= 15])
-    high_risks     = len(df[(df["score"] >= 9) & (df["score"] < 15)])
-    medium_risks   = len(df[(df["score"] >= 4) & (df["score"] < 9)])
-    low_risks      = len(df[df["score"] < 4])
-
-    active_df = df[df["status"] != "סגור"]
-    total_score = active_df["score"].mean() if not active_df.empty else 0
-    pct = min(int((total_score / 25) * 100), 100)
-    r = 26
-    circ = 2 * 3.14159 * r
-    offset = circ * (1 - pct / 100)
-    gauge_color = "#ef4444" if pct >= 60 else "#f59e0b" if pct >= 35 else "#10b981"
-    gauge_label = "גבוה" if pct >= 60 else "בינוני" if pct >= 35 else "נמוך"
-
-    st.markdown("<div style='margin-top:-1.5rem;'></div>", unsafe_allow_html=True)
-    k0, k1, k2, k3, k4 = st.columns(5)
-
-    with k0:
-        st.markdown(f'''
-        <div class="kpi-container">
-            <div class="kpi-header">
-                <div class="kpi-icon-box" style="background:#fef2f2;">
-                    <span class="material-symbols-rounded" style="color:#ef4444;">crisis_alert</span>
-                </div>
-                <span class="kpi-badge" style="background:#fef2f2;color:#ef4444;">קריטי</span>
-            </div>
-            <div class="kpi-content"><div class="kpi-value-row">
-                <span class="kpi-unit">סיכונים</span><span class="kpi-number">{critical_risks}</span>
-            </div></div>
-        </div>''', unsafe_allow_html=True)
-
-    with k1:
-        st.markdown(f'''
-        <div class="kpi-container">
-            <div class="kpi-header">
-                <div class="kpi-icon-box" style="background:#fffbeb;">
-                    <span class="material-symbols-rounded" style="color:#f59e0b;">warning</span>
-                </div>
-                <span class="kpi-badge" style="background:#fffbeb;color:#f59e0b;">גבוה</span>
-            </div>
-            <div class="kpi-content"><div class="kpi-value-row">
-                <span class="kpi-unit">סיכונים</span><span class="kpi-number">{high_risks}</span>
-            </div></div>
-        </div>''', unsafe_allow_html=True)
-
-    with k2:
-        st.markdown(f'''
-        <div class="kpi-container">
-            <div class="kpi-header">
-                <div class="kpi-icon-box" style="background:#fdf2f8;">
-                    <span class="material-symbols-rounded" style="color:#6f5861;">info</span>
-                </div>
-                <span class="kpi-badge" style="background:#fdf2f8;color:#6f5861;">בינוני</span>
-            </div>
-            <div class="kpi-content"><div class="kpi-value-row">
-                <span class="kpi-unit">סיכונים</span><span class="kpi-number">{medium_risks}</span>
-            </div></div>
-        </div>''', unsafe_allow_html=True)
-
-    with k3:
-        st.markdown(f'''
-        <div class="kpi-container">
-            <div class="kpi-header">
-                <div class="kpi-icon-box" style="background:#f8fafc;">
-                    <span class="material-symbols-rounded" style="color:#94a3b8;">check_circle</span>
-                </div>
-                <span class="kpi-badge" style="background:#f8fafc;color:#94a3b8;">נמוך</span>
-            </div>
-            <div class="kpi-content"><div class="kpi-value-row">
-                <span class="kpi-unit">סיכונים</span><span class="kpi-number">{low_risks}</span>
-            </div></div>
-        </div>''', unsafe_allow_html=True)
-
-    with k4:
-        st.markdown(f"""
-        <div class="kpi-container" style="text-align:center;align-items:center;">
-            <div style="font-size:0.75rem;font-weight:700;color:#3f3f46;margin-bottom:4px;">מד סיכון כולל</div>
-            <svg width="75" height="75" viewBox="0 0 60 60" style="display:block;margin:0 auto;">
-                <circle cx="30" cy="30" r="{r}" fill="none" stroke="#f4f4f5" stroke-width="6"/>
-                <circle cx="30" cy="30" r="{r}" fill="none" stroke="{gauge_color}"
-                    stroke-width="6" stroke-dasharray="{circ:.1f}" stroke-dashoffset="{offset:.1f}"
-                    stroke-linecap="round" transform="rotate(-90 30 30)"/>
-                <text x="30" y="27" text-anchor="middle" font-size="11" font-weight="800" fill="{gauge_color}" font-family="Plus Jakarta Sans">{pct}%</text>
-                <text x="30" y="40" text-anchor="middle" font-size="8" fill="{gauge_color}" font-family="Plus Jakarta Sans" font-weight="700">{gauge_label}</text>
-            </svg>
-        </div>
-        """, unsafe_allow_html=True)
-
-    st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
-
+    # ── טבלת סיכונים ─────────────────────────────────────────
     st.markdown("### פירוט סיכונים", unsafe_allow_html=True)
 
     filtered = df.copy().sort_values("score", ascending=False)
@@ -297,6 +296,7 @@ def show_risks_page(project_name=None):
 
     st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
 
+    # ── תחתית: טיפול + ניתוח AI ──────────────────────────────
     col_right, col_left = st.columns([1, 1])
 
     with col_right:
