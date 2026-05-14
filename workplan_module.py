@@ -144,18 +144,18 @@ body {{ font-family: 'Assistant', sans-serif; background: white; padding-bottom:
 .row.hidden {{ display: none !important; }}
 
 .cl {{
-  width: calc(50% - 20px);
+  width: calc(50% - 6px);
   display: flex;
   justify-content: flex-end;
   padding-right: 36px;
   position: relative; z-index: 1;
 }}
 .cr {{
-  width: calc(50% - 20px);
+  width: calc(50% - 6px);
   display: flex;
   justify-content: flex-start;
   padding-left: 36px;
-  margin-left: 40px;
+  margin-left: 12px;
   position: relative; z-index: 1;
 }}
 
