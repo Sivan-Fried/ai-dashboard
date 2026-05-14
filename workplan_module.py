@@ -332,8 +332,9 @@ def show_workplan_page(project_name=None):
 
         st.markdown("<div style='margin-bottom:0.5rem;'></div>", unsafe_allow_html=True)
 
-        height = 60 + n * 95 + 60 + 60
-        html = build_timeline_html(project_name)
-        components.html(html, height=height, scrolling=False)
+        with st.container(border=True):
+            height = 60 + n * 95 + 60 + 60
+            html = build_timeline_html(project_name)
+            components.html(html, height=height, scrolling=False)
     except Exception as e:
         st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
