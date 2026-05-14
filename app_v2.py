@@ -865,7 +865,7 @@ with main_col:
     # ── דף תוכנית עבודה ─────────────────────────────────────
     elif st.session_state.current_page == "project":
         p_name = st.session_state.get("selected_project", "פרויקט")
-        st.header(p_name)
+        #st.header(p_name)
         
         from workplan_module import show_workplan_page
         show_workplan_page(p_name)
