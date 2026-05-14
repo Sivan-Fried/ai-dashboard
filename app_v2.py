@@ -837,7 +837,7 @@ with main_col:
         }
         page_label = page_names.get(st.session_state.current_page, "")
         st.markdown(
-            f"<p style='font-size:8px;color:#a1a1aa;margin:0;padding-right:4px;direction:rtl;text-align:right;'>"
+            f"<p style='font-size:12px;color:#a1a1aa;margin:0;padding-right:4px;direction:rtl;text-align:right;'>"
             f"פרויקט &nbsp;›&nbsp; {p_name} &nbsp;›&nbsp; {page_label}</p>",
             unsafe_allow_html=True
         )
