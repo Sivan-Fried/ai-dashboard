@@ -174,8 +174,7 @@ def show_risks_page(project_name=None):
         """, unsafe_allow_html=True)
 
     # ── CSS ו-link — אחרי ה-KPI ──────────────────────────────
-    st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
-    st.markdown("""
+    st.markdown("""<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
     .risk-header {
         display:grid;
