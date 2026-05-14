@@ -1,339 +1,1600 @@
+# -*- coding: utf-8 -*-
+
+# =========================================================
+# ייבוא ספריות
+# =========================================================
+import streamlit as st
+import requests
 import pandas as pd
+import base64
 import datetime
-import re
+import urllib.parse
+from zoneinfo import ZoneInfo
+import streamlit.components.v1 as components
+import google.generativeai as genai
+from streamlit_js_eval import get_geolocation
+from workplan_module import build_timeline_html
+from urllib.parse import urlencode
+from streamlit_float import *
 
+import streamlit as st
+from streamlit_float import *
+import resources
+import os
 
-def clean_text(x):
-    if not isinstance(x, str):
-        x = str(x)
-    x = x.strip()
-    x = re.sub(r'[\u200f\u202b\u202c\u202d\u202e]', '', x)
-    x = re.sub(r'[\x00-\x1F\x7F]', '', x)
-    return x
+# 1. הגדרות דף - חייבות להיות ראשונות
+st.set_page_config(
+    layout="wide",
+    page_title="Dashboard Sivan",
+    initial_sidebar_state="expanded"
+)
+float_init()
 
+#חזרה לדשבורד ראשי
+if "home" in st.query_params:
+    st.query_params.clear()
+    st.session_state.current_page = "main"
+    st.rerun()
 
-def load_workplan_df():
-    df = pd.read_excel("work_plans.xlsx")
-    df["date"] = pd.to_datetime(df["date"], dayfirst=False, errors="coerce")
-    df["project_name"] = df["project_name"].apply(clean_text)
-    return df
+# 2. הגדרת עיצוב גלובלי לבלוקים
+st.markdown("""
+    <style>
+    [data-testid="stVerticalBlock"] {
+        gap: 0.6rem !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
+# 3. הגדרת שוליים למכולה הראשית
+st.markdown("""
+    <style>
+    .block-container {
+        padding-top: 1rem !important;
+        padding-bottom: 1.5rem !important;
+    }
+    .stMainBlockContainer {
+        margin-top: -20px !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-def build_timeline_html(project_name):
-    df = load_workplan_df()
-    project_name = clean_text(project_name)
-    project_df = df[df["project_name"] == project_name].copy()
-    project_df = project_df.sort_values("date")
+# 4. הזרקת העיצוב המאוחד של הציטוט
+st.markdown("""
+    <style>
+    .stApp .main .block-container {
+        padding-top: 0px !important;
+        margin-top: 0px !important;
+    }
 
-    if project_df.empty:
-        return "<div style='text-align:right;font-size:16px;padding:10px;'>אין נתונים עבור הפרויקט</div>"
+    .premium-quote-box-refined {
+        width: 100%;
+        background: #ffffff;
+        background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
+                          radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.3) 0%, transparent 45%);
+        border-bottom: 1px solid #f1f5f9;
+        text-align: center;
+        direction: rtl;
+        position: relative !important;
+        top: -10px !important;
+        padding: 25px 60px 10px 60px !important;
+        z-index: 1 !important;
+    }
 
-    today     = datetime.date.today()
-    today_str = today.strftime("%d.%m")
-    today_iso = today.strftime("%Y-%m-%d")
+    header[data-testid="stHeader"] {
+        background-color: white !important;
+        z-index: 1000 !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-    items = []
-    for _, row in project_df.iterrows():
-        name = str(row["milestone_name"])
-        tag_class = (
-            "amit"  if "עמיתים"  in name else
-            "measy" if "מעסיקים" in name else
-            "soch"  if "סוכנים"  in name else
-            "amit"
-        )
-        status_val   = str(row["status"]).strip()
-        status_class = {"LIVE": "live", "WIP": "wip", "HOLD": ""}.get(status_val, "")
-        date_str     = row["date"].strftime("%d.%m.%Y")
-        date_iso     = row["date"].strftime("%Y-%m-%d")
-        contents     = str(row.get("version_contents", "")).strip()
-        tooltip      = (
-            f"<div class='tip'>{contents.replace(chr(10), '<br>')}</div>"
-            if contents and contents != "nan" else ""
-        )
-        items.append(dict(
-            name=name, tag_class=tag_class,
-            status_val=status_val, status_class=status_class,
-            date_str=date_str, date_iso=date_iso, tooltip=tooltip
-        ))
+# טעינת פונטים — Material Symbols Rounded לאייקונים, Plus Jakarta Sans לטקסט
+st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
+st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" />', unsafe_allow_html=True)
 
-    def card(it):
-        return (
-            f"<div class='card' data-date='{it['date_iso']}'>"
-            f"{it['tooltip']}"
-            f"<span class='tag {it['tag_class']}'>{it['name']}</span>"
-            f"<div class='dt'>{it['date_str']}</div>"
-            f"<span class='st {it['status_class']}'>{it['status_val']}</span>"
-            f"</div>"
-        )
+# טעינת קובץ העיצוב החיצוני — styles_v2.css
+with open("styles_v2.css", encoding="utf-8") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-    rows_html = []
-    i = 0
-    side = 0
-
-    while i < len(items):
-        it = items[i]
-        group = [it]
-        j = i + 1
-        while j < len(items) and items[j]["date_iso"] == it["date_iso"]:
-            group.append(items[j])
-            j += 1
-
-        if len(group) >= 2:
-            rows_html.append(
-                f"<div class='row' data-date='{it['date_iso']}'>"
-                f"<div class='cl'>{card(group[0])}</div>"
-                f"<div class='dot'></div>"
-                f"<div class='cr'>{card(group[1])}</div>"
-                f"</div>"
-            )
-        else:
-            if side % 2 == 0:
-                rows_html.append(
-                    f"<div class='row' data-date='{it['date_iso']}'>"
-                    f"<div class='cl'>{card(it)}</div>"
-                    f"<div class='dot'></div>"
-                    f"<div class='cr'></div>"
-                    f"</div>"
-                )
-            else:
-                rows_html.append(
-                    f"<div class='row' data-date='{it['date_iso']}'>"
-                    f"<div class='cl'></div>"
-                    f"<div class='dot'></div>"
-                    f"<div class='cr'>{card(it)}</div>"
-                    f"</div>"
-                )
-            side += 1
-        i = j
-
-    rows_str = "\n".join(rows_html)
-
-    return f"""<!DOCTYPE html>
-<html lang="he">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
+st.markdown("""
 <style>
-* {{ box-sizing: border-box; margin: 0; padding: 0; }}
-body {{ font-family: 'Assistant', sans-serif; background: white; padding-bottom: 40px; }}
+section[data-testid="stMain"] > div {
+    padding-top: 0rem !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
-.controls {{ display: flex; justify-content: flex-end; padding: 12px 20px 10px; direction: rtl; margin-bottom: 8px; }}
-.toggle-group {{ display: flex; background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.08); padding: 4px; }}
-.toggle-btn {{ padding: 5px 12px; font-size: 12px; font-weight: 600; font-family: 'Assistant', sans-serif; border: none; border-radius: 8px; cursor: pointer; color: #94a3b8; background: transparent; }}
-.toggle-btn.active {{ background: #FADCE6; color: #63646c; }}
-.toggle-btn:hover:not(.active) {{ color: #475569; }}
+# ai-card עיצוב כרטיס ה-AI
+st.markdown("""
+<style>
+.ai-box {
+    background-color: #FADCE6;
+    padding: 24px;
+    border-radius: 24px;
+    box-shadow: 0px 10px 30px rgba(225,200,210,0.25);
+    direction: rtl;
+    margin-bottom: 20px;
+}
+.ai-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #6f5861;
+    margin: 0;
+}
+.ai-desc {
+    font-size: 14px;
+    color: #6f5861;
+    opacity: 0.85;
+    margin-bottom: 16px;
+}
+/* כפתור השליחה הצף בתוך הכרטיס */
+.ai-send {
+    background-color: #6f5861;
+    color: white;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-top: -45px;
+    margin-right: 10px;
+    float: left;
+}
+</style>
+""", unsafe_allow_html=True)
 
-.tl {{ position: relative; width: 100%; direction: ltr; }}
-.tl::before {{
-  content: '';
-  position: absolute;
-  top: -16px; bottom: -16px;
-  left: 50%; width: 2px; margin-left: -1px;
-  background: #cbd5e1; z-index: 0;
-}}
-.tl::after {{
-  content: '';
-  position: absolute;
-  top: -16px; bottom: -16px;
-  left: calc(50% - 4px);
-  width: 0;
-  z-index: 1;
-  pointer-events: none;
-}}
 
-.row {{
-  position: relative;
-  width: 100%;
-  min-height: 84px;
-  display: flex;
-  align-items: center;
-}}
-.row.hidden {{ display: none !important; }}
+# הגדרת עיצוב גלובלית לשינוי המרווח (Gap) בין בלוקים ואלמנטים
+st.markdown("""
+    <style>
+    .st-emotion-cache-wfwsaw {
+        gap: 0.8rem !important;
+    }
+    </style>
+""", unsafe_allow_html=True)   
 
-.cl {{
-  width: calc(50% - 6px);
-  display: flex;
-  justify-content: flex-end;
-  padding-right: 80px;
-  position: relative; z-index: 1;
-}}
-.cr {{
-  width: calc(50% - 6px);
-  display: flex;
-  justify-content: flex-start;
-  padding-left: 80px;
-  margin-left: 12px;
-  position: relative; z-index: 1;
-}}
+st.markdown("""
+    <style>
+    [data-testid="stSidebar"] {
+        top: 72px !important;
+        height: calc(100vh - 72px) !important;
+        padding-top: 0px !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-.dot {{
-  position: absolute;
-  left: 50%; top: 50%;
-  transform: translate(-50%, -50%);
-  width: 12px; height: 12px;
-  background: #475569;
-  border-radius: 50%;
-  border: 2px solid white;
-  box-shadow: 0 0 0 2px #475569;
-  z-index: 2; flex-shrink: 0;
-}}
+st.markdown("""
+<style>
+/* מצב מורחב — רוחב קבוע */
+[data-testid="column"]:first-child {
+    min-width: 160px !important;
+    max-width: 160px !important;
+    width: 160px !important;
+    flex: 0 0 160px !important;
+}
 
-.card {{
-  background: white;
-  padding: 7px 10px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.08);
-  border: 1px solid #f1f5f9;
-  text-align: center;
-  width: 130px;
-  flex-shrink: 0;
-  position: relative;
-  direction: rtl;
-}}
-.card:hover .tip {{ display: block; }}
+/* העמודה הראשית תמלא את השארית */
+[data-testid="column"]:last-child {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+    
+# --- כאן מתחיל התוכן של הדשבורד הישן שלך ---
+# =========================================================
+# =========================================================
+# סרגל עליון + פעמון נוטיפיקציות — גרסה מתוקנת (ללא חיתוך)
+# =========================================================
+# =========================================================
+# פעמון נוטיפיקציות — חלונית צפה אמיתית (JS)
+# =========================================================
+# =========================================================
+# טעינת נתונים
+# =========================================================
+try:
+    projects     = pd.read_excel("my_projects.xlsx")
+    meetings     = pd.read_excel("meetings.xlsx")
+    reminders_df = pd.read_excel("reminders.xlsx")
+    priority_df  = pd.read_excel("priority.xlsx")
+except Exception as e:
+    st.error(f"שגיאה בטעינת קבצים: {e}"); st.stop()
 
-.cl .card::after {{
-  content: '';
-  position: absolute;
-  top: 50%; right: -80px;
-  width: 80px; height: 2px;
-  background: #cbd5e1;
-  transform: translateY(-50%);
-}}
-.cr .card::before {{
-  content: '';
-  position: absolute;
-  top: 50%; left: -80px;
-  width: 80px; height: 2px;
-  background: #cbd5e1;
-  transform: translateY(-50%);
-}}
+today = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).date()
 
-.tag {{ font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 3px; display: inline-block; margin-bottom: 2px; line-height: 1.4; }}
-.amit  {{ background: #FADCE6; color: #831843; }}
-.measy {{ background: #eff6ff; color: #1e40af; }}
-.soch  {{ background: #fff7ed; color: #9a3412; }}
-.dt {{ font-size: 12px; font-weight: 600; color: #1e293b; margin: 2px 0; }}
-.st {{ font-size: 9px; font-weight: 700; display: block; color: #94a3b8; margin-top: 1px; }}
-.live {{ color: #10b981; }}
-.wip  {{ color: #f59e0b; }}
+if st.button("home", key="go_home"):
+    st.query_params.clear()
+    st.session_state.current_page = "main"
+    st.rerun()
 
-.tip {{
-  display: none; position: absolute; bottom: 110%; right: 50%;
-  transform: translateX(50%); background: #1e293b; color: white;
-  font-size: 11px; line-height: 1.6; padding: 8px 12px; border-radius: 8px;
-  white-space: nowrap; text-align: right; direction: rtl;
-  z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,.2); pointer-events: none;
-}}
-.tip::after {{
-  content: ''; position: absolute; top: 100%; right: 50%;
-  transform: translateX(50%); border: 5px solid transparent; border-top-color: #1e293b;
-}}
+def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
+    import re
+    import datetime
+    from zoneinfo import ZoneInfo
+    import streamlit.components.v1 as components
+    
+    # הגדרות זמן ותאריך
+    now = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
+    time_str = now.strftime("%H:%M")
+    date_str = now.strftime("%d/%m/%Y")
 
-.today {{
-  position: relative; display: flex; align-items: center; justify-content: center;
-  height: 28px; margin: 4px 0; width: 100%;
-}}
-.today::before {{
-  content: ''; position: absolute; left: 0; right: 0; top: 50%;
-  border-top: 2px dashed #f0b8cb;
-}}
-.today span {{
-  background: #FADCE6; color: #63646c; font-size: 11px; font-weight: 700;
-  padding: 2px 14px; border-radius: 20px; position: relative; z-index: 2;
-  direction: rtl; white-space: nowrap;
-}}
+    # ניקוי טקסט מזג אוויר ותווים מיוחדים
+    w_text_clean = re.sub(r'[^\x00-\x7F]+', '', w_text).strip().replace('C', '\u00b0C')
+    profile_src = f"data:image/png;base64,{img_b64}" if img_b64 else ""
+    
+    # חישוב כמות הודעות שלא נקראו לבאדג'
+    if 'is_read' in today_reminders.columns:
+        unread_count = len(today_reminders[today_reminders['is_read'] == False])
+    else:
+        unread_count = len(today_reminders)
+    
+    badge_display = 'flex' if unread_count > 0 else 'none'
+
+    # בניית רשימת התראות עם טיפול בתווים מיוחדים
+    items_html = ""
+    if today_reminders.empty:
+        items_html = '<div class="sn-empty">אין תזכורות להיום 🎉</div>'
+    else:
+        for _, row in today_reminders.iterrows():
+            text = str(row.get("reminder_text", "")).replace('"', '&quot;').replace("'", "&#39;").replace("<", "&lt;").replace(">", "&gt;")
+            proj = str(row.get("project_name", "כללי")).replace('"', '&quot;').replace("'", "&#39;")
+            
+            is_read = row.get("is_read", False)
+            read_class = "read" if is_read else "unread"
+            
+            items_html += f"""
+            <div class="sn-item {read_class}" onclick="this.classList.add('read'); updateBadge();">
+                <div class="sn-dot"></div>
+                <div style="flex:1;">
+                    <div class="sn-text">{text}</div>
+                    <div class="sn-proj">{proj}</div>
+                </div>
+            </div>"""
+
+    items_js = items_html.replace('`', r'\`').replace('\\', '\\\\').replace('\n', '')
+
+    components.html(f"""<!DOCTYPE html>
+<html dir="rtl">
+<head>
+<meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  * {{ box-sizing:border-box; margin:0; padding:0; }}
+  body {{ 
+    font-family: 'Plus Jakarta Sans', sans-serif; 
+    background: transparent !important; 
+    overflow: hidden; 
+    height: 110px; 
+    direction: rtl;
+    margin: 0 !important;
+    padding: 0 !important;
+  }}
+  
+  .topbar {{ 
+    background: white; 
+    border-radius: 16px; 
+    border: 1px solid #F4F4F5;
+    box-shadow: 0 2px 20px rgba(225,200,210,0.2); 
+    display: flex;
+    align-items: center; 
+    justify-content: space-between; 
+    padding: 0 24px;
+    height: 100px; 
+    position: relative; 
+    z-index: 100;
+  }}
+
+  /* צד ימין */
+  .tb-right {{ display:flex; align-items:center; gap:16px; }}
+  .tb-profile {{ width:72px; height:72px; border-radius:50%; object-fit:cover; border:3px solid white; box-shadow:0 2px 12px rgba(225,200,210,0.4); }}
+  .tb-name {{ font-size:0.95rem; font-weight:700; color:#3f3f46; }}
+  .tb-role {{ font-size:0.75rem; color:#a1a1aa; }}
+  .tb-brand {{ font-size:0.95rem; font-weight:800; color:#f0b8cb; text-decoration:none; transition:opacity 0.2s; white-space:nowrap; }}
+  .tb-brand-wrap:hover .tb-brand {{ opacity:0.75; }}
+  .tb-brand-wrap:hover span {{ opacity:0.75; }}
+  
+
+  /* ניווט מרכזי */
+  .tb-nav {{ display:flex; gap:4px; flex:1; justify-content:center; }}
+  .tb-nav span {{ 
+    font-size:0.82rem; 
+    padding:8px 16px; 
+    border-radius:20px; 
+    color:#71717A; 
+    cursor:pointer; 
+    transition: all 0.2s ease;
+  }}
+  .tb-nav span:hover {{ background: #FDF2F7; color: #3f3f46; }}
+  .tb-nav span.active {{ background:#FADCE6; color:#3f3f46; font-weight:600; }}
+
+  /* צד שמאל */
+  .tb-left {{ display:flex; align-items:center; gap:16px; }}
+  .tb-divider {{ width:1px; height:28px; background:#F4F4F5; flex-shrink:0; }}
+  .weather-wrap {{ display: flex; align-items: center; gap: 8px; text-align: right; }}
+  .time-wrap {{ text-align: right; min-width: 75px; }}
+  
+  /* פעמון והגדרות — אותו סגנון בדיוק */
+  .bell-area {{ position:relative; cursor:pointer; display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; transition: background 0.2s; }}
+  .bell-area:hover {{ background: #FDF2F7; }}
+  .bell-badge {{ 
+    position:absolute; top:2px; left:2px; background:#ef4444; color:white;
+    border-radius:50%; min-width:18px; height:18px; font-size:0.62rem;
+    display:{badge_display}; align-items:center; justify-content:center; border:2px solid white; font-weight:bold;
+  }}
 </style>
 </head>
 <body>
+<div class="topbar">
+  <div class="tb-right">
+    <div class="tb-brand-wrap" id="homeBtn" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f0b8cb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <circle cx="12" cy="12" r="6" stroke-dasharray="1 3"/>
+          <circle cx="12" cy="12" r="9" stroke-dasharray="1 4"/>
+        </svg>
+      <span class="tb-brand">Dashboard AI</span>
+    </div>
+    <img class="tb-profile" src="{profile_src}"/>
+    <div>
+        <div class="tb-name">{greeting}, סיון</div>
+        <div class="tb-role">מנהלת פרויקטים</div>
+    </div> 
+    <div class="bell-area" id="bellBtn">
+      <span class="bell-badge" id="badge">{unread_count}</span>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z"></path>
+        <path d="M13.73 21C13.5542 21.3031 12 21.9965 10.27 21"></path>
+      </svg>
+    </div>
+  </div>
 
-<div class="controls">
-  <div class="toggle-group">
-    <button class="toggle-btn active" onclick="fv('all',this)">הכל</button>
-    <button class="toggle-btn" onclick="fv('quarter',this)">רבעון נוכחי</button>
-    <button class="toggle-btn" onclick="fv('month',this)">חודש נוכחי</button>
+  <nav class="tb-nav">
+    <span class="active">דשבורד</span>
+    <span>פרויקטים</span>
+    <span>פגישות</span>
+    <span>משימות</span>
+    <span>דוחות</span>
+  </nav>
+
+  <div class="tb-left">
+    <div class="weather-wrap">
+      <div style="color:#f0b8cb;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path>
+        </svg>
+      </div>
+      <div>
+        <div style="font-size:0.82rem; font-weight:600; color:#3f3f46;">{w_text_clean}</div>
+        <div style="font-size:0.68rem; color:#a1a1aa;">{w_city}</div>
+      </div>
+    </div>
+    <div class="tb-divider"></div>
+    <div class="time-wrap">
+      <div style="font-size:0.85rem; font-weight:700; color:#3f3f46;">{time_str}</div>
+      <div style="font-size:0.68rem; color:#a1a1aa;">{date_str}</div>
+    </div>
+    <div class="tb-divider"></div>
+    <div class="bell-area" id="settingsBtn">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"></path>
+      </svg>
+    </div>
   </div>
 </div>
 
-<div class="tl" id="tl">
-{rows_str}
-</div>
-
 <script>
-var todayISO='{today_iso}';
-var CM=new Date().getMonth(),CY=new Date().getFullYear(),CQ=Math.floor(CM/3);
-
-(function(){{
-  var rows=document.querySelectorAll('.row'),tl=document.getElementById('tl');
-
-  var topDot = document.createElement('div');
-  topDot.style.cssText = 'position:absolute;top:-21px;left:50%;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;background:white;border:2px solid #94a3b8;z-index:2;';
-  tl.style.position = 'relative';
-  tl.appendChild(topDot);
-  var botDot = document.createElement('div');
-  botDot.style.cssText = 'position:absolute;bottom:-21px;left:50%;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;background:white;border:2px solid #94a3b8;z-index:2;';
-  tl.appendChild(botDot);
-
-  var m=document.createElement('div');
-  m.className='today';m.id='today-el';
-  m.innerHTML='<span>היום {today_str}</span>';
-  var placed=false;
-  for(var i=0;i<rows.length;i++){{
-    if(rows[i].getAttribute('data-date')>todayISO){{tl.insertBefore(m,rows[i]);placed=true;break;}}
+  var isOpen = false;
+  var isSettingsOpen = false;
+  
+  function updateBadge() {{
+    var parentDoc = window.parent.document;
+    var d = parentDoc.getElementById('sn-floating-dropdown');
+    var unreadCount = d.querySelectorAll('.sn-item:not(.read)').length;
+    var badge = document.getElementById('badge');
+    if (unreadCount === 0) badge.style.display = 'none';
+    else {{ badge.style.display = 'flex'; badge.textContent = unreadCount; }}
   }}
-  if(!placed)tl.appendChild(m);
-}})();
 
-function fv(mode,btn){{
-  document.querySelectorAll('.toggle-btn').forEach(function(b){{b.classList.remove('active');}});
-  btn.classList.add('active');
-  document.querySelectorAll('.row').forEach(function(row){{
-    if(mode==='all'){{row.classList.remove('hidden');row.querySelectorAll('.card').forEach(function(c){{c.style.opacity='1';}});return;}}
-    var cards=row.querySelectorAll('.card'),any=false;
-    cards.forEach(function(c){{
-      var d=new Date(c.getAttribute('data-date'));
-      var show=(mode==='month')?(d.getMonth()===CM&&d.getFullYear()===CY):(Math.floor(d.getMonth()/3)===CQ&&d.getFullYear()===CY);
-      c.style.opacity=show?'1':'0';if(show)any=true;
-    }});
-    row.classList.toggle('hidden',!any);
+  window.addEventListener('load', function() {{
+    var parentDoc = window.parent.document;
+    
+    var old = parentDoc.getElementById('sn-floating-dropdown'); if (old) old.remove();
+    var oldStyle = parentDoc.getElementById('sn-styles'); if (oldStyle) oldStyle.remove();
+
+    var style = parentDoc.createElement('style');
+    style.id = 'sn-styles';
+    style.textContent = `
+      #sn-floating-dropdown {{
+        display:none; position:fixed; width:360px; background:white;
+        border-radius:20px; box-shadow:0 10px 40px rgba(0,0,0,0.15);
+        border:1px solid #fdf0f5; z-index:1000000; overflow-y:auto; max-height:450px;
+        direction:rtl; font-family: sans-serif;
+      }}
+      #sn-settings-dropdown {{
+        display:none; position:fixed; width:320px; background:white;
+        border-radius:20px; box-shadow:0 10px 40px rgba(0,0,0,0.15);
+        border:1px solid #fdf0f5; z-index:1000000;
+        direction:rtl; font-family: sans-serif;
+      }}
+      .sn-header {{ padding:16px 20px; font-weight:700; border-bottom:1px solid #fdf0f5; color:#3f3f46; }}
+      .sn-item {{ padding:14px 20px; display:flex; align-items:center; gap:14px; cursor:pointer; border-bottom:1px solid #fdf6f9; transition:0.15s; }}
+      .sn-item:hover {{ background:#fdf6f9; }}
+      .sn-item.read {{ opacity: 0.5; }}
+      .sn-item.read .sn-dot {{ background:#cbd5e1 !important; }}
+      .sn-dot {{ width:8px; height:8px; border-radius:50%; background:#FADCE6; flex-shrink:0; }}
+      .sn-text {{ font-size:0.85rem; color:#3f3f46; font-weight:500; line-height:1.4; }}
+      .sn-proj {{ font-size:0.72rem; color:#a1a1aa; margin-top:2px; }}
+    `;
+    parentDoc.head.appendChild(style);
+
+    var dropdown = parentDoc.createElement('div');
+    dropdown.id = 'sn-floating-dropdown';
+    dropdown.innerHTML = '<div class="sn-header">התראות להיום</div>' + `{items_js}`;
+    parentDoc.body.appendChild(dropdown);
+
+    var settingsDropdown = parentDoc.createElement('div');
+    settingsDropdown.id = 'sn-settings-dropdown';
+    settingsDropdown.innerHTML = '<div class="sn-header">הגדרות</div>';
+    parentDoc.body.appendChild(settingsDropdown);
+
+    var sidebar = parentDoc.querySelector('section[data-testid="stSidebar"]');
+    if (sidebar) {{
+        sidebar.style.setProperty('top', '110px', 'important');
+        sidebar.style.setProperty('height', 'calc(100vh - 110px)', 'important');
+        sidebar.style.setProperty('position', 'fixed', 'important');
+    }}
+    function fixSidebar() {{
+        var sb = parentDoc.querySelector('section[data-testid="stSidebar"]');
+        var app = parentDoc.querySelector('.stApp');
+        if (app) {{
+            app.style.setProperty('transform', 'none', 'important');
+            app.style.setProperty('will-change', 'auto', 'important');
+        }}
+        if (sb) {{
+            sb.style.setProperty('top', '110px', 'important');
+            sb.style.setProperty('height', 'calc(100vh - 110px)', 'important');
+            sb.style.setProperty('position', 'fixed', 'important');
+            return true;
+        }}
+        return false;
+    }}
+
+    var sidebarInterval = setInterval(function() {{
+        if (fixSidebar()) {{
+            clearInterval(sidebarInterval);
+            setInterval(fixSidebar, 2000);
+        }}
+    }}, 100);
+
+    parentDoc.addEventListener('scroll', function() {{
+      var d = parentDoc.getElementById('sn-floating-dropdown');
+      if (d && d.style.display === 'block') {{
+        var iframe = window.frameElement;
+        var rect = iframe.getBoundingClientRect();
+        d.style.top = (rect.bottom + 8) + 'px';
+      }}
+    }}, true);
+
+    parentDoc.addEventListener('click', function(e) {{
+      var d = parentDoc.getElementById('sn-floating-dropdown');
+      var s = parentDoc.getElementById('sn-settings-dropdown');
+      if (isOpen && d && !d.contains(e.target)) {{ d.style.display = 'none'; isOpen = false; }}
+      if (isSettingsOpen && s && !s.contains(e.target)) {{ s.style.display = 'none'; isSettingsOpen = false; }}
+    }}, true);
   }});
-  var el=document.getElementById('today-el');if(el)el.style.display='flex';
-}}
+
+  document.getElementById('bellBtn').addEventListener('click', function(e) {{
+    var parentDoc = window.parent.document;
+    var d = parentDoc.getElementById('sn-floating-dropdown');
+    var s = parentDoc.getElementById('sn-settings-dropdown');
+    isOpen = !isOpen;
+    isSettingsOpen = false;
+    if (s) s.style.display = 'none';
+    if (isOpen) {{
+      var iframe = window.frameElement;
+      var rect = iframe.getBoundingClientRect();
+      var bellRect = this.getBoundingClientRect();
+      d.style.top = (rect.bottom + 8) + 'px';
+      d.style.left = (rect.left + bellRect.left - 300) + 'px';
+      d.style.display = 'block';
+    }} else {{ d.style.display = 'none'; }}
+    e.stopPropagation();
+  }});
+
+  document.getElementById('settingsBtn').addEventListener('click', function(e) {{
+    var parentDoc = window.parent.document;
+    var s = parentDoc.getElementById('sn-settings-dropdown');
+    var d = parentDoc.getElementById('sn-floating-dropdown');
+    isSettingsOpen = !isSettingsOpen;
+    isOpen = false;
+    if (d) d.style.display = 'none';
+    if (isSettingsOpen) {{
+      var iframe = window.frameElement;
+      var rect = iframe.getBoundingClientRect();
+      var btnRect = this.getBoundingClientRect();
+      s.style.top = (rect.bottom + 8) + 'px';
+      s.style.left = (rect.left + btnRect.left - 280) + 'px';
+      s.style.display = 'block';
+    }} else {{ s.style.display = 'none'; }}
+    e.stopPropagation();
+  }});
+
+  document.getElementById('homeBtn').addEventListener('click', function() {{
+    var allBtns = window.parent.document.querySelectorAll('button');
+    var homeBtn = Array.from(allBtns).find(function(b) {{ return b.innerText.trim() === 'home'; }});
+    if (homeBtn) homeBtn.click();
+  }});
 </script>
 </body>
-</html>"""
+</html>""", height=110)
+
+def render_sidebar(page="main", project_name=None):
+    from streamlit_option_menu import option_menu
+    
+    collapsed = st.session_state.get("sidebar_collapsed", False)
+
+    if page == "main":
+        options = ["דשבורד", "פרויקטים", "פגישות", "משימות", "תזכורות", "דיווחים", "סיכומים", "עוזר AI"]
+        icons   = ["grid", "briefcase", "calendar", "check2-square", "bell", "pencil", "file-text", "robot"]
+        anchors = ["section-projects", "section-projects", "section-meetings", "section-tasks",
+                   "section-reminders", "section-priority", "section-fathom", "section-ai"]
+    else:
+        options = ["תוכנית עבודה", "משאבים", "סיכונים", "משימות", "סיכומים"]
+        icons   = ["calendar-month", "people", "exclamation-triangle", "check2-square", "file-text"]
+        targets = ["project", "resources", "risks", "tasks", "meetings"]
+
+    if page != "main":
+        try:
+            default_idx = targets.index(st.session_state.current_page)
+        except ValueError:
+            default_idx = 0
+    else:
+        default_idx = 0
+
+    menu_key = f"nav_menu_{page}"
+    idx_key  = f"nav_idx_{page}"
+
+    if idx_key not in st.session_state:
+        st.session_state[idx_key] = default_idx
+    elif page != "main" and st.session_state.current_page in targets:
+        st.session_state[idx_key] = targets.index(st.session_state.current_page)
+
+    def on_change(key):
+        selected_val = st.session_state[key]
+        if selected_val in options:
+            st.session_state[idx_key] = options.index(selected_val)
+
+    menu_styles = {
+        "container": {
+            "padding": "4px",
+            "background-color": "transparent",
+            "border-radius": "0",
+            "border": "none",
+            "box-shadow": "none",
+        },
+        "icon": {
+            "color": "#94a3b8",
+            "font-size": "18px",
+        },
+        "nav-link": {
+            "font-family": "Plus Jakarta Sans, sans-serif",
+            "font-size": "0.001rem" if collapsed else "0.82rem",
+            "font-weight": "500",
+            "color": "rgba(0,0,0,0)" if collapsed else "#71717A",
+            "text-align": "right",
+            "direction": "rtl",
+            "padding": "8px 12px",
+            "border-radius": "12px",
+            "--hover-color": "#fdf2f8",
+            "height": "36px",
+            "overflow": "hidden",
+        },
+        "nav-link-selected": {
+            "background-color": "#fdf2f8",
+            "color": "rgba(0,0,0,0)" if collapsed else "#3f3f46",
+            "font-weight": "700",
+            "border-right": "3px solid #f0b8cb",
+        },
+    }
+
+    with st.container(key="aura_sidebar", border=False):
+        toggle_label = "›" if collapsed else "‹"
+        if st.button(toggle_label, key="sidebar_toggle"):
+            st.session_state.sidebar_collapsed = not collapsed
+            st.rerun()
+
+        selected = option_menu(
+            menu_title=None,
+            options=options,
+            icons=icons,
+            default_index=st.session_state[idx_key],
+            styles=menu_styles,
+            key=menu_key,
+            on_change=on_change,
+        )
+
+        if selected in options:
+            st.session_state[idx_key] = options.index(selected)
+
+        selected_idx = st.session_state[idx_key]
+
+        if page == "main":
+            if selected in options:
+                anchor = anchors[selected_idx]
+                components.html(f"""
+                    <script>
+                    var el = window.parent.document.getElementById('{anchor}');
+                    if(el) el.scrollIntoView({{behavior:'smooth', block:'start'}});
+                    </script>
+                """, height=0)
+        else:
+            target = targets[selected_idx]
+            if target != st.session_state.current_page:
+                st.session_state.current_page = target
+                if project_name:
+                    st.session_state.selected_project = project_name
+                st.rerun()
 
 
-def show_workplan_page(project_name=None):
-    import streamlit as st
-    import streamlit.components.v1 as components
-    st.markdown(f"### תוכנית עבודה — {project_name}", unsafe_allow_html=True)
+# ---תמונת פרופיל ---
+def get_base64_image(path):
     try:
-        df = load_workplan_df()
-        p   = clean_text(project_name) if project_name else ""
-        _pf = df[df["project_name"] == p]
-        n   = max(len(_pf), 1)
-        _yr    = datetime.date.today().year
-        _live  = len(_pf[_pf["status"].str.strip() == "LIVE"])
-        _wip   = len(_pf[_pf["status"].str.strip().isin(["בעבודה", "WIP"])])
-        _tbd   = len(_pf[_pf["status"].str.strip() == "TBD"])
-        _total = len(_pf[_pf["date"].dt.year == _yr])
+        with open(path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    except:
+        return ""
 
-        k0, k1, k2, k3 = st.columns(4)
-        with k0:
-            st.markdown(f'''<div class="kpi-container"><div class="kpi-header"><div class="kpi-icon-box" style="background:#ecfdf5;"><span class="material-symbols-rounded" style="color:#10b981;">check_circle</span></div><span class="kpi-badge" style="background:#ecfdf5;color:#10b981;">LIVE</span></div><div class="kpi-content"><div class="kpi-value-row"><span class="kpi-unit">גרסאות</span><span class="kpi-number">{_live}</span></div></div></div>''', unsafe_allow_html=True)
-        with k1:
-            st.markdown(f'''<div class="kpi-container"><div class="kpi-header"><div class="kpi-icon-box" style="background:#fffbeb;"><span class="material-symbols-rounded" style="color:#f59e0b;">pending</span></div><span class="kpi-badge" style="background:#fffbeb;color:#f59e0b;">בעבודה</span></div><div class="kpi-content"><div class="kpi-value-row"><span class="kpi-unit">גרסאות</span><span class="kpi-number">{_wip}</span></div></div></div>''', unsafe_allow_html=True)
-        with k2:
-            st.markdown(f'''<div class="kpi-container"><div class="kpi-header"><div class="kpi-icon-box" style="background:#f8fafc;"><span class="material-symbols-rounded" style="color:#94a3b8;">schedule</span></div><span class="kpi-badge" style="background:#f8fafc;color:#94a3b8;">TBD</span></div><div class="kpi-content"><div class="kpi-value-row"><span class="kpi-unit">גרסאות</span><span class="kpi-number">{_tbd}</span></div></div></div>''', unsafe_allow_html=True)
-        with k3:
-            st.markdown(f'''<div class="kpi-container"><div class="kpi-header"><div class="kpi-icon-box" style="background:#eff6ff;"><span class="material-symbols-rounded" style="color:#3b82f6;">calendar_today</span></div><span class="kpi-badge" style="background:#eff6ff;color:#3b82f6;">סה״כ השנה</span></div><div class="kpi-content"><div class="kpi-value-row"><span class="kpi-unit">גרסאות</span><span class="kpi-number">{_total}</span></div></div></div>''', unsafe_allow_html=True)
+# =========================================================
+# 2. פונקציות עזר ונתונים
+# =========================================================
 
-        st.markdown("<div style='margin-bottom:0.5rem;'></div>", unsafe_allow_html=True)
+def get_weather_realtime(location):
+    if location and 'coords' in location:
+        lat, lon = location['coords']['latitude'], location['coords']['longitude']
+        try:
+            g = requests.get(f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}", headers={'User-Agent': 'SivanDash'}).json()
+            city = g.get('address', {}).get('city') or g.get('address', {}).get('town') or "ישראל"
+            w = requests.get(f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true").json()
+            temp = round(w['current_weather']['temperature'])
+            hour = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).hour
+            icon = "🌙" if (hour >= 19 or hour < 6) else "☀️"
+            return f"{icon} {temp}°C", city
+        except: pass
+    return "☀️ --°C", "ישראל"
 
-        height = 60 + n * 95 + 60 + 60
-        html = build_timeline_html(project_name)
-        components.html(html, height=height, scrolling=False)
+def get_azure_tasks():
+    ORG_NAME = "amandigital"
+    wiql_url = f"https://dev.azure.com/{ORG_NAME}/_apis/wit/wiql?api-version=6.0"
+    query = {"query": "SELECT [System.Id], [System.Title], [System.TeamProject], [System.CreatedDate] FROM WorkItems WHERE [System.AssignedTo] = @me AND [System.State] = 'New' ORDER BY [System.ChangedDate] DESC"}
+    try:
+        auth = ('', st.secrets["AZURE_PAT"])
+        res = requests.post(wiql_url, json=query, auth=auth)
+        ids = ",".join([str(item['id']) for item in res.json().get('workItems', [])[:5]])
+        if not ids: return []
+        details = requests.get(f"https://dev.azure.com/{ORG_NAME}/_apis/wit/workitems?ids={ids}&fields=System.Title,System.TeamProject,System.CreatedDate&api-version=6.0", auth=auth)
+        return details.json().get('value', [])
+    except: return []
+
+def get_fathom_meetings():
+    api_key = st.secrets["FATHOM_API_KEY"]
+    url = "https://api.fathom.ai/external/v1/meetings"
+    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
+    try:
+        response = requests.get(url, headers=headers, timeout=15)
+        if response.status_code == 200: return response.json().get('items', [])[:5], 200
+        return [], response.status_code
+    except: return [], 500
+
+def get_fathom_summary(recording_id):
+    api_key = st.secrets["FATHOM_API_KEY"]
+    url = f"https://api.fathom.ai/external/v1/recordings/{recording_id}/summary"
+    headers = {"X-Api-Key": api_key, "Accept": "application/json"}
+    try:
+        response = requests.get(url, headers=headers, timeout=15)
+        if response.status_code == 200: return response.json().get("summary", {}).get("markdown_formatted")
+        return None
+    except: return None
+
+def refine_with_ai(raw_text):
+    try:
+        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+        model = genai.GenerativeModel('gemini-2.5-flash-lite')
+        prompt = f"""סכם את הפגישה לעברית עסקית רהוטה.
+השתמש בפורמט Markdown: כותרות עם ##, בולטים עם -, מספור עם 1. 2. 3.
+
+{raw_text}"""
+        return model.generate_content(prompt).text
     except Exception as e:
-        st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
+        return f"שגיאה בסיכום: {str(e)}"
+
+def fmt_time(t):
+    try: return t.strftime("%H:%M")
+    except: return ""
+
+def save_summary_to_excel(title, date_str, summary_text):
+    file_path = "fathom_summaries.xlsx"
+    new_row = {
+        "title": title, "date": date_str, "summary": summary_text,
+        "created_at": datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).strftime("%d/%m/%Y %H:%M")
+    }
+    try:
+        existing = pd.read_excel(file_path)
+        if "title" not in existing.columns:
+            updated = pd.DataFrame([new_row])
+        elif title in existing["title"].values:
+            return
+        else:
+            updated = pd.concat([existing, pd.DataFrame([new_row])], ignore_index=True)
+    except FileNotFoundError:
+        updated = pd.DataFrame([new_row])
+    updated.to_excel(file_path, index=False)
+
+# =========================================================
+# פעמון נוטיפיקציות — חלונית צפה אמיתית (JS)
+# =========================================================
+# =========================================================
+# טעינת נתונים
+# =========================================================
+try:
+    projects     = pd.read_excel("my_projects.xlsx")
+    meetings     = pd.read_excel("meetings.xlsx")
+    reminders_df = pd.read_excel("reminders.xlsx")
+    priority_df  = pd.read_excel("priority.xlsx")
+except Exception as e:
+    st.error(f"שגיאה בטעינת קבצים: {e}"); st.stop()
+
+today = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).date()
+
+# =========================================================
+# 3. ניהול ניווט ו-Session State
+# =========================================================
+if "current_page"    not in st.session_state: st.session_state.current_page    = "main"
+if "rem_live"        not in st.session_state: st.session_state.rem_live        = reminders_df
+if "ai_response"     not in st.session_state: st.session_state.ai_response     = ""
+if "adding_reminder" not in st.session_state: st.session_state.adding_reminder = False
+
+params = st.query_params
+if "proj" in params and st.session_state.current_page not in ["resources", "risks", "meetings", "tasks"]:
+    st.session_state.selected_project = params["proj"]
+    st.session_state.current_page = "project"
+if "page" in params and params["page"] == "resources":
+    st.session_state.current_page = "resources"
+
+# =========================================================
+# 4. מבנה התצוגה
+# =========================================================
+loc = get_geolocation()
+
+# ── מזג אוויר ──────────────────────────────────────────
+if loc:
+    w_text, w_city = get_weather_realtime(loc)
+else:
+    w_text, w_city = "☀️ --°C", "מזהה מיקום..."
+
+# ── אזור פרופיל + סרגל עליון ───────────────────────────
+img_b64  = get_base64_image("profile.png")
+now      = datetime.datetime.now(ZoneInfo("Asia/Jerusalem"))
+greeting = "בוקר טוב" if 5 <= now.hour < 12 else "צהריים טובים" if 12 <= now.hour < 18 else "ערב טוב"
+
+# ⭐ סרגל עליון + פעמון משולבים ⭐
+today_reminders = st.session_state.rem_live[
+    pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today
+].copy()
+
+if 'status' in today_reminders.columns:
+    today_reminders['is_read'] = today_reminders['status'].apply(lambda x: x in [True, 1, 'read'])
+elif 'is_read' not in today_reminders.columns:
+    today_reminders['is_read'] = False
+
+# --- כאן המקום המדויק לשלב את הפונקציה (לפני חלוקת העמודות) ---
+render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders)
+
+if "sidebar_collapsed" not in st.session_state:
+    st.session_state.sidebar_collapsed = False
+
+if "collapsed" in st.query_params:
+    st.session_state.sidebar_collapsed = st.query_params["collapsed"] == "true"
+
+if st.session_state.sidebar_collapsed:
+    sidebar_col, main_col = st.columns([0.055, 0.945])
+else:
+    sidebar_col, main_col = st.columns([0.15, 0.85])
+
+    
+st.markdown("""
+    <style>
+    .st-key-aura_sidebar {
+        min-height: calc(100vh - 200px) !important;
+    }
+    div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child {
+        min-width: 52px !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+
+p_name = st.session_state.get("selected_project", "")
+
+with sidebar_col:
+    render_sidebar(
+        page=st.session_state.current_page,
+        project_name=p_name
+    )
+
+with main_col:
+    # 1. אם אנחנו במסך פרויקט ספציפי
+    if st.session_state.current_page == "resources":
+        from resources import show_resources_page
+        p_name = st.session_state.get("selected_project", "")
+        show_resources_page(p_name)
+
+    elif st.session_state.current_page == "risks":
+        from risks_module import show_risks_page
+        p_name = st.session_state.get("selected_project", "")
+        show_risks_page(p_name)
+
+    elif st.session_state.current_page == "tasks":
+        if st.session_state.get("nav_idx_project") != 3:
+            st.session_state["nav_idx_project"] = 3
+        from tasks_module import show_tasks_page
+        p_name = st.session_state.get("selected_project", "")
+        show_tasks_page(p_name)
+
+    elif st.session_state.current_page == "project":
+        p_name = st.session_state.get("selected_project", "פרויקט")
+        st.header(p_name)
+        
+        with st.container(border=True):
+            from workplan_module import show_workplan_page
+            show_workplan_page(p_name)
+
+    # 3. מסך ראשי / דשבורד רגיל
+    else:
+        # כל שאר הקוד של הדשבורד הראשי שלך   
+        quote_text = "מה שלא תעשה או שתחלום שאתה יכול לעשות - התחל עם זה"
+        quote_author = "יוהאן וולפגנג פון גתה"
+        try:
+            if os.path.exists("inspirational_quotes.xlsx"):
+                df = pd.read_excel("inspirational_quotes.xlsx", engine='openpyxl')
+                if not df.empty:
+                    row = df.sample(n=1).iloc[0]
+                    q_col = [c for c in df.columns if str(c).lower() in ['quote', 'ציטוט']]
+                    a_col = [c for c in df.columns if str(c).lower() in ['author', 'מחבר']]
+                    if q_col: quote_text = str(row[q_col[0]])
+                    if a_col: quote_author = str(row[a_col[0]])
+        except: 
+            pass
+                
+        st.markdown(f"""
+        <style>
+            header[data-testid="stHeader"] {{
+                background-color: white !important;
+                z-index: 1000 !important;
+            }}
+                
+            .stApp .main .block-container {{
+                padding-top: 0px !important;
+                 margin-top: -5.5rem !important; 
+            }}
+                
+            .premium-quote-box-refined {{
+                background: #ffffff;
+                background-image: radial-gradient(circle at 10% 50%, rgba(250, 220, 230, 0.4) 0%, transparent 45%), 
+                                    radial-gradient(circle at 90% 80%, rgba(227, 225, 236, 0.3) 0%, transparent 45%);
+                border-bottom: 1px solid #f1f5f9;
+                padding: 25px 60px 10px 60px !important;
+                text-align: center;
+                direction: rtl;
+                position: relative;
+                width: 100%;
+                box-sizing: border-box;
+                margin-bottom: 10px !important; 
+                z-index: 1;
+            }}
+                
+            .premium-quote-box-refined::before {{
+                content: '"'; position: absolute; top: 10px; right: 40px;
+                font-size: 100px; color: #fadce6; font-family: serif; opacity: 0.5; line-height: 1;
+            }}
+                
+            .premium-quote-box-refined::after {{
+                content: '"'; position: absolute; bottom: -15px; left: 40px;
+                font-size: 100px; color: #fadce6; font-family: serif; opacity: 0.5; line-height: 1;
+            }}
+                
+            .q-main-text {{
+                font-family: 'Noto Serif Hebrew', serif !important;
+                font-size: 20px !important; 
+                color: #1a1c1c !important;
+                font-weight: 700 !important;
+                line-height: 1.3;
+                margin: 5px 12% !important;
+                position: relative;
+                z-index: 2;
+            }}
+                
+            .q-author-text {{
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-size: 13px;
+                color: #646566;
+                font-style: italic;
+                display: block;
+                margin-bottom: 5px;
+            }}
+                
+            .material-symbols-outlined {{
+                font-family: 'Material Symbols Outlined' !important;
+                color: #e59fb5 !important;
+                font-size: 22px !important;
+                vertical-align: middle;
+            }}
+        </style>
+            
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700&family=Noto+Serif+Hebrew:wght@700&family=Material+Symbols+Outlined" rel="stylesheet">
+            
+        <div class="premium-quote-box-refined">
+            <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9px; font-weight: 600; color: #6f5861; text-transform: uppercase; letter-spacing: 0.2em; display: block; margin-bottom: 5px; opacity: 0.6;">DAILY QUOTE</span>
+            <div class="q-main-text">"{quote_text}"</div>
+            <span class="q-author-text">&#8212; {quote_author} &#8212;</span>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 5px;">
+                <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+                <span class="material-symbols-outlined">auto_stories</span>
+                <div style="height: 1px; width: 40px; background-color: #fadce6;"></div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+                                                                                      
+
+        
+        # ── KPIs ────────────────────────────────────────────────
+        # ── KPIs New Compact Design ───────────────────────────────────────────
+        k1, k2, k3, k4 = st.columns(4)
+        
+        with k1:
+            val = len(projects[projects["status"]=="אדום"])
+            st.markdown(f'''
+            <div class="kpi-container">
+                <div class="kpi-header">
+                    <div class="kpi-icon-box" style="background:#fef2f2;"><span class="material-symbols-rounded" style="color:#f87171;">warning</span></div>
+                    <span class="kpi-badge" style="background:#fef2f2; color:#ef4444;">בסיכון</span>
+                </div>
+                <div class="kpi-content">
+                    <div class="kpi-value-row">
+                        <span class="kpi-unit">פרויקטים</span>
+                        <span class="kpi-number">{val}</span>
+                    </div>
+                </div>
+            </div>
+            ''', unsafe_allow_html=True)
+        
+        with k2:
+            val = len(projects[projects["status"]=="צהוב"])
+            st.markdown(f'''
+            <div class="kpi-container">
+                <div class="kpi-header">
+                    <div class="kpi-icon-box" style="background:#eff6ff;"><span class="material-symbols-rounded" style="color:#60a5fa;">info</span></div>
+                    <span class="kpi-badge" style="background:#eff6ff; color:#3b82f6;">במעקב</span>
+                </div>
+                <div class="kpi-content">
+                    <div class="kpi-value-row">
+                        <span class="kpi-unit">פרויקטים</span>
+                        <span class="kpi-number">{val}</span>
+                    </div>
+                </div>
+            </div>
+            ''', unsafe_allow_html=True)
+        
+        with k3:
+            val = len(projects[projects["status"]=="ירוק"])
+            st.markdown(f'''
+            <div class="kpi-container">
+                <div class="kpi-header">
+                    <div class="kpi-icon-box" style="background:#ecfdf5;"><span class="material-symbols-rounded" style="color:#34d399;">check_circle</span></div>
+                    <span class="kpi-badge" style="background:#ecfdf5; color:#10b981;">תקין</span>
+                </div>
+                <div class="kpi-content">
+                    <div class="kpi-value-row">
+                        <span class="kpi-unit">פרויקטים</span>
+                        <span class="kpi-number">{val}</span>
+                    </div>
+                </div>
+            </div>
+            ''', unsafe_allow_html=True)
+        
+        with k4:
+            val = len(projects)
+            st.markdown(f'''
+            <div class="kpi-container">
+                <div class="kpi-header">
+                    <div class="kpi-icon-box" style="background:#f8fafc;"><span class="material-symbols-rounded" style="color:#94a3b8;">folder</span></div>
+                    <span class="kpi-badge" style="background:#f8fafc; color:#64748b;">כללי</span>
+                </div>
+                <div class="kpi-content">
+                    <div class="kpi-value-row">
+                        <span class="kpi-unit">פעילים</span>
+                        <span class="kpi-number">{val}</span>
+                    </div>
+                </div>
+            </div>
+            ''', unsafe_allow_html=True)
+        
+        #st.markdown("<br>", unsafe_allow_html=True
+        st.markdown("<div style='margin-bottom: 0.5rem;'></div>", unsafe_allow_html=True)
+    
+        #הגדרת עמודה ימנית - לא למחוק
+        col_right, col_left = st.columns([1, 1])
+        
+        # ══════════════════════════════════════════════════════
+        # עמודה ימנית
+        # ══════════════════════════════════════════════════════
+        with col_right:
+            
+            # --- פרויקטים ---
+            st.markdown('<div id="section-projects"></div>', unsafe_allow_html=True)
+            st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;\">work</span> פרויקטים", unsafe_allow_html=True)
+            with st.container(border=True):
+                with st.container(border=False):
+                    for _, row in projects.iterrows():
+                        p_url = f"/?proj={urllib.parse.quote(row['project_name'])}"
+                        st.markdown(f'''
+                            <a href="{p_url}" target="_self" class="project-link">
+                                <div class="record-row">
+                                    <span style="display: flex; align-items: center; gap: 10px; font-size: 0.92rem; font-weight: normal;">
+                                        <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #64748b; transform: scale(0.8);">work</span>
+                                        {row["project_name"]}
+                                    </span>
+                                    <span style="display: flex; align-items: center; gap: 10px;">
+                                        <span class="tag-blue">{row.get("project_type", "תחזוקה")}</span>
+                                        <span style="color: #94a3b8; font-size: 22px; line-height: 1; flex-shrink: 0; margin-right: 2px;">&#8250;</span>
+                                    </span>
+                                </div>
+                            </a>
+                        ''', unsafe_allow_html=True)
+    
+    
+            #אזור תזכורות
+            # --- אזור תזכורות ---
+            st.markdown('<div id="section-reminders"></div>', unsafe_allow_html=True)
+            st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;\">notifications</span> תזכורות", unsafe_allow_html=True)
+            with st.container(border=True):
+                with st.container(border=False):
+                    t_r = st.session_state.rem_live[pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today]
+                    if not t_r.empty:
+                        for _, row in t_r.iterrows():
+                            st.markdown(f'''
+                                <div class="record-row">
+                                    <span style="display: flex; align-items: center; gap: 8px; font-size: 0.92rem; font-weight: normal;">
+                                        <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #64748b; transform: scale(0.8);">notifications</span>
+                                        {row["reminder_text"]}
+                                    </span>
+                                    <span class="tag-orange">{row.get("project_name", "כללי")}</span>
+                                </div>
+                            ''', unsafe_allow_html=True)
+                    else:
+                        st.write("אין תזכורות להיום.")
+            
+                if st.session_state.adding_reminder:
+                    with st.container():
+                        r_col1, r_col2, r_col3, r_col4 = st.columns([1.5, 3, 0.5, 0.5])
+                        with r_col1: new_proj = st.selectbox("פרויקט", projects["project_name"].tolist() + ["כללי"], label_visibility="collapsed", key="new_rem_proj")
+                        with r_col2: new_text = st.text_input("תיאור", placeholder="מה להזכיר?", label_visibility="collapsed", key="new_rem_text")
+                        with r_col3:
+                            if st.button("✓", key="save_rem_btn"):
+                                if new_text:
+                                    new_row = {"date": today, "reminder_text": new_text, "project_name": new_proj}
+                                    st.session_state.rem_live = pd.concat([st.session_state.rem_live, pd.DataFrame([new_row])], ignore_index=True)
+                                    st.session_state.adding_reminder = False; st.rerun()
+                        with r_col4:
+                            if st.button("×", key="cancel_rem_btn"):
+                                st.session_state.adding_reminder = False; st.rerun()
+                else:
+                    if st.button("+", use_container_width=True, key="add_rem_btn_unique", type="secondary"):
+                        st.session_state.adding_reminder = True
+                        st.rerun()
+                        
+            # --- משימות ---
+            # --- משימות ---
+            st.markdown('<div id="section-tasks"></div>', unsafe_allow_html=True)
+            st.markdown('<h3><span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">checklist</span> משימות חדשות azure </h3>', unsafe_allow_html=True)
+            with st.container(border=True):
+                tasks_data = get_azure_tasks()
+                if tasks_data:
+                    for t in tasks_data:
+                        f = t.get('fields', {})
+                        t_id, t_title, p_task = t.get('id'), f.get('System.Title', ''), f.get('System.TeamProject', 'General')
+                        raw_date = f.get('System.CreatedDate', '')
+                        fmt_date = f"{raw_date[8:10]}/{raw_date[5:7]} {raw_date[11:16]}" if raw_date else ""
+                        t_url = f"https://dev.azure.com/amandigital/{urllib.parse.quote(p_task)}/_workitems/edit/{t_id}"
+                        st.markdown(
+                            f'''
+                            <div class="record-row" style="white-space: nowrap;">
+                                <span style="display: flex; align-items: center; gap: 8px; flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis; font-size: 0.92rem; font-weight: normal;">
+                                    <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #0078d4; transform: scale(0.8);">checklist</span>
+                                    <a href="{t_url}" target="_blank" style="color: #0078d4; text-decoration: underline; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{t_title}</a>
+                                    <span style="color: #94a3b8; font-size: 0.75rem; margin-right: 15px; flex-shrink: 0;">נוצר ב {fmt_date}</span>
+                                </span>
+                                <span class="tag-orange" style="margin-right: 12px; flex-shrink: 0;">{p_task}</span>
+                            </div>
+                            ''',
+                            unsafe_allow_html=True
+                        )
+                else:
+                    st.markdown('<p style="text-align: right; color: gray;">אין משימות חדשות.</p>', unsafe_allow_html=True)
+                    
+                            
+    
+            # ============================
+            # 📌 פרויקטים לדיווח (priority.xlsx)
+            # ============================
+            st.markdown('<div id="section-priority"></div>', unsafe_allow_html=True)
+            st.markdown('<h3><span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">edit</span> פרויקטים לדיווח</h3>', unsafe_allow_html=True)
+            with st.container(border=True):
+                if priority_df.empty:
+                    st.write("לא נמצאו פרויקטים לדיווח.")
+                else:
+                    color_map = {
+                        "אנליסט": "tag-blue",
+                        "דנאל": "tag-green",
+                        "דלק": "tag-orange",
+                        "בנק": "tag-teal",
+                        "פיתוח": "tag-pink",
+                        "אלשטול": "tag-purple",
+                    }
+                    if "priority_expanded" not in st.session_state:
+                        st.session_state.priority_expanded = False
+                    rows_to_show = priority_df if st.session_state.priority_expanded else priority_df.iloc[:4]
+                    for _, row in rows_to_show.iterrows():
+                        project_name   = row["project_name"]
+                        project_number = row["project_number"]
+                        order_number   = row["order_number"]
+                        category  = project_name.split(" ")[0]
+                        tag_class = color_map.get(category, "tag-gray")
+                        html = (
+                            '<div class="record-row" '
+                            'style="display:flex; align-items:center; justify-content:space-between; '
+                            'gap:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; '
+                            'font-size:0.92rem; font-weight:normal;">'
+                                '<span style="display: flex; align-items: center; gap: 8px; overflow:hidden; text-overflow:ellipsis;">'
+                                    f'<span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #64748b; transform: scale(0.8);">edit</span>'
+                                    f'<span style="overflow:hidden; text-overflow:ellipsis; font-weight:normal;">'
+                                        f'{project_name} '
+                                        f'<span style="color:#64748b; font-size:0.75rem; margin-right:6px;">'
+                                            f'{project_number} | {order_number}'
+                                        f'</span>'
+                                    f'</span>'
+                                f'</span>'
+                                f'<span class="{tag_class}" style="white-space:nowrap; flex-shrink:0;">'
+                                f'{category}</span>'
+                            '</div>'
+                        )
+                        st.markdown(html, unsafe_allow_html=True)
+                    if len(priority_df) > 4:
+                        label = "הראה פחות ▲" if st.session_state.priority_expanded else f"הצג הכל ({len(priority_df)}) ▼"
+                        st.markdown("""
+                            <style>
+                            div[data-testid="stBaseButton-secondary"]:has(p) button,
+                            .priority-link-btn button {
+                                background: transparent !important;
+                                border: none !important;
+                                box-shadow: none !important;
+                                color: #4facfe !important;
+                                font-size: 0.82rem !important;
+                                font-weight: 600 !important;
+                                padding: 2px 0 !important;
+                                margin-top: 4px !important;
+                                text-align: right !important;
+                                width: auto !important;
+                                min-height: unset !important;
+                                cursor: pointer !important;
+                                float: right !important;
+                            }
+                            </style>
+                        """, unsafe_allow_html=True)
+                        if st.button(label, key="toggle_priority_btn"):
+                            st.session_state.priority_expanded = not st.session_state.priority_expanded
+                            st.rerun()
+    
+            
+        # ══════════════════════════════════════════════════════
+        # עמודה שמאלית
+        # ══════════════════════════════════════════════════════
+        with col_left:
+            #אזור פגישות
+            st.markdown('<div id="section-meetings"></div>', unsafe_allow_html=True)
+            st.markdown("### <span class=\"material-symbols-outlined\" style=\"vertical-align: middle; margin-left: 8px; color: #6f5861;\">calendar_today</span> פגישות היום", unsafe_allow_html=True)
+            with st.container(border=True):
+                t_m = meetings[pd.to_datetime(meetings["date"]).dt.date == today].sort_values("start_time")
+                if t_m.empty:
+                    st.write("אין פגישות היום")
+                else:
+                    now_time = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).time()
+                    now_time = datetime.datetime.now(ZoneInfo("Asia/Jerusalem")).time()
+                    for _, r in t_m.iterrows():
+                        s_t = fmt_time(r.get('start_time', ''))
+                        e_t = fmt_time(r.get('end_time', ''))
+                        try:
+                            end_str = str(r.get('end_time', ''))
+                            end_time_obj = datetime.datetime.strptime(end_str, "%H:%M:%S").time()
+                            is_past = end_time_obj < now_time
+                        except:
+                            is_past = False
+                        past_style = "opacity: 0.4; text-decoration: line-through;" if is_past else ""
+                        st.markdown(f'''
+                            <div class="record-row" style="{past_style}">
+                                <span style="display: flex; align-items: center; gap: 8px; flex-grow: 1; text-align: right; font-size: 0.92rem; font-weight: normal;">
+                                    <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #6f5861; transform: scale(0.8);">event_available</span>
+                                    {r["meeting_title"]}
+                                </span>
+                                <span class="time-label">{s_t}-{e_t}</span>
+                            </div>
+                        ''', unsafe_allow_html=True)
+    
+                    
+                                            
+            # ── Fathom ──────────────────────────────────────────
+            st.markdown('<div id="section-fathom"></div>', unsafe_allow_html=True)
+            col_title, col_refresh = st.columns([0.9, 0.1])
+            with col_title:
+                st.markdown('<h3><span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b;">description</span> סיכומי פגישות Fathom</h3>', unsafe_allow_html=True)
+            with col_refresh:
+                if st.button("🔄", key="refresh_fathom"):
+                    try:
+                        items, status = get_fathom_meetings()
+                        if status == 200:
+                            st.session_state['fathom_meetings'] = items
+                            st.rerun()
+                    except: pass
+            with st.container(border=True):
+    
+                if 'fathom_meetings' not in st.session_state:
+                    try:
+                        items, status = get_fathom_meetings()
+                        st.session_state['fathom_meetings'] = items if status == 200 else []
+                    except:
+                        st.session_state['fathom_meetings'] = []
+    
+                st.markdown("""
+                    <style>
+                    div[data-testid="stVerticalBlock"] > div:has(.fathom-row-ui) { gap: 0rem !important; }
+                    div.element-container:has(.fathom-row-ui) + div.element-container {
+                        margin-top: -45px !important; margin-bottom: 0px !important;
+                    }
+                    div.element-container:has(.fathom-row-ui) + div.element-container div[data-testid="stButton"] button {
+                        background: transparent !important; border: 1px solid transparent !important;
+                        border-right: 5px solid transparent !important; width: 100% !important;
+                        height: 45px !important; color: transparent !important; z-index: 20;
+                    }
+                    div.element-container:has(.fathom-row-ui) + div.element-container div[data-testid="stButton"] button:hover {
+                        background: transparent !important;
+                        box-shadow: none !important;
+                        transform: none !important;
+                    }
+                    div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-testid="stButton"] button:hover) .fathom-row-ui {
+                        border-right-color: #f0b8cb !important;
+                        background-color: #fdf6f9 !important;
+                        box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
+                    }
+                    </style>
+                """, unsafe_allow_html=True)
+    
+                f_meetings = st.session_state.get('fathom_meetings', [])
+                if f_meetings:
+                    for idx, mtg in enumerate(f_meetings):
+                        rec_id   = mtg.get('recording_id')
+                        title    = mtg.get('title') or "פגישה"
+                        raw_date = mtg.get('recording_start_time', '')[:10]
+                        if raw_date and len(raw_date) >= 10:
+                            date_str = f"{raw_date[8:10]}-{raw_date[5:7]}-{raw_date[0:4]}"
+                        else:
+                            date_str = ""
+                        open_key = f"open_{rec_id}"
+                        is_open  = st.session_state.get(open_key, False)
+                        s_key    = f"sum_v4_{rec_id}"
+                        arrow = "&#8250;" if not is_open else "&#8249;"
+                        st.markdown(f'''
+                            <div class="fathom-row-ui" style="font-size: 0.92rem; font-weight: normal;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 18px; width: 20px; height: 20px; color: #64748b; transform: scale(0.8);">description</span>
+                                    <span style="font-size: 0.88rem;">{title}</span>
+                                </div>
+                                <div style="display: flex; justify-content: flex-end; align-items: center;">
+                                    <span class="fathom-pill-v2">{date_str}</span>
+                                </div>
+                                <span style="color: #94a3b8; font-size: 22px; line-height: 1; flex-shrink: 0; margin-right: 8px;">{arrow}</span>
+                            </div>
+                        ''', unsafe_allow_html=True)
+                        if st.button("", key=f"f_trig_{rec_id}_{idx}", use_container_width=True):
+                            st.session_state[open_key] = not is_open
+                            st.rerun()
+                        if is_open:
+                            with st.container():
+                                if s_key not in st.session_state:
+                                    st.markdown("""
+                                        <style>
+                                        .st-key-gen_btn div[data-testid="stButton"] button {
+                                            background: #fdf2f8 !important;
+                                            border: 1.5px solid #FADCE6 !important;
+                                            border-radius: 12px !important;
+                                            color: #6f5861 !important;
+                                            font-weight: 600 !important;
+                                            font-size: 0.78rem !important;
+                                            padding: 8px 16px !important;
+                                            box-shadow: none !important;
+                                            width: 100% !important;
+                                        }
+                                        .st-key-gen_btn div[data-testid="stButton"] button:hover {
+                                            background: #FADCE6 !important;
+                                            transform: none !important;
+                                            box-shadow: none !important;
+                                        }
+                                        </style>
+                                    """, unsafe_allow_html=True)
+                                    if st.button("✦ צור סיכום עם AI", key=f"gen_{rec_id}"):
+                                        with st.spinner("מנתח..."):
+                                            raw = get_fathom_summary(rec_id)
+                                            if raw:
+                                                summary = refine_with_ai(raw)
+                                                st.session_state[s_key] = summary
+                                                save_summary_to_excel(title, date_str, summary)
+                                            else:
+                                                st.session_state[s_key] = "לא נמצא תוכן לסיכום"
+    
+                                if st.session_state.get(s_key):
+                                    import html, re
+                                    escaped = html.escape(st.session_state.get(s_key))
+                                    
+                                    # עיבוד הטקסט: מוריד את תגיות הכותרות והרשימות בצורה נקייה
+                                    formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
+                                    formatted = re.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re.MULTILINE)
+                                    formatted = re.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re.MULTILINE)
+                                    
+                                    # ניקוי תווים כפולים או רווחים
+                                    formatted = formatted.replace('\r\n', '\n').replace('\r', '\n')
+                                    formatted = re.sub(r'\n+', '<br>', formatted)
+                                    
+                                    # הסרת תגיות <br> מיותרות שנוצרות ישירות אחרי כותרות
+                                    formatted = re.sub(r'</h3><br\s*/?>', '</h3>', formatted)
+                                    
+                                    components.html(f"""<!DOCTYPE html>
+    <html dir="rtl">
+    <head>
+    <meta charset="utf-8"/>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+    <style>
+    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+    body {{ font-family: 'Plus Jakarta Sans', sans-serif; background: transparent; direction: rtl; }}
+    .ai-response-card {{ background: #ffffff; border: 1.5px solid #FADCE6; border-radius: 16px; padding: 20px 24px; direction: rtl; }}
+    .ai-response-topbar {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #fdf0f5; }}
+    .ai-response-label {{ display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 700; color: #6f5861; }}
+    .ai-response-dot {{ width: 8px; height: 8px; border-radius: 50%; background: #10b981; }}
+    .ai-response-actions {{ display: flex; gap: 6px; }}
+    .ai-action-btn {{ background: #fdf2f8; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }}
+    .ai-action-btn:hover {{ background: #FADCE6; }}
+    .ai-action-btn .material-symbols-outlined {{ font-size: 16px; color: #64748b; font-family: 'Material Symbols Outlined'; -webkit-font-feature-settings: 'liga'; font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased; }}
+    .ai-response-body {{ font-size: 0.9rem; color: #4e4447; line-height: 1.75; text-align: right; }}
+    .ai-response-heading {{ font-size: 1rem; font-weight: 700; color: #3f3f46; margin: 0 0 4px 0 !important; padding: 12px 0 0 0 !important; }}
+    .ai-response-li {{ color: #4e4447; margin-bottom: 4px; list-style: none; padding-right: 14px; position: relative; display: block; }}
+    .ai-response-li::before {{ content: '●'; color: #f0b8cb; position: absolute; right: 0; font-size: 10px; top: 4px; }}
+    </style>
+    </head>
+    <body>
+    <div class="ai-response-card">
+    <div class="ai-response-topbar">
+        <div class="ai-response-label">
+            <span class="material-symbols-outlined" style="font-size:18px; color:#64748b;">smart_toy</span>
+            <div class="ai-response-dot"></div>
+        </div>
+        <div class="ai-response-actions">
+            <button class="ai-action-btn" id="fathom-copy-btn" title="העתק">
+                <span class="material-symbols-outlined">content_copy</span>
+            </button>
+            <button class="ai-action-btn" id="fathom-share-btn" title="שתף">
+                <span class="material-symbols-outlined">share</span>
+            </button>
+        </div>
+    </div>
+    <div class="ai-response-body" id="fathom-response-text">{formatted}</div>
+    </div>
+    <script>
+    document.getElementById('fathom-copy-btn').addEventListener('click', function() {{
+    var text = document.getElementById('fathom-response-text').innerText;
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try {{
+        document.execCommand('copy');
+        var btn = document.getElementById('fathom-copy-btn');
+        btn.querySelector('span').innerText = 'check';
+        setTimeout(function() {{ btn.querySelector('span').innerText = 'content_copy'; }}, 1500);
+    }} catch(e) {{}}
+    document.body.removeChild(ta);
+    }});
+    document.getElementById('fathom-share-btn').addEventListener('click', function() {{
+    var text = document.getElementById('fathom-response-text').innerText;
+    if (navigator.share) {{ navigator.share({{text: text}}); }}
+    }});
+    </script>
+    </body>
+    </html>""", height=600, scrolling=True)
+    
+    
+    
+            # ============================
+            #      עוזר אישי AI — ורוד
+            # ============================
+            st.markdown('<div id="section-ai"></div>', unsafe_allow_html=True)
+            st.markdown('### <span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b !important;">smart_toy</span> עוזר AI אישי', unsafe_allow_html=True)
+            with st.container(border=True, key="ai_container"):
+                
+                sel_p = st.selectbox(
+                    "פרויקט",
+                    ["בחר פרויקט לניתוח..."] + projects["project_name"].tolist(),
+                    label_visibility="collapsed",
+                    key="ai_p"
+                )
+    
+                q_in = st.text_area(
+                    "שאלה",
+                    placeholder="מה תרצי לדעת?",
+                    label_visibility="collapsed",
+                    key="ai_i",
+                    height=100
+                )
+    
+                col_empty, col_btn = st.columns([0.89, 0.11])
+                with col_btn:
+                    send = st.button("↩", key="ai_send", use_container_width=True)
+    
+                if send:
+                    if q_in:
+                        with st.spinner("מנתח..."):
+                            try:
+                                genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+                                model = genai.GenerativeModel('gemini-2.5-flash-lite')
+    
+                                projects_summary = "\n".join([
+                                    f"- {r['project_name']}: סטטוס {r.get('status','לא ידוע')}, סוג {r.get('project_type','לא ידוע')}"
+                                    for _, r in projects.iterrows()
+                                ])
+    
+                                meetings_today = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
+                                meetings_summary = "\n".join([
+                                    f"- {r['meeting_title']} בשעה {fmt_time(r.get('start_time',''))}"
+                                    for _, r in meetings_today.iterrows()
+                                ]) if not meetings_today.empty else "אין פגישות היום"
+    
+                                reminders_today2 = st.session_state.rem_live[
+                                    pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today
+                                ]
+                                reminders_summary = "\n".join([
+                                    f"- {r['reminder_text']} ({r.get('project_name','כללי')})"
+                                    for _, r in reminders_today2.iterrows()
+                                ]) if not reminders_today2.empty else "אין תזכורות"
+    
+                                tasks_summary = "\n".join([
+                                    f"- {t.get('fields',{}).get('System.Title','')} ({t.get('fields',{}).get('System.TeamProject','')})"
+                                    for t in (get_azure_tasks() or [])
+                                ]) or "אין משימות פתוחות"
+    
+                                fathom_summaries = "\n".join([
+                                    f"- פגישה: {k.replace('sum_v4_','')}: {v[:200]}..."
+                                    for k, v in st.session_state.items()
+                                    if k.startswith("sum_v4_") and v
+                                ]) or "אין סיכומי פגישות"
+    
+                                focus = (
+                                    f"התמקד בפרויקט: {sel_p}"
+                                    if sel_p != "כללי - כל הפרויקטים"
+                                    else "התייחס לכל הפרויקטים"
+                                )
+    
+                                prompt = f"""אתה עוזר AI בכיר לניהול פרויקטים. יש לך גישה לכל המידע הבא:
+    
+    📁 פרויקטים:
+    {projects_summary}
+    
+    📅 פגישות היום:
+    {meetings_summary}
+    
+    🔔 תזכורות היום:
+    {reminders_summary}
+    
+    📋 משימות פתוחות באז'ור:
+    {tasks_summary}
+    
+    📝 סיכומי פגישות אחרונים:
+    {fathom_summaries}
+    
+    {focus}
+    שאלה: {q_in}
+    
+    ענה בעברית עסקית, בצורה מעמיקה וממוקדת. אם רלוונטי — תצלב מידע בין מקורות שונים."""
+    
+                                response = model.generate_content(prompt)
+                                st.session_state.ai_response = response.text
+    
+                            except Exception as e:
+                                st.session_state.ai_response = f"שגיאה: {str(e)}"
+    
+                if st.session_state.ai_response:
+                    import html, re
+                    escaped = html.escape(st.session_state.ai_response)
+                    formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
+                    formatted = re.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re.MULTILINE)
+                    formatted = re.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re.MULTILINE)
+                    formatted = formatted.replace('\n', '<br>')
+                    components.html(f"""<!DOCTYPE html>
+                <html dir="rtl">
+                <head>
+                <meta charset="utf-8"/>
+                <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+                <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+                <style>
+                * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+                body {{ font-family: 'Plus Jakarta Sans', sans-serif; background: transparent; direction: rtl; }}
+                .ai-response-card {{ background: #ffffff; border: 1.5px solid #FADCE6; border-radius: 16px; padding: 20px 24px; direction: rtl; }}
+                .ai-response-topbar {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #fdf0f5; }}
+                .ai-response-label {{ display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 700; color: #6f5861; }}
+                .ai-response-dot {{ width: 8px; height: 8px; border-radius: 50%; background: #10b981; }}
+                .ai-response-actions {{ display: flex; gap: 6px; }}
+                .ai-action-btn {{ background: #fdf2f8; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }}
+                .ai-action-btn:hover {{ background: #FADCE6; }}
+                .ai-action-btn .material-symbols-outlined {{ font-size: 16px; color: #64748b; font-family: 'Material Symbols Outlined'; -webkit-font-feature-settings: 'liga'; font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased; }}
+                .ai-response-body {{ font-size: 0.9rem; color: #4e4447; line-height: 1.75; text-align: right; }}
+                .ai-response-heading {{ font-size: 1rem; font-weight: 700; color: #3f3f46; margin: 14px 0 6px 0; }}
+                .ai-response-li {{ color: #4e4447; margin-bottom: 4px; list-style: none; padding-right: 14px; position: relative; display: block; }}
+                .ai-response-li::before {{ content: '●'; color: #f0b8cb; position: absolute; right: 0; font-size: 10px; top: 4px; }}
+                </style>
+                </head>
+                <body>
+                <div class="ai-response-card">
+                    <div class="ai-response-topbar">
+                        <div class="ai-response-label">
+                            <span class="material-symbols-outlined" style="font-size:18px; color:#64748b;">smart_toy</span>
+                            <div class="ai-response-dot"></div>
+                        </div>
+                        <div class="ai-response-actions">
+                            <button class="ai-action-btn" id="ai-copy-btn" title="העתק">
+                                <span class="material-symbols-outlined">content_copy</span>
+                            </button>
+                            <button class="ai-action-btn" id="ai-share-btn" title="שתף">
+                                <span class="material-symbols-outlined">share</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="ai-response-body" id="ai-response-text">{formatted}</div>
+                </div>
+                <script>
+                document.getElementById('ai-copy-btn').addEventListener('click', function() {{
+                    var text = document.getElementById('ai-response-text').innerText;
+                    var ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.style.position = 'fixed';
+                    ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.focus();
+                    ta.select();
+                    try {{
+                        document.execCommand('copy');
+                        var btn = document.getElementById('ai-copy-btn');
+                        btn.querySelector('span').innerText = 'check';
+                        setTimeout(function() {{ btn.querySelector('span').innerText = 'content_copy'; }}, 1500);
+                    }} catch(e) {{}}
+                    document.body.removeChild(ta);
+                }});
+                document.getElementById('ai-share-btn').addEventListener('click', function() {{
+                    var text = document.getElementById('ai-response-text').innerText;
+                    if (navigator.share) {{ navigator.share({{text: text}}); }}
+                }});
+                </script>
+                </body>
+                </html>""", height=600, scrolling=True)
+                    
+                    
