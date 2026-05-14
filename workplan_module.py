@@ -32,12 +32,12 @@ def build_timeline_html(project_name):
     today_str = today.strftime("%d.%m")
     today_iso = today.strftime("%Y-%m-%d")
 
-    # ── בניית רשימת פריטים ──────────────────────────────────
+    # ── בניית רשימת פריטים ────────────────────────────────
     items = []
     for _, row in project_df.iterrows():
         name = str(row["milestone_name"])
         tag_class = (
-            "amit"  if "עמיתים" in name else
+            "amit"  if "עמיתים"  in name else
             "measy" if "מעסיקים" in name else
             "soch"  if "סוכנים"  in name else
             "amit"
@@ -48,7 +48,7 @@ def build_timeline_html(project_name):
         date_iso     = row["date"].strftime("%Y-%m-%d")
         contents     = str(row.get("version_contents", "")).strip()
         tooltip      = (
-            f"<div class='tooltip'>{contents.replace(chr(10), '<br>')}</div>"
+            f"<div class='tip'>{contents.replace(chr(10), '<br>')}</div>"
             if contents and contents != "nan" else ""
         )
         items.append(dict(
@@ -57,25 +57,23 @@ def build_timeline_html(project_name):
             date_str=date_str, date_iso=date_iso, tooltip=tooltip
         ))
 
-    # ── בניית HTML לכרטיס ──────────────────────────────────
     def card(it):
         return (
             f"<div class='card' data-date='{it['date_iso']}'>"
             f"{it['tooltip']}"
             f"<span class='tag {it['tag_class']}'>{it['name']}</span>"
-            f"<div class='cdate'>{it['date_str']}</div>"
-            f"<span class='status {it['status_class']}'>{it['status_val']}</span>"
+            f"<div class='dt'>{it['date_str']}</div>"
+            f"<span class='st {it['status_class']}'>{it['status_val']}</span>"
             f"</div>"
         )
 
     # ── בניית שורות ────────────────────────────────────────
     rows_html = []
     i = 0
-    side = 0   # 0=שמאל, 1=ימין
+    side = 0  # 0=שמאל, 1=ימין
 
     while i < len(items):
         it = items[i]
-        # מקבץ תאריכים זהים
         group = [it]
         j = i + 1
         while j < len(items) and items[j]["date_iso"] == it["date_iso"]:
@@ -83,30 +81,28 @@ def build_timeline_html(project_name):
             j += 1
 
         if len(group) >= 2:
-            # paired: שמאל וימין מאותה נקודה
             rows_html.append(
-                f"<div class='entry' data-date='{it['date_iso']}'>"
-                f"<div class='left'>{card(group[0])}</div>"
+                f"<div class='row' data-date='{it['date_iso']}'>"
+                f"<td class='cl'>{card(group[0])}</td>"
                 f"<div class='dot'></div>"
-                f"<div class='right'>{card(group[1])}</div>"
+                f"<td class='cr'>{card(group[1])}</td>"
                 f"</div>"
             )
-            side = (side + 2) % 2
         else:
             if side % 2 == 0:
                 rows_html.append(
-                    f"<div class='entry' data-date='{it['date_iso']}'>"
-                    f"<div class='left'>{card(it)}</div>"
+                    f"<div class='row' data-date='{it['date_iso']}'>"
+                    f"<td class='cl'>{card(it)}</td>"
                     f"<div class='dot'></div>"
-                    f"<div class='right'></div>"
+                    f"<td class='cr'></td>"
                     f"</div>"
                 )
             else:
                 rows_html.append(
-                    f"<div class='entry' data-date='{it['date_iso']}'>"
-                    f"<div class='left'></div>"
+                    f"<div class='row' data-date='{it['date_iso']}'>"
+                    f"<td class='cl'></td>"
                     f"<div class='dot'></div>"
-                    f"<div class='right'>{card(it)}</div>"
+                    f"<td class='cr'>{card(it)}</td>"
                     f"</div>"
                 )
             side += 1
@@ -115,7 +111,6 @@ def build_timeline_html(project_name):
 
     rows_str = "\n".join(rows_html)
 
-    # ── HTML מלא ───────────────────────────────────────────
     return f"""<!DOCTYPE html>
 <html dir="rtl" lang="he">
 <head>
@@ -126,188 +121,137 @@ def build_timeline_html(project_name):
 * {{ box-sizing: border-box; margin: 0; padding: 0; }}
 body {{ font-family: 'Assistant', sans-serif; background: white; direction: rtl; padding-bottom: 40px; }}
 
-/* כפתורי סינון */
-.controls {{
-    display: flex;
-    justify-content: flex-end;
-    padding: 14px 20px 12px;
-}}
-.toggle-group {{
-    display: flex;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 1px 4px rgba(0,0,0,.08);
-    padding: 4px;
-}}
-.toggle-btn {{
-    padding: 5px 12px;
-    font-size: 12px;
-    font-weight: 600;
-    font-family: 'Assistant', sans-serif;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    color: #94a3b8;
-    background: transparent;
-}}
+.controls {{ display: flex; justify-content: flex-end; padding: 12px 20px 10px; }}
+.toggle-group {{ display: flex; background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.08); padding: 4px; }}
+.toggle-btn {{ padding: 5px 12px; font-size: 12px; font-weight: 600; font-family: 'Assistant', sans-serif; border: none; border-radius: 8px; cursor: pointer; color: #94a3b8; background: transparent; }}
 .toggle-btn.active {{ background: #FADCE6; color: #63646c; }}
 .toggle-btn:hover:not(.active) {{ color: #475569; }}
 
 /* ציר אנכי */
-.timeline {{
-    position: relative;
-    padding: 8px 0 40px;
-    margin: 0 auto;
-    max-width: 660px;
-}}
-.timeline::before {{
-    content: '';
-    position: absolute;
-    top: 0; bottom: 0;
-    left: 50%;
-    width: 2px;
-    margin-left: -1px;
-    background: #cbd5e1;
-    z-index: 0;
+.tl {{ position: relative; width: 100%; }}
+.tl::before {{
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 50%; width: 2px; margin-left: -1px;
+  background: #cbd5e1; z-index: 0;
 }}
 
-/* שורת אבן דרך */
-.entry {{
-    display: flex;
-    align-items: center;
-    min-height: 80px;
-    position: relative;
+/* שורת ציר — display:table מבטיח שה-position:absolute יחושב נכון */
+.row {{
+  display: table;
+  table-layout: fixed;
+  width: 100%;
+  min-height: 80px;
+  position: relative;
 }}
-.entry.hidden {{ display: none !important; }}
+.row.hidden {{ display: none !important; }}
 
-/* נקודה — position:absolute מרכוזת על הציר */
-.entry .dot {{
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 12px;
-    height: 12px;
-    background: #475569;
-    border-radius: 50%;
-    border: 2px solid white;
-    box-shadow: 0 0 0 2px #475569;
-    z-index: 2;
-    flex-shrink: 0;
+/* תאי שמאל/ימין */
+.cl, .cr {{
+  display: table-cell;
+  width: 50%;
+  vertical-align: middle;
+  padding: 10px 0;
 }}
+.cl {{ text-align: left;  padding-right: 22px; }}
+.cr {{ text-align: right; padding-left:  22px; }}
 
-/* אזורי שמאל/ימין — calc(50% - 6px) = חצי פחות רדיוס הנקודה */
-.entry .left,
-.entry .right {{
-    width: calc(50% - 6px);
-    display: flex;
-    align-items: center;
-    padding: 8px 0;
+/* נקודה על הציר */
+.row .dot {{
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px; height: 12px;
+  background: #475569;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 0 2px #475569;
+  z-index: 2;
 }}
-.entry .left  {{ justify-content: flex-end;   padding-right: 20px; }}
-.entry .right {{ justify-content: flex-start; padding-left:  20px; }}
 
 /* כרטיס */
 .card {{
-    background: white;
-    padding: 7px 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,.08);
-    border: 1px solid #f1f5f9;
-    text-align: center;
-    width: 130px;
-    flex-shrink: 0;
-    position: relative;
+  display: inline-block;
+  background: white;
+  padding: 7px 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  border: 1px solid #f1f5f9;
+  text-align: center;
+  width: 130px;
+  position: relative;
 }}
-.card:hover .tooltip {{ display: block; }}
+.card:hover .tip {{ display: block; }}
 
-/* קונקטורים — pseudo-elements על הכרטיס עצמו */
-.left  .card::after  {{
-    content: '';
-    position: absolute;
-    top: 50%; right: -20px;
-    transform: translateY(-50%);
-    width: 20px; height: 2px;
-    background: #cbd5e1;
-}}
-.right .card::before {{
-    content: '';
-    position: absolute;
-    top: 50%; left: -20px;
-    transform: translateY(-50%);
-    width: 20px; height: 2px;
-    background: #cbd5e1;
+/* קונקטור — כרטיס שמאל, יוצא ימינה לציר */
+.cl .card::after {{
+  content: '';
+  position: absolute;
+  top: 50%; right: -22px;
+  width: 22px; height: 2px;
+  background: #cbd5e1;
+  transform: translateY(-50%);
 }}
 
-/* תגיות */
+/* קונקטור — כרטיס ימין, יוצא שמאלה לציר */
+.cr .card::before {{
+  content: '';
+  position: absolute;
+  top: 50%; left: -22px;
+  width: 22px; height: 2px;
+  background: #cbd5e1;
+  transform: translateY(-50%);
+}}
+
 .tag {{ font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 3px; display: inline-block; margin-bottom: 2px; line-height: 1.4; }}
 .amit  {{ background: #FADCE6; color: #831843; }}
 .measy {{ background: #eff6ff; color: #1e40af; }}
 .soch  {{ background: #fff7ed; color: #9a3412; }}
-.cdate {{ font-size: 12px; font-weight: 600; color: #1e293b; margin: 2px 0; }}
-.status {{ font-size: 9px; font-weight: 700; display: block; color: #94a3b8; margin-top: 1px; }}
+.dt {{ font-size: 12px; font-weight: 600; color: #1e293b; margin: 2px 0; }}
+.st {{ font-size: 9px; font-weight: 700; display: block; color: #94a3b8; margin-top: 1px; }}
 .live {{ color: #10b981; }}
 .wip  {{ color: #f59e0b; }}
 
-/* טולטיפ */
-.tooltip {{
-    display: none;
-    position: absolute;
-    bottom: 110%; right: 50%;
-    transform: translateX(50%);
-    background: #1e293b; color: white;
-    font-size: 11px; line-height: 1.6;
-    padding: 8px 12px; border-radius: 8px;
-    white-space: nowrap; text-align: right; direction: rtl;
-    z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,.2);
-    pointer-events: none;
+.tip {{
+  display: none; position: absolute; bottom: 110%; right: 50%;
+  transform: translateX(50%); background: #1e293b; color: white;
+  font-size: 11px; line-height: 1.6; padding: 8px 12px; border-radius: 8px;
+  white-space: nowrap; text-align: right; direction: rtl;
+  z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,.2); pointer-events: none;
 }}
-.tooltip::after {{
-    content: '';
-    position: absolute;
-    top: 100%; right: 50%;
-    transform: translateX(50%);
-    border: 5px solid transparent;
-    border-top-color: #1e293b;
+.tip::after {{
+  content: ''; position: absolute; top: 100%; right: 50%;
+  transform: translateX(50%); border: 5px solid transparent; border-top-color: #1e293b;
 }}
 
 /* חיווי היום */
-.today-line {{
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 28px;
-    margin: 4px 0;
-    max-width: 660px;
-    margin-left: auto;
-    margin-right: auto;
+.today {{
+  position: relative; display: flex; align-items: center; justify-content: center;
+  height: 28px; margin: 4px 0; width: 100%;
 }}
-.today-line::before {{
-    content: '';
-    position: absolute;
-    left: 0; right: 0; top: 50%;
-    border-top: 2px dashed #f0b8cb;
+.today::before {{
+  content: ''; position: absolute; left: 0; right: 0; top: 50%;
+  border-top: 2px dashed #f0b8cb;
 }}
-.today-badge {{
-    background: #FADCE6; color: #63646c;
-    font-size: 11px; font-weight: 700;
-    padding: 2px 14px; border-radius: 20px;
-    position: relative; z-index: 2;
-    white-space: nowrap;
+.today span {{
+  background: #FADCE6; color: #63646c; font-size: 11px; font-weight: 700;
+  padding: 2px 14px; border-radius: 20px; position: relative; z-index: 2;
+  white-space: nowrap;
 }}
 </style>
 </head>
 <body>
+
 <div class="controls">
   <div class="toggle-group">
-    <button class="toggle-btn active" onclick="filterView('all',this)">הכל</button>
-    <button class="toggle-btn" onclick="filterView('quarter',this)">רבעון נוכחי</button>
-    <button class="toggle-btn" onclick="filterView('month',this)">חודש נוכחי</button>
+    <button class="toggle-btn active" onclick="fv('all',this)">הכל</button>
+    <button class="toggle-btn" onclick="fv('quarter',this)">רבעון נוכחי</button>
+    <button class="toggle-btn" onclick="fv('month',this)">חודש נוכחי</button>
   </div>
 </div>
 
-<div class="timeline" id="tl">
+<div class="tl" id="tl">
 {rows_str}
 </div>
 
@@ -315,42 +259,45 @@ body {{ font-family: 'Assistant', sans-serif; background: white; direction: rtl;
 var todayISO = '{today_iso}';
 var CM = new Date().getMonth();
 var CY = new Date().getFullYear();
-var CQ = Math.floor(CM/3);
+var CQ = Math.floor(CM / 3);
 
-(function insertToday() {{
-  var entries = document.querySelectorAll('.entry');
-  var tl = document.getElementById('tl');
-  var m  = document.createElement('div');
-  m.className = 'today-line'; m.id = 'today-line';
-  m.innerHTML = '<span class="today-badge">היום {today_str}</span>';
+(function() {{
+  var rows = document.querySelectorAll('.row');
+  var tl   = document.getElementById('tl');
+  var m    = document.createElement('div');
+  m.className = 'today'; m.id = 'today-el';
+  m.innerHTML = '<span>היום {today_str}</span>';
   var placed = false;
-  for (var i=0; i<entries.length; i++) {{
-    if (entries[i].getAttribute('data-date') > todayISO) {{
-      tl.insertBefore(m, entries[i]); placed=true; break;
+  for (var i = 0; i < rows.length; i++) {{
+    if (rows[i].getAttribute('data-date') > todayISO) {{
+      tl.insertBefore(m, rows[i]); placed = true; break;
     }}
   }}
   if (!placed) tl.appendChild(m);
 }})();
 
-function filterView(mode, btn) {{
-  document.querySelectorAll('.toggle-btn').forEach(function(b){{b.classList.remove('active');}});
+function fv(mode, btn) {{
+  document.querySelectorAll('.toggle-btn').forEach(function(b) {{ b.classList.remove('active'); }});
   btn.classList.add('active');
-  document.querySelectorAll('.entry').forEach(function(row) {{
-    if (mode==='all') {{ row.classList.remove('hidden'); row.querySelectorAll('.card').forEach(function(c){{c.style.opacity='1';}}); return; }}
-    var cards = row.querySelectorAll('.card');
-    var any = false;
+  document.querySelectorAll('.row').forEach(function(row) {{
+    if (mode === 'all') {{
+      row.classList.remove('hidden');
+      row.querySelectorAll('.card').forEach(function(c) {{ c.style.opacity = '1'; }});
+      return;
+    }}
+    var cards = row.querySelectorAll('.card'), any = false;
     cards.forEach(function(c) {{
-      var d = c.getAttribute('data-date'); if (!d){{any=true;return;}}
-      var dt = new Date(d);
-      var show = (mode==='month') ? (dt.getMonth()===CM && dt.getFullYear()===CY)
-                                  : (Math.floor(dt.getMonth()/3)===CQ && dt.getFullYear()===CY);
+      var d = new Date(c.getAttribute('data-date'));
+      var show = (mode === 'month')
+        ? (d.getMonth() === CM && d.getFullYear() === CY)
+        : (Math.floor(d.getMonth() / 3) === CQ && d.getFullYear() === CY);
       c.style.opacity = show ? '1' : '0';
-      if (show) any=true;
+      if (show) any = true;
     }});
     row.classList.toggle('hidden', !any);
   }});
-  var tl = document.getElementById('today-line');
-  if (tl) tl.style.display='flex';
+  var el = document.getElementById('today-el');
+  if (el) el.style.display = 'flex';
 }}
 </script>
 </body>
@@ -366,8 +313,7 @@ def show_workplan_page(project_name=None):
         df = load_workplan_df()
         p  = clean_text(project_name) if project_name else ""
         n  = max(len(df[df["project_name"] == p]), 1)
-        # גובה = כפתורים(60) + שורות(n*90) + חיווי היום(40) + padding(60)
-        height = 60 + n * 90 + 40 + 60
+        height = 60 + n * 95 + 60 + 60  # כפתורים + שורות + today + padding
         html = build_timeline_html(project_name)
         components.html(html, height=height, scrolling=False)
     except Exception as e:
