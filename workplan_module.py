@@ -32,7 +32,6 @@ def build_timeline_html(project_name):
     today_str = today.strftime("%d.%m")
     today_iso = today.strftime("%Y-%m-%d")
 
-    # ── בניית רשימת פריטים ────────────────────────────────
     items = []
     for _, row in project_df.iterrows():
         name = str(row["milestone_name"])
@@ -67,10 +66,9 @@ def build_timeline_html(project_name):
             f"</div>"
         )
 
-    # ── בניית שורות ────────────────────────────────────────
     rows_html = []
     i = 0
-    side = 0  # 0=שמאל, 1=ימין
+    side = 0
 
     while i < len(items):
         it = items[i]
@@ -83,52 +81,51 @@ def build_timeline_html(project_name):
         if len(group) >= 2:
             rows_html.append(
                 f"<div class='row' data-date='{it['date_iso']}'>"
-                f"<td class='cl'>{card(group[0])}</td>"
+                f"<div class='cl'>{card(group[0])}</div>"
                 f"<div class='dot'></div>"
-                f"<td class='cr'>{card(group[1])}</td>"
+                f"<div class='cr'>{card(group[1])}</div>"
                 f"</div>"
             )
         else:
             if side % 2 == 0:
                 rows_html.append(
                     f"<div class='row' data-date='{it['date_iso']}'>"
-                    f"<td class='cl'>{card(it)}</td>"
+                    f"<div class='cl'>{card(it)}</div>"
                     f"<div class='dot'></div>"
-                    f"<td class='cr'></td>"
+                    f"<div class='cr'></div>"
                     f"</div>"
                 )
             else:
                 rows_html.append(
                     f"<div class='row' data-date='{it['date_iso']}'>"
-                    f"<td class='cl'></td>"
+                    f"<div class='cl'></div>"
                     f"<div class='dot'></div>"
-                    f"<td class='cr'>{card(it)}</td>"
+                    f"<div class='cr'>{card(it)}</div>"
                     f"</div>"
                 )
             side += 1
-
         i = j
 
     rows_str = "\n".join(rows_html)
 
     return f"""<!DOCTYPE html>
-<html dir="rtl" lang="he">
+<html lang="he">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-body {{ font-family: 'Assistant', sans-serif; background: white; direction: rtl; padding-bottom: 40px; }}
+body {{ font-family: 'Assistant', sans-serif; background: white; padding-bottom: 40px; }}
 
-.controls {{ display: flex; justify-content: flex-end; padding: 12px 20px 10px; }}
+.controls {{ display: flex; justify-content: flex-end; padding: 12px 20px 10px; direction: rtl; }}
 .toggle-group {{ display: flex; background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.08); padding: 4px; }}
 .toggle-btn {{ padding: 5px 12px; font-size: 12px; font-weight: 600; font-family: 'Assistant', sans-serif; border: none; border-radius: 8px; cursor: pointer; color: #94a3b8; background: transparent; }}
 .toggle-btn.active {{ background: #FADCE6; color: #63646c; }}
 .toggle-btn:hover:not(.active) {{ color: #475569; }}
 
-/* ציר אנכי */
-.tl {{ position: relative; width: 100%; }}
+/* ציר — LTR כדי ש-left:50% יעבוד נכון */
+.tl {{ position: relative; width: 100%; direction: ltr; }}
 .tl::before {{
   content: '';
   position: absolute;
@@ -137,42 +134,44 @@ body {{ font-family: 'Assistant', sans-serif; background: white; direction: rtl;
   background: #cbd5e1; z-index: 0;
 }}
 
-/* שורת ציר — display:table מבטיח שה-position:absolute יחושב נכון */
 .row {{
-  display: table;
-  table-layout: fixed;
-  width: 100%;
-  min-height: 80px;
   position: relative;
+  width: 100%;
+  min-height: 84px;
+  display: flex;
+  align-items: center;
 }}
 .row.hidden {{ display: none !important; }}
 
-/* תאי שמאל/ימין */
-.cl, .cr {{
-  display: table-cell;
-  width: 50%;
-  vertical-align: middle;
-  padding: 10px 0;
+.cl {{
+  width: calc(50% - 6px);
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 22px;
+  position: relative; z-index: 1;
 }}
-.cl {{ text-align: left;  padding-right: 22px; }}
-.cr {{ text-align: right; padding-left:  22px; }}
+.cr {{
+  width: calc(50% - 6px);
+  display: flex;
+  justify-content: flex-start;
+  padding-left: 22px;
+  margin-left: 12px;
+  position: relative; z-index: 1;
+}}
 
-/* נקודה על הציר */
-.row .dot {{
+.dot {{
   position: absolute;
-  top: 50%; left: 50%;
+  left: 50%; top: 50%;
   transform: translate(-50%, -50%);
   width: 12px; height: 12px;
   background: #475569;
   border-radius: 50%;
   border: 2px solid white;
   box-shadow: 0 0 0 2px #475569;
-  z-index: 2;
+  z-index: 2; flex-shrink: 0;
 }}
 
-/* כרטיס */
 .card {{
-  display: inline-block;
   background: white;
   padding: 7px 10px;
   border-radius: 8px;
@@ -180,11 +179,12 @@ body {{ font-family: 'Assistant', sans-serif; background: white; direction: rtl;
   border: 1px solid #f1f5f9;
   text-align: center;
   width: 130px;
+  flex-shrink: 0;
   position: relative;
+  direction: rtl;
 }}
 .card:hover .tip {{ display: block; }}
 
-/* קונקטור — כרטיס שמאל, יוצא ימינה לציר */
 .cl .card::after {{
   content: '';
   position: absolute;
@@ -193,8 +193,6 @@ body {{ font-family: 'Assistant', sans-serif; background: white; direction: rtl;
   background: #cbd5e1;
   transform: translateY(-50%);
 }}
-
-/* קונקטור — כרטיס ימין, יוצא שמאלה לציר */
 .cr .card::before {{
   content: '';
   position: absolute;
@@ -225,7 +223,6 @@ body {{ font-family: 'Assistant', sans-serif; background: white; direction: rtl;
   transform: translateX(50%); border: 5px solid transparent; border-top-color: #1e293b;
 }}
 
-/* חיווי היום */
 .today {{
   position: relative; display: flex; align-items: center; justify-content: center;
   height: 28px; margin: 4px 0; width: 100%;
@@ -237,7 +234,7 @@ body {{ font-family: 'Assistant', sans-serif; background: white; direction: rtl;
 .today span {{
   background: #FADCE6; color: #63646c; font-size: 11px; font-weight: 700;
   padding: 2px 14px; border-radius: 20px; position: relative; z-index: 2;
-  white-space: nowrap;
+  direction: rtl; white-space: nowrap;
 }}
 </style>
 </head>
@@ -256,48 +253,35 @@ body {{ font-family: 'Assistant', sans-serif; background: white; direction: rtl;
 </div>
 
 <script>
-var todayISO = '{today_iso}';
-var CM = new Date().getMonth();
-var CY = new Date().getFullYear();
-var CQ = Math.floor(CM / 3);
+var todayISO='{today_iso}';
+var CM=new Date().getMonth(),CY=new Date().getFullYear(),CQ=Math.floor(CM/3);
 
-(function() {{
-  var rows = document.querySelectorAll('.row');
-  var tl   = document.getElementById('tl');
-  var m    = document.createElement('div');
-  m.className = 'today'; m.id = 'today-el';
-  m.innerHTML = '<span>היום {today_str}</span>';
-  var placed = false;
-  for (var i = 0; i < rows.length; i++) {{
-    if (rows[i].getAttribute('data-date') > todayISO) {{
-      tl.insertBefore(m, rows[i]); placed = true; break;
-    }}
+(function(){{
+  var rows=document.querySelectorAll('.row'),tl=document.getElementById('tl');
+  var m=document.createElement('div');
+  m.className='today';m.id='today-el';
+  m.innerHTML='<span>היום {today_str}</span>';
+  var placed=false;
+  for(var i=0;i<rows.length;i++){{
+    if(rows[i].getAttribute('data-date')>todayISO){{tl.insertBefore(m,rows[i]);placed=true;break;}}
   }}
-  if (!placed) tl.appendChild(m);
+  if(!placed)tl.appendChild(m);
 }})();
 
-function fv(mode, btn) {{
-  document.querySelectorAll('.toggle-btn').forEach(function(b) {{ b.classList.remove('active'); }});
+function fv(mode,btn){{
+  document.querySelectorAll('.toggle-btn').forEach(function(b){{b.classList.remove('active');}});
   btn.classList.add('active');
-  document.querySelectorAll('.row').forEach(function(row) {{
-    if (mode === 'all') {{
-      row.classList.remove('hidden');
-      row.querySelectorAll('.card').forEach(function(c) {{ c.style.opacity = '1'; }});
-      return;
-    }}
-    var cards = row.querySelectorAll('.card'), any = false;
-    cards.forEach(function(c) {{
-      var d = new Date(c.getAttribute('data-date'));
-      var show = (mode === 'month')
-        ? (d.getMonth() === CM && d.getFullYear() === CY)
-        : (Math.floor(d.getMonth() / 3) === CQ && d.getFullYear() === CY);
-      c.style.opacity = show ? '1' : '0';
-      if (show) any = true;
+  document.querySelectorAll('.row').forEach(function(row){{
+    if(mode==='all'){{row.classList.remove('hidden');row.querySelectorAll('.card').forEach(function(c){{c.style.opacity='1';}});return;}}
+    var cards=row.querySelectorAll('.card'),any=false;
+    cards.forEach(function(c){{
+      var d=new Date(c.getAttribute('data-date'));
+      var show=(mode==='month')?(d.getMonth()===CM&&d.getFullYear()===CY):(Math.floor(d.getMonth()/3)===CQ&&d.getFullYear()===CY);
+      c.style.opacity=show?'1':'0';if(show)any=true;
     }});
-    row.classList.toggle('hidden', !any);
+    row.classList.toggle('hidden',!any);
   }});
-  var el = document.getElementById('today-el');
-  if (el) el.style.display = 'flex';
+  var el=document.getElementById('today-el');if(el)el.style.display='flex';
 }}
 </script>
 </body>
@@ -307,13 +291,12 @@ function fv(mode, btn) {{
 def show_workplan_page(project_name=None):
     import streamlit as st
     import streamlit.components.v1 as components
-
     st.markdown(f"### תוכנית עבודה — {project_name}", unsafe_allow_html=True)
     try:
         df = load_workplan_df()
         p  = clean_text(project_name) if project_name else ""
         n  = max(len(df[df["project_name"] == p]), 1)
-        height = 60 + n * 95 + 60 + 60  # כפתורים + שורות + today + padding
+        height = 60 + n * 95 + 60 + 60
         html = build_timeline_html(project_name)
         components.html(html, height=height, scrolling=False)
     except Exception as e:
