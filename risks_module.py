@@ -169,9 +169,9 @@ def show_risks_page(project_name=None):
     </style>
     """, unsafe_allow_html=True)
 
-    title = f"ניהול סיכונים — {project_name}" if project_name else "ניהול סיכונים"
-    st.markdown(f"### {title}", unsafe_allow_html=True)
-    st.markdown("<p style='font-size:0.82rem;color:#a1a1aa;margin-top:-4px;text-align:right;padding-right:18px;'>מעקב, ניתוח וניהול סיכונים</p>", unsafe_allow_html=True)
+    #title = f"ניהול סיכונים — {project_name}" if project_name else "ניהול סיכונים"
+    #st.markdown(f"### {title}", unsafe_allow_html=True)
+    #st.markdown("<p style='font-size:0.82rem;color:#a1a1aa;margin-top:-4px;text-align:right;padding-right:18px;'>מעקב, ניתוח וניהול סיכונים</p>", unsafe_allow_html=True)
 
     df["score"] = df["probability"] * df["impact"]
     critical_risks = len(df[df["score"] >= 15])
