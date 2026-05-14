@@ -314,15 +314,15 @@ def show_workplan_page(project_name=None):
         df = load_workplan_df()
         p = clean_text(project_name) if project_name else ""
         _pf = df[df["project_name"] == p]
-        n = max(len(_pf), 1)
         
+        n = max(len(_pf), 1)
         _yr    = datetime.date.today().year
         _live  = len(_pf[_pf["status"].str.strip() == "LIVE"])
         _wip   = len(_pf[_pf["status"].str.strip().isin(["בעבודה", "WIP"])])
         _tbd   = len(_pf[_pf["status"].str.strip() == "TBD"])
         _total = len(_pf[_pf["date"].dt.year == _yr])
 
-        # תצוגת KPIs על הרקע האפור
+        # 1. ה-KPIs מוצגים ישירות על הרקע
         k0, k1, k2, k3 = st.columns(4)
         with k0:
             st.markdown(f'''<div class="kpi-container"><div class="kpi-header"><div class="kpi-icon-box" style="background:#ecfdf5;"><span class="material-symbols-rounded" style="color:#10b981;">check_circle</span></div><span class="kpi-badge" style="background:#ecfdf5;color:#10b981;">LIVE</span></div><div class="kpi-content"><div class="kpi-value-row"><span class="kpi-unit">גרסאות</span><span class="kpi-number">{_live}</span></div></div></div>''', unsafe_allow_html=True)
@@ -333,24 +333,17 @@ def show_workplan_page(project_name=None):
         with k3:
             st.markdown(f'''<div class="kpi-container"><div class="kpi-header"><div class="kpi-icon-box" style="background:#eff6ff;"><span class="material-symbols-rounded" style="color:#3b82f6;">calendar_today</span></div><span class="kpi-badge" style="background:#eff6ff;color:#3b82f6;">סה״כ השנה</span></div><div class="kpi-content"><div class="kpi-value-row"><span class="kpi-unit">גרסאות</span><span class="kpi-number">{_total}</span></div></div></div>''', unsafe_allow_html=True)
 
-        # רווח משמעותי מתחת ל-KPIs
+        # 2. הוספת רווח נוסף מתחת ל-KPIs
         st.markdown("<div style='margin-bottom:2.5rem;'></div>", unsafe_allow_html=True)
 
-        # המיכל הלבן
+        # 3. הכותרת המקורית שלך - מעל המיכל של הגרף
+        st.markdown(f"### תוכנית עבודה — {project_name}", unsafe_allow_html=True)
+
+        # 4. המיכל הלבן מכיל עכשיו רק את הגרף
         with st.container(border=True):
-            # כותרת מעוצבת בתוך המיכל - יישור לימין ופונט Bold
-            st.markdown(f"""
-                <div style='text-align: right; direction: rtl; padding: 10px 0;'>
-                    <span style='font-size: 1.25rem; font-weight: 800; color: #3f3f46;'>
-                        תוכנית עבודה — {project_name}
-                    </span>
-                </div>
-            """, unsafe_allow_html=True)
-            
-            # הצגת הגרף
             height = 60 + n * 95 + 60 + 60
             html = build_timeline_html(project_name)
             components.html(html, height=height, scrolling=False)
-            
+
     except Exception as e:
         st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
