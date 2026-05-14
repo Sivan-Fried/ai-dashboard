@@ -125,7 +125,7 @@ body {{ font-family: 'Assistant', sans-serif; background: white; padding-bottom:
 .toggle-btn:hover:not(.active) {{ color: #475569; }}
 
 /* ציר — LTR כדי ש-left:50% יעבוד נכון */
-.tl {{ position: relative; width: 100%; direction: ltr; margin-top: 20px; }}
+.tl {{ position: relative; width: 100%; direction: ltr; margin-top: 30px; }}
 .tl::before {{
   content: '';
   position: absolute;
