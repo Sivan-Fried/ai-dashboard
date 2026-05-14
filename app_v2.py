@@ -825,16 +825,36 @@ with sidebar_col:
 
 with main_col:
     # 1. אם אנחנו במסך פרויקט ספציפי
+    # ── פירורי לחם — מוצג בכל המסכים הפנימיים ──────────────
+    if st.session_state.current_page in ["resources", "risks", "tasks", "project", "meetings"]:
+        p_name = st.session_state.get("selected_project", "")
+        page_names = {
+            "project":  "תוכנית עבודה",
+            "resources": "משאבים",
+            "risks":    "סיכונים",
+            "tasks":    "משימות",
+            "meetings": "סיכומים",
+        }
+        page_label = page_names.get(st.session_state.current_page, "")
+        st.markdown(
+            f"<p style='font-size:8px;color:#a1a1aa;margin:0;padding-right:4px;direction:rtl;text-align:right;'>"
+            f"פרויקט &nbsp;›&nbsp; {p_name} &nbsp;›&nbsp; {page_label}</p>",
+            unsafe_allow_html=True
+        )
+
+    # ── דף משאבים ───────────────────────────────────────────
     if st.session_state.current_page == "resources":
         from resources import show_resources_page
         p_name = st.session_state.get("selected_project", "")
         show_resources_page(p_name)
 
+    # ── דף סיכונים ──────────────────────────────────────────
     elif st.session_state.current_page == "risks":
         from risks_module import show_risks_page
         p_name = st.session_state.get("selected_project", "")
         show_risks_page(p_name)
 
+    # ── דף משימות ───────────────────────────────────────────
     elif st.session_state.current_page == "tasks":
         if st.session_state.get("nav_idx_project") != 3:
             st.session_state["nav_idx_project"] = 3
@@ -842,8 +862,11 @@ with main_col:
         p_name = st.session_state.get("selected_project", "")
         show_tasks_page(p_name)
 
+    # ── דף תוכנית עבודה ─────────────────────────────────────
     elif st.session_state.current_page == "project":
         p_name = st.session_state.get("selected_project", "פרויקט")
+        st.header(p_name)
+        
         from workplan_module import show_workplan_page
         show_workplan_page(p_name)
 
