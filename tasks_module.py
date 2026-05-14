@@ -42,14 +42,15 @@ def show_tasks_page(project_name=None):
                     df.at[i, "status"] = "באיחור"
             except:
                 pass
-
-    title = f"ניהול משימות — {project_name}" if project_name else "ניהול משימות"
-    st.markdown(f"### {title}", unsafe_allow_html=True)
-    st.markdown(
-        "<p style='font-size:0.82rem;color:#a1a1aa;margin-top:-4px;"
-        "text-align:right;padding-right:18px;'>ניהול ומעקב משימות לפרויקט</p>",
-        unsafe_allow_html=True,
-    )
+    
+    # כותרת כרגע לא מיושמת
+    #title = f"ניהול משימות — {project_name}" if project_name else "ניהול משימות"
+    #st.markdown(f"### {title}", unsafe_allow_html=True)
+    #st.markdown(
+        #"<p style='font-size:0.82rem;color:#a1a1aa;margin-top:-4px;"
+        #"text-align:right;padding-right:18px;'>ניהול ומעקב משימות לפרויקט</p>",
+        #unsafe_allow_html=True,
+    #)
 
     total   = len(df)
     done    = len(df[df["status"] == "הושלם"])
