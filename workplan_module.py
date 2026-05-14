@@ -308,18 +308,23 @@ function fv(mode,btn){{
 def show_workplan_page(project_name=None):
     import streamlit as st
     import streamlit.components.v1 as components
-    st.markdown(f"### תוכנית עבודה — {project_name}", unsafe_allow_html=True)
+    import datetime
+
     try:
+        # טעינת נתונים וניקוי
         df = load_workplan_df()
-        p   = clean_text(project_name) if project_name else ""
+        p = clean_text(project_name) if project_name else ""
         _pf = df[df["project_name"] == p]
-        n   = max(len(_pf), 1)
+        n = max(len(_pf), 1)
+        
+        # חישובי KPI
         _yr    = datetime.date.today().year
         _live  = len(_pf[_pf["status"].str.strip() == "LIVE"])
         _wip   = len(_pf[_pf["status"].str.strip().isin(["בעבודה", "WIP"])])
         _tbd   = len(_pf[_pf["status"].str.strip() == "TBD"])
         _total = len(_pf[_pf["date"].dt.year == _yr])
 
+        # תצוגת KPIs - מוצגים ישירות על הרקע האפור של הדשבורד
         k0, k1, k2, k3 = st.columns(4)
         with k0:
             st.markdown(f'''<div class="kpi-container"><div class="kpi-header"><div class="kpi-icon-box" style="background:#ecfdf5;"><span class="material-symbols-rounded" style="color:#10b981;">check_circle</span></div><span class="kpi-badge" style="background:#ecfdf5;color:#10b981;">LIVE</span></div><div class="kpi-content"><div class="kpi-value-row"><span class="kpi-unit">גרסאות</span><span class="kpi-number">{_live}</span></div></div></div>''', unsafe_allow_html=True)
@@ -330,11 +335,18 @@ def show_workplan_page(project_name=None):
         with k3:
             st.markdown(f'''<div class="kpi-container"><div class="kpi-header"><div class="kpi-icon-box" style="background:#eff6ff;"><span class="material-symbols-rounded" style="color:#3b82f6;">calendar_today</span></div><span class="kpi-badge" style="background:#eff6ff;color:#3b82f6;">סה״כ השנה</span></div><div class="kpi-content"><div class="kpi-value-row"><span class="kpi-unit">גרסאות</span><span class="kpi-number">{_total}</span></div></div></div>''', unsafe_allow_html=True)
 
-        st.markdown("<div style='margin-bottom:0.5rem;'></div>", unsafe_allow_html=True)
+        # ריווח בין ה-KPIs למיכל התחתון
+        st.markdown("<div style='margin-bottom:2.5rem;'></div>", unsafe_allow_html=True)
 
+        # מיכל לבן עם מסגרת עבור התוכן המרכזי
         with st.container(border=True):
+            # כותרת פנימית למיכל
+            st.markdown(f"<div style='font-size:1.2rem; font-weight:700; margin-bottom:1rem;'>תוכנית עבודה — {project_name}</div>", unsafe_allow_html=True)
+            
+            # חישוב גובה דינמי והצגת ה-Timeline (HTML)
             height = 60 + n * 95 + 60 + 60
             html = build_timeline_html(project_name)
             components.html(html, height=height, scrolling=False)
+            
     except Exception as e:
         st.error(f"שגיאה בטעינת תוכנית העבודה: {e}")
