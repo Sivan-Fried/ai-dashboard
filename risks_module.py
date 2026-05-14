@@ -188,6 +188,7 @@ def show_risks_page(project_name=None):
     gauge_color = "#ef4444" if pct >= 60 else "#f59e0b" if pct >= 35 else "#10b981"
     gauge_label = "גבוה" if pct >= 60 else "בינוני" if pct >= 35 else "נמוך"
 
+    st.markdown("<div style='margin-top:-1.5rem;'></div>", unsafe_allow_html=True)
     k0, k1, k2, k3, k4 = st.columns(5)
 
     with k0:
