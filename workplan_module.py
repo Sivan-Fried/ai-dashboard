@@ -116,9 +116,9 @@ def build_timeline_html(project_name):
 <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-body {{ font-family: 'Assistant', sans-serif; background: white; padding-bottom: 40px; }}
+body {{ font-family: 'Assistant', sans-serif; background: white; padding-bottom: 40px; padding-top: 0; margin: 0; }}
 
-.controls {{ display: flex; justify-content: flex-end; padding: 12px 20px 10px; direction: rtl; margin-bottom: 8px; }}
+.controls {{ display: flex; justify-content: flex-end; padding: 4px 20px 8px; direction: rtl; margin-bottom: 4px; }}
 .toggle-group {{ display: flex; background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.08); padding: 4px; }}
 .toggle-btn {{ padding: 5px 12px; font-size: 12px; font-weight: 600; font-family: 'Assistant', sans-serif; border: none; border-radius: 8px; cursor: pointer; color: #94a3b8; background: transparent; }}
 .toggle-btn.active {{ background: #FADCE6; color: #63646c; }}
