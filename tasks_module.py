@@ -206,9 +206,9 @@ def show_tasks_page(project_name=None):
             with c3:
                 new_resp = st.text_input("אחראי", placeholder="שם אחראי...", label_visibility="collapsed", key="task_new_resp")
             with c4:
-                new_start = st.date_input("תאריך התחלה", label_visibility="collapsed", value=None, key="task_new_start")
+                new_start = st.date_input("תאריך התחלה", label_visibility="collapsed", value=None, key="task_new_start", format="DD/MM/YYYY")
             with c5:
-                new_due = st.date_input("תאריך יעד", label_visibility="collapsed", value=None, key="task_new_due")
+                new_due = st.date_input("תאריך יעד", label_visibility="collapsed", value=None, key="task_new_due", format="DD/MM/YYYY")
             with c6:
                 new_notes = st.text_input("הערות", placeholder="הערות...", label_visibility="collapsed", key="task_new_notes")
             with c7:
