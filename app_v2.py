@@ -352,8 +352,6 @@ def render_topbar_with_bell(img_b64, w_text, w_city, greeting, today_reminders):
   <nav class="tb-nav">
     <span class="active">דשבורד</span>
     <span>פרויקטים</span>
-    <span>פגישות</span>
-    <span>משימות</span>
     <span>דוחות</span>
   </nav>
 
