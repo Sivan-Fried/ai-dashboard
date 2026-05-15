@@ -42,7 +42,7 @@ def show_tasks_page(project_name=None):
                     df.at[i, "status"] = "באיחור"
             except:
                 pass
-    
+
     # כותרת כרגע לא מיושמת
     #title = f"ניהול משימות — {project_name}" if project_name else "ניהול משימות"
     #st.markdown(f"### {title}", unsafe_allow_html=True)
@@ -143,30 +143,12 @@ def show_tasks_page(project_name=None):
 
     st.markdown("### משימות הפרויקט", unsafe_allow_html=True)
 
-    with st.container(border=True):
-        AgGrid(
-            df_display,
-            gridOptions=grid_options,
-            update_mode=GridUpdateMode.NO_UPDATE,
-            allow_unsafe_jscode=True,
-            custom_css=custom_css,
-            theme="streamlit",
-            fit_columns_on_grid_load=True,
-            height=48 + 48 + (len(df_display) * 44) + 10,
-        )
-
-    st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
-
+    # ── ניהול מצב כפתור הוספה ──────────────────────────────
     add_key = f"adding_task_{project_name}"
     if add_key not in st.session_state:
         st.session_state[add_key] = False
 
-    st.markdown(f"""
-    <style>
-    add_key = f"adding_task_{project_name}"
-    if add_key not in st.session_state:
-        st.session_state[add_key] = False
-
+    # ── עיצוב כפתורי הוספה / שמירה / ביטול ────────────────
     st.markdown(f"""
     <style>
     .st-key-add_task_btn_{project_name} button {{
@@ -228,6 +210,7 @@ def show_tasks_page(project_name=None):
     </style>
     """, unsafe_allow_html=True)
 
+    # ── טבלה + שורת הוספה + כפתור פלוס — הכל בקונטיינר אחד ──
     with st.container(border=True):
         AgGrid(
             df_display,
@@ -240,6 +223,7 @@ def show_tasks_page(project_name=None):
             height=48 + 48 + (len(df_display) * 44) + 10,
         )
 
+        # שורת הוספה — מוצגת רק כשהכפתור נלחץ
         if st.session_state[add_key]:
             c1, c2, c3, c4, c5, c6, c7, c8 = st.columns([2, 1, 1, 1, 1, 1.5, 0.25, 0.25])
             with c1:
@@ -253,32 +237,4 @@ def show_tasks_page(project_name=None):
             with c5:
                 new_due = st.date_input("תאריך יעד", label_visibility="collapsed", value=None, key=f"new_task_due_{project_name}")
             with c6:
-                new_notes = st.text_input("הערות", placeholder="הערות...", label_visibility="collapsed", key=f"new_task_notes_{project_name}")
-            with c7:
-                if st.button("✓", key=f"save_task_{project_name}"):
-                    if new_desc:
-                        new_row = {
-                            "project_name": project_name,
-                            "description":  new_desc,
-                            "status":       new_status or "ממתין",
-                            "responsible":  new_resp,
-                            "start_date":   new_start,
-                            "due_date":     new_due,
-                            "notes":        new_notes,
-                        }
-                        updated = pd.concat([df_all, pd.DataFrame([new_row])], ignore_index=True)
-                        save_tasks(updated)
-                        st.session_state[add_key] = False
-                        st.rerun()
-            with c8:
-                if st.button("✕", key=f"cancel_task_{project_name}"):
-                    st.session_state[add_key] = False
-                    st.rerun()
-
-        if st.button("+", key=f"add_task_btn_{project_name}"):
-            st.session_state[add_key] = True
-            st.rerun()
-
-    st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
-                    
-                
+                new_notes = st.text_input("הערות", placeholder="הערות...", label_visibility="collapsed", key
