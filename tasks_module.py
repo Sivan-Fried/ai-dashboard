@@ -161,32 +161,78 @@ def show_tasks_page(project_name=None):
     if add_key not in st.session_state:
         st.session_state[add_key] = False
 
+    st.markdown("""
+    <style>
+    .add-task-btn button {
+        background-color: #9ca3af !important;
+        border: none !important;
+        border-radius: 50% !important;
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        min-height: 36px !important;
+        padding: 0 !important;
+        color: white !important;
+        font-size: 1.4rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: none !important;
+    }
+    .add-task-btn button:hover {
+        background-color: #6b7280 !important;
+    }
+    .add-task-btn button p { color: white !important; }
+    .save-task-btn button {
+        background-color: #10b981 !important;
+        border: none !important;
+        border-radius: 50% !important;
+        width: 36px !important; height: 36px !important;
+        min-width: 36px !important; min-height: 36px !important;
+        padding: 0 !important; color: white !important;
+        font-size: 1.1rem !important; box-shadow: none !important;
+    }
+    .save-task-btn button p { color: white !important; }
+    .cancel-task-btn button {
+        background-color: #f87171 !important;
+        border: none !important;
+        border-radius: 50% !important;
+        width: 36px !important; height: 36px !important;
+        min-width: 36px !important; min-height: 36px !important;
+        padding: 0 !important; color: white !important;
+        font-size: 1.1rem !important; box-shadow: none !important;
+    }
+    .cancel-task-btn button p { color: white !important; }
+    </style>
+    """, unsafe_allow_html=True)
+
     if not st.session_state[add_key]:
-        if st.button("+ הוסף משימה", key=f"add_task_btn_{project_name}", use_container_width=True, type="secondary"):
-            st.session_state[add_key] = True
-            st.rerun()
+        _, center_col, _ = st.columns([0.47, 0.06, 0.47])
+        with center_col:
+            with st.container(key="add_task_btn"):
+                st.markdown('<div class="add-task-btn">', unsafe_allow_html=True)
+                if st.button("+", key=f"add_task_btn_{project_name}"):
+                    st.session_state[add_key] = True
+                    st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
     else:
         with st.container(border=True):
-            st.markdown(
-                "<div style='direction:rtl;font-weight:700;color:#3f3f46;margin-bottom:8px;'>משימה חדשה</div>",
-                unsafe_allow_html=True
-            )
-            c1, c2 = st.columns(2)
+            c1, c2, c3, c4, c5, c6, c7 = st.columns([2, 1, 1, 1, 1, 1.5, 0.4])
             with c1:
-                new_desc   = st.text_input("תיאור",       key=f"new_task_desc_{project_name}")
-                new_resp   = st.text_input("גורם אחראי",  key=f"new_task_resp_{project_name}")
+                new_desc = st.text_input("משימה", placeholder="משימה", label_visibility="collapsed", key=f"new_task_desc_{project_name}")
             with c2:
-                new_status = st.selectbox("סטטוס", ["ממתין", "בביצוע", "הושלם"], key=f"new_task_status_{project_name}")
-                new_notes  = st.text_input("הערות",       key=f"new_task_notes_{project_name}")
-            d1, d2 = st.columns(2)
-            with d1:
-                new_start = st.date_input("תאריך התחלה", key=f"new_task_start_{project_name}")
-            with d2:
-                new_due   = st.date_input("תאריך יעד",   key=f"new_task_due_{project_name}")
-
-            btn1, btn2, _ = st.columns([0.15, 0.15, 0.7])
-            with btn1:
-                if st.button("✓ שמור", key=f"save_task_{project_name}"):
+                new_status = st.selectbox("סטטוס", ["ממתין", "בביצוע", "הושלם"], label_visibility="collapsed", key=f"new_task_status_{project_name}")
+            with c3:
+                new_resp = st.text_input("אחראי", placeholder="אחראי", label_visibility="collapsed", key=f"new_task_resp_{project_name}")
+            with c4:
+                new_start = st.date_input("תאריך התחלה", label_visibility="collapsed", key=f"new_task_start_{project_name}")
+            with c5:
+                new_due = st.date_input("תאריך יעד", label_visibility="collapsed", key=f"new_task_due_{project_name}")
+            with c6:
+                new_notes = st.text_input("הערות", placeholder="הערות", label_visibility="collapsed", key=f"new_task_notes_{project_name}")
+            with c7:
+                st.markdown('<div class="save-task-btn">', unsafe_allow_html=True)
+                if st.button("✓", key=f"save_task_{project_name}"):
                     if new_desc:
                         new_row = {
                             "project_name": project_name,
@@ -201,7 +247,10 @@ def show_tasks_page(project_name=None):
                         save_tasks(updated)
                         st.session_state[add_key] = False
                         st.rerun()
-            with btn2:
-                if st.button("✕ בטל", key=f"cancel_task_{project_name}"):
+                st.markdown('</div>', unsafe_allow_html=True)
+                st.markdown('<div class="cancel-task-btn">', unsafe_allow_html=True)
+                if st.button("✕", key=f"cancel_task_{project_name}"):
                     st.session_state[add_key] = False
                     st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
+                
