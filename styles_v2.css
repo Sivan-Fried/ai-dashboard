@@ -1123,6 +1123,29 @@ div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-t
 .st-key-task_new_notes div[data-testid="InputInstructions"] {
     display: none !important;
 }
+/* ── כפתור פלוס חצי על המיכל ────────────────── */
+.st-key-task_add_btn {
+    margin-top: -28px !important;
+    margin-right: 20px !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+.st-key-task_add_btn button {
+    background-color: #9ca3af !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    max-width: 44px !important;
+    max-height: 44px !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
 .st-key-task_add_btn button p {
     color: #ffffff !important;
     font-size: 1.4rem !important;
@@ -1132,4 +1155,9 @@ div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-t
     line-height: 1 !important;
     position: relative !important;
     top: -2px !important;
+}
+.st-key-task_add_btn button:hover {
+    background-color: #6b7280 !important;
+    transform: scale(1.05) !important;
+    box-shadow: none !important;
 }
