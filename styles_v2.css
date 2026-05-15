@@ -1058,6 +1058,7 @@ div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-t
     box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
 }
 /* ── כפתורי שמירה וביטול במשימות ────────────────── */
+/* ── כפתורי שמירה וביטול במשימות ────────────────── */
 .st-key-task_save_btn div[data-testid="stButton"] > button,
 .st-key-task_cancel_btn div[data-testid="stButton"] > button {
     background-color: #9ca3af !important;
@@ -1075,9 +1076,7 @@ div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-t
     align-items: center !important;
     justify-content: center !important;
 }
-.st-key-task_save_btn div[data-testid="stButton"] > button > p,
 .st-key-task_save_btn div[data-testid="stButton"] > button *,
-.st-key-task_cancel_btn div[data-testid="stButton"] > button > p,
 .st-key-task_cancel_btn div[data-testid="stButton"] > button * {
     color: #ffffff !important;
     font-size: 0.55rem !important;
@@ -1085,6 +1084,7 @@ div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-t
     margin: 0 !important;
     padding: 0 !important;
 }
+
 /* ── placeholder קטן בשדות הוספת משימה ────────────────── */
 .st-key-task_new_desc input::placeholder,
 .st-key-task_new_resp input::placeholder,
@@ -1092,45 +1092,15 @@ div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-t
     font-size: 0.7rem !important;
     color: #a1a1aa !important;
 }
-/* ── הקטנת פונט שדות תאריך וסלקטבוקס בשורת הוספת משימה ── */
-.st-key-task_new_start input,
-.st-key-task_new_due input,
-.st-key-task_new_status div[data-baseweb="select"] {
-    font-size: 0.7rem !important;
-}
-/* ── איחוד גובה כל שדות שורת הוספת משימה ────────────────── */
+
+/* ── איחוד גובה וגודל פונט כל שדות שורת הוספת משימה ──── */
 .st-key-task_new_desc input,
 .st-key-task_new_resp input,
-.st-key-task_new_notes input,
-.st-key-task_new_start input,
-.st-key-task_new_due input,
-.st-key-task_new_status div[data-baseweb="select"] > div {
+.st-key-task_new_notes input {
     height: 38px !important;
     min-height: 38px !important;
     max-height: 38px !important;
+    font-size: 0.7rem !important;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
-}
-/* ── יישור תוכן לאמצע בכל שדות שורת הוספת משימה ────────── */
-..st-key-task_new_start div[data-baseweb="input"],
-.st-key-task_new_due div[data-baseweb="input"] {
-    height: 38px !important;
-    min-height: 38px !important;
-    align-items: center !important;
-    display: flex !important;
-}
-.st-key-task_new_status div[data-baseweb="select"] > div {
-    height: 38px !important;
-    min-height: 38px !important;
-    align-items: center !important;
-    display: flex !important;
-}
-/* ── יישור wrapper של תאריך לגובה אחיד ────────────────── */
-.st-key-task_new_start [data-testid="stDateInput"] > div,
-.st-key-task_new_due [data-testid="stDateInput"] > div {
-    height: 38px !important;
-    min-height: 38px !important;
-    display: flex !important;
-    align-items: center !important;
-    padding: 0 8px !important;
 }
