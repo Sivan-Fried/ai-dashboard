@@ -214,7 +214,7 @@ body {{ font-family: 'Assistant', sans-serif; background: white; padding-bottom:
 .amit  {{ background: #FADCE6; color: #831843; }}
 .measy {{ background: #eff6ff; color: #1e40af; }}
 .soch  {{ background: #fff7ed; color: #9a3412; }}
-.dt {{ font-size: 12px; font-weight: 600; color: #1e293b; margin: 2px 0; }}
+.dt {{ font-size: 13px; font-weight: 600; color: #1e293b; margin: 2px 0; }}
 .st {{ font-size: 9px; font-weight: 700; display: block; color: #94a3b8; margin-top: 1px; }}
 .live {{ color: #10b981; }}
 .wip  {{ color: #f59e0b; }}
