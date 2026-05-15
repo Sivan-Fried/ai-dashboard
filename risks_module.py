@@ -271,11 +271,11 @@ def show_risks_page(project_name=None):
         st.markdown("""
         <div class="risk-header">
             <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">סיכון</span>
-            <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">קטגוריה</span>
-            <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">הסתברות</span>
-            <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">השפעה</span>
-            <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">סיכון משוקלל</span>
-            <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;">רמה</span>
+            <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;text-align:center;">קטגוריה</span>
+            <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;text-align:center;">הסתברות</span>
+            <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;text-align:center;">השפעה</span>
+            <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;text-align:center;">סיכון משוקלל</span>
+            <span style="font-size:0.75rem;font-weight:700;color:#94a3b8;text-align:center;">רמה</span>
         </div>
         """, unsafe_allow_html=True)
 
@@ -286,11 +286,11 @@ def show_risks_page(project_name=None):
             st.markdown(f"""
             <div class="risk-row">
                 <span style="font-size:0.82rem;font-weight:600;color:#3f3f46;">{row['risk_title']}</span>
-                <span style="font-size:0.78rem;color:#71717A;">{row['category']}</span>
-                <span style="font-size:0.82rem;color:#3f3f46;">{row['probability']}</span>
-                <span style="font-size:0.82rem;color:#3f3f46;">{row['impact']}</span>
-                <span style="font-size:0.82rem;font-weight:700;color:#3f3f46;">{int(row['score'])}</span>
-                <span class="r-badge {badge_cls}">{label}</span>
+                <span style="font-size:0.78rem;color:#71717A;text-align:center;">{row['category']}</span>
+                <span style="font-size:0.82rem;color:#3f3f46;text-align:center;">{row['probability']}</span>
+                <span style="font-size:0.82rem;color:#3f3f46;text-align:center;">{row['impact']}</span>
+                <span style="font-size:0.82rem;font-weight:700;color:#3f3f46;text-align:center;">{int(row['score'])}</span>
+                <span class="r-badge {badge_cls}" style="text-align:center;margin:0 auto;">{label}</span>
             </div>
             """, unsafe_allow_html=True)
 
