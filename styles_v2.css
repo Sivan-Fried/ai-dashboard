@@ -1117,3 +1117,9 @@ div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-t
     min-height: 38px !important;
     height: 38px !important;
 }
+/* ── הסתרת "Press Enter to apply" בשדות שורת הוספת משימה ── */
+.st-key-task_new_desc div[data-testid="InputInstructions"],
+.st-key-task_new_resp div[data-testid="InputInstructions"],
+.st-key-task_new_notes div[data-testid="InputInstructions"] {
+    display: none !important;
+}
