@@ -229,6 +229,74 @@ def show_tasks_page(project_name=None):
     </style>
     """, unsafe_allow_html=True)
 
+    st.markdown(f"""
+    <style>
+    .st-key-add_task_btn_{project_name} button {{
+        background-color: #ffffff !important;
+        border: 2px dashed #FBCFE8 !important;
+        border-radius: 12px !important;
+        box-shadow: none !important;
+        width: 100% !important;
+        height: 44px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin-top: 4px !important;
+        transition: all 0.2s ease !important;
+    }}
+    .st-key-add_task_btn_{project_name} button:hover {{
+        border-color: #f0b8cb !important;
+        background-color: #fdf6f9 !important;
+        transform: none !important;
+        box-shadow: none !important;
+    }}
+    .st-key-add_task_btn_{project_name} button p {{
+        display: flex !important;
+        justify-content: center !important;
+        width: 22px !important;
+        height: 22px !important;
+        background-color: #9ca3af !important;
+        border-radius: 50% !important;
+        color: #ffffff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        line-height: 18px !important;
+        position: relative !important;
+        top: 1px !important;
+    }}
+    .st-key-save_task_{project_name} button {{
+        background-color: #9ca3af !important;
+        border: none !important;
+        border-radius: 50% !important;
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+        min-height: 28px !important;
+        padding: 0 !important;
+        color: #ffffff !important;
+        font-size: 0.9rem !important;
+        box-shadow: none !important;
+    }}
+    .st-key-save_task_{project_name} button p {{ color: #ffffff !important; }}
+    .st-key-cancel_task_{project_name} button {{
+        background-color: #9ca3af !important;
+        border: none !important;
+        border-radius: 50% !important;
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+        min-height: 28px !important;
+        padding: 0 !important;
+        color: #ffffff !important;
+        font-size: 0.9rem !important;
+        box-shadow: none !important;
+    }}
+    .st-key-cancel_task_{project_name} button p {{ color: #ffffff !important; }}
+    </style>
+    """, unsafe_allow_html=True)
+
     if not st.session_state[add_key]:
         if st.button("+", key=f"add_task_btn_{project_name}", use_container_width=True):
             st.session_state[add_key] = True
