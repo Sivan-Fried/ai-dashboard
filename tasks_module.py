@@ -180,67 +180,9 @@ def show_tasks_page(project_name=None):
         transform: scale(1.05) !important;
         box-shadow: none !important;
     }
-    .st-key-task_save_btn button,
-    .st-key-task_save_btn .st-emotion-cache-5qfegl {
-        background-color: #9ca3af !important;
-        border: none !important;
-        border-radius: 50% !important;
-        width: 24px !important;
-        height: 24px !important;
-        min-width: 24px !important;
-        min-height: 24px !important;
-        max-width: 24px !important;
-        max-height: 24px !important;
-        padding: 0 !important;
-        box-shadow: none !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-    }
-    .st-key-task_save_btn button p {
-        color: #ffffff !important;
-        font-size: 0.7rem !important;
-        font-weight: 700 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    .st-key-task_save_btn button:hover {
-        background-color: #6b7280 !important;
-        transform: scale(1.05) !important;
-        box-shadow: none !important;
-    }
-    .st-key-task_cancel_btn button,
-    .st-key-task_cancel_btn .st-emotion-cache-5qfegl {
-        background-color: #9ca3af !important;
-        border: none !important;
-        border-radius: 50% !important;
-        width: 24px !important;
-        height: 24px !important;
-        min-width: 24px !important;
-        min-height: 24px !important;
-        max-width: 24px !important;
-        max-height: 24px !important;
-        padding: 0 !important;
-        box-shadow: none !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-    }
-    .st-key-task_cancel_btn button p {
-        color: #ffffff !important;
-        font-size: 0.7rem !important;
-        font-weight: 700 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    .st-key-task_cancel_btn button:hover {
-        background-color: #6b7280 !important;
-        transform: scale(1.05) !important;
-        box-shadow: none !important;
-    }
     </style>
     """, unsafe_allow_html=True)
-
+    
     # ── טבלה + שורת הוספה + כפתור פלוס — הכל בקונטיינר אחד ──
     with st.container(border=True):
         AgGrid(
