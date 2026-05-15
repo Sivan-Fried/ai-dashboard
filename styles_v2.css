@@ -1110,3 +1110,10 @@ div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-t
 .st-key-task_new_status div[data-baseweb="select"] * {
     font-size: 0.7rem !important;
 }
+/* ── גובה אחיד לשדות תאריך וסטטוס בשורת הוספת משימה ──── */
+.st-key-task_new_start div[data-baseweb="input"],
+.st-key-task_new_due div[data-baseweb="input"],
+.st-key-task_new_status div[data-baseweb="select"] > div:first-child {
+    min-height: 38px !important;
+    height: 38px !important;
+}
