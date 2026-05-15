@@ -184,12 +184,12 @@ def show_tasks_page(project_name=None):
         background-color: #9ca3af !important;
         border: none !important;
         border-radius: 50% !important;
-        width: 44px !important;
-        height: 44px !important;
-        min-width: 44px !important;
-        min-height: 44px !important;
-        max-width: 44px !important;
-        max-height: 44px !important;
+        width: 24px !important;
+        height: 24px !important;
+        min-width: 24px !important;
+        min-height: 24px !important;
+        max-width: 24px !important;
+        max-height: 24px !important;
         padding: 0 !important;
         box-shadow: none !important;
         display: flex !important;
@@ -198,7 +198,7 @@ def show_tasks_page(project_name=None):
     }
     .st-key-task_save_btn button p {
         color: #ffffff !important;
-        font-size: 1.1rem !important;
+        font-size: 0.7rem !important;
         font-weight: 700 !important;
         margin: 0 !important;
         padding: 0 !important;
@@ -212,12 +212,12 @@ def show_tasks_page(project_name=None):
         background-color: #9ca3af !important;
         border: none !important;
         border-radius: 50% !important;
-        width: 44px !important;
-        height: 44px !important;
-        min-width: 44px !important;
-        min-height: 44px !important;
-        max-width: 44px !important;
-        max-height: 44px !important;
+        width: 24px !important;
+        height: 24px !important;
+        min-width: 24px !important;
+        min-height: 24px !important;
+        max-width: 24px !important;
+        max-height: 24px !important;
         padding: 0 !important;
         box-shadow: none !important;
         display: flex !important;
@@ -226,7 +226,7 @@ def show_tasks_page(project_name=None):
     }
     .st-key-task_cancel_btn button p {
         color: #ffffff !important;
-        font-size: 1.1rem !important;
+        font-size: 0.7rem !important;
         font-weight: 700 !important;
         margin: 0 !important;
         padding: 0 !important;
@@ -290,10 +290,12 @@ def show_tasks_page(project_name=None):
                     st.session_state[add_key] = False
                     st.rerun()
 
-        # כפתור פלוס — מוצג רק כשלא במצב עריכה
-        if not st.session_state[add_key]:
-            if st.button("+", key="task_add_btn"):
-                st.session_state[add_key] = True
-                st.rerun()
+        st.markdown("<div style='margin-bottom:0.5rem;'></div>", unsafe_allow_html=True)
+
+    # כפתור פלוס — מחוץ לטבלה, מוצג רק כשלא במצב עריכה
+    if not st.session_state[add_key]:
+        if st.button("+", key="task_add_btn"):
+            st.session_state[add_key] = True
+            st.rerun()
 
     st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
