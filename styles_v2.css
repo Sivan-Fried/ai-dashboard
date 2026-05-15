@@ -1078,7 +1078,7 @@ div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-t
 .st-key-task_save_btn div[data-testid="stButton"] > button > p,
 .st-key-task_cancel_btn div[data-testid="stButton"] > button > p {
     color: #ffffff !important;
-    font-size: 0.7rem !important;
+    font-size: 0.55rem !important;
     font-weight: 700 !important;
     margin: 0 !important;
     padding: 0 !important;
