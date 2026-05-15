@@ -1098,3 +1098,16 @@ div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-t
 .st-key-task_new_status div[data-baseweb="select"] {
     font-size: 0.7rem !important;
 }
+/* ── איחוד גובה כל שדות שורת הוספת משימה ────────────────── */
+.st-key-task_new_desc input,
+.st-key-task_new_resp input,
+.st-key-task_new_notes input,
+.st-key-task_new_start input,
+.st-key-task_new_due input,
+.st-key-task_new_status div[data-baseweb="select"] > div {
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
