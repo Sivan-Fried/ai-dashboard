@@ -1125,7 +1125,8 @@ div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-t
 }
 /* ── כפתור פלוס חצי על המיכל ────────────────── */
 .st-key-task_add_btn {
-    margin-top: -22px !important;
+    margin-top: -28px !important;
+    margin-right: 20px !important;
     position: relative !important;
     z-index: 10 !important;
 }
