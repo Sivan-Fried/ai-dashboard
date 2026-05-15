@@ -118,7 +118,7 @@ def build_timeline_html(project_name):
 * {{ box-sizing: border-box; margin: 0; padding: 0; }}
 body {{ font-family: 'Assistant', sans-serif; background: white; padding-bottom: 40px; }}
 
-.controls {{ display: flex; justify-content: flex-end; padding: 12px 20px 10px; direction: rtl; margin-bottom: 40px; }}
+.controls {{ display: flex; justify-content: center; padding: 12px 20px 10px; direction: rtl; margin-bottom: 40px; }}
 .toggle-group {{ display: flex; background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.08); padding: 4px; }}
 .toggle-btn {{ padding: 5px 12px; font-size: 12px; font-weight: 600; font-family: 'Assistant', sans-serif; border: none; border-radius: 8px; cursor: pointer; color: #94a3b8; background: transparent; }}
 .toggle-btn.active {{ background: #FADCE6; color: #63646c; }}
