@@ -180,7 +180,8 @@ def show_tasks_page(project_name=None):
         transform: scale(1.05) !important;
         box-shadow: none !important;
     }
-    .st-key-task_save_btn button {
+    .st-key-task_save_btn button,
+    .st-key-task_save_btn .st-emotion-cache-5qfegl {
         background-color: #9ca3af !important;
         border: none !important;
         border-radius: 50% !important;
@@ -208,7 +209,8 @@ def show_tasks_page(project_name=None):
         transform: scale(1.05) !important;
         box-shadow: none !important;
     }
-    .st-key-task_cancel_btn button {
+    .st-key-task_cancel_btn button,
+    .st-key-task_cancel_btn .st-emotion-cache-5qfegl {
         background-color: #9ca3af !important;
         border: none !important;
         border-radius: 50% !important;
