@@ -334,7 +334,7 @@ def show_workplan_page(project_name=None):
             st.markdown(f'''<div class="kpi-container"><div class="kpi-header"><div class="kpi-icon-box" style="background:#eff6ff;"><span class="material-symbols-rounded" style="color:#3b82f6;">calendar_today</span></div><span class="kpi-badge" style="background:#eff6ff;color:#3b82f6;">סה״כ השנה</span></div><div class="kpi-content"><div class="kpi-value-row"><span class="kpi-unit">גרסאות</span><span class="kpi-number">{_total}</span></div></div></div>''', unsafe_allow_html=True)
 
         # 2. הוספת רווח נוסף מתחת ל-KPIs
-        st.markdown("<div style='margin-bottom:2rem;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
 
         # 3. הכותרת המקורית שלך - מעל המיכל של הגרף
         st.markdown("### תוכנית עבודה - ניהול גרסאות", unsafe_allow_html=True)
