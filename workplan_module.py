@@ -337,7 +337,7 @@ def show_workplan_page(project_name=None):
         st.markdown("<div style='margin-bottom:2.5rem;'></div>", unsafe_allow_html=True)
 
         # 3. הכותרת המקורית שלך - מעל המיכל של הגרף
-        st.markdown("### תוכנית עבודה", unsafe_allow_html=True)
+        st.markdown("### תוכנית עבודה - ניהול גרסאות", unsafe_allow_html=True)
 
         # 4. המיכל הלבן מכיל עכשיו רק את הגרף
         with st.container(border=True):
