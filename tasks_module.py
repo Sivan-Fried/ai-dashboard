@@ -118,8 +118,8 @@ def show_tasks_page(project_name=None):
     )
 
     gb.configure_column("description",  header_name="משימה",        flex=2)
-    gb.configure_column("status",       header_name="סטטוס",        flex=1,   cellRenderer=cell_style_jscode, filter="agSetColumnFilter")
-    gb.configure_column("responsible",  header_name="אחראי",         flex=1,   filter="agSetColumnFilter")
+    gb.configure_column("status",       header_name="סטטוס",        flex=1,   cellRenderer=cell_style_jscode, filter="agTextColumnFilter")
+    gb.configure_column("responsible",  header_name="אחראי",         flex=1,   filter="agTextColumnFilter")
     gb.configure_column("start_date",   header_name="תאריך התחלה",  flex=1)
     gb.configure_column("due_date",     header_name="תאריך יעד",    flex=1,   cellStyle=due_style_jscode)
     gb.configure_column("notes",        header_name="הערות",         flex=1.5)
