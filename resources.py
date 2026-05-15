@@ -100,7 +100,7 @@ def show_resources_page(project_name):
         </div>
         ''', unsafe_allow_html=True)
 
-    st.markdown("<div style='margin-bottom:1rem;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
 
     def render_table(rows_df, title):
         st.markdown(f'### {title}', unsafe_allow_html=True)
