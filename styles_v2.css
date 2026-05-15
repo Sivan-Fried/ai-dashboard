@@ -1104,3 +1104,9 @@ div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-t
     padding-top: 0 !important;
     padding-bottom: 0 !important;
 }
+/* ── פונט אחיד לשדות תאריך וסטטוס בשורת הוספת משימה ──── */
+.st-key-task_new_start input,
+.st-key-task_new_due input,
+.st-key-task_new_status div[data-baseweb="select"] * {
+    font-size: 0.7rem !important;
+}
