@@ -160,7 +160,7 @@ def show_risks_page(project_name=None):
 
     with k4:
         st.markdown(f"""
-        <div class="kpi-container" style="text-align:center;align-items:center;">
+        <div class="kpi-container" style="text-align:center;align-items:center;padding-bottom:0px;">
             <div style="font-size:0.75rem;font-weight:700;color:#3f3f46;margin-bottom:4px;">מד סיכון כולל</div>
             <svg width="95" height="95" viewBox="0 0 60 60" style="display:block;margin:0 auto;">
                 <circle cx="30" cy="30" r="{r}" fill="none" stroke="#f4f4f5" stroke-width="6"/>
