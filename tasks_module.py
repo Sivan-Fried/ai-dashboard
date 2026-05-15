@@ -163,108 +163,39 @@ def show_tasks_page(project_name=None):
 
     st.markdown(f"""
     <style>
-    .st-key-add_task_btn_{project_name} button {{
-        background-color: #ffffff !important;
-        border: 2px dashed #FBCFE8 !important;
-        border-radius: 12px !important;
-        box-shadow: none !important;
-        width: 100% !important;
-        height: 44px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        margin-top: 4px !important;
-        transition: all 0.2s ease !important;
-    }}
-    .st-key-add_task_btn_{project_name} button:hover {{
-        border-color: #f0b8cb !important;
-        background-color: #fdf6f9 !important;
-        transform: none !important;
-        box-shadow: none !important;
-    }}
-    .st-key-add_task_btn_{project_name} button p {{
-        display: flex !important;
-        justify-content: center !important;
-        width: 22px !important;
-        height: 22px !important;
-        background-color: #9ca3af !important;
-        border-radius: 50% !important;
-        color: #ffffff !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        font-size: 16px !important;
-        font-weight: 700 !important;
-        line-height: 18px !important;
-        position: relative !important;
-        top: 1px !important;
-    }}
-    .st-key-save_task_{project_name} button {{
-        background-color: #9ca3af !important;
-        border: none !important;
-        border-radius: 50% !important;
-        width: 28px !important;
-        height: 28px !important;
-        min-width: 28px !important;
-        min-height: 28px !important;
-        padding: 0 !important;
-        color: #ffffff !important;
-        font-size: 0.9rem !important;
-        box-shadow: none !important;
-    }}
-    .st-key-save_task_{project_name} button p {{ color: #ffffff !important; }}
-    .st-key-cancel_task_{project_name} button {{
-        background-color: #9ca3af !important;
-        border: none !important;
-        border-radius: 50% !important;
-        width: 28px !important;
-        height: 28px !important;
-        min-width: 28px !important;
-        min-height: 28px !important;
-        padding: 0 !important;
-        color: #ffffff !important;
-        font-size: 0.9rem !important;
-        box-shadow: none !important;
-    }}
-    .st-key-cancel_task_{project_name} button p {{ color: #ffffff !important; }}
-    </style>
-    """, unsafe_allow_html=True)
+    add_key = f"adding_task_{project_name}"
+    if add_key not in st.session_state:
+        st.session_state[add_key] = False
 
     st.markdown(f"""
     <style>
     .st-key-add_task_btn_{project_name} button {{
-        background-color: #ffffff !important;
-        border: 2px dashed #FBCFE8 !important;
-        border-radius: 12px !important;
+        background-color: #9ca3af !important;
+        border: none !important;
+        border-radius: 50% !important;
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+        min-height: 28px !important;
+        padding: 0 !important;
         box-shadow: none !important;
-        width: 100% !important;
-        height: 44px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        margin-top: 4px !important;
-        transition: all 0.2s ease !important;
-    }}
-    .st-key-add_task_btn_{project_name} button:hover {{
-        border-color: #f0b8cb !important;
-        background-color: #fdf6f9 !important;
-        transform: none !important;
-        box-shadow: none !important;
+        margin: 4px auto 0 auto !important;
     }}
     .st-key-add_task_btn_{project_name} button p {{
-        display: flex !important;
-        justify-content: center !important;
-        width: 22px !important;
-        height: 22px !important;
-        background-color: #9ca3af !important;
-        border-radius: 50% !important;
         color: #ffffff !important;
+        font-size: 18px !important;
+        font-weight: 700 !important;
+        line-height: 1 !important;
         margin: 0 !important;
         padding: 0 !important;
-        font-size: 16px !important;
-        font-weight: 700 !important;
-        line-height: 18px !important;
-        position: relative !important;
-        top: 1px !important;
+    }}
+    .st-key-add_task_btn_{project_name} button:hover {{
+        background-color: #6b7280 !important;
+        transform: none !important;
+        box-shadow: none !important;
     }}
     .st-key-save_task_{project_name} button {{
         background-color: #9ca3af !important;
@@ -297,32 +228,39 @@ def show_tasks_page(project_name=None):
     </style>
     """, unsafe_allow_html=True)
 
-    if not st.session_state[add_key]:
-        if st.button("+", key=f"add_task_btn_{project_name}", use_container_width=True):
-            st.session_state[add_key] = True
-            st.rerun()
-    else:
-        with st.container(border=True):
+    with st.container(border=True):
+        AgGrid(
+            df_display,
+            gridOptions=grid_options,
+            update_mode=GridUpdateMode.NO_UPDATE,
+            allow_unsafe_jscode=True,
+            custom_css=custom_css,
+            theme="streamlit",
+            fit_columns_on_grid_load=True,
+            height=48 + 48 + (len(df_display) * 44) + 10,
+        )
+
+        if st.session_state[add_key]:
             c1, c2, c3, c4, c5, c6, c7, c8 = st.columns([2, 1, 1, 1, 1, 1.5, 0.25, 0.25])
             with c1:
-                new_desc = st.text_input("משימה", placeholder="משימה", label_visibility="collapsed", key=f"new_task_desc_{project_name}")
+                new_desc = st.text_input("משימה", placeholder="הכנס משימה...", label_visibility="collapsed", key=f"new_task_desc_{project_name}")
             with c2:
-                new_status = st.selectbox("סטטוס", ["ממתין", "בביצוע", "הושלם"], label_visibility="collapsed", key=f"new_task_status_{project_name}")
+                new_status = st.selectbox("סטטוס", ["ממתין", "בביצוע", "הושלם"], label_visibility="collapsed", key=f"new_task_status_{project_name}", index=None, placeholder="בחר סטטוס")
             with c3:
-                new_resp = st.text_input("אחראי", placeholder="אחראי", label_visibility="collapsed", key=f"new_task_resp_{project_name}")
+                new_resp = st.text_input("אחראי", placeholder="שם אחראי...", label_visibility="collapsed", key=f"new_task_resp_{project_name}")
             with c4:
-                new_start = st.date_input("תאריך התחלה", label_visibility="collapsed", key=f"new_task_start_{project_name}")
+                new_start = st.date_input("תאריך התחלה", label_visibility="collapsed", value=None, key=f"new_task_start_{project_name}")
             with c5:
-                new_due = st.date_input("תאריך יעד", label_visibility="collapsed", key=f"new_task_due_{project_name}")
+                new_due = st.date_input("תאריך יעד", label_visibility="collapsed", value=None, key=f"new_task_due_{project_name}")
             with c6:
-                new_notes = st.text_input("הערות", placeholder="הערות", label_visibility="collapsed", key=f"new_task_notes_{project_name}")
+                new_notes = st.text_input("הערות", placeholder="הערות...", label_visibility="collapsed", key=f"new_task_notes_{project_name}")
             with c7:
                 if st.button("✓", key=f"save_task_{project_name}"):
                     if new_desc:
                         new_row = {
                             "project_name": project_name,
                             "description":  new_desc,
-                            "status":       new_status,
+                            "status":       new_status or "ממתין",
                             "responsible":  new_resp,
                             "start_date":   new_start,
                             "due_date":     new_due,
@@ -336,5 +274,11 @@ def show_tasks_page(project_name=None):
                 if st.button("✕", key=f"cancel_task_{project_name}"):
                     st.session_state[add_key] = False
                     st.rerun()
+
+        if st.button("+", key=f"add_task_btn_{project_name}"):
+            st.session_state[add_key] = True
+            st.rerun()
+
+    st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
                     
                 
