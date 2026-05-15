@@ -1123,3 +1123,9 @@ div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-t
 .st-key-task_new_notes div[data-testid="InputInstructions"] {
     display: none !important;
 }
+/* ── כפתור פלוס חצי על המיכל ────────────────── */
+.st-key-task_add_btn {
+    margin-top: -22px !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
