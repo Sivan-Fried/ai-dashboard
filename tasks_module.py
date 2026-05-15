@@ -27,7 +27,10 @@ def fmt_date(d):
         return ""
 
 def show_tasks_page(project_name=None):
-    df_all = load_tasks()
+    # ── טעינה ראשונית לתוך session_state ──────────────────
+    if "tasks_df" not in st.session_state:
+        st.session_state.tasks_df = load_tasks()
+    df_all = st.session_state.tasks_df
     if df_all.empty:
         st.error("לא נמצא קובץ tasks.xlsx")
         return
@@ -228,6 +231,7 @@ def show_tasks_page(project_name=None):
                         }
                         updated = pd.concat([df_all, pd.DataFrame([new_row])], ignore_index=True)
                         save_tasks(updated)
+                        st.session_state.tasks_df = updated
                         st.session_state[add_key] = False
                         st.rerun()
             with c8:
