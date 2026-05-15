@@ -1161,3 +1161,8 @@ div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-t
     transform: scale(1.05) !important;
     box-shadow: none !important;
 }
+/* ── hover צבע אחיד בטבלת משימות ────────────────── */
+.ag-row-hover {
+    background-color: #fdf6f9 !important;
+    background-image: none !important;
+}
