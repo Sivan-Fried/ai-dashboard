@@ -135,7 +135,7 @@ def show_tasks_page(project_name=None):
         ".ag-header-cell-label": {"font-size": "12px !important", "font-weight": "700 !important", "color": "#94a3b8 !important", "font-family": "'Plus Jakarta Sans', sans-serif !important"},
         ".ag-cell":              {"font-size": "13px !important", "font-family": "'Plus Jakarta Sans', sans-serif !important", "color": "#3f3f46 !important", "border": "none !important"},
         ".ag-row":               {"border-bottom": "1px solid #f4f4f5 !important"},
-        ".ag-row-hover":         {"background-color": "#fdf6f9 !important", "background-image": "none !important"},
+        ".ag-row-hover":         {"background-color": "#fdf6f9 !important"},
         ".ag-root-wrapper":      {"border": "none !important", "border-radius": "0 !important"},
         ".ag-floating-filter-input": {"font-family": "'Plus Jakarta Sans', sans-serif !important", "font-size": "12px !important"},
         ".ag-input-field-input": {"border-radius": "8px !important", "border": "1px solid #FADCE6 !important"},
