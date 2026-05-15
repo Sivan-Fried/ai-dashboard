@@ -261,8 +261,6 @@ def show_risks_page(project_name=None):
 
     #רווח מתחת לאזור KPI
     #st.markdown("<div style='margin-bottom:0.5rem;'></div>", unsafe_allow_html=True)
-    st.markdown("<div style='margin-bottom:-2rem;'></div>", unsafe_allow_html=True)
-
     
     # ── טבלת סיכונים ─────────────────────────────────────────
     st.markdown("### פירוט סיכונים", unsafe_allow_html=True)
