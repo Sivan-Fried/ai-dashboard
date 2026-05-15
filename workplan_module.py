@@ -210,7 +210,7 @@ body {{ font-family: 'Assistant', sans-serif; background: white; padding-bottom:
   transform: translateY(-50%);
 }}
 
-.tag {{ font-size: 13px; font-weight: 700; padding: 1px 5px; border-radius: 3px; display: inline-block; margin-bottom: 2px; line-height: 1.4; }}
+.tag {{ font-size: 12px; font-weight: 700; padding: 1px 5px; border-radius: 3px; display: inline-block; margin-bottom: 2px; line-height: 1.4; }}
 .amit  {{ background: #FADCE6; color: #831843; }}
 .measy {{ background: #eff6ff; color: #1e40af; }}
 .soch  {{ background: #fff7ed; color: #9a3412; }}
