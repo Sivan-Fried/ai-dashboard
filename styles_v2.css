@@ -1125,3 +1125,12 @@ div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-t
     align-items: center !important;
     display: flex !important;
 }
+/* ── יישור wrapper של תאריך לגובה אחיד ────────────────── */
+.st-key-task_new_start [data-testid="stDateInput"] > div,
+.st-key-task_new_due [data-testid="stDateInput"] > div {
+    height: 38px !important;
+    min-height: 38px !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 8px !important;
+}
