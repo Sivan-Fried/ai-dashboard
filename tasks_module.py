@@ -167,10 +167,10 @@ def show_tasks_page(project_name=None):
         max-width: 44px !important;
         max-height: 44px !important;
         padding: 0 !important;
-        box-shadow: var(--shadow-md) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+        box-shadow: none !important;
     }}
     .st-key-add_task_btn_{pn} button p,
     .st-key-save_task_{pn} button p,
@@ -187,6 +187,11 @@ def show_tasks_page(project_name=None):
         background-color: #6b7280 !important;
         transform: scale(1.05) !important;
         box-shadow: var(--shadow-lg) !important;
+    }}
+    .st-emotion-cache-5qfegl {{
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -240,9 +245,10 @@ def show_tasks_page(project_name=None):
                     st.session_state[add_key] = False
                     st.rerun()
 
-        # כפתור פלוס — עיגול אפור עם פלוס לבן
-        if st.button("+", key=f"add_task_btn_{pn}"):
-            st.session_state[add_key] = True
-            st.rerun()
+        # כפתור פלוס — מוצג רק כשלא במצב עריכה
+        if not st.session_state[add_key]:
+            if st.button("+", key=f"add_task_btn_{pn}"):
+                st.session_state[add_key] = True
+                st.rerun()
 
     st.markdown("<div style='margin-bottom:1.5rem;'></div>", unsafe_allow_html=True)
