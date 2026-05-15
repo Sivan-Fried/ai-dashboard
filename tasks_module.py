@@ -198,7 +198,7 @@ def show_tasks_page(project_name=None):
 
         # שורת הוספה — מוצגת רק כשהכפתור נלחץ
         if st.session_state[add_key]:
-            c1, c2, c3, c4, c5, c6, c7, c8 = st.columns([2, 1, 1, 1, 1, 1.5, 0.25, 0.25])
+            c1, c2, c3, c4, c5, c6, c7, c8 = st.columns([2, 1, 1, 1, 1, 1.5, 0.25, 0.25], vertical_alignment="center")
             with c1:
                 new_desc = st.text_input("משימה", placeholder="הכנס משימה...", label_visibility="collapsed", key="task_new_desc")
             with c2:
