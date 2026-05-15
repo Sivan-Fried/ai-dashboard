@@ -154,62 +154,40 @@ def show_tasks_page(project_name=None):
     # ── עיצוב כפתורי הוספה / שמירה / ביטול ────────────────
     st.markdown(f"""
     <style>
-    .st-key-add_task_btn_{pn} button {{
-        background-color: #9ca3af !important;
-        border: none !important;
-        border-radius: 50% !important;
-        width: 28px !important;
-        height: 28px !important;
-        min-width: 28px !important;
-        min-height: 28px !important;
-        padding: 0 !important;
-        box-shadow: none !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        margin: 4px auto 0 auto !important;
-    }}
-    .st-key-add_task_btn_{pn} button p {{
-        color: #ffffff !important;
-        font-size: 18px !important;
-        font-weight: 700 !important;
-        line-height: 1 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }}
-    .st-key-add_task_btn_{pn} button:hover {{
-        background-color: #6b7280 !important;
-        transform: none !important;
-        box-shadow: none !important;
-    }}
-    .st-key-save_task_{pn} button {{
-        background-color: #9ca3af !important;
-        border: none !important;
-        border-radius: 50% !important;
-        width: 28px !important;
-        height: 28px !important;
-        min-width: 28px !important;
-        min-height: 28px !important;
-        padding: 0 !important;
-        color: #ffffff !important;
-        font-size: 0.9rem !important;
-        box-shadow: none !important;
-    }}
-    .st-key-save_task_{pn} button p {{ color: #ffffff !important; }}
+    .st-key-add_task_btn_{pn} button,
+    .st-key-save_task_{pn} button,
     .st-key-cancel_task_{pn} button {{
         background-color: #9ca3af !important;
         border: none !important;
         border-radius: 50% !important;
-        width: 28px !important;
-        height: 28px !important;
-        min-width: 28px !important;
-        min-height: 28px !important;
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
+        max-width: 44px !important;
+        max-height: 44px !important;
         padding: 0 !important;
-        color: #ffffff !important;
-        font-size: 0.9rem !important;
-        box-shadow: none !important;
+        box-shadow: var(--shadow-md) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }}
-    .st-key-cancel_task_{pn} button p {{ color: #ffffff !important; }}
+    .st-key-add_task_btn_{pn} button p,
+    .st-key-save_task_{pn} button p,
+    .st-key-cancel_task_{pn} button p {{
+        color: #ffffff !important;
+        font-size: 1.3rem !important;
+        font-weight: 700 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }}
+    .st-key-add_task_btn_{pn} button:hover,
+    .st-key-save_task_{pn} button:hover,
+    .st-key-cancel_task_{pn} button:hover {{
+        background-color: #6b7280 !important;
+        transform: scale(1.05) !important;
+        box-shadow: var(--shadow-lg) !important;
+    }}
     </style>
     """, unsafe_allow_html=True)
 
