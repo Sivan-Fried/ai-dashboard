@@ -144,19 +144,14 @@ def show_tasks_page(project_name=None):
     st.markdown("### משימות הפרויקט", unsafe_allow_html=True)
 
     # ── ניהול מצב כפתור הוספה ──────────────────────────────
-    add_key = f"adding_task_{project_name}"
+    add_key = "adding_task"
     if add_key not in st.session_state:
         st.session_state[add_key] = False
 
-    # ── ניקוי שם הפרויקט לשימוש ב-CSS class ───────────────
-    pn = project_name.replace(" ", "_").replace("-", "_") if project_name else "default"
-
-    # ── עיצוב כפתורי הוספה / שמירה / ביטול ────────────────
-    st.markdown(f"""
+    # ── עיצוב כפתורים בkeys קבועים — CSS גלובלי שעובד ──────
+    st.markdown("""
     <style>
-    .st-key-add_task_btn_{pn} button,
-    .st-key-save_task_{pn} button,
-    .st-key-cancel_task_{pn} button {{
+    .st-key-task_add_btn button {
         background-color: #9ca3af !important;
         border: none !important;
         border-radius: 50% !important;
@@ -167,32 +162,80 @@ def show_tasks_page(project_name=None):
         max-width: 44px !important;
         max-height: 44px !important;
         padding: 0 !important;
+        box-shadow: none !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        box-shadow: none !important;
-    }}
-    .st-key-add_task_btn_{pn} button p,
-    .st-key-save_task_{pn} button p,
-    .st-key-cancel_task_{pn} button p {{
+    }
+    .st-key-task_add_btn button p {
         color: #ffffff !important;
-        font-size: 1.3rem !important;
+        font-size: 1.4rem !important;
         font-weight: 700 !important;
         margin: 0 !important;
         padding: 0 !important;
-    }}
-    .st-key-add_task_btn_{pn} button:hover,
-    .st-key-save_task_{pn} button:hover,
-    .st-key-cancel_task_{pn} button:hover {{
+        line-height: 1 !important;
+    }
+    .st-key-task_add_btn button:hover {
         background-color: #6b7280 !important;
         transform: scale(1.05) !important;
-        box-shadow: var(--shadow-lg) !important;
-    }}
-    .st-emotion-cache-5qfegl {{
-        display: inline-flex !important;
+        box-shadow: none !important;
+    }
+    .st-key-task_save_btn button {
+        background-color: #9ca3af !important;
+        border: none !important;
+        border-radius: 50% !important;
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
+        max-width: 44px !important;
+        max-height: 44px !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-    }}
+    }
+    .st-key-task_save_btn button p {
+        color: #ffffff !important;
+        font-size: 1.1rem !important;
+        font-weight: 700 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .st-key-task_save_btn button:hover {
+        background-color: #6b7280 !important;
+        transform: scale(1.05) !important;
+        box-shadow: none !important;
+    }
+    .st-key-task_cancel_btn button {
+        background-color: #9ca3af !important;
+        border: none !important;
+        border-radius: 50% !important;
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
+        max-width: 44px !important;
+        max-height: 44px !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    .st-key-task_cancel_btn button p {
+        color: #ffffff !important;
+        font-size: 1.1rem !important;
+        font-weight: 700 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .st-key-task_cancel_btn button:hover {
+        background-color: #6b7280 !important;
+        transform: scale(1.05) !important;
+        box-shadow: none !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -213,19 +256,20 @@ def show_tasks_page(project_name=None):
         if st.session_state[add_key]:
             c1, c2, c3, c4, c5, c6, c7, c8 = st.columns([2, 1, 1, 1, 1, 1.5, 0.25, 0.25])
             with c1:
-                new_desc = st.text_input("משימה", placeholder="הכנס משימה...", label_visibility="collapsed", key=f"new_task_desc_{pn}")
+                new_desc = st.text_input("משימה", placeholder="הכנס משימה...", label_visibility="collapsed", key="task_new_desc")
             with c2:
-                new_status = st.selectbox("סטטוס", ["ממתין", "בביצוע", "הושלם"], label_visibility="collapsed", key=f"new_task_status_{pn}", index=None, placeholder="בחר סטטוס")
+                new_status = st.selectbox("סטטוס", ["ממתין", "בביצוע", "הושלם"], label_visibility="collapsed", key="task_new_status", index=None, placeholder="בחר סטטוס")
             with c3:
-                new_resp = st.text_input("אחראי", placeholder="שם אחראי...", label_visibility="collapsed", key=f"new_task_resp_{pn}")
+                new_resp = st.text_input("אחראי", placeholder="שם אחראי...", label_visibility="collapsed", key="task_new_resp")
             with c4:
-                new_start = st.date_input("תאריך התחלה", label_visibility="collapsed", value=None, key=f"new_task_start_{pn}")
+                new_start = st.date_input("תאריך התחלה", label_visibility="collapsed", value=None, key="task_new_start")
             with c5:
-                new_due = st.date_input("תאריך יעד", label_visibility="collapsed", value=None, key=f"new_task_due_{pn}")
+                new_due = st.date_input("תאריך יעד", label_visibility="collapsed", value=None, key="task_new_due")
             with c6:
-                new_notes = st.text_input("הערות", placeholder="הערות...", label_visibility="collapsed", key=f"new_task_notes_{pn}")
+                new_notes = st.text_input("הערות", placeholder="הערות...", label_visibility="collapsed", key="task_new_notes")
             with c7:
-                if st.button("✓", key=f"save_task_{pn}"):
+                # כפתור שמירה — עיגול אפור עם וי לבן
+                if st.button("✓", key="task_save_btn"):
                     if new_desc:
                         new_row = {
                             "project_name": project_name,
@@ -241,13 +285,14 @@ def show_tasks_page(project_name=None):
                         st.session_state[add_key] = False
                         st.rerun()
             with c8:
-                if st.button("✕", key=f"cancel_task_{pn}"):
+                # כפתור ביטול — עיגול אפור עם X לבן
+                if st.button("✕", key="task_cancel_btn"):
                     st.session_state[add_key] = False
                     st.rerun()
 
         # כפתור פלוס — מוצג רק כשלא במצב עריכה
         if not st.session_state[add_key]:
-            if st.button("+", key=f"add_task_btn_{pn}"):
+            if st.button("+", key="task_add_btn"):
                 st.session_state[add_key] = True
                 st.rerun()
 
