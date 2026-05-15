@@ -1083,3 +1083,10 @@ div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-t
     margin: 0 !important;
     padding: 0 !important;
 }
+/* ── placeholder קטן בשדות הוספת משימה ────────────────── */
+.st-key-task_new_desc input::placeholder,
+.st-key-task_new_resp input::placeholder,
+.st-key-task_new_notes input::placeholder {
+    font-size: 0.7rem !important;
+    color: #a1a1aa !important;
+}
