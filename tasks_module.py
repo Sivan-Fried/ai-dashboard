@@ -30,9 +30,9 @@ def fmt_date(d):
 # AG-Grid מחשב autoHeight לפי תוכן בפועל — אנחנו רק צריכים לתת לו מספיק
 # גובה חלון (height=) כך שלא תופיע גלילה פנימית בתוך הגריד.
 # הלוגיקה: כותרת + פילטר + סכום גובה כל שורה לפי כמות שורות טקסט משוערת.
-# col_width_chars = הערכת רוחב עמודת התיאור בתווים (flex=3 מתוך סה"כ flex~8)
-# אם עדיין רואים גלילה — להקטין ל-30; אם יש רווח ריק מיותר — להגדיל ל-45
-def _calc_grid_height(df: pd.DataFrame, col_width_chars: int = 36) -> int:
+# col_width_chars = הערכת רוחב עמודת התיאור בתווים (flex=4 מתוך סה"כ flex~10.4)
+# אם עדיין רואים גלילה — להקטין ל-38; אם יש רווח ריק מיותר — להגדיל ל-48
+def _calc_grid_height(df: pd.DataFrame, col_width_chars: int = 42) -> int:
     HEADER_H   = 48  # גובה שורת כותרות
     FILTER_H   = 48  # גובה שורת פילטרים
     ROW_BASE_H = 48  # גובה שורה בסיסי — תואם ל-padding-top/bottom:12px בתא
@@ -142,17 +142,16 @@ def show_tasks_page(project_name=None):
     )
 
     # ── עמודת תיאור: wrapText + autoHeight רק עליה ────────────────────────────
-    # flex=1 יקבל את כל הרוחב שנשאר אחרי עמודות הרוחב הקבוע
-    gb.configure_column("description",  header_name="משימה",        flex=1.4,  wrapText=True, autoHeight=True, cellStyle={"fontWeight": "600", "color": "#3f3f46"})
-    # ── שאר העמודות: רוחב קבוע במינימום + suppressSizeToFit מונע הגדלה ────────
-    gb.configure_column("status",       header_name="סטטוס",        width=90,  suppressSizeToFit=True, cellRenderer=cell_style_jscode, filter="agTextColumnFilter")
-    gb.configure_column("responsible",  header_name="אחראי",         width=100, suppressSizeToFit=True, filter="agTextColumnFilter")
-    gb.configure_column("start_date",   header_name="תאריך התחלה",  width=110, suppressSizeToFit=True)
-    gb.configure_column("due_date",     header_name="תאריך יעד",    width=110, suppressSizeToFit=True, cellStyle=due_style_jscode)
-    # ── הערות נשארת flex=1.5 לפי דרישה, ללא שינוי ────────────────────────────
-    gb.configure_column("notes",        header_name="הערות",         flex=0.9)
+    # flex=4 נותן לה את רוב הרוחב; כל העמודות ב-flex כדי למנוע גלילה אופקית
+    gb.configure_column("description",  header_name="משימה",        flex=4,   wrapText=True, autoHeight=True, cellStyle={"fontWeight": "600", "color": "#3f3f46"})
+    # ── שאר העמודות: flex מינימלי, ללא גלישת טקסט, ללא suppressSizeToFit ──────
+    gb.configure_column("status",       header_name="סטטוס",        flex=1,   cellRenderer=cell_style_jscode, filter="agTextColumnFilter")
+    gb.configure_column("responsible",  header_name="אחראי",         flex=1.2, filter="agTextColumnFilter")
+    gb.configure_column("start_date",   header_name="תאריך התחלה",  flex=1.2)
+    gb.configure_column("due_date",     header_name="תאריך יעד",    flex=1.2, cellStyle=due_style_jscode)
+    # ── הערות: flex=1 — קטנה יותר מהתיאור אך לא נגעים בה לפי דרישה ──────────
+    gb.configure_column("notes",        header_name="הערות",         flex=1.5)
 
-    
     gb.configure_grid_options(
         enableRtl=True,
         # ── rowHeight הוסר! ────────────────────────────────────────────────────
