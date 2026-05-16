@@ -141,16 +141,15 @@ def show_tasks_page(project_name=None):
         suppressMenu=False,
     )
 
-    # ── עמודת תיאור: wrapText + autoHeight רק עליה ────────────────────────────
-    # flex=1.4 יקבל את כל הרוחב שנשאר אחרי עמודות הרוחב הקבוע
-    gb.configure_column("description",  header_name="משימה",        flex=1.6,  wrapText=True, autoHeight=True, cellStyle={"fontWeight": "600", "color": "#3f3f46"})
-    # ── שאר העמודות: רוחב קבוע במינימום + suppressSizeToFit מונע הגדלה ────────
-    gb.configure_column("status",       header_name="סטטוס",        width=90,  suppressSizeToFit=True, cellRenderer=cell_style_jscode, filter="agTextColumnFilter")
-    gb.configure_column("responsible",  header_name="אחראי",         width=100, suppressSizeToFit=True, filter="agTextColumnFilter")
-    gb.configure_column("start_date",   header_name="תאריך התחלה",  width=110, suppressSizeToFit=True)
-    gb.configure_column("due_date",     header_name="תאריך יעד",    width=110, suppressSizeToFit=True, cellStyle=due_style_jscode)
-    # ── הערות: flex=0.7 — הוקטנה מעט כדי להגדיל את עמודת התיאור ──────────────
-    gb.configure_column("notes",        header_name="הערות",         flex=0.55)
+    # ── עמודת תיאור: wrapText + autoHeight רק עליה, כל העמודות ב-flex למניעת גלילה אופקית ──
+    gb.configure_column("description",  header_name="משימה",        flex=2,    wrapText=True, autoHeight=True, cellStyle={"fontWeight": "600", "color": "#3f3f46"})
+    # ── שאר העמודות: flex מינימלי, ללא גלישת טקסט ────────────────────────────
+    gb.configure_column("status",       header_name="סטטוס",        flex=0.65, cellRenderer=cell_style_jscode, filter="agTextColumnFilter")
+    gb.configure_column("responsible",  header_name="אחראי",         flex=0.8,  filter="agTextColumnFilter")
+    gb.configure_column("start_date",   header_name="תאריך התחלה",  flex=0.8)
+    gb.configure_column("due_date",     header_name="תאריך יעד",    flex=0.8,  cellStyle=due_style_jscode)
+    # ── הערות: flex=0.95 — קטנה יותר מהתיאור ────────────────────────────────
+    gb.configure_column("notes",        header_name="הערות",         flex=0.95)
 
     gb.configure_grid_options(
         enableRtl=True,
@@ -160,6 +159,7 @@ def show_tasks_page(project_name=None):
         headerHeight=48,
         suppressRowClickSelection=True,
         rowStyle={"--ag-row-hover-color": "#fdf6f9"},
+        autoSizeStrategy={"type": "fitGridWidth"},
     )
 
     grid_options = gb.build()
@@ -227,7 +227,7 @@ def show_tasks_page(project_name=None):
             allow_unsafe_jscode=True,
             custom_css=custom_css,
             theme="streamlit",
-            fit_columns_on_grid_load=True,
+            fit_columns_on_grid_load=False,
             # ── גובה דינמי: מחושב לפי גלישת טקסט משוערת בעמודת התיאור ──────
             # AG-Grid עצמו מחשב את גובה כל שורה (autoHeight על description),
             # אנחנו רק מספקים חלון מספיק גדול שלא תהיה גלילה פנימית
