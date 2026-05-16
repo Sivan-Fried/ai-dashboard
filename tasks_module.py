@@ -142,15 +142,15 @@ def show_tasks_page(project_name=None):
     )
 
     # ── עמודת תיאור: wrapText + autoHeight רק עליה ────────────────────────────
-    # flex=1.4 יקבל את כל הרוחב שנשאר אחרי עמודות הרוחב הקבוע
+    # flex=1.4, בולד — העמודה תתרחב לפי התוכן הארוך ביותר
     gb.configure_column("description",  header_name="משימה",        flex=1.4,  wrapText=True, autoHeight=True, cellStyle={"fontWeight": "600", "color": "#3f3f46"})
-    # ── שאר העמודות: רוחב קבוע במינימום + suppressSizeToFit מונע הגדלה 
+    # ── שאר העמודות: רוחב קבוע במינימום + suppressSizeToFit מונע הגדלה ────────
     gb.configure_column("status",       header_name="סטטוס",        width=90,  suppressSizeToFit=True, cellRenderer=cell_style_jscode, filter="agTextColumnFilter")
     gb.configure_column("responsible",  header_name="אחראי",         width=100, suppressSizeToFit=True, filter="agTextColumnFilter")
     gb.configure_column("start_date",   header_name="תאריך התחלה",  width=110, suppressSizeToFit=True)
     gb.configure_column("due_date",     header_name="תאריך יעד",    width=110, suppressSizeToFit=True, cellStyle=due_style_jscode)
     # ── הערות: flex=0.6 — הוקטנה כדי להגדיל את עמודת התיאור ──────────────────
-    gb.configure_column("notes",        header_name="הערות",         flex=0.5)
+    gb.configure_column("notes",        header_name="הערות",         flex=0.6)
 
     gb.configure_grid_options(
         enableRtl=True,
