@@ -37,7 +37,7 @@ def _calc_grid_height(df: pd.DataFrame, col_width_chars: int = 36) -> int:
     FILTER_H   = 48  # גובה שורת פילטרים
     ROW_BASE_H = 48  # גובה שורה בסיסי — תואם ל-padding-top/bottom:12px בתא
     LINE_H     = 22  # גובה שורת טקסט נוספת בגלישה (line-height ריאלי)
-    PADDING    = 20  # ריפוד תחתון כדי שהגריד לא יקצץ את השורה האחרונה
+    PADDING    = 4   # ריפוד תחתון מינימלי
 
     total = 0
     for val in df["description"].astype(str):
@@ -143,14 +143,14 @@ def show_tasks_page(project_name=None):
 
     # ── עמודת תיאור: wrapText + autoHeight רק עליה ────────────────────────────
     # flex=1 יקבל את כל הרוחב שנשאר אחרי עמודות הרוחב הקבוע
-    gb.configure_column("description",  header_name="משימה",        flex=1,    wrapText=True, autoHeight=True)
+    gb.configure_column("description",  header_name="משימה",        flex=1,    wrapText=True, autoHeight=True, cellStyle={"fontWeight": "600", "color": "#3f3f46"})
     # ── שאר העמודות: רוחב קבוע במינימום + suppressSizeToFit מונע הגדלה ────────
     gb.configure_column("status",       header_name="סטטוס",        width=90,  suppressSizeToFit=True, cellRenderer=cell_style_jscode, filter="agTextColumnFilter")
     gb.configure_column("responsible",  header_name="אחראי",         width=100, suppressSizeToFit=True, filter="agTextColumnFilter")
     gb.configure_column("start_date",   header_name="תאריך התחלה",  width=110, suppressSizeToFit=True)
     gb.configure_column("due_date",     header_name="תאריך יעד",    width=110, suppressSizeToFit=True, cellStyle=due_style_jscode)
     # ── הערות נשארת flex=1.5 לפי דרישה, ללא שינוי ────────────────────────────
-    gb.configure_column("notes",        header_name="הערות",         flex=1.5)
+    gb.configure_column("notes",        header_name="הערות",         flex=1.2)
     
     gb.configure_grid_options(
         enableRtl=True,
