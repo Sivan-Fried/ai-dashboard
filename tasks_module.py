@@ -26,6 +26,25 @@ def fmt_date(d):
     except:
         return ""
 
+# ── חישוב גובה דינמי לפי גלישת טקסט בעמודת התיאור ──────────────────────────
+# col_width_chars = הערכה של כמה תווים נכנסים ברוחב עמודת התיאור (flex=3)
+# אם עדיין רואים גלילה — להקטין ל-32; אם יש רווח ריק מיותר — להגדיל ל-42
+def _calc_grid_height(df: pd.DataFrame, col_width_chars: int = 38) -> int:
+    HEADER_H   = 48  # גובה שורת כותרות
+    FILTER_H   = 48  # גובה שורת פילטרים
+    ROW_BASE_H = 44  # גובה שורה בסיסי (שורה אחת של טקסט)
+    LINE_H     = 20  # גובה שורה נוספת כשהטקסט גולש
+    PADDING    = 16  # ריפוד תחתון למניעת גלילה קלה
+
+    total = 0
+    for val in df["description"].astype(str):
+        # עיגול למעלה (ceil division) — כמה שורות טקסט ייקח התיאור
+        lines = max(1, -(-len(val) // col_width_chars))
+        total += ROW_BASE_H + (lines - 1) * LINE_H
+
+    return HEADER_H + FILTER_H + total + PADDING
+
+
 def show_tasks_page(project_name=None):
     # ── טעינה ראשונית לתוך session_state ──────────────────
     if "tasks_df" not in st.session_state:
@@ -117,11 +136,13 @@ def show_tasks_page(project_name=None):
         autoHeight=True,
     )
 
-    gb.configure_column("description",  header_name="משימה",        flex=2)
-    gb.configure_column("status",       header_name="סטטוס",        flex=1,   cellRenderer=cell_style_jscode, filter="agTextColumnFilter")
-    gb.configure_column("responsible",  header_name="אחראי",         flex=1,   filter="agTextColumnFilter")
-    gb.configure_column("start_date",   header_name="תאריך התחלה",  flex=1)
-    gb.configure_column("due_date",     header_name="תאריך יעד",    flex=1,   cellStyle=due_style_jscode)
+    # ── עמודת תיאור הוגדלה ל-flex=3 כדי למנוע גלישה ──────────────────────────
+    # שאר העמודות הוקטנו למינימום — חוץ מהערות שנשארה flex=1.5 לפי דרישה
+    gb.configure_column("description",  header_name="משימה",        flex=3)
+    gb.configure_column("status",       header_name="סטטוס",        flex=0.7, cellRenderer=cell_style_jscode, filter="agTextColumnFilter")
+    gb.configure_column("responsible",  header_name="אחראי",         flex=0.8, filter="agTextColumnFilter")
+    gb.configure_column("start_date",   header_name="תאריך התחלה",  flex=0.8)
+    gb.configure_column("due_date",     header_name="תאריך יעד",    flex=0.8, cellStyle=due_style_jscode)
     gb.configure_column("notes",        header_name="הערות",         flex=1.5)
 
     gb.configure_grid_options(
@@ -187,7 +208,7 @@ def show_tasks_page(project_name=None):
     }
     </style>
     """, unsafe_allow_html=True)
-    
+
     # ── טבלה + שורת הוספה + כפתור פלוס — הכל בקונטיינר אחד ──
     with st.container(border=True):
         AgGrid(
@@ -198,7 +219,9 @@ def show_tasks_page(project_name=None):
             custom_css=custom_css,
             theme="streamlit",
             fit_columns_on_grid_load=True,
-            height=48 + 48 + (len(df_display) * 44) + 10,
+            # ── גובה דינמי: מחושב לפי מספר שורות טקסט אמיתי בכל משימה ──
+            # במקום גובה קבוע שלא מתחשב בגלישת טקסט
+            height=_calc_grid_height(df_display),
         )
 
         # שורת הוספה — מוצגת רק כשהכפתור נלחץ
