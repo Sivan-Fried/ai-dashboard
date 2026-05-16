@@ -35,7 +35,7 @@ def fmt_date(d):
 def _calc_grid_height(df: pd.DataFrame, col_width_chars: int = 36) -> int:
     HEADER_H   = 48  # גובה שורת כותרות
     FILTER_H   = 48  # גובה שורת פילטרים
-    ROW_BASE_H = 42  # גובה שורה בסיסי כשאין גלישה (תואם לגובה שאג-גריד נותן לשורה עם padding)
+    ROW_BASE_H = 48  # גובה שורה בסיסי — תואם ל-padding-top/bottom:12px בתא
     LINE_H     = 22  # גובה שורת טקסט נוספת בגלישה (line-height ריאלי)
     PADDING    = 20  # ריפוד תחתון כדי שהגריד לא יקצץ את השורה האחרונה
 
@@ -167,7 +167,7 @@ def show_tasks_page(project_name=None):
     custom_css = {
         ".ag-header":            {"background-color": "#f8fafc !important", "border-bottom": "1px solid #f4f4f5 !important"},
         ".ag-header-cell-label": {"font-size": "12px !important", "font-weight": "700 !important", "color": "#94a3b8 !important", "font-family": "'Plus Jakarta Sans', sans-serif !important"},
-        ".ag-cell":              {"font-size": "13px !important", "font-family": "'Plus Jakarta Sans', sans-serif !important", "color": "#3f3f46 !important", "border": "none !important"},
+        ".ag-cell":              {"font-size": "13px !important", "font-family": "'Plus Jakarta Sans', sans-serif !important", "color": "#3f3f46 !important", "border": "none !important", "padding-top": "12px !important", "padding-bottom": "12px !important"},
         ".ag-row":               {"border-bottom": "1px solid #f4f4f5 !important"},
         ".ag-row-hover":         {"background-color": "#fdf6f9 !important", "background-image": "none !important"},
         ".ag-row-hover .ag-cell": {"background-color": "#fdf6f9 !important"},
