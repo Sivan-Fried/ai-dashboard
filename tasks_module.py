@@ -26,19 +26,22 @@ def fmt_date(d):
     except:
         return ""
 
-# ── חישוב גובה דינמי לפי גלישת טקסט בעמודת התיאור ──────────────────────────
-# col_width_chars = הערכה של כמה תווים נכנסים ברוחב עמודת התיאור (flex=3)
-# אם עדיין רואים גלילה — להקטין ל-32; אם יש רווח ריק מיותר — להגדיל ל-42
-def _calc_grid_height(df: pd.DataFrame, col_width_chars: int = 38) -> int:
+# ── חישוב גובה כולל של הגריד ──────────────────────────────────────────────────
+# AG-Grid מחשב autoHeight לפי תוכן בפועל — אנחנו רק צריכים לתת לו מספיק
+# גובה חלון (height=) כך שלא תופיע גלילה פנימית בתוך הגריד.
+# הלוגיקה: כותרת + פילטר + סכום גובה כל שורה לפי כמות שורות טקסט משוערת.
+# col_width_chars = הערכת רוחב עמודת התיאור בתווים (flex=3 מתוך סה"כ flex~8)
+# אם עדיין רואים גלילה — להקטין ל-30; אם יש רווח ריק מיותר — להגדיל ל-45
+def _calc_grid_height(df: pd.DataFrame, col_width_chars: int = 36) -> int:
     HEADER_H   = 48  # גובה שורת כותרות
     FILTER_H   = 48  # גובה שורת פילטרים
-    ROW_BASE_H = 44  # גובה שורה בסיסי (שורה אחת של טקסט)
-    LINE_H     = 20  # גובה שורה נוספת כשהטקסט גולש
-    PADDING    = 16  # ריפוד תחתון למניעת גלילה קלה
+    ROW_BASE_H = 42  # גובה שורה בסיסי כשאין גלישה (תואם לגובה שאג-גריד נותן לשורה עם padding)
+    LINE_H     = 22  # גובה שורת טקסט נוספת בגלישה (line-height ריאלי)
+    PADDING    = 20  # ריפוד תחתון כדי שהגריד לא יקצץ את השורה האחרונה
 
     total = 0
     for val in df["description"].astype(str):
-        # עיגול למעלה (ceil division) — כמה שורות טקסט ייקח התיאור
+        # ceil division — כמה שורות טקסט ייקח התיאור
         lines = max(1, -(-len(val) // col_width_chars))
         total += ROW_BASE_H + (lines - 1) * LINE_H
 
@@ -125,6 +128,10 @@ def show_tasks_page(project_name=None):
 
     gb = GridOptionsBuilder.from_dataframe(df_display)
 
+    # ── הגדרות ברירת מחדל לכל העמודות ────────────────────────────────────────
+    # שימו לב: wrapText ו-autoHeight לא מוגדרים כאן ברירת מחדל —
+    # הם מוגדרים רק על עמודת description למטה.
+    # הסיבה: rowHeight גלובלי מבטל autoHeight, ו-autoHeight על כולן פוגע בביצועים.
     gb.configure_default_column(
         filterable=True,
         sortable=True,
@@ -132,22 +139,24 @@ def show_tasks_page(project_name=None):
         filter="agTextColumnFilter",
         floatingFilter=True,
         suppressMenu=False,
-        wrapText=True,
-        autoHeight=True,
     )
 
-    # ── עמודת תיאור הוגדלה ל-flex=3 כדי למנוע גלישה ──────────────────────────
-    # שאר העמודות הוקטנו למינימום — חוץ מהערות שנשארה flex=1.5 לפי דרישה
-    gb.configure_column("description",  header_name="משימה",        flex=3)
+    # ── עמודת תיאור: wrapText + autoHeight רק עליה ────────────────────────────
+    # flex=3 נותן לה את רוב הרוחב; AG-Grid יחשב גובה שורה לפי תוכן בפועל
+    gb.configure_column("description",  header_name="משימה",        flex=3,   wrapText=True, autoHeight=True)
+    # ── שאר העמודות: flex מינימלי, ללא גלישת טקסט ────────────────────────────
     gb.configure_column("status",       header_name="סטטוס",        flex=0.7, cellRenderer=cell_style_jscode, filter="agTextColumnFilter")
     gb.configure_column("responsible",  header_name="אחראי",         flex=0.8, filter="agTextColumnFilter")
     gb.configure_column("start_date",   header_name="תאריך התחלה",  flex=0.8)
     gb.configure_column("due_date",     header_name="תאריך יעד",    flex=0.8, cellStyle=due_style_jscode)
+    # ── הערות נשארת flex=1.5 לפי דרישה, ללא שינוי ────────────────────────────
     gb.configure_column("notes",        header_name="הערות",         flex=1.5)
 
     gb.configure_grid_options(
         enableRtl=True,
-        rowHeight=44,
+        # ── rowHeight הוסר! ────────────────────────────────────────────────────
+        # rowHeight גלובלי מבטל את autoHeight שמוגדר על עמודת description.
+        # AG-Grid יחשב גובה שורה לפי תוכן — זו ההתנהגות הנכונה.
         headerHeight=48,
         suppressRowClickSelection=True,
         rowStyle={"--ag-row-hover-color": "#fdf6f9"},
@@ -219,8 +228,9 @@ def show_tasks_page(project_name=None):
             custom_css=custom_css,
             theme="streamlit",
             fit_columns_on_grid_load=True,
-            # ── גובה דינמי: מחושב לפי מספר שורות טקסט אמיתי בכל משימה ──
-            # במקום גובה קבוע שלא מתחשב בגלישת טקסט
+            # ── גובה דינמי: מחושב לפי גלישת טקסט משוערת בעמודת התיאור ──────
+            # AG-Grid עצמו מחשב את גובה כל שורה (autoHeight על description),
+            # אנחנו רק מספקים חלון מספיק גדול שלא תהיה גלילה פנימית
             height=_calc_grid_height(df_display),
         )
 
