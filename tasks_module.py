@@ -142,16 +142,16 @@ def show_tasks_page(project_name=None):
     )
 
     # ── עמודת תיאור: wrapText + autoHeight רק עליה ────────────────────────────
-    # flex=3 נותן לה את רוב הרוחב; AG-Grid יחשב גובה שורה לפי תוכן בפועל
-    gb.configure_column("description",  header_name="משימה",        flex=3,   wrapText=True, autoHeight=True)
-    # ── שאר העמודות: flex מינימלי, ללא גלישת טקסט ────────────────────────────
-    gb.configure_column("status",       header_name="סטטוס",        flex=0.7, cellRenderer=cell_style_jscode, filter="agTextColumnFilter")
-    gb.configure_column("responsible",  header_name="אחראי",         flex=0.8, filter="agTextColumnFilter")
-    gb.configure_column("start_date",   header_name="תאריך התחלה",  flex=0.8)
-    gb.configure_column("due_date",     header_name="תאריך יעד",    flex=0.8, cellStyle=due_style_jscode)
+    # flex=1 יקבל את כל הרוחב שנשאר אחרי עמודות הרוחב הקבוע
+    gb.configure_column("description",  header_name="משימה",        flex=1,    wrapText=True, autoHeight=True)
+    # ── שאר העמודות: רוחב קבוע במינימום + suppressSizeToFit מונע הגדלה ────────
+    gb.configure_column("status",       header_name="סטטוס",        width=90,  suppressSizeToFit=True, cellRenderer=cell_style_jscode, filter="agTextColumnFilter")
+    gb.configure_column("responsible",  header_name="אחראי",         width=100, suppressSizeToFit=True, filter="agTextColumnFilter")
+    gb.configure_column("start_date",   header_name="תאריך התחלה",  width=110, suppressSizeToFit=True)
+    gb.configure_column("due_date",     header_name="תאריך יעד",    width=110, suppressSizeToFit=True, cellStyle=due_style_jscode)
     # ── הערות נשארת flex=1.5 לפי דרישה, ללא שינוי ────────────────────────────
     gb.configure_column("notes",        header_name="הערות",         flex=1.5)
-
+    
     gb.configure_grid_options(
         enableRtl=True,
         # ── rowHeight הוסר! ────────────────────────────────────────────────────
