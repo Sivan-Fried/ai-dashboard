@@ -1448,6 +1448,9 @@ with main_col:
             # ============================
             #      עוזר אישי AI — ורוד
             # ============================
+            # ============================
+            #      עוזר אישי AI — ורוד
+            # ============================
             st.markdown('<div id="section-ai"></div>', unsafe_allow_html=True)
             st.markdown('### <span class="material-symbols-outlined" style="vertical-align: middle; margin-left: 8px; font-size: 1.5rem; color: #64748b !important;">smart_toy</span> עוזר AI אישי', unsafe_allow_html=True)
             with st.container(border=True, key="ai_container"):
@@ -1514,56 +1517,89 @@ with main_col:
                                     else "התייחס לכל הפרויקטים"
                                 )
 
-                                # ── טעינת נתוני דפים פנימיים מסוננים לפרויקט הנבחר ──
+                                # ── סינון לפרויקט הנבחר ──
                                 proj_filter = sel_p if sel_p != "בחר פרויקט לניתוח..." else None
 
-                                # תוכנית עבודה — עמודות: project_name, milestone_name, version_contents, date, status, notes
+                                # ── תוכנית עבודה ──
+                                # עמודות: project_name, milestone_name, version_contents, date, status, notes
+                                workplan_summary = "אין נתוני תוכנית עבודה"
                                 try:
                                     wp_df = pd.read_excel("work_plans.xlsx")
                                     if proj_filter and "project_name" in wp_df.columns:
                                         wp_df = wp_df[wp_df["project_name"] == proj_filter]
-                                    workplan_summary = "\n".join([
-                                        f"- {r.get('milestone_name','')}: {str(r.get('version_contents',''))[:100]} | תאריך: {r.get('date','')} | סטטוס: {r.get('status','')}"
-                                        for _, r in wp_df.iterrows()
-                                    ]) or "אין נתוני תוכנית עבודה"
-                                except:
-                                    workplan_summary = "לא ניתן לטעון תוכנית עבודה"
+                                    if not wp_df.empty:
+                                        lines = []
+                                        for _, r in wp_df.iterrows():
+                                            milestone = str(r.get("milestone_name", "") or "")
+                                            contents  = str(r.get("version_contents", "") or "")[:100]
+                                            date      = str(r.get("date", "") or "")
+                                            status    = str(r.get("status", "") or "")
+                                            lines.append(f"- {milestone}: {contents} | תאריך: {date} | סטטוס: {status}")
+                                        workplan_summary = "\n".join(lines) or "אין נתוני תוכנית עבודה"
+                                except Exception as e:
+                                    workplan_summary = f"שגיאה בטעינת תוכנית עבודה: {str(e)}"
 
-                                # משאבים — עמודות: project_name, worker_name, job title, %_employment, notes, worker_status
+                                # ── משאבים ──
+                                # עמודות: project_name, worker_name, job title, %_employment, notes, worker_status
+                                resources_summary = "אין נתוני משאבים"
                                 try:
                                     res_df = pd.read_excel("resources.xlsx")
                                     if proj_filter and "project_name" in res_df.columns:
                                         res_df = res_df[res_df["project_name"] == proj_filter]
-                                    resources_summary = "\n".join([
-                                        f"- {r.get('worker_name','')}: {r.get('job title','')}, העסקה {int(float(r.get('%_employment', 0)) * 100)}%, סטטוס: {r.get('worker_status','')}"
-                                        for _, r in res_df.iterrows()
-                                    ]) or "אין נתוני משאבים"
-                                except:
-                                    resources_summary = "לא ניתן לטעון משאבים"
+                                    if not res_df.empty:
+                                        lines = []
+                                        for _, r in res_df.iterrows():
+                                            name   = str(r.get("worker_name", "") or "")
+                                            role   = str(r.get("job title", "") or "")
+                                            status = str(r.get("worker_status", "") or "")
+                                            emp    = r.get("%_employment", None)
+                                            try:
+                                                emp_str = f"{int(float(emp) * 100)}%" if emp is not None and str(emp) not in ["", "nan", "None"] else "לא ידוע"
+                                            except:
+                                                emp_str = "לא ידוע"
+                                            lines.append(f"- {name}: {role}, העסקה {emp_str}, סטטוס: {status}")
+                                        resources_summary = "\n".join(lines) or "אין נתוני משאבים"
+                                except Exception as e:
+                                    resources_summary = f"שגיאה בטעינת משאבים: {str(e)}"
 
-                                # סיכונים — עמודות: project_name, risk_title, probability, impact, category, status, owner, due_date, notes
+                                # ── סיכונים ──
+                                # עמודות: project_name, risk_title, probability, impact, category, status, owner, due_date, notes
+                                risks_summary = "אין סיכונים"
                                 try:
                                     risks_df = pd.read_excel("risks.xlsx")
                                     if proj_filter and "project_name" in risks_df.columns:
                                         risks_df = risks_df[risks_df["project_name"] == proj_filter]
-                                    risks_summary = "\n".join([
-                                        f"- {r.get('risk_title','')}: הסתברות {r.get('probability','')}, השפעה {r.get('impact','')}, קטגוריה {r.get('category','')}, סטטוס {r.get('status','')}"
-                                        for _, r in risks_df.iterrows()
-                                    ]) or "אין סיכונים"
-                                except:
-                                    risks_summary = "לא ניתן לטעון סיכונים"
+                                    if not risks_df.empty:
+                                        lines = []
+                                        for _, r in risks_df.iterrows():
+                                            title    = str(r.get("risk_title", "") or "")
+                                            prob     = str(r.get("probability", "") or "")
+                                            impact   = str(r.get("impact", "") or "")
+                                            category = str(r.get("category", "") or "")
+                                            status   = str(r.get("status", "") or "")
+                                            lines.append(f"- {title}: הסתברות {prob}, השפעה {impact}, קטגוריה {category}, סטטוס {status}")
+                                        risks_summary = "\n".join(lines) or "אין סיכונים"
+                                except Exception as e:
+                                    risks_summary = f"שגיאה בטעינת סיכונים: {str(e)}"
 
-                                # משימות פרויקט — עמודות: project_name, description, status, responsible, start_date, due_date, notes
+                                # ── משימות פרויקט ──
+                                # עמודות: project_name, description, status, responsible, start_date, due_date, notes
+                                proj_tasks_summary = "אין משימות"
                                 try:
                                     tasks_df = pd.read_excel("tasks.xlsx")
                                     if proj_filter and "project_name" in tasks_df.columns:
                                         tasks_df = tasks_df[tasks_df["project_name"] == proj_filter]
-                                    proj_tasks_summary = "\n".join([
-                                        f"- {r.get('description','')}: סטטוס {r.get('status','')}, אחראי {r.get('responsible','')}, יעד {r.get('due_date','')}"
-                                        for _, r in tasks_df.iterrows()
-                                    ]) or "אין משימות"
-                                except:
-                                    proj_tasks_summary = "לא ניתן לטעון משימות"
+                                    if not tasks_df.empty:
+                                        lines = []
+                                        for _, r in tasks_df.iterrows():
+                                            desc    = str(r.get("description", "") or "")
+                                            status  = str(r.get("status", "") or "")
+                                            resp    = str(r.get("responsible", "") or "")
+                                            due     = str(r.get("due_date", "") or "")
+                                            lines.append(f"- {desc}: סטטוס {status}, אחראי {resp}, יעד {due}")
+                                        proj_tasks_summary = "\n".join(lines) or "אין משימות"
+                                except Exception as e:
+                                    proj_tasks_summary = f"שגיאה בטעינת משימות: {str(e)}"
 
                                 prompt = f"""אתה עוזר AI בכיר לניהול פרויקטים. יש לך גישה לכל המידע הבא:
 
