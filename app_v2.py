@@ -1493,6 +1493,7 @@ with main_col:
             except:
                 main_insights_df = pd.DataFrame(columns=["project_name", "question", "insight", "created_at"])
 
+            # ── Container ראשי — selectbox, textarea, כפתור, תוצאה בלבד ────────
             with st.container(border=True, key="ai_container"):
 
                 # ── הסרת "press enter to apply" מ-textarea ──────────────────────
@@ -1518,112 +1519,6 @@ with main_col:
                     height=100
                 )
 
-                # ── טעינת פונט אייקונים לשימוש ב-st.markdown ────────────────────
-                st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
-
-                # ── היסטוריית ניתוחים שמורים — מתחת לשאלה, מעל הכפתור ──────────
-                proj_filter_display = sel_p.strip() if sel_p != "בחר פרויקט לניתוח..." else None
-                if not main_insights_df.empty:
-                    past = main_insights_df.copy()
-                    past["project_name"] = past["project_name"].astype(str).str.strip()
-                    if proj_filter_display:
-                        past = past[past["project_name"] == proj_filter_display]
-                    if not past.empty:
-                        for _, row in past.iloc[::-1].iterrows():
-                            proj_name = str(row.get("project_name", ""))
-                            q_short   = str(row.get("question", ""))[:40]
-                            date_str  = str(row.get("created_at", ""))
-                            # ── מפתח יציב לפי פרויקט + תאריך — לא משתנה בין ריצות ──
-                            stable_key = f"main_insight_open_{proj_name}_{date_str}".replace(" ", "_").replace("/", "-").replace(":", "-")
-                            is_open    = st.session_state.get(stable_key, False)
-                            arrow      = "&#8249;" if is_open else "&#8250;"
-                            row_label  = f"{proj_name} — {q_short}" if proj_name else q_short
-                            st.markdown(f"""
-                            <div class="fathom-row-ui" style="font-size:0.92rem;font-weight:normal;border-radius:12px;">
-                                <div style="display:flex;align-items:center;gap:8px;">
-                                    <span class="material-symbols-rounded" style="font-size:18px;color:#64748b;">smart_toy</span>
-                                    <span style="font-size:0.88rem;">{row_label}</span>
-                                </div>
-                                <div style="display:flex;align-items:center;gap:8px;">
-                                    <span style="font-size:0.72rem;color:#a1a1aa;">{date_str}</span>
-                                </div>
-                                <span style="color:#94a3b8;font-size:22px;line-height:1;flex-shrink:0;margin-right:8px;">{arrow}</span>
-                            </div>
-                            """, unsafe_allow_html=True)
-                            if st.button("", key=f"btn_{stable_key}", use_container_width=True):
-                                st.session_state[stable_key] = not st.session_state.get(stable_key, False)
-                                st.rerun()
-                            if is_open:
-                                import html as html_module, re as re_module
-                                escaped   = html_module.escape(str(row.get("insight", "")))
-                                formatted = re_module.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
-                                formatted = re_module.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re_module.MULTILINE)
-                                formatted = re_module.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re_module.MULTILINE)
-                                formatted = formatted.replace('\n', '<br>')
-                                components.html(f"""<!DOCTYPE html>
-<html dir="rtl">
-<head>
-<meta charset="utf-8"/>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
-<style>
-* {{ box-sizing: border-box; margin: 0; padding: 0; }}
-body {{ font-family: 'Plus Jakarta Sans', sans-serif; background: transparent; direction: rtl; }}
-.ai-response-card {{ background: #ffffff; border: 1.5px solid #FADCE6; border-radius: 16px; padding: 20px 24px; direction: rtl; }}
-.ai-response-topbar {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #fdf0f5; }}
-.ai-response-label {{ display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 700; color: #6f5861; }}
-.ai-response-dot {{ width: 8px; height: 8px; border-radius: 50%; background: #10b981; }}
-.ai-response-actions {{ display: flex; gap: 6px; }}
-.ai-action-btn {{ background: #fdf2f8; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }}
-.ai-action-btn:hover {{ background: #FADCE6; }}
-.ai-action-btn .material-symbols-rounded {{ font-size: 16px; color: #64748b; font-family: 'Material Symbols Rounded'; -webkit-font-feature-settings: 'liga'; font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased; }}
-.ai-response-body {{ font-size: 0.9rem; color: #4e4447; line-height: 1.75; text-align: right; }}
-.ai-response-heading {{ font-size: 1rem; font-weight: 700; color: #3f3f46; margin: 8px 0 2px 0; }}
-.ai-response-li {{ color: #4e4447; margin-bottom: 4px; list-style: none; padding-right: 14px; position: relative; display: block; }}
-.ai-response-li::before {{ content: '●'; color: #f0b8cb; position: absolute; right: 0; font-size: 10px; top: 4px; }}
-</style>
-</head>
-<body>
-<div class="ai-response-card">
-<div class="ai-response-topbar">
-    <div class="ai-response-label">
-        <span class="material-symbols-rounded" style="font-size:18px;color:#64748b;">smart_toy</span>
-        <div class="ai-response-dot"></div>
-    </div>
-    <div class="ai-response-actions">
-        <button class="ai-action-btn" id="hist-copy-{stable_key}" title="העתק">
-            <span class="material-symbols-rounded">content_copy</span>
-        </button>
-        <button class="ai-action-btn" id="hist-share-{stable_key}" title="שתף">
-            <span class="material-symbols-rounded">share</span>
-        </button>
-    </div>
-</div>
-<div class="ai-response-body" id="hist-text-{stable_key}">{formatted}</div>
-</div>
-<script>
-document.getElementById('hist-copy-{stable_key}').addEventListener('click', function() {{
-    var text = document.getElementById('hist-text-{stable_key}').innerText;
-    var ta = document.createElement('textarea');
-    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta); ta.focus(); ta.select();
-    try {{
-        document.execCommand('copy');
-        var btn = document.getElementById('hist-copy-{stable_key}');
-        btn.querySelector('span').innerText = 'check';
-        setTimeout(function() {{ btn.querySelector('span').innerText = 'content_copy'; }}, 1500);
-    }} catch(e) {{}}
-    document.body.removeChild(ta);
-}});
-document.getElementById('hist-share-{stable_key}').addEventListener('click', function() {{
-    var text = document.getElementById('hist-text-{stable_key}').innerText;
-    if (navigator.share) {{ navigator.share({{text: text}}); }}
-}});
-</script>
-</body>
-</html>""", height=500, scrolling=True)
-
-                # ── כפתור שליחה ─────────────────────────────────────────────────
                 col_empty, col_btn = st.columns([0.89, 0.11])
                 with col_btn:
                     send = st.button("↩", key="ai_send", use_container_width=True)
@@ -1873,5 +1768,108 @@ document.getElementById('hist-share-{stable_key}').addEventListener('click', fun
                 </script>
                 </body>
                 </html>""", height=600, scrolling=True)
+
+            # ── היסטוריית ניתוחים — מחוץ ל-container למניעת הפעלת כפתור השליחה ──
+            st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
+            proj_filter_display = sel_p.strip() if sel_p != "בחר פרויקט לניתוח..." else None
+            if not main_insights_df.empty:
+                past = main_insights_df.copy()
+                past["project_name"] = past["project_name"].astype(str).str.strip()
+                if proj_filter_display:
+                    past = past[past["project_name"] == proj_filter_display]
+                if not past.empty:
+                    for _, row in past.iloc[::-1].iterrows():
+                        proj_name  = str(row.get("project_name", ""))
+                        q_short    = str(row.get("question", ""))[:40]
+                        date_str   = str(row.get("created_at", ""))
+                        # ── מפתח יציב לפי פרויקט + תאריך — לא משתנה בין ריצות ──
+                        stable_key = f"mai_{proj_name}_{date_str}".replace(" ", "_").replace("/", "-").replace(":", "-")
+                        is_open    = st.session_state.get(stable_key, False)
+                        arrow      = "&#8249;" if is_open else "&#8250;"
+                        row_label  = f"{proj_name} — {q_short}" if proj_name else q_short
+                        st.markdown(f"""
+                        <div class="fathom-row-ui" style="font-size:0.92rem;font-weight:normal;border-radius:12px;">
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <span class="material-symbols-rounded" style="font-size:18px;color:#64748b;">smart_toy</span>
+                                <span style="font-size:0.88rem;">{row_label}</span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <span style="font-size:0.72rem;color:#a1a1aa;">{date_str}</span>
+                            </div>
+                            <span style="color:#94a3b8;font-size:22px;line-height:1;flex-shrink:0;margin-right:8px;">{arrow}</span>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        if st.button("", key=f"btn_{stable_key}", use_container_width=True):
+                            st.session_state[stable_key] = not st.session_state.get(stable_key, False)
+                            st.rerun()
+                        if is_open:
+                            import html as html_module, re as re_module
+                            escaped   = html_module.escape(str(row.get("insight", "")))
+                            formatted = re_module.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
+                            formatted = re_module.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re_module.MULTILINE)
+                            formatted = re_module.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re_module.MULTILINE)
+                            formatted = formatted.replace('\n', '<br>')
+                            components.html(f"""<!DOCTYPE html>
+<html dir="rtl">
+<head>
+<meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<style>
+* {{ box-sizing: border-box; margin: 0; padding: 0; }}
+body {{ font-family: 'Plus Jakarta Sans', sans-serif; background: transparent; direction: rtl; }}
+.ai-response-card {{ background: #ffffff; border: 1.5px solid #FADCE6; border-radius: 16px; padding: 20px 24px; direction: rtl; }}
+.ai-response-topbar {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #fdf0f5; }}
+.ai-response-label {{ display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 700; color: #6f5861; }}
+.ai-response-dot {{ width: 8px; height: 8px; border-radius: 50%; background: #10b981; }}
+.ai-response-actions {{ display: flex; gap: 6px; }}
+.ai-action-btn {{ background: #fdf2f8; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }}
+.ai-action-btn:hover {{ background: #FADCE6; }}
+.ai-action-btn .material-symbols-rounded {{ font-size: 16px; color: #64748b; font-family: 'Material Symbols Rounded'; -webkit-font-feature-settings: 'liga'; font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased; }}
+.ai-response-body {{ font-size: 0.9rem; color: #4e4447; line-height: 1.75; text-align: right; }}
+.ai-response-heading {{ font-size: 1rem; font-weight: 700; color: #3f3f46; margin: 8px 0 2px 0; }}
+.ai-response-li {{ color: #4e4447; margin-bottom: 4px; list-style: none; padding-right: 14px; position: relative; display: block; }}
+.ai-response-li::before {{ content: '●'; color: #f0b8cb; position: absolute; right: 0; font-size: 10px; top: 4px; }}
+</style>
+</head>
+<body>
+<div class="ai-response-card">
+<div class="ai-response-topbar">
+    <div class="ai-response-label">
+        <span class="material-symbols-rounded" style="font-size:18px;color:#64748b;">smart_toy</span>
+        <div class="ai-response-dot"></div>
+    </div>
+    <div class="ai-response-actions">
+        <button class="ai-action-btn" id="hist-copy-{stable_key}" title="העתק">
+            <span class="material-symbols-rounded">content_copy</span>
+        </button>
+        <button class="ai-action-btn" id="hist-share-{stable_key}" title="שתף">
+            <span class="material-symbols-rounded">share</span>
+        </button>
+    </div>
+</div>
+<div class="ai-response-body" id="hist-text-{stable_key}">{formatted}</div>
+</div>
+<script>
+document.getElementById('hist-copy-{stable_key}').addEventListener('click', function() {{
+    var text = document.getElementById('hist-text-{stable_key}').innerText;
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try {{
+        document.execCommand('copy');
+        var btn = document.getElementById('hist-copy-{stable_key}');
+        btn.querySelector('span').innerText = 'check';
+        setTimeout(function() {{ btn.querySelector('span').innerText = 'content_copy'; }}, 1500);
+    }} catch(e) {{}}
+    document.body.removeChild(ta);
+}});
+document.getElementById('hist-share-{stable_key}').addEventListener('click', function() {{
+    var text = document.getElementById('hist-text-{stable_key}').innerText;
+    if (navigator.share) {{ navigator.share({{text: text}}); }}
+}});
+</script>
+</body>
+</html>""", height=500, scrolling=True)
                     
                     
