@@ -1444,6 +1444,7 @@ with main_col:
     
     
     
+
             # ============================
             #      עוזר אישי AI — ורוד
             # ============================
@@ -1476,18 +1477,18 @@ with main_col:
                             try:
                                 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
                                 model = genai.GenerativeModel('gemini-2.5-flash-lite')
-    
+
                                 projects_summary = "\n".join([
                                     f"- {r['project_name']}: סטטוס {r.get('status','לא ידוע')}, סוג {r.get('project_type','לא ידוע')}"
                                     for _, r in projects.iterrows()
                                 ])
-    
+
                                 meetings_today = meetings[pd.to_datetime(meetings["date"]).dt.date == today]
                                 meetings_summary = "\n".join([
                                     f"- {r['meeting_title']} בשעה {fmt_time(r.get('start_time',''))}"
                                     for _, r in meetings_today.iterrows()
                                 ]) if not meetings_today.empty else "אין פגישות היום"
-    
+
                                 reminders_today2 = st.session_state.rem_live[
                                     pd.to_datetime(st.session_state.rem_live["date"]).dt.date == today
                                 ]
@@ -1495,52 +1496,115 @@ with main_col:
                                     f"- {r['reminder_text']} ({r.get('project_name','כללי')})"
                                     for _, r in reminders_today2.iterrows()
                                 ]) if not reminders_today2.empty else "אין תזכורות"
-    
+
                                 tasks_summary = "\n".join([
                                     f"- {t.get('fields',{}).get('System.Title','')} ({t.get('fields',{}).get('System.TeamProject','')})"
                                     for t in (get_azure_tasks() or [])
                                 ]) or "אין משימות פתוחות"
-    
+
                                 fathom_summaries = "\n".join([
                                     f"- פגישה: {k.replace('sum_v4_','')}: {v[:200]}..."
                                     for k, v in st.session_state.items()
                                     if k.startswith("sum_v4_") and v
                                 ]) or "אין סיכומי פגישות"
-    
+
                                 focus = (
                                     f"התמקד בפרויקט: {sel_p}"
-                                    if sel_p != "כללי - כל הפרויקטים"
+                                    if sel_p != "בחר פרויקט לניתוח..."
                                     else "התייחס לכל הפרויקטים"
                                 )
-    
+
+                                # ── טעינת נתוני דפים פנימיים מסוננים לפרויקט הנבחר ──
+                                proj_filter = sel_p if sel_p != "בחר פרויקט לניתוח..." else None
+
+                                # תוכנית עבודה — עמודות: project_name, milestone_name, version_contents, date, status, notes
+                                try:
+                                    wp_df = pd.read_excel("work_plans.xlsx")
+                                    if proj_filter and "project_name" in wp_df.columns:
+                                        wp_df = wp_df[wp_df["project_name"] == proj_filter]
+                                    workplan_summary = "\n".join([
+                                        f"- {r.get('milestone_name','')}: {str(r.get('version_contents',''))[:100]} | תאריך: {r.get('date','')} | סטטוס: {r.get('status','')}"
+                                        for _, r in wp_df.iterrows()
+                                    ]) or "אין נתוני תוכנית עבודה"
+                                except:
+                                    workplan_summary = "לא ניתן לטעון תוכנית עבודה"
+
+                                # משאבים — עמודות: project_name, worker_name, job title, %_employment, notes, worker_status
+                                try:
+                                    res_df = pd.read_excel("resources.xlsx")
+                                    if proj_filter and "project_name" in res_df.columns:
+                                        res_df = res_df[res_df["project_name"] == proj_filter]
+                                    resources_summary = "\n".join([
+                                        f"- {r.get('worker_name','')}: {r.get('job title','')}, העסקה {int(float(r.get('%_employment', 0)) * 100)}%, סטטוס: {r.get('worker_status','')}"
+                                        for _, r in res_df.iterrows()
+                                    ]) or "אין נתוני משאבים"
+                                except:
+                                    resources_summary = "לא ניתן לטעון משאבים"
+
+                                # סיכונים — עמודות: project_name, risk_title, probability, impact, category, status, owner, due_date, notes
+                                try:
+                                    risks_df = pd.read_excel("risks.xlsx")
+                                    if proj_filter and "project_name" in risks_df.columns:
+                                        risks_df = risks_df[risks_df["project_name"] == proj_filter]
+                                    risks_summary = "\n".join([
+                                        f"- {r.get('risk_title','')}: הסתברות {r.get('probability','')}, השפעה {r.get('impact','')}, קטגוריה {r.get('category','')}, סטטוס {r.get('status','')}"
+                                        for _, r in risks_df.iterrows()
+                                    ]) or "אין סיכונים"
+                                except:
+                                    risks_summary = "לא ניתן לטעון סיכונים"
+
+                                # משימות פרויקט — עמודות: project_name, description, status, responsible, start_date, due_date, notes
+                                try:
+                                    tasks_df = pd.read_excel("tasks.xlsx")
+                                    if proj_filter and "project_name" in tasks_df.columns:
+                                        tasks_df = tasks_df[tasks_df["project_name"] == proj_filter]
+                                    proj_tasks_summary = "\n".join([
+                                        f"- {r.get('description','')}: סטטוס {r.get('status','')}, אחראי {r.get('responsible','')}, יעד {r.get('due_date','')}"
+                                        for _, r in tasks_df.iterrows()
+                                    ]) or "אין משימות"
+                                except:
+                                    proj_tasks_summary = "לא ניתן לטעון משימות"
+
                                 prompt = f"""אתה עוזר AI בכיר לניהול פרויקטים. יש לך גישה לכל המידע הבא:
-    
-    📁 פרויקטים:
-    {projects_summary}
-    
-    📅 פגישות היום:
-    {meetings_summary}
-    
-    🔔 תזכורות היום:
-    {reminders_summary}
-    
-    📋 משימות פתוחות באז'ור:
-    {tasks_summary}
-    
-    📝 סיכומי פגישות אחרונים:
-    {fathom_summaries}
-    
-    {focus}
-    שאלה: {q_in}
-    
-    ענה בעברית עסקית, בצורה מעמיקה וממוקדת. אם רלוונטי — תצלב מידע בין מקורות שונים."""
-    
+
+📁 פרויקטים:
+{projects_summary}
+
+📅 פגישות היום:
+{meetings_summary}
+
+🔔 תזכורות היום:
+{reminders_summary}
+
+📋 משימות פתוחות באז'ור:
+{tasks_summary}
+
+📝 סיכומי פגישות אחרונים:
+{fathom_summaries}
+
+📊 תוכנית עבודה:
+{workplan_summary}
+
+👥 משאבים:
+{resources_summary}
+
+⚠️ סיכונים:
+{risks_summary}
+
+✅ משימות פרויקט:
+{proj_tasks_summary}
+
+{focus}
+שאלה: {q_in}
+
+ענה בעברית עסקית, בצורה מעמיקה וממוקדת. אם רלוונטי — תצלב מידע בין מקורות שונים."""
+
                                 response = model.generate_content(prompt)
                                 st.session_state.ai_response = response.text
-    
+
                             except Exception as e:
                                 st.session_state.ai_response = f"שגיאה: {str(e)}"
-    
+
                 if st.session_state.ai_response:
                     import html, re
                     escaped = html.escape(st.session_state.ai_response)
