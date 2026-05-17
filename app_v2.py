@@ -1546,7 +1546,7 @@ with main_col:
                             """, unsafe_allow_html=True)
                             # ── כפתור שקוף מעל השורה — toggle בלי rerun ──────────
                             if st.button("", key=f"toggle_main_insight_{idx}", use_container_width=True):
-                                st.session_state[open_key] = not is_open
+                                st.session_state[open_key] = not st.session_state.get(open_key, False)
                                 st.rerun()
                             if is_open:
                                 import html as html_module, re as re_module
@@ -1560,7 +1560,7 @@ with main_col:
 <head>
 <meta charset="utf-8"/>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
 <style>
 * {{ box-sizing: border-box; margin: 0; padding: 0; }}
 body {{ font-family: 'Plus Jakarta Sans', sans-serif; background: transparent; direction: rtl; }}
@@ -1571,7 +1571,7 @@ body {{ font-family: 'Plus Jakarta Sans', sans-serif; background: transparent; d
 .ai-response-actions {{ display: flex; gap: 6px; }}
 .ai-action-btn {{ background: #fdf2f8; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }}
 .ai-action-btn:hover {{ background: #FADCE6; }}
-.ai-action-btn .material-symbols-outlined {{ font-size: 16px; color: #64748b; font-family: 'Material Symbols Outlined'; -webkit-font-feature-settings: 'liga'; font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased; }}
+.ai-action-btn .material-symbols-rounded {{ font-size: 16px; color: #64748b; font-family: 'Material Symbols Rounded'; -webkit-font-feature-settings: 'liga'; font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased; }}
 .ai-response-body {{ font-size: 0.9rem; color: #4e4447; line-height: 1.75; text-align: right; }}
 .ai-response-heading {{ font-size: 1rem; font-weight: 700; color: #3f3f46; margin: 8px 0 2px 0; }}
 .ai-response-li {{ color: #4e4447; margin-bottom: 4px; list-style: none; padding-right: 14px; position: relative; display: block; }}
@@ -1582,15 +1582,15 @@ body {{ font-family: 'Plus Jakarta Sans', sans-serif; background: transparent; d
 <div class="ai-response-card">
 <div class="ai-response-topbar">
     <div class="ai-response-label">
-        <span class="material-symbols-outlined" style="font-size:18px;color:#64748b;">smart_toy</span>
+        <span class="material-symbols-rounded" style="font-size:18px;color:#64748b;">smart_toy</span>
         <div class="ai-response-dot"></div>
     </div>
     <div class="ai-response-actions">
         <button class="ai-action-btn" id="hist-copy-{idx}" title="העתק">
-            <span class="material-symbols-outlined">content_copy</span>
+            <span class="material-symbols-rounded">content_copy</span>
         </button>
         <button class="ai-action-btn" id="hist-share-{idx}" title="שתף">
-            <span class="material-symbols-outlined">share</span>
+            <span class="material-symbols-rounded">share</span>
         </button>
     </div>
 </div>
@@ -1807,7 +1807,7 @@ document.getElementById('hist-share-{idx}').addEventListener('click', function()
                 <head>
                 <meta charset="utf-8"/>
                 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-                <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+                <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
                 <style>
                 * {{ box-sizing: border-box; margin: 0; padding: 0; }}
                 body {{ font-family: 'Plus Jakarta Sans', sans-serif; background: transparent; direction: rtl; }}
@@ -1818,7 +1818,7 @@ document.getElementById('hist-share-{idx}').addEventListener('click', function()
                 .ai-response-actions {{ display: flex; gap: 6px; }}
                 .ai-action-btn {{ background: #fdf2f8; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }}
                 .ai-action-btn:hover {{ background: #FADCE6; }}
-                .ai-action-btn .material-symbols-outlined {{ font-size: 16px; color: #64748b; font-family: 'Material Symbols Outlined'; -webkit-font-feature-settings: 'liga'; font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased; }}
+                .ai-action-btn .material-symbols-rounded {{ font-size: 16px; color: #64748b; font-family: 'Material Symbols Rounded'; -webkit-font-feature-settings: 'liga'; font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased; }}
                 .ai-response-body {{ font-size: 0.9rem; color: #4e4447; line-height: 1.75; text-align: right; }}
                 .ai-response-heading {{ font-size: 1rem; font-weight: 700; color: #3f3f46; margin: 8px 0 2px 0; }}
                 .ai-response-li {{ color: #4e4447; margin-bottom: 4px; list-style: none; padding-right: 14px; position: relative; display: block; }}
@@ -1829,15 +1829,15 @@ document.getElementById('hist-share-{idx}').addEventListener('click', function()
                 <div class="ai-response-card">
                     <div class="ai-response-topbar">
                         <div class="ai-response-label">
-                            <span class="material-symbols-outlined" style="font-size:18px; color:#64748b;">smart_toy</span>
+                            <span class="material-symbols-rounded" style="font-size:18px; color:#64748b;">smart_toy</span>
                             <div class="ai-response-dot"></div>
                         </div>
                         <div class="ai-response-actions">
                             <button class="ai-action-btn" id="ai-copy-btn" title="העתק">
-                                <span class="material-symbols-outlined">content_copy</span>
+                                <span class="material-symbols-rounded">content_copy</span>
                             </button>
                             <button class="ai-action-btn" id="ai-share-btn" title="שתף">
-                                <span class="material-symbols-outlined">share</span>
+                                <span class="material-symbols-rounded">share</span>
                             </button>
                         </div>
                     </div>
