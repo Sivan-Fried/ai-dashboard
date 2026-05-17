@@ -1518,6 +1518,9 @@ with main_col:
                     height=100
                 )
 
+                # ── טעינת פונט אייקונים לשימוש ב-st.markdown ────────────────────
+                st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
+
                 # ── היסטוריית ניתוחים שמורים — מתחת לשאלה, מעל הכפתור ──────────
                 proj_filter_display = sel_p.strip() if sel_p != "בחר פרויקט לניתוח..." else None
                 if not main_insights_df.empty:
@@ -1527,16 +1530,18 @@ with main_col:
                         past = past[past["project_name"] == proj_filter_display]
                     if not past.empty:
                         for idx, row in past.iloc[::-1].iterrows():
-                            open_key = f"main_insight_open_{idx}"
-                            is_open  = st.session_state.get(open_key, False)
-                            arrow    = "&#8249;" if is_open else "&#8250;"
-                            q_short  = str(row.get("question", ""))[:50]
-                            date_str = str(row.get("created_at", ""))
+                            open_key  = f"main_insight_open_{idx}"
+                            is_open   = st.session_state.get(open_key, False)
+                            arrow     = "&#8249;" if is_open else "&#8250;"
+                            proj_name = str(row.get("project_name", ""))
+                            q_short   = str(row.get("question", ""))[:40]
+                            date_str  = str(row.get("created_at", ""))
+                            row_label = f"{proj_name} — {q_short}" if proj_name else q_short
                             st.markdown(f"""
                             <div class="fathom-row-ui" style="font-size:0.92rem;font-weight:normal;border-radius:12px;">
                                 <div style="display:flex;align-items:center;gap:8px;">
                                     <span class="material-symbols-rounded" style="font-size:18px;color:#64748b;">smart_toy</span>
-                                    <span style="font-size:0.88rem;">{q_short}</span>
+                                    <span style="font-size:0.88rem;">{row_label}</span>
                                 </div>
                                 <div style="display:flex;align-items:center;gap:8px;">
                                     <span style="font-size:0.72rem;color:#a1a1aa;">{date_str}</span>
