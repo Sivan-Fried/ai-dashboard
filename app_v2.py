@@ -1493,47 +1493,15 @@ with main_col:
             except:
                 main_insights_df = pd.DataFrame(columns=["project_name", "question", "insight", "created_at"])
 
-            # ── CSS לכפתורי היסטוריה ────────────────────────────────────────────
-            st.markdown("""
-            <style>
-            .st-key-ai_i [data-testid="InputInstructions"] { display: none !important; }
-            .ai-response-heading { margin-top: 8px !important; margin-bottom: 2px !important; }
-            /* כפתורי toggle היסטוריה — עיגול אפור קטן */
-            [class*="st-key-btn_mai_"] button {
-                background-color: #f4f4f5 !important;
-                border: none !important;
-                border-radius: 50% !important;
-                width: 28px !important;
-                height: 28px !important;
-                min-width: 28px !important;
-                min-height: 28px !important;
-                max-width: 28px !important;
-                max-height: 28px !important;
-                padding: 0 !important;
-                box-shadow: none !important;
-                color: #94a3b8 !important;
-                font-size: 1rem !important;
-                font-weight: 700 !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-            }
-            [class*="st-key-btn_mai_"] button:hover {
-                background-color: #FADCE6 !important;
-                color: #6f5861 !important;
-                transform: none !important;
-                box-shadow: none !important;
-            }
-            [class*="st-key-btn_mai_"] button p {
-                color: inherit !important;
-                font-size: 1rem !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            </style>
-            """, unsafe_allow_html=True)
-
             with st.container(border=True, key="ai_container"):
+
+                # ── הסרת "press enter to apply" מ-textarea ──────────────────────
+                st.markdown("""
+                <style>
+                .st-key-ai_i [data-testid="InputInstructions"] { display: none !important; }
+                .ai-response-heading { margin-top: 8px !important; margin-bottom: 2px !important; }
+                </style>
+                """, unsafe_allow_html=True)
 
                 sel_p = st.selectbox(
                     "פרויקט",
@@ -1551,8 +1519,9 @@ with main_col:
                 )
 
                 # ── היסטוריית ניתוחים — מתחת לשאלה, מעל הכפתור ─────────────────
-                # כפתור גלוי (לא overlay) — עובד תמיד גם כשרשומה פתוחה
-                st.markdown('<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />', unsafe_allow_html=True)
+                # בדיוק כמו בסיכונים: fathom-row-ui + overlay שקוף
+                # כשרשומה פתוחה — components.html מוצג לפני fathom-row
+                # כך ה-CSS selector תמיד עובד: fathom-row + overlay סמוכים
                 proj_filter_display = sel_p.strip() if sel_p != "בחר פרויקט לניתוח..." else None
                 if not main_insights_df.empty:
                     past = main_insights_df.copy()
@@ -1567,25 +1536,11 @@ with main_col:
                             # ── מפתח יציב — לא משתנה בין ריצות ──────────────────
                             stable_key = f"mai_{proj_name}_{date_str}".replace(" ", "_").replace("/", "-").replace(":", "-")
                             is_open    = st.session_state.get(stable_key, False)
+                            arrow      = "&#8249;" if is_open else "&#8250;"
                             row_label  = f"{proj_name} — {q_short}" if proj_name else q_short
-                            # ── עמודות: תצוגה + כפתור גלוי ────────────────────────
-                            col_text, col_btn = st.columns([0.9, 0.1])
-                            with col_text:
-                                st.markdown(f"""
-                                <div class="fathom-row-ui" style="border-radius:12px;">
-                                    <div style="display:flex;align-items:center;gap:8px;">
-                                        <span class="material-symbols-rounded" style="font-size:18px;color:#64748b;">smart_toy</span>
-                                        <span style="font-size:0.88rem;">{row_label}</span>
-                                    </div>
-                                    <span style="font-size:0.72rem;color:#a1a1aa;">{date_str}</span>
-                                    <div></div>
-                                </div>
-                                """, unsafe_allow_html=True)
-                            with col_btn:
-                                arrow_char = "‹" if is_open else "›"
-                                if st.button(arrow_char, key=f"btn_{stable_key}", use_container_width=True):
-                                    st.session_state[stable_key] = not st.session_state.get(stable_key, False)
-                                    st.rerun()
+
+                            # ── אם פתוח — הצג תוכן לפני השורה ──────────────────
+                            # כך fathom-row + overlay נשארים סמוכים תמיד
                             if is_open:
                                 import html as html_module, re as re_module
                                 escaped   = html_module.escape(str(row.get("insight", "")))
@@ -1658,6 +1613,23 @@ document.getElementById('hist-share-{stable_key}').addEventListener('click', fun
 </script>
 </body>
 </html>""", height=500, scrolling=True)
+
+                            # ── fathom-row + overlay — תמיד סמוכים ──────────────
+                            st.markdown(f"""
+                            <div class="fathom-row-ui" style="font-size:0.92rem;font-weight:normal;border-radius:12px;">
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <span class="material-symbols-rounded" style="font-size:18px;color:#64748b;">smart_toy</span>
+                                    <span style="font-size:0.88rem;">{row_label}</span>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <span style="font-size:0.72rem;color:#a1a1aa;">{date_str}</span>
+                                </div>
+                                <span style="color:#94a3b8;font-size:22px;line-height:1;flex-shrink:0;margin-right:8px;">{arrow}</span>
+                            </div>
+                            """, unsafe_allow_html=True)
+                            if st.button("", key=f"btn_{stable_key}", use_container_width=True):
+                                st.session_state[stable_key] = not st.session_state.get(stable_key, False)
+                                st.rerun()
 
                 # ── כפתור שליחה ─────────────────────────────────────────────────
                 col_empty, col_btn = st.columns([0.89, 0.11])
