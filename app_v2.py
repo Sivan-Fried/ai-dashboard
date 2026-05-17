@@ -1469,6 +1469,14 @@ with main_col:
                     key="ai_i",
                     height=100
                 )
+                st.markdown("""
+                <style>
+                .st-key-ai_i textarea:focus + div,
+                .st-key-ai_i [data-baseweb="textarea"] [data-testid="InputInstructions"] {
+                    display: none !important;
+                }
+                </style>
+                """, unsafe_allow_html=True)
     
                 col_empty, col_btn = st.columns([0.89, 0.11])
                 with col_btn:
@@ -1642,7 +1650,9 @@ with main_col:
 אם נתונים מקטגוריות שונות קשורים זה לזה — צלב ביניהם.
 אל תפרט קטגוריות שאינן רלוונטיות לשאלה.
 
-שאלה: {q_in}"""
+שאלה: {q_in}
+
+בסוף תשובתך, הוסף פסקה קצרה תחת הכותרת "💡 תובנות והמלצות" עם 2-3 המלצות פעולה קונקרטיות בהתבסס על הנתונים."""
 
                                 response = model.generate_content(prompt)
                                 st.session_state.ai_response = response.text
