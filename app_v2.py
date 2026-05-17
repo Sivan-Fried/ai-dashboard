@@ -1529,18 +1529,19 @@ with main_col:
                     if proj_filter_display:
                         past = past[past["project_name"] == proj_filter_display]
                     if not past.empty:
-                        for idx, row in past.iloc[::-1].iterrows():
-                            open_key  = f"main_insight_open_{idx}"
-                            is_open   = st.session_state.get(open_key, False)
-                            arrow     = "&#8249;" if is_open else "&#8250;"
+                        for _, row in past.iloc[::-1].iterrows():
                             proj_name = str(row.get("project_name", ""))
                             q_short   = str(row.get("question", ""))[:40]
                             date_str  = str(row.get("created_at", ""))
-                            row_label = f"{proj_name} — {q_short}" if proj_name else q_short
+                            # ── מפתח יציב לפי פרויקט + תאריך — לא משתנה בין ריצות ──
+                            stable_key = f"main_insight_open_{proj_name}_{date_str}".replace(" ", "_").replace("/", "-").replace(":", "-")
+                            is_open    = st.session_state.get(stable_key, False)
+                            arrow      = "&#8249;" if is_open else "&#8250;"
+                            row_label  = f"{proj_name} — {q_short}" if proj_name else q_short
                             st.markdown(f"""
                             <div class="fathom-row-ui" style="font-size:0.92rem;font-weight:normal;border-radius:12px;">
                                 <div style="display:flex;align-items:center;gap:8px;">
-                                    <span class="material-symbols-rounded" style="font-size:18px;color:#64748b;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;">smart_toy</span>
+                                    <span class="material-symbols-rounded" style="font-size:18px;color:#64748b;">smart_toy</span>
                                     <span style="font-size:0.88rem;">{row_label}</span>
                                 </div>
                                 <div style="display:flex;align-items:center;gap:8px;">
@@ -1549,9 +1550,8 @@ with main_col:
                                 <span style="color:#94a3b8;font-size:22px;line-height:1;flex-shrink:0;margin-right:8px;">{arrow}</span>
                             </div>
                             """, unsafe_allow_html=True)
-                            # ── כפתור שקוף מעל השורה — toggle בלי rerun ──────────
-                            if st.button("", key=f"toggle_main_insight_{idx}", use_container_width=True):
-                                st.session_state[open_key] = not st.session_state.get(open_key, False)
+                            if st.button("", key=f"btn_{stable_key}", use_container_width=True):
+                                st.session_state[stable_key] = not st.session_state.get(stable_key, False)
                                 st.rerun()
                             if is_open:
                                 import html as html_module, re as re_module
@@ -1591,32 +1591,32 @@ body {{ font-family: 'Plus Jakarta Sans', sans-serif; background: transparent; d
         <div class="ai-response-dot"></div>
     </div>
     <div class="ai-response-actions">
-        <button class="ai-action-btn" id="hist-copy-{idx}" title="העתק">
+        <button class="ai-action-btn" id="hist-copy-{stable_key}" title="העתק">
             <span class="material-symbols-rounded">content_copy</span>
         </button>
-        <button class="ai-action-btn" id="hist-share-{idx}" title="שתף">
+        <button class="ai-action-btn" id="hist-share-{stable_key}" title="שתף">
             <span class="material-symbols-rounded">share</span>
         </button>
     </div>
 </div>
-<div class="ai-response-body" id="hist-text-{idx}">{formatted}</div>
+<div class="ai-response-body" id="hist-text-{stable_key}">{formatted}</div>
 </div>
 <script>
-document.getElementById('hist-copy-{idx}').addEventListener('click', function() {{
-    var text = document.getElementById('hist-text-{idx}').innerText;
+document.getElementById('hist-copy-{stable_key}').addEventListener('click', function() {{
+    var text = document.getElementById('hist-text-{stable_key}').innerText;
     var ta = document.createElement('textarea');
     ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
     document.body.appendChild(ta); ta.focus(); ta.select();
     try {{
         document.execCommand('copy');
-        var btn = document.getElementById('hist-copy-{idx}');
+        var btn = document.getElementById('hist-copy-{stable_key}');
         btn.querySelector('span').innerText = 'check';
         setTimeout(function() {{ btn.querySelector('span').innerText = 'content_copy'; }}, 1500);
     }} catch(e) {{}}
     document.body.removeChild(ta);
 }});
-document.getElementById('hist-share-{idx}').addEventListener('click', function() {{
-    var text = document.getElementById('hist-text-{idx}').innerText;
+document.getElementById('hist-share-{stable_key}').addEventListener('click', function() {{
+    var text = document.getElementById('hist-text-{stable_key}').innerText;
     if (navigator.share) {{ navigator.share({{text: text}}); }}
 }});
 </script>
