@@ -1540,7 +1540,7 @@ with main_col:
                             st.markdown(f"""
                             <div class="fathom-row-ui" style="font-size:0.92rem;font-weight:normal;border-radius:12px;">
                                 <div style="display:flex;align-items:center;gap:8px;">
-                                    <span class="material-symbols-rounded" style="font-size:18px;color:#64748b;">smart_toy</span>
+                                    <span class="material-symbols-rounded" style="font-size:18px;color:#64748b;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;">smart_toy</span>
                                     <span style="font-size:0.88rem;">{row_label}</span>
                                 </div>
                                 <div style="display:flex;align-items:center;gap:8px;">
