@@ -1166,3 +1166,12 @@ div.element-container:has(.fathom-row-ui):has(+ div.element-container div[data-t
     background-color: #fdf6f9 !important;
     background-image: none !important;
 }
+/* ── Material Symbols Rounded בתוך אזור AI ────────────────── */
+.st-key-ai_container .material-symbols-rounded {
+    color: #64748b !important;
+    font-family: 'Material Symbols Rounded' !important;
+    font-size: 18px !important;
+    -webkit-font-feature-settings: 'liga' !important;
+    font-feature-settings: 'liga' !important;
+    -webkit-font-smoothing: antialiased !important;
+}
