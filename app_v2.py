@@ -1469,7 +1469,6 @@ with main_col:
                 except:
                     updated = pd.DataFrame([new_row])
                 updated.to_excel(file_path, index=False)
-                # ── שמירה ל-GitHub ──────────────────────────────────────────────
                 try:
                     import base64 as _b64, requests as _req
                     token  = st.secrets["GITHUB_TOKEN"]
@@ -1500,6 +1499,7 @@ with main_col:
                 st.markdown("""
                 <style>
                 .st-key-ai_i [data-testid="InputInstructions"] { display: none !important; }
+                .ai-response-heading { margin-top: 8px !important; margin-bottom: 2px !important; }
                 </style>
                 """, unsafe_allow_html=True)
 
@@ -1518,6 +1518,107 @@ with main_col:
                     height=100
                 )
 
+                # ── היסטוריית ניתוחים שמורים — מתחת לשאלה, מעל הכפתור ──────────
+                proj_filter_display = sel_p.strip() if sel_p != "בחר פרויקט לניתוח..." else None
+                if not main_insights_df.empty:
+                    past = main_insights_df.copy()
+                    past["project_name"] = past["project_name"].astype(str).str.strip()
+                    if proj_filter_display:
+                        past = past[past["project_name"] == proj_filter_display]
+                    if not past.empty:
+                        for idx, row in past.iloc[::-1].iterrows():
+                            open_key = f"main_insight_open_{idx}"
+                            is_open  = st.session_state.get(open_key, False)
+                            arrow    = "&#8249;" if is_open else "&#8250;"
+                            q_short  = str(row.get("question", ""))[:50]
+                            date_str = str(row.get("created_at", ""))
+                            st.markdown(f"""
+                            <div class="fathom-row-ui" style="font-size:0.92rem;font-weight:normal;border-radius:12px;">
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <span class="material-symbols-rounded" style="font-size:18px;color:#64748b;">smart_toy</span>
+                                    <span style="font-size:0.88rem;">{q_short}</span>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <span style="font-size:0.72rem;color:#a1a1aa;">{date_str}</span>
+                                </div>
+                                <span style="color:#94a3b8;font-size:22px;line-height:1;flex-shrink:0;margin-right:8px;">{arrow}</span>
+                            </div>
+                            """, unsafe_allow_html=True)
+                            # ── כפתור שקוף מעל השורה — toggle בלי rerun ──────────
+                            if st.button("", key=f"toggle_main_insight_{idx}", use_container_width=True):
+                                st.session_state[open_key] = not is_open
+                                st.rerun()
+                            if is_open:
+                                import html as html_module, re as re_module
+                                escaped   = html_module.escape(str(row.get("insight", "")))
+                                formatted = re_module.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
+                                formatted = re_module.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re_module.MULTILINE)
+                                formatted = re_module.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re_module.MULTILINE)
+                                formatted = formatted.replace('\n', '<br>')
+                                components.html(f"""<!DOCTYPE html>
+<html dir="rtl">
+<head>
+<meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<style>
+* {{ box-sizing: border-box; margin: 0; padding: 0; }}
+body {{ font-family: 'Plus Jakarta Sans', sans-serif; background: transparent; direction: rtl; }}
+.ai-response-card {{ background: #ffffff; border: 1.5px solid #FADCE6; border-radius: 16px; padding: 20px 24px; direction: rtl; }}
+.ai-response-topbar {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #fdf0f5; }}
+.ai-response-label {{ display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 700; color: #6f5861; }}
+.ai-response-dot {{ width: 8px; height: 8px; border-radius: 50%; background: #10b981; }}
+.ai-response-actions {{ display: flex; gap: 6px; }}
+.ai-action-btn {{ background: #fdf2f8; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }}
+.ai-action-btn:hover {{ background: #FADCE6; }}
+.ai-action-btn .material-symbols-outlined {{ font-size: 16px; color: #64748b; font-family: 'Material Symbols Outlined'; -webkit-font-feature-settings: 'liga'; font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased; }}
+.ai-response-body {{ font-size: 0.9rem; color: #4e4447; line-height: 1.75; text-align: right; }}
+.ai-response-heading {{ font-size: 1rem; font-weight: 700; color: #3f3f46; margin: 8px 0 2px 0; }}
+.ai-response-li {{ color: #4e4447; margin-bottom: 4px; list-style: none; padding-right: 14px; position: relative; display: block; }}
+.ai-response-li::before {{ content: '●'; color: #f0b8cb; position: absolute; right: 0; font-size: 10px; top: 4px; }}
+</style>
+</head>
+<body>
+<div class="ai-response-card">
+<div class="ai-response-topbar">
+    <div class="ai-response-label">
+        <span class="material-symbols-outlined" style="font-size:18px;color:#64748b;">smart_toy</span>
+        <div class="ai-response-dot"></div>
+    </div>
+    <div class="ai-response-actions">
+        <button class="ai-action-btn" id="hist-copy-{idx}" title="העתק">
+            <span class="material-symbols-outlined">content_copy</span>
+        </button>
+        <button class="ai-action-btn" id="hist-share-{idx}" title="שתף">
+            <span class="material-symbols-outlined">share</span>
+        </button>
+    </div>
+</div>
+<div class="ai-response-body" id="hist-text-{idx}">{formatted}</div>
+</div>
+<script>
+document.getElementById('hist-copy-{idx}').addEventListener('click', function() {{
+    var text = document.getElementById('hist-text-{idx}').innerText;
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try {{
+        document.execCommand('copy');
+        var btn = document.getElementById('hist-copy-{idx}');
+        btn.querySelector('span').innerText = 'check';
+        setTimeout(function() {{ btn.querySelector('span').innerText = 'content_copy'; }}, 1500);
+    }} catch(e) {{}}
+    document.body.removeChild(ta);
+}});
+document.getElementById('hist-share-{idx}').addEventListener('click', function() {{
+    var text = document.getElementById('hist-text-{idx}').innerText;
+    if (navigator.share) {{ navigator.share({{text: text}}); }}
+}});
+</script>
+</body>
+</html>""", height=500, scrolling=True)
+
+                # ── כפתור שליחה ─────────────────────────────────────────────────
                 col_empty, col_btn = st.columns([0.89, 0.11])
                 with col_btn:
                     send = st.button("↩", key="ai_send", use_container_width=True)
@@ -1550,12 +1651,6 @@ with main_col:
                                     f"- {r['reminder_text']} ({r.get('project_name','כללי')})"
                                     for _, r in reminders_today2.iterrows()
                                 ]) if not reminders_today2.empty else "אין תזכורות"
-
-                                # ── משימות Azure DevOps ──
-                                azure_tasks_summary = "\n".join([
-                                    f"- {t.get('fields',{}).get('System.Title','')} ({t.get('fields',{}).get('System.TeamProject','')})"
-                                    for t in (get_azure_tasks() or [])
-                                ]) or "אין משימות פתוחות ב-Azure"
 
                                 # ── סיכומי פגישות Fathom ──
                                 fathom_summaries = "\n".join([
@@ -1667,9 +1762,6 @@ with main_col:
 === תזכורות היום ===
 {reminders_summary}
 
-=== משימות Azure DevOps (מערכת חיצונית) ===
-{azure_tasks_summary}
-
 === סיכומי פגישות Fathom ===
 {fathom_summaries}
 
@@ -1696,117 +1788,13 @@ with main_col:
                                 response = model.generate_content(prompt)
                                 st.session_state.ai_response = response.text
 
-                                # ── שמירת הניתוח ל-Excel (היסטוריה) ─────────────
+                                # ── שמירת הניתוח ל-Excel (היסטוריה) ────────────
                                 save_main_insight(proj_filter, q_in, response.text)
-                                # ── עדכון DataFrame מקומי ──────────────────────
-                                try:
-                                    main_insights_df = pd.read_excel("ai_main_insights.xlsx")
-                                except:
-                                    pass
 
                             except Exception as e:
                                 st.session_state.ai_response = f"שגיאה: {str(e)}"
 
-                # ── הצגת ניתוחים שמורים קודמים ─────────────────────────────────
-                proj_filter_display = sel_p.strip() if sel_p != "בחר פרויקט לניתוח..." else None
-                if not main_insights_df.empty:
-                    past = main_insights_df.copy()
-                    past["project_name"] = past["project_name"].astype(str).str.strip()
-                    if proj_filter_display:
-                        past = past[past["project_name"] == proj_filter_display]
-                    if not past.empty:
-                        st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
-                        for idx, row in past.iloc[::-1].iterrows():
-                            open_key = f"main_insight_open_{idx}"
-                            is_open  = st.session_state.get(open_key, False)
-                            arrow    = "&#8249;" if is_open else "&#8250;"
-                            q_short  = str(row.get("question", ""))[:50]
-                            date_str = str(row.get("created_at", ""))
-                            st.markdown(f"""
-                            <div class="fathom-row-ui" style="font-size:0.92rem;font-weight:normal;border-radius:12px;">
-                                <div style="display:flex;align-items:center;gap:8px;">
-                                    <span class="material-symbols-rounded" style="font-size:18px;color:#64748b;">smart_toy</span>
-                                    <span style="font-size:0.88rem;">{q_short}</span>
-                                </div>
-                                <div style="display:flex;align-items:center;gap:8px;">
-                                    <span style="font-size:0.72rem;color:#a1a1aa;">{date_str}</span>
-                                </div>
-                                <span style="color:#94a3b8;font-size:22px;line-height:1;flex-shrink:0;margin-right:8px;">{arrow}</span>
-                            </div>
-                            """, unsafe_allow_html=True)
-                            if st.button("", key=f"toggle_main_insight_{idx}", use_container_width=True):
-                                st.session_state[open_key] = not is_open
-                                st.rerun()
-                            if is_open:
-                                import html as html_module, re as re_module
-                                escaped   = html_module.escape(str(row.get("insight", "")))
-                                formatted = re_module.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
-                                formatted = re_module.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re_module.MULTILINE)
-                                formatted = re_module.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re_module.MULTILINE)
-                                formatted = formatted.replace('\n', '<br>')
-                                components.html(f"""<!DOCTYPE html>
-<html dir="rtl">
-<head>
-<meta charset="utf-8"/>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
-<style>
-* {{ box-sizing: border-box; margin: 0; padding: 0; }}
-body {{ font-family: 'Plus Jakarta Sans', sans-serif; background: transparent; direction: rtl; }}
-.ai-response-card {{ background: #ffffff; border: 1.5px solid #FADCE6; border-radius: 16px; padding: 20px 24px; direction: rtl; }}
-.ai-response-topbar {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #fdf0f5; }}
-.ai-response-label {{ display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 700; color: #6f5861; }}
-.ai-response-dot {{ width: 8px; height: 8px; border-radius: 50%; background: #10b981; }}
-.ai-response-actions {{ display: flex; gap: 6px; }}
-.ai-action-btn {{ background: #fdf2f8; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }}
-.ai-action-btn:hover {{ background: #FADCE6; }}
-.ai-action-btn .material-symbols-outlined {{ font-size: 16px; color: #64748b; font-family: 'Material Symbols Outlined'; -webkit-font-feature-settings: 'liga'; font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased; }}
-.ai-response-body {{ font-size: 0.9rem; color: #4e4447; line-height: 1.75; text-align: right; }}
-.ai-response-heading {{ font-size: 1rem; font-weight: 700; color: #3f3f46; margin: 14px 0 6px 0; }}
-.ai-response-li {{ color: #4e4447; margin-bottom: 4px; list-style: none; padding-right: 14px; position: relative; display: block; }}
-.ai-response-li::before {{ content: '●'; color: #f0b8cb; position: absolute; right: 0; font-size: 10px; top: 4px; }}
-</style>
-</head>
-<body>
-<div class="ai-response-card">
-<div class="ai-response-topbar">
-    <div class="ai-response-label">
-        <span class="material-symbols-outlined" style="font-size:18px;color:#64748b;">smart_toy</span>
-        <div class="ai-response-dot"></div>
-    </div>
-    <div class="ai-response-actions">
-        <button class="ai-action-btn" id="hist-copy-{idx}" title="העתק">
-            <span class="material-symbols-outlined">content_copy</span>
-        </button>
-        <button class="ai-action-btn" id="hist-share-{idx}" title="שתף">
-            <span class="material-symbols-outlined">share</span>
-        </button>
-    </div>
-</div>
-<div class="ai-response-body" id="hist-text-{idx}">{formatted}</div>
-</div>
-<script>
-document.getElementById('hist-copy-{idx}').addEventListener('click', function() {{
-    var text = document.getElementById('hist-text-{idx}').innerText;
-    var ta = document.createElement('textarea');
-    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta); ta.focus(); ta.select();
-    try {{
-        document.execCommand('copy');
-        var btn = document.getElementById('hist-copy-{idx}');
-        btn.querySelector('span').innerText = 'check';
-        setTimeout(function() {{ btn.querySelector('span').innerText = 'content_copy'; }}, 1500);
-    }} catch(e) {{}}
-    document.body.removeChild(ta);
-}});
-document.getElementById('hist-share-{idx}').addEventListener('click', function() {{
-    var text = document.getElementById('hist-text-{idx}').innerText;
-    if (navigator.share) {{ navigator.share({{text: text}}); }}
-}});
-</script>
-</body>
-</html>""", height=500, scrolling=True)
-
+                # ── הצגת ניתוח נוכחי ────────────────────────────────────────────
                 if st.session_state.ai_response:
                     import html, re
                     escaped = html.escape(st.session_state.ai_response)
@@ -1832,7 +1820,7 @@ document.getElementById('hist-share-{idx}').addEventListener('click', function()
                 .ai-action-btn:hover {{ background: #FADCE6; }}
                 .ai-action-btn .material-symbols-outlined {{ font-size: 16px; color: #64748b; font-family: 'Material Symbols Outlined'; -webkit-font-feature-settings: 'liga'; font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased; }}
                 .ai-response-body {{ font-size: 0.9rem; color: #4e4447; line-height: 1.75; text-align: right; }}
-                .ai-response-heading {{ font-size: 1rem; font-weight: 700; color: #3f3f46; margin: 14px 0 6px 0; }}
+                .ai-response-heading {{ font-size: 1rem; font-weight: 700; color: #3f3f46; margin: 8px 0 2px 0; }}
                 .ai-response-li {{ color: #4e4447; margin-bottom: 4px; list-style: none; padding-right: 14px; position: relative; display: block; }}
                 .ai-response-li::before {{ content: '●'; color: #f0b8cb; position: absolute; right: 0; font-size: 10px; top: 4px; }}
                 </style>
