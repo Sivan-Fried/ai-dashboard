@@ -1503,7 +1503,7 @@ with main_col:
                                     for _, r in reminders_today2.iterrows()
                                 ]) if not reminders_today2.empty else "אין תזכורות"
 
-                                # ── משימות Azure DevOps (מערכת חיצונית) ──
+                                # ── משימות Azure DevOps ──
                                 azure_tasks_summary = "\n".join([
                                     f"- {t.get('fields',{}).get('System.Title','')} ({t.get('fields',{}).get('System.TeamProject','')})"
                                     for t in (get_azure_tasks() or [])
@@ -1516,17 +1516,19 @@ with main_col:
                                     if k.startswith("sum_v4_") and v
                                 ]) or "אין סיכומי פגישות"
 
-                                # ── סינון לפרויקט הנבחר — עם strip() למניעת בעיות רווחים ──
+                                # ── סינון לפרויקט — strip משני הצדדים על sel_p וגם על העמודה ──
                                 proj_filter = sel_p.strip() if sel_p != "בחר פרויקט לניתוח..." else None
 
-                                # ── תוכנית עבודה מ-work_plans.xlsx ──
-                                # עמודות: project_name, milestone_name, version_contents, date, status, notes
-                                workplan_summary = "אין נתוני תוכנית עבודה"
-                                try:
-                                    wp_df = pd.read_excel("work_plans.xlsx")
-                                    wp_df["project_name"] = wp_df["project_name"].astype(str).str.strip()
+                                def filter_df(df, col="project_name"):
+                                    df[col] = df[col].astype(str).str.strip()
                                     if proj_filter:
-                                        wp_df = wp_df[wp_df["project_name"] == proj_filter]
+                                        return df[df[col] == proj_filter]
+                                    return df
+
+                                # ── תוכנית עבודה ──
+                                workplan_summary = "לא נטענו נתונים"
+                                try:
+                                    wp_df = filter_df(pd.read_excel("work_plans.xlsx"))
                                     if not wp_df.empty:
                                         lines = []
                                         for _, r in wp_df.iterrows():
@@ -1537,18 +1539,14 @@ with main_col:
                                             lines.append(f"- {milestone} | תוכן: {contents} | תאריך: {date} | סטטוס: {status}")
                                         workplan_summary = "\n".join(lines)
                                     else:
-                                        workplan_summary = f"אין רשומות תוכנית עבודה לפרויקט {proj_filter}"
+                                        workplan_summary = "אין רשומות לפרויקט זה"
                                 except Exception as e:
                                     workplan_summary = f"שגיאה: {str(e)}"
 
-                                # ── משאבים מ-resources.xlsx ──
-                                # עמודות: project_name, worker_name, job title, %_employment, notes, worker_status
-                                resources_summary = "אין נתוני משאבים"
+                                # ── משאבים ──
+                                resources_summary = "לא נטענו נתונים"
                                 try:
-                                    res_df = pd.read_excel("resources.xlsx")
-                                    res_df["project_name"] = res_df["project_name"].astype(str).str.strip()
-                                    if proj_filter:
-                                        res_df = res_df[res_df["project_name"] == proj_filter]
+                                    res_df = filter_df(pd.read_excel("resources.xlsx"))
                                     if not res_df.empty:
                                         lines = []
                                         for _, r in res_df.iterrows():
@@ -1563,18 +1561,14 @@ with main_col:
                                             lines.append(f"- {name}: {role}, {emp_str} העסקה, סטטוס: {status}")
                                         resources_summary = "\n".join(lines)
                                     else:
-                                        resources_summary = f"אין רשומות משאבים לפרויקט {proj_filter}"
+                                        resources_summary = "אין רשומות לפרויקט זה"
                                 except Exception as e:
                                     resources_summary = f"שגיאה: {str(e)}"
 
-                                # ── סיכונים מ-risks.xlsx ──
-                                # עמודות: project_name, risk_title, probability, impact, category, status, owner, due_date, notes
-                                risks_summary = "אין סיכונים"
+                                # ── סיכונים ──
+                                risks_summary = "לא נטענו נתונים"
                                 try:
-                                    risks_df = pd.read_excel("risks.xlsx")
-                                    risks_df["project_name"] = risks_df["project_name"].astype(str).str.strip()
-                                    if proj_filter:
-                                        risks_df = risks_df[risks_df["project_name"] == proj_filter]
+                                    risks_df = filter_df(pd.read_excel("risks.xlsx"))
                                     if not risks_df.empty:
                                         lines = []
                                         for _, r in risks_df.iterrows():
@@ -1587,89 +1581,68 @@ with main_col:
                                             lines.append(f"- {title} | הסתברות: {prob}/5 | השפעה: {impact}/5 | קטגוריה: {category} | סטטוס: {status} | הערות: {notes}")
                                         risks_summary = "\n".join(lines)
                                     else:
-                                        risks_summary = f"אין סיכונים לפרויקט {proj_filter}"
+                                        risks_summary = "אין סיכונים לפרויקט זה"
                                 except Exception as e:
                                     risks_summary = f"שגיאה: {str(e)}"
 
-                                # ── משימות פרויקט מ-tasks.xlsx (לא Azure) ──
-                                # עמודות: project_name, description, status, responsible, start_date, due_date, notes
-                                proj_tasks_summary = "אין משימות"
+                                # ── משימות פרויקט פנימיות (tasks.xlsx) ──
+                                proj_tasks_summary = "לא נטענו נתונים"
                                 try:
-                                    tasks_df = pd.read_excel("tasks.xlsx")
-                                    tasks_df["project_name"] = tasks_df["project_name"].astype(str).str.strip()
-                                    if proj_filter:
-                                        tasks_df = tasks_df[tasks_df["project_name"] == proj_filter]
+                                    tasks_df = filter_df(pd.read_excel("tasks.xlsx"))
                                     if not tasks_df.empty:
                                         lines = []
                                         for _, r in tasks_df.iterrows():
-                                            desc    = str(r.get("description", "") or "")
-                                            status  = str(r.get("status", "") or "")
-                                            resp    = str(r.get("responsible", "") or "")
-                                            due     = str(r.get("due_date", "") or "")[:10]
-                                            notes   = str(r.get("notes", "") or "")[:60]
+                                            desc   = str(r.get("description", "") or "")
+                                            status = str(r.get("status", "") or "")
+                                            resp   = str(r.get("responsible", "") or "")
+                                            due    = str(r.get("due_date", "") or "")[:10]
+                                            notes  = str(r.get("notes", "") or "")[:60]
                                             lines.append(f"- {desc} | סטטוס: {status} | אחראי: {resp} | יעד: {due} | הערות: {notes}")
                                         proj_tasks_summary = "\n".join(lines)
                                     else:
-                                        proj_tasks_summary = f"אין משימות לפרויקט {proj_filter}"
+                                        proj_tasks_summary = "אין משימות לפרויקט זה"
                                 except Exception as e:
                                     proj_tasks_summary = f"שגיאה: {str(e)}"
 
-                                # ── בניית הפרומפט — מבנה XML לפי דוקומנטציית Gemini ──
-                                # הוראות בסוף הפרומפט לפי המלצת Google
-                                focus_line = f"הפרויקט הנבחר לניתוח: {proj_filter}" if proj_filter else "נתח את כל הפרויקטים"
+                                focus_line = f"הפרויקט הנבחר: {proj_filter}" if proj_filter else "נתח את כל הפרויקטים"
 
-                                prompt = f"""<data>
+                                prompt = f"""אתה עוזר AI בכיר לניהול פרויקטים. {focus_line}.
 
-<projects>
+להלן נתוני הפרויקט:
+
+=== פרויקטים ===
 {projects_summary}
-</projects>
 
-<meetings_today>
+=== פגישות היום ===
 {meetings_summary}
-</meetings_today>
 
-<reminders_today>
+=== תזכורות היום ===
 {reminders_summary}
-</reminders_today>
 
-<azure_devops_tasks>
-הערה: אלו משימות ממערכת Azure DevOps החיצונית — לא קשורות ישירות לנתוני הפרויקט הפנימי.
+=== משימות Azure DevOps (מערכת חיצונית) ===
 {azure_tasks_summary}
-</azure_devops_tasks>
 
-<fathom_meeting_summaries>
+=== סיכומי פגישות Fathom ===
 {fathom_summaries}
-</fathom_meeting_summaries>
 
-<work_plan>
+=== תוכנית עבודה ===
 {workplan_summary}
-</work_plan>
 
-<team_resources>
+=== משאבי צוות ===
 {resources_summary}
-</team_resources>
 
-<risks>
+=== סיכונים ===
 {risks_summary}
-</risks>
 
-<project_tasks>
-הערה: אלו משימות מתוך מערכת ניהול הפרויקט הפנימית (tasks.xlsx) — שונות מ-Azure DevOps.
+=== משימות פרויקט פנימיות ===
 {proj_tasks_summary}
-</project_tasks>
 
-</data>
+ענה על השאלה הבאה בעברית עסקית רהוטה.
+השתמש רק בנתונים הרלוונטיים לשאלה מתוך הקטגוריות לעיל.
+אם נתונים מקטגוריות שונות קשורים זה לזה — צלב ביניהם.
+אל תפרט קטגוריות שאינן רלוונטיות לשאלה.
 
-<instructions>
-אתה עוזר AI בכיר לניהול פרויקטים.
-{focus_line}
-השתמש בכל הנתונים שסופקו ב-<data> לעיל לצורך הניתוח.
-אם קיים מידע בקטגוריה מסוימת — הצג אותו והסבר את משמעותו.
-אם קטגוריה מכילה "אין" או "שגיאה" — ציין זאת בקצרה בלבד.
-צלב מידע בין מקורות שונים כשרלוונטי.
-ענה בעברית עסקית רהוטה.
-שאלה: {q_in}
-</instructions>"""
+שאלה: {q_in}"""
 
                                 response = model.generate_content(prompt)
                                 st.session_state.ai_response = response.text
