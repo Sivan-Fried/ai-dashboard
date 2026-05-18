@@ -1519,9 +1519,7 @@ with main_col:
                 )
 
                 # ── היסטוריית ניתוחים — מתחת לשאלה, מעל הכפתור ─────────────────
-                # בדיוק כמו בסיכונים: fathom-row-ui + overlay שקוף
-                # כשרשומה פתוחה — components.html מוצג לפני fathom-row
-                # כך ה-CSS selector תמיד עובד: fathom-row + overlay סמוכים
+                # בדיוק כמו Fathom: fathom-row-ui + overlay + with st.container()
                 proj_filter_display = sel_p.strip() if sel_p != "בחר פרויקט לניתוח..." else None
                 if not main_insights_df.empty:
                     past = main_insights_df.copy()
@@ -1529,29 +1527,49 @@ with main_col:
                     if proj_filter_display:
                         past = past[past["project_name"] == proj_filter_display]
                     if not past.empty:
+                        # ── מפתח אחד משותף: שם הרשומה הפתוחה, None אם הכל סגור ──
+                        # לחיצה על פתוחה — סוגרת. לחיצה על אחרת — מחליפה ואחרת נסגרת.
+                        hist_open = "ai_hist_open"
+                        if hist_open not in st.session_state:
+                            st.session_state[hist_open] = None
+
                         for _, row in past.iloc[::-1].iterrows():
                             proj_name  = str(row.get("project_name", ""))
                             q_short    = str(row.get("question", ""))[:40]
                             date_str   = str(row.get("created_at", ""))
-                            # ── מפתח יציב — לא משתנה בין ריצות ──────────────────
+                            # ── מפתח יציב לפי פרויקט + תאריך ────────────────────
                             stable_key = f"mai_{proj_name}_{date_str}".replace(" ", "_").replace("/", "-").replace(":", "-")
-                            is_open    = st.session_state.get(stable_key, False)
+                            is_open    = (st.session_state[hist_open] == stable_key)
                             arrow      = "&#8249;" if is_open else "&#8250;"
                             row_label  = f"{proj_name} — {q_short}" if proj_name else q_short
-
-                            # ── אם פתוח — הצג תוכן לפני השורה ──────────────────
-                            # כך fathom-row + overlay נשארים סמוכים תמיד
+                            st.markdown(f"""
+                            <div class="fathom-row-ui" style="font-size:0.92rem;font-weight:normal;border-radius:12px;">
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <span class="material-symbols-rounded" style="font-size:18px;color:#64748b;">smart_toy</span>
+                                    <span style="font-size:0.88rem;">{row_label}</span>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <span style="font-size:0.72rem;color:#a1a1aa;">{date_str}</span>
+                                </div>
+                                <span style="color:#94a3b8;font-size:22px;line-height:1;flex-shrink:0;margin-right:8px;">{arrow}</span>
+                            </div>
+                            """, unsafe_allow_html=True)
+                            if st.button("", key=f"btn_{stable_key}", use_container_width=True):
+                                # אם פתוחה — סגור. אם סגורה — פתח ואחרות נסגרות.
+                                st.session_state[hist_open] = None if is_open else stable_key
+                                st.rerun()
+                            # ── עוטף ב-st.container בדיוק כמו Fathom ─────────────
                             if is_open:
-                                import html as html_module, re as re_module
-                                escaped   = html_module.escape(str(row.get("insight", "")))
-                                formatted = re_module.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
-                                formatted = re_module.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re_module.MULTILINE)
-                                formatted = re_module.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re_module.MULTILINE)
-                                formatted = formatted.replace('\n', '<br>')
-                                # ── הסרת רווחים כפולים לפני ואחרי כותרות ──────────
-                                formatted = re_module.sub(r'(<br>)+(<h3)', r'<br>\2', formatted)
-                                formatted = re_module.sub(r'(</h3>)(<br>)+', r'\1', formatted)
-                                components.html(f"""<!DOCTYPE html>
+                                with st.container():
+                                    import html as html_module, re as re_module
+                                    escaped   = html_module.escape(str(row.get("insight", "")))
+                                    formatted = re_module.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
+                                    formatted = re_module.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re_module.MULTILINE)
+                                    formatted = re_module.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re_module.MULTILINE)
+                                    formatted = formatted.replace('\r\n', '\n').replace('\r', '\n')
+                                    formatted = re_module.sub(r'\n+', '<br>', formatted)
+                                    formatted = re_module.sub(r'</h3><br\s*/?>', '</h3>', formatted)
+                                    components.html(f"""<!DOCTYPE html>
 <html dir="rtl">
 <head>
 <meta charset="utf-8"/>
@@ -1569,7 +1587,7 @@ body {{ font-family: 'Plus Jakarta Sans', sans-serif; background: transparent; d
 .ai-action-btn:hover {{ background: #FADCE6; }}
 .ai-action-btn .material-symbols-rounded {{ font-size: 16px; color: #64748b; font-family: 'Material Symbols Rounded'; -webkit-font-feature-settings: 'liga'; font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased; }}
 .ai-response-body {{ font-size: 0.9rem; color: #4e4447; line-height: 1.75; text-align: right; }}
-.ai-response-heading {{ font-size: 1rem; font-weight: 700; color: #3f3f46; margin: 8px 0 2px 0; }}
+.ai-response-heading {{ font-size: 1rem; font-weight: 700; color: #3f3f46; margin: 0 0 4px 0 !important; padding: 12px 0 0 0 !important; }}
 .ai-response-li {{ color: #4e4447; margin-bottom: 4px; list-style: none; padding-right: 14px; position: relative; display: block; }}
 .ai-response-li::before {{ content: '●'; color: #f0b8cb; position: absolute; right: 0; font-size: 10px; top: 4px; }}
 </style>
@@ -1613,23 +1631,6 @@ document.getElementById('hist-share-{stable_key}').addEventListener('click', fun
 </script>
 </body>
 </html>""", height=500, scrolling=True)
-
-                            # ── fathom-row + overlay — תמיד סמוכים ──────────────
-                            st.markdown(f"""
-                            <div class="fathom-row-ui" style="font-size:0.92rem;font-weight:normal;border-radius:12px;">
-                                <div style="display:flex;align-items:center;gap:8px;">
-                                    <span class="material-symbols-rounded" style="font-size:18px;color:#64748b;">smart_toy</span>
-                                    <span style="font-size:0.88rem;">{row_label}</span>
-                                </div>
-                                <div style="display:flex;align-items:center;gap:8px;">
-                                    <span style="font-size:0.72rem;color:#a1a1aa;">{date_str}</span>
-                                </div>
-                                <span style="color:#94a3b8;font-size:22px;line-height:1;flex-shrink:0;margin-right:8px;">{arrow}</span>
-                            </div>
-                            """, unsafe_allow_html=True)
-                            if st.button("", key=f"btn_{stable_key}", use_container_width=True):
-                                st.session_state[stable_key] = not st.session_state.get(stable_key, False)
-                                st.rerun()
 
                 # ── כפתור שליחה ─────────────────────────────────────────────────
                 col_empty, col_btn = st.columns([0.89, 0.11])
@@ -1814,10 +1815,9 @@ document.getElementById('hist-share-{stable_key}').addEventListener('click', fun
                     formatted = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', escaped)
                     formatted = re.sub(r'^#{1,3} (.+)$', r'<h3 class="ai-response-heading">\1</h3>', formatted, flags=re.MULTILINE)
                     formatted = re.sub(r'^- (.+)$', r'<li class="ai-response-li">\1</li>', formatted, flags=re.MULTILINE)
-                    formatted = formatted.replace('\n', '<br>')
-                    # ── הסרת רווחים כפולים לפני ואחרי כותרות ──────────────────
-                    formatted = re.sub(r'(<br>)+(<h3)', r'<br>\2', formatted)
-                    formatted = re.sub(r'(</h3>)(<br>)+', r'\1', formatted)
+                    formatted = formatted.replace('\r\n', '\n').replace('\r', '\n')
+                    formatted = re.sub(r'\n+', '<br>', formatted)
+                    formatted = re.sub(r'</h3><br\s*/?>', '</h3>', formatted)
                     components.html(f"""<!DOCTYPE html>
                 <html dir="rtl">
                 <head>
@@ -1836,7 +1836,7 @@ document.getElementById('hist-share-{stable_key}').addEventListener('click', fun
                 .ai-action-btn:hover {{ background: #FADCE6; }}
                 .ai-action-btn .material-symbols-rounded {{ font-size: 16px; color: #64748b; font-family: 'Material Symbols Rounded'; -webkit-font-feature-settings: 'liga'; font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased; }}
                 .ai-response-body {{ font-size: 0.9rem; color: #4e4447; line-height: 1.75; text-align: right; }}
-                .ai-response-heading {{ font-size: 1rem; font-weight: 700; color: #3f3f46; margin: 8px 0 2px 0; }}
+                .ai-response-heading {{ font-size: 1rem; font-weight: 700; color: #3f3f46; margin: 0 0 4px 0 !important; padding: 12px 0 0 0 !important; }}
                 .ai-response-li {{ color: #4e4447; margin-bottom: 4px; list-style: none; padding-right: 14px; position: relative; display: block; }}
                 .ai-response-li::before {{ content: '●'; color: #f0b8cb; position: absolute; right: 0; font-size: 10px; top: 4px; }}
                 </style>
