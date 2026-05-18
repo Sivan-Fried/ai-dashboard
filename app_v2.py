@@ -1886,3 +1886,4 @@ document.getElementById('hist-share-{stable_key}').addEventListener('click', fun
                 </html>""", height=600, scrolling=True)
                     
                     
+                    
